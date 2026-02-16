@@ -7,9 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Added Nanum Gothic for that Hangul-inspired geometric look */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nanum+Gothic:wght@700&family=Michroma&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
         
+        /* Default Light Mode Variables */
         :root {
             --bg: #ffffff;
             --text-main: #111827;
@@ -17,10 +17,9 @@
             --card: #f9fafb;
             --border: rgba(0, 0, 0, 0.05);
             --timeline: #e5e7eb;
-            /* Neon Baby Blue Color */
-            --neon-blue: #80f3ff;
         }
 
+        /* Dark Mode Variables (Activated by Device Settings) */
         @media (prefers-color-scheme: dark) {
             :root {
                 --bg: #0a0a0a;
@@ -57,39 +56,18 @@
             color: var(--text-muted);
         }
 
-        /* Neon Hangul-inspired font style */
-        .hangul-neon {
-            font-family: 'Michroma', sans-serif; /* Geometric and tech-focused */
-            color: var(--neon-blue);
-            text-shadow: 
-                0 0 5px rgba(128, 243, 255, 0.8),
-                0 0 10px rgba(128, 243, 255, 0.5),
-                0 0 20px rgba(128, 243, 255, 0.3);
-            letter-spacing: -0.05em;
-            animation: neonPulse 2s infinite alternate;
-        }
-
-        @keyframes neonPulse {
-            from { opacity: 0.9; text-shadow: 0 0 10px var(--neon-blue); }
-            to { opacity: 1; text-shadow: 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue); }
-        }
-
         .photo-card {
             background: var(--card);
             border: 1px solid var(--border);
-            transition: all 0.4s ease;
-        }
-
-        .photo-card:hover {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(128, 243, 255, 0.1);
         }
 
         .timeline-border {
             border-left: 1px solid var(--timeline);
         }
 
+        /* Text utility overrides for dynamic switching */
         .text-dynamic-muted { color: var(--text-muted); }
+        .text-dynamic-main { color: var(--text-main); }
     </style>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12 md:py-24">
@@ -101,9 +79,9 @@
                 <p class="text-xl text-dynamic-muted mt-2">Business Administration & Electrical Engineering</p>
                 <div class="flex flex-wrap gap-4 mt-6 text-sm text-dynamic-muted">
                     <span><i class="fa-solid fa-location-dot mr-2"></i>Frankfurt</span>
-                    <a href="mailto:sainijasaman@gmail.com" class="hover:text-blue-400 transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
-                    <a href="https://linkedin.com/in/sainijasaman" target="_blank" class="hover:text-blue-400 transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
-                    <a href="https://m.blog.naver.com/sai-do" target="_blank" class="hover:text-blue-400 transition-colors"><i class="fa-solid fa-camera-retro mr-2"></i>Photography</a>
+                    <a href="mailto:sainijasaman@gmail.com" class="hover:text-blue-500 transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+                    <a href="https://linkedin.com/in/sainijasaman" target="_blank" class="hover:text-blue-500 transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+                    <a href="https://m.blog.naver.com/sai-do" target="_blank" class="hover:text-blue-500 transition-colors"><i class="fa-solid fa-camera-retro mr-2"></i>Photography</a>
                 </div>
             </div>
             <div class="text-right hidden md:block">
@@ -200,12 +178,12 @@
         </h2>
         
         <a href="https://m.blog.naver.com/sai-do" target="_blank" class="block group">
-            <div class="photo-card p-8 rounded-2xl flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
-                <div class="flex items-center gap-8">
-                    <div class="w-14 h-14 bg-zinc-100 dark:bg-white/5 rounded-full flex items-center justify-center text-xl text-dynamic-muted">📸</div>
-                    <h3 class="text-4xl hangul-neon font-bold group-hover:scale-105 transition-transform">B | UE</h3>
+            <div class="photo-card p-6 rounded-2xl flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+                <div class="flex items-center gap-6">
+                    <div class="w-12 h-12 bg-zinc-100 dark:bg-white/5 rounded-full flex items-center justify-center text-xl">📸</div>
+                    <h3 class="text-2xl font-medium tracking-tighter">B | UE</h3>
                 </div>
-                <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-2 transition-all"></i>
+                <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
             </div>
         </a>
     </section>
