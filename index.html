@@ -7,46 +7,89 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        /* Added Nanum Gothic for that Hangul-inspired geometric look */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nanum+Gothic:wght@700&family=Michroma&display=swap');
         
         :root {
-            --bg: #0a0a0a;
-            --card: #141414;
-            --accent: #ffffff;
+            --bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --card: #f9fafb;
+            --border: rgba(0, 0, 0, 0.05);
+            --timeline: #e5e7eb;
+            /* Neon Baby Blue Color */
+            --neon-blue: #80f3ff;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0a0a0a;
+                --text-main: #ffffff;
+                --text-muted: #a1a1aa;
+                --card: #141414;
+                --border: rgba(255, 255, 255, 0.05);
+                --timeline: #27272a;
+            }
         }
 
         body {
             background-color: var(--bg);
-            color: #ffffff;
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .glass {
             background: var(--card);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .glass:hover {
-            border-color: rgba(255, 255, 255, 0.2);
+            border-color: rgba(125, 125, 125, 0.3);
             transform: translateY(-4px);
-            background: rgba(255, 255, 255, 0.04);
         }
 
         .badge {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Neon Hangul-inspired font style */
+        .hangul-neon {
+            font-family: 'Michroma', sans-serif; /* Geometric and tech-focused */
+            color: var(--neon-blue);
+            text-shadow: 
+                0 0 5px rgba(128, 243, 255, 0.8),
+                0 0 10px rgba(128, 243, 255, 0.5),
+                0 0 20px rgba(128, 243, 255, 0.3);
+            letter-spacing: -0.05em;
+            animation: neonPulse 2s infinite alternate;
+        }
+
+        @keyframes neonPulse {
+            from { opacity: 0.9; text-shadow: 0 0 10px var(--neon-blue); }
+            to { opacity: 1; text-shadow: 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue); }
         }
 
         .photo-card {
-            background: linear-gradient(to bottom right, #1a1a1a, #0a0a0a);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--card);
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        .photo-card:hover {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(128, 243, 255, 0.1);
         }
 
         .timeline-border {
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 1px solid var(--timeline);
         }
+
+        .text-dynamic-muted { color: var(--text-muted); }
     </style>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12 md:py-24">
@@ -55,149 +98,149 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
                 <h1 class="text-4xl font-semibold tracking-tight">Jasaman Saini</h1>
-                <p class="text-xl text-zinc-400 mt-2">Business Administration & Electrical Engineering</p>
-                <div class="flex flex-wrap gap-4 mt-6 text-sm text-zinc-500">
+                <p class="text-xl text-dynamic-muted mt-2">Business Administration & Electrical Engineering</p>
+                <div class="flex flex-wrap gap-4 mt-6 text-sm text-dynamic-muted">
                     <span><i class="fa-solid fa-location-dot mr-2"></i>Frankfurt</span>
-                    <a href="mailto:sainijasaman@gmail.com" class="hover:text-white transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
-                    <a href="https://linkedin.com/in/sainijasaman" target="_blank" class="hover:text-white transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
-                    <a href="https://m.blog.naver.com/sai-do" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-camera-retro mr-2"></i>Photography</a>
+                    <a href="mailto:sainijasaman@gmail.com" class="hover:text-blue-400 transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
+                    <a href="https://linkedin.com/in/sainijasaman" target="_blank" class="hover:text-blue-400 transition-colors"><i class="fa-brands fa-linkedin mr-2"></i>LinkedIn</a>
+                    <a href="https://m.blog.naver.com/sai-do" target="_blank" class="hover:text-blue-400 transition-colors"><i class="fa-solid fa-camera-retro mr-2"></i>Photography</a>
                 </div>
             </div>
             <div class="text-right hidden md:block">
-                <p class="text-xs uppercase tracking-widest text-zinc-500 mb-1">Status</p>
-                <span class="text-sm font-medium px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Available for Opportunities</span>
+                <p class="text-xs uppercase tracking-widest text-dynamic-muted mb-1">Status</p>
+                <span class="text-sm font-medium px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">Available for Opportunities</span>
             </div>
         </div>
     </header>
 
     <section class="mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold mb-8 flex items-center">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-8 flex items-center">
             <span class="mr-4">Professional Experience</span>
-            <div class="h-[1px] bg-zinc-800 flex-grow"></div>
+            <div class="h-[1px] bg-zinc-200 dark:bg-zinc-800 flex-grow"></div>
         </h2>
 
         <div class="space-y-8 timeline-border ml-2 pl-6">
             <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-white"></div>
-                <p class="text-xs text-zinc-500 mb-1">11/2023 — Present</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-900 dark:bg-white border border-white dark:border-zinc-900"></div>
+                <p class="text-xs text-dynamic-muted mb-1">11/2023 — Present</p>
                 <h3 class="text-lg font-medium">Consultant @ x-markets</h3>
-                <p class="text-sm text-zinc-400 font-light italic">Eschborn, Germany</p>
+                <p class="text-sm text-dynamic-muted font-light italic">Eschborn, Germany</p>
             </div>
 
             <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-700"></div>
-                <p class="text-xs text-zinc-500 mb-1">09/2024 — 03/2025</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
+                <p class="text-xs text-dynamic-muted mb-1">09/2024 — 03/2025</p>
                 <h3 class="text-lg font-medium">Visiting Student Researcher @ KAIST Technology Innovation Lab</h3>
-                <p class="text-sm text-zinc-400 font-light italic">Daejeon, South Korea</p>
+                <p class="text-sm text-dynamic-muted font-light italic">Daejeon, South Korea</p>
             </div>
 
             <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-700"></div>
-                <p class="text-xs text-zinc-500 mb-1">04/2021 — 07/2022</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
+                <p class="text-xs text-dynamic-muted mb-1">04/2021 — 07/2022</p>
                 <h3 class="text-lg font-medium">Working Student Business Analysis @ CGI</h3>
-                <p class="text-sm text-zinc-400 font-light italic">Munich, Germany</p>
+                <p class="text-sm text-dynamic-muted font-light italic">Munich, Germany</p>
             </div>
 
             <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-700"></div>
-                <p class="text-xs text-zinc-500 mb-1">03/2020 — 07/2020</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
+                <p class="text-xs text-dynamic-muted mb-1">03/2020 — 07/2020</p>
                 <h3 class="text-lg font-medium">Intern Project Management @ MAN Energy Solutions</h3>
-                <p class="text-sm text-zinc-400 font-light italic">Augsburg, Germany</p>
+                <p class="text-sm text-dynamic-muted font-light italic">Augsburg, Germany</p>
             </div>
         </div>
     </section>
 
     <section class="mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold mb-8 flex items-center">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-8 flex items-center">
             <span class="mr-4">Education</span>
-            <div class="h-[1px] bg-zinc-800 flex-grow"></div>
+            <div class="h-[1px] bg-zinc-200 dark:bg-zinc-800 flex-grow"></div>
         </h2>
 
         <div class="grid gap-4">
             <div class="glass p-5 rounded-xl">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-medium text-lg">Technical University of Darmstadt</h3>
-                    <span class="text-xs text-zinc-500">2021 — 2025</span>
+                    <span class="text-xs text-dynamic-muted">2021 — 2025</span>
                 </div>
-                <p class="text-zinc-400 text-sm">M.Sc. Business Administration and Engineering (Electrical Engineering)</p>
-                <p class="text-xs text-zinc-500 mt-2 italic">Final grade: 1.6 | Master's thesis: The Role of Venture Capital in Deep Tech (1.0)</p>
+                <p class="text-dynamic-muted text-sm">M.Sc. Business Administration and Engineering (Electrical Engineering)</p>
+                <p class="text-xs text-dynamic-muted mt-2 italic">Final grade: 1.6 | Master's thesis: The Role of Venture Capital in Deep Tech (1.0)</p>
             </div>
 
             <div class="glass p-5 rounded-xl">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-medium text-lg">KAIST (Daejeon, South Korea)</h3>
-                    <span class="text-xs text-zinc-500">2022 — 2023</span>
+                    <span class="text-xs text-dynamic-muted">2022 — 2023</span>
                 </div>
-                <p class="text-zinc-400 text-sm">Exchange year – School of Electrical Engineering</p>
+                <p class="text-dynamic-muted text-sm">Exchange year – School of Electrical Engineering</p>
             </div>
 
             <div class="glass p-5 rounded-xl">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-medium text-lg">Technical University of Applied Sciences Augsburg</h3>
-                    <span class="text-xs text-zinc-500">2017 — 2021</span>
+                    <span class="text-xs text-dynamic-muted">2017 — 2021</span>
                 </div>
-                <p class="text-zinc-400 text-sm">B.Eng. International Management and Engineering (Electrical Engineering)</p>
-                <p class="text-xs text-zinc-500 mt-2 italic">Final grade: 2.2 | Bachelor's thesis: The Potential of Machine Learning in Insurance (1.0)</p>
+                <p class="text-dynamic-muted text-sm">B.Eng. International Management and Engineering (Electrical Engineering)</p>
+                <p class="text-xs text-dynamic-muted mt-2 italic">Final grade: 2.2 | Bachelor's thesis: The Potential of Machine Learning in Insurance (1.0)</p>
             </div>
 
             <div class="glass p-5 rounded-xl">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="font-medium text-lg">Soongsil University (Seoul, South Korea)</h3>
-                    <span class="text-xs text-zinc-500">2019</span>
+                    <span class="text-xs text-dynamic-muted">2019</span>
                 </div>
-                <p class="text-zinc-400 text-sm">Exchange semester – School of Business Administration</p>
+                <p class="text-dynamic-muted text-sm">Exchange semester – School of Business Administration</p>
             </div>
         </div>
     </section>
 
     <section class="mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold mb-6 flex items-center">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-6 flex items-center">
             <span class="mr-4">Creative Work</span>
-            <div class="h-[1px] bg-zinc-800 flex-grow"></div>
+            <div class="h-[1px] bg-zinc-200 dark:bg-zinc-800 flex-grow"></div>
         </h2>
         
         <a href="https://m.blog.naver.com/sai-do" target="_blank" class="block group">
-            <div class="photo-card p-6 rounded-2xl flex items-center justify-between group-hover:border-white/30 transition-all">
-                <div class="flex items-center gap-6">
-                    <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-xl">📸</div>
-                    <h3 class="text-2xl font-medium tracking-tighter group-hover:text-white">B | UE</h3>
+            <div class="photo-card p-8 rounded-2xl flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all">
+                <div class="flex items-center gap-8">
+                    <div class="w-14 h-14 bg-zinc-100 dark:bg-white/5 rounded-full flex items-center justify-center text-xl text-dynamic-muted">📸</div>
+                    <h3 class="text-4xl hangul-neon font-bold group-hover:scale-105 transition-transform">B | UE</h3>
                 </div>
-                <i class="fa-solid fa-arrow-right text-zinc-600 group-hover:translate-x-1 group-hover:text-white transition-all"></i>
+                <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-2 transition-all"></i>
             </div>
         </a>
     </section>
 
     <section class="mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold mb-6 flex items-center">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-6 flex items-center">
             <span class="mr-4">Skills & Additional Qualifications</span>
-            <div class="h-[1px] bg-zinc-800 flex-grow"></div>
+            <div class="h-[1px] bg-zinc-200 dark:bg-zinc-800 flex-grow"></div>
         </h2>
         
         <div class="grid md:grid-cols-2 gap-8">
             <div>
-                <p class="text-xs text-zinc-500 mb-4 uppercase tracking-widest">Languages</p>
+                <p class="text-xs text-dynamic-muted mb-4 uppercase tracking-widest">Languages</p>
                 <div class="flex flex-wrap gap-2">
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">German (Native)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">Punjabi (Native, Oral)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">English (Business Fluent / C1)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">Korean (Basic)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">German (Native)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">Punjabi (Native, Oral)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">English (Business Fluent / C1)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">Korean (Basic)</span>
                 </div>
             </div>
             <div>
-                <p class="text-xs text-zinc-500 mb-4 uppercase tracking-widest">Technical & IT</p>
+                <p class="text-xs text-dynamic-muted mb-4 uppercase tracking-widest">Technical & IT</p>
                 <div class="flex flex-wrap gap-2">
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">Python (Basic)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">MATLAB (Basic)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">PLECS (Basic)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">MS Office (Advanced)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">Machine Learning (DeepLearning.AI)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs text-zinc-300">Six Sigma DMAIC</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">Python (Basic)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">MATLAB (Basic)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">PLECS (Basic)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">MS Office (Advanced)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">Machine Learning (DeepLearning.AI)</span>
+                    <span class="badge px-3 py-1 rounded-full text-xs">Six Sigma DMAIC</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="pt-12 border-t border-zinc-900 flex justify-between items-center text-zinc-600 text-[10px] uppercase tracking-widest">
+    <footer class="pt-12 border-t border-zinc-200 dark:border-zinc-900 flex justify-between items-center text-dynamic-muted text-[10px] uppercase tracking-widest">
         <p>© 2026 Jasaman Saini</p>
         <p>Augsburg • Frankfurt • Seoul</p>
     </footer>
