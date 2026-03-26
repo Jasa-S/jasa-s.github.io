@@ -57,24 +57,22 @@
         .bar-nav-btn:hover { color: var(--cosmic-purple); }
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
 
-        /* Centred content with sidebar floating outside the flow */
+        /* Centred content, sidebar fixed outside flow */
         #page-wrap {
             position: relative;
             max-width: 48rem;
             margin: 0 auto;
             padding: 5rem 1.5rem 0;
         }
-        #sidebar {
-            display: none;
-        }
+        #sidebar { display: none; }
         @media (min-width: 900px) {
             #sidebar {
                 display: block;
-                position: absolute;
-                right: calc(100% + 1.5rem);
-                top: 5rem;
+                position: fixed;
+                left: calc(50% - 24rem - 1.5rem - 8rem);
+                top: 5.5rem;
+                width: 8rem;
             }
-            #sidebar-inner { position: sticky; top: 5.5rem; }
             .sidebar-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--text-muted); margin-bottom: 0.4rem; }
             .sidebar-category { font-size: 0.78rem; font-weight: 500; color: var(--cosmic-purple); line-height: 1.4; white-space: nowrap; }
         }
@@ -120,14 +118,12 @@
         </button>
     </div>
 
-    <div id="page-wrap">
-        <div id="sidebar">
-            <div id="sidebar-inner">
-                <div class="sidebar-label">Camera</div>
-                <div id="sidebar-category" class="sidebar-category"></div>
-            </div>
-        </div>
+    <div id="sidebar">
+        <div class="sidebar-label">Camera</div>
+        <div id="sidebar-category" class="sidebar-category"></div>
+    </div>
 
+    <div id="page-wrap">
         <div id="mobile-category" class="mobile-category"></div>
         <div class="post-title" id="post-title"></div>
         <div class="post-meta" id="post-meta"></div>
