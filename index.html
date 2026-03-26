@@ -61,7 +61,8 @@
         .footer-border { border-top: 1px solid var(--timeline); }
 
         #theme-toggle {
-            position: fixed;
+            /* mobile: sits in normal flow, top-right of the page */
+            position: absolute;
             top: 1.25rem;
             right: 1.5rem;
             z-index: 50;
@@ -75,13 +76,17 @@
             padding: 0.25rem;
             line-height: 1;
         }
+        /* desktop: stick to viewport */
+        @media (min-width: 768px) {
+            #theme-toggle { position: fixed; }
+        }
         #theme-toggle:hover {
             opacity: 1;
             transform: rotate(20deg) scale(1.2);
         }
     </style>
 </head>
-<body class="max-w-3xl mx-auto px-6 py-12 md:py-24">
+<body class="max-w-3xl mx-auto px-6 py-12 md:py-24" style="position:relative;">
 
     <button id="theme-toggle" aria-label="Toggle dark mode">
         <i id="theme-icon" class="fa-solid fa-moon"></i>
