@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BlUE | Jasaman Saini</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
         :root {
@@ -38,16 +38,13 @@
             color: var(--text-muted); font-size: 0.75rem; text-decoration: none;
             padding: 0.2rem 0.3rem; border-radius: 999px; transition: color 0.2s;
         }
-        .bar-back:hover { color: var(--cosmic-purple); }
         .bar-back .back-arrow { transition: transform 0.2s; }
-        .bar-back:hover .back-arrow { transform: translateX(-2px); }
         .bar-btn {
             background: none; border: none; border-radius: 999px;
             padding: 0.25rem 0.4rem; cursor: pointer; color: var(--text-muted);
             transition: color 0.2s, background 0.2s; line-height: 1;
             display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
         }
-        .bar-btn:hover { color: var(--cosmic-purple); }
         #page { max-width: 48rem; margin: 0 auto; padding: 5rem 1.5rem 0; }
         .photo-grid {
             display: grid;
@@ -66,19 +63,25 @@
             width: 100%; height: 100%; object-fit: cover; display: block;
             transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
         }
-        .grid-tile:hover img { transform: scale(1.05); }
         .grid-tile-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0);
             transition: background 0.3s; display: flex; align-items: flex-end; padding: 0.6rem;
         }
-        .grid-tile:hover .grid-tile-overlay { background: rgba(0,0,0,0.28); }
         .grid-tile-label {
             color: white; font-size: 0.7rem; font-weight: 500;
             opacity: 0; transform: translateY(4px);
             transition: opacity 0.25s, transform 0.25s;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6); line-height: 1.3;
         }
-        .grid-tile:hover .grid-tile-label { opacity: 1; transform: translateY(0); }
+        /* hover effects only on real pointer devices — never fires on touch */
+        @media (hover: hover) and (pointer: fine) {
+            .bar-back:hover { color: var(--cosmic-purple); }
+            .bar-back:hover .back-arrow { transform: translateX(-2px); }
+            .bar-btn:hover { color: var(--cosmic-purple); }
+            .grid-tile:hover img { transform: scale(1.05); }
+            .grid-tile:hover .grid-tile-overlay { background: rgba(0,0,0,0.28); }
+            .grid-tile:hover .grid-tile-label { opacity: 1; transform: translateY(0); }
+        }
         footer {
             padding: 1.5rem 0;
             margin-top: 3rem;

@@ -64,9 +64,7 @@
             color: var(--text-muted); font-size: 0.75rem; text-decoration: none;
             padding: 0.2rem 0.3rem; border-radius: 999px; transition: color 0.2s;
         }
-        .bar-back:hover { color: var(--cosmic-purple); }
         .bar-back .back-arrow { transition: transform 0.2s; }
-        .bar-back:hover .back-arrow { transform: translateX(-2px); }
 
         .bar-btn {
             background: none; border: none; border-radius: 999px;
@@ -74,8 +72,16 @@
             transition: color 0.2s, background 0.2s; line-height: 1;
             display: flex; align-items: center; justify-content: center;
         }
-        .bar-btn:hover { color: var(--cosmic-purple); }
         .bar-btn.active { color: var(--cosmic-purple); background: rgba(124,58,237,0.08); }
+
+        /* hover effects only on real pointer devices — never fires on touch */
+        @media (hover: hover) and (pointer: fine) {
+            .bar-back:hover { color: var(--cosmic-purple); }
+            .bar-back:hover .back-arrow { transform: translateX(-2px); }
+            .bar-btn:hover { color: var(--cosmic-purple); }
+            .photo-item:hover img { transform: scale(1.04); }
+            .photo-item:hover .photo-caption { opacity: 1; }
+        }
 
         .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5px; width: 12px; height: 12px; }
         .icon-grid span { display: block; background: currentColor; border-radius: 1px; }
@@ -132,13 +138,11 @@
             aspect-ratio: 4/3; background: var(--card); cursor: pointer;
         }
         .photo-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
-        .photo-item:hover img { transform: scale(1.04); }
         .photo-caption {
             position: absolute; bottom: 0; left: 0; right: 0; padding: 0.75rem;
             background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
             color: white; font-size: 0.75rem; opacity: 0; transition: opacity 0.3s ease;
         }
-        .photo-item:hover .photo-caption { opacity: 1; }
 
         #feed-view { display: none; }
         #feed-view.active { display: block; }
