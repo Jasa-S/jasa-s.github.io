@@ -54,7 +54,9 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 3px;
         }
-        @media (min-width: 640px) { .photo-grid { gap: 4px; } }
+        @media (min-width: 640px) {
+            .photo-grid { gap: 4px; grid-template-columns: repeat(4, 1fr); }
+        }
         .grid-tile {
             aspect-ratio: 1 / 1; overflow: hidden; cursor: pointer;
             background: var(--card); position: relative; display: block;
