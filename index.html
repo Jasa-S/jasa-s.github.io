@@ -206,7 +206,7 @@
         <div class="flex flex-col gap-3">
             <a href="blue.html" class="block group">
                 <div class="photo-card p-6 rounded-2xl flex items-center justify-between transition-all">
-                    <h3 class="text-4xl font-semibold tracking-tight flex items-center">
+                    <h3 class="text-3xl font-medium tracking-tight flex items-center">
                         <span class="icon-globe">&#127757;</span>BlUE
                     </h3>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
@@ -215,7 +215,7 @@
             <!-- S-VENR hidden until ready -->
             <a href="s-venr.html" class="block group" style="display:none;">
                 <div class="photo-card p-6 rounded-2xl flex items-center justify-between transition-all">
-                    <h3 class="text-4xl font-semibold tracking-tight">S-VENR</h3>
+                    <h3 class="text-3xl font-medium tracking-tight">S-VENR</h3>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
                 </div>
             </a>
@@ -254,7 +254,7 @@
 
     <footer class="pt-12 footer-border flex justify-between items-center text-dynamic-muted text-[10px] uppercase tracking-widest">
         <p>&copy; 2026 Jasaman Saini</p>
-        <p id="sp500-ticker">S&amp;P 500 &mdash;</p>
+        <p id="sp500-ticker">S&amp;P 500</p>
     </footer>
 
     <script>
@@ -288,13 +288,10 @@
                     var arrow  = up ? '&#9650;' : '&#9660;';
                     var sign   = up ? '+' : '';
                     var cls    = up ? 'spx-up' : 'spx-down';
-                    ticker.innerHTML =
-                        'S&amp;P 500 &nbsp;'
-                        + price.toFixed(2)
-                        + ' &nbsp;<span class="' + cls + '">' + arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + pct.toFixed(2) + '%)</span>';
+                    ticker.innerHTML = 'S&amp;P 500 &nbsp;<span class="' + cls + '">' + arrow + ' ' + sign + pct.toFixed(2) + '%</span>';
                 })
                 .catch(function() {
-                    ticker.textContent = 'S&P 500 — unavailable';
+                    ticker.textContent = 'S&P 500';
                 });
         })();
     </script>

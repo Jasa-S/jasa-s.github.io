@@ -73,7 +73,6 @@
             transition: opacity 0.25s, transform 0.25s;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6); line-height: 1.3;
         }
-        /* hover effects only on real pointer devices — never fires on touch */
         @media (hover: hover) and (pointer: fine) {
             .bar-back:hover { color: var(--cosmic-purple); }
             .bar-back:hover .back-arrow { transform: translateX(-2px); }
@@ -117,7 +116,7 @@
 
     <div id="page">
         <header class="mb-12">
-            <h1 class="text-4xl font-semibold tracking-tight flex items-center">
+            <h1 class="text-3xl font-medium tracking-tight flex items-center">
                 <span class="icon-globe">&#127757;</span>BlUE
             </h1>
         </header>
