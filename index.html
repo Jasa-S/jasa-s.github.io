@@ -99,6 +99,7 @@
         .icon-globe {
             display: inline-block;
             animation: spin-globe 8s linear infinite;
+            margin-right: 0.5rem;
         }
 
         #sp500-ticker { letter-spacing: 0.1em; }
@@ -205,22 +206,16 @@
         <div class="flex flex-col gap-3">
             <a href="blue.html" class="block group">
                 <div class="photo-card p-6 rounded-2xl flex items-center justify-between transition-all">
-                    <div class="flex items-center gap-6">
-                        <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">
-                            <span class="icon-globe">&#127757;</span>
-                        </div>
-                        <h3 class="text-2xl font-medium tracking-widest">BlUE</h3>
-                    </div>
+                    <h3 class="text-4xl font-semibold tracking-tight flex items-center">
+                        <span class="icon-globe">&#127757;</span>BlUE
+                    </h3>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
                 </div>
             </a>
             <!-- S-VENR hidden until ready -->
             <a href="s-venr.html" class="block group" style="display:none;">
                 <div class="photo-card p-6 rounded-2xl flex items-center justify-between transition-all">
-                    <div class="flex items-center gap-6">
-                        <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">&#128248;</div>
-                        <h3 class="text-2xl font-medium tracking-widest">S-VENR</h3>
-                    </div>
+                    <h3 class="text-4xl font-semibold tracking-tight">S-VENR</h3>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
                 </div>
             </a>
