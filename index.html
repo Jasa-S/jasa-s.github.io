@@ -17,6 +17,7 @@
             --text-main: #111827;
             --text-muted: #6b7280;
             --card: #f9fafb;
+            --card-hover: #f0f0f0;
             --border: rgba(0,0,0,0.05);
             --timeline: #e5e7eb;
             --cosmic-purple: #7C3AED;
@@ -27,6 +28,7 @@
             --text-main: #ffffff;
             --text-muted: #a1a1aa;
             --card: #141414;
+            --card-hover: #1e1e1e;
             --border: rgba(255,255,255,0.05);
             --timeline: #27272a;
         }
@@ -56,6 +58,10 @@
         .photo-card {
             background: var(--card);
             border: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        .photo-card:hover {
+            background: var(--card-hover);
         }
         .timeline-border { border-left: 1px solid var(--timeline); }
         .text-dynamic-muted { color: var(--text-muted); }
@@ -198,7 +204,7 @@
         </h2>
         <div class="flex flex-col gap-3">
             <a href="blue.html" class="block group">
-                <div class="photo-card p-6 rounded-2xl flex items-center justify-between hover:bg-zinc-50 transition-all">
+                <div class="photo-card p-6 rounded-2xl flex items-center justify-between transition-all">
                     <div class="flex items-center gap-6">
                         <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">
                             <span class="icon-globe">&#127757;</span>
@@ -210,7 +216,7 @@
             </a>
             <!-- S-VENR hidden until ready -->
             <a href="s-venr.html" class="block group" style="display:none;">
-                <div class="photo-card p-6 rounded-2xl flex items-center justify-between hover:bg-zinc-50 transition-all">
+                <div class="photo-card p-6 rounded-2xl flex items-center justify-between transition-all">
                     <div class="flex items-center gap-6">
                         <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">&#128248;</div>
                         <h3 class="text-2xl font-medium uppercase tracking-widest">S-VENR</h3>
