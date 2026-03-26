@@ -48,7 +48,7 @@
             display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
         }
         .bar-btn:hover { color: var(--cosmic-purple); }
-        #page { max-width: 48rem; margin: 0 auto; padding: 5rem 1.5rem 1.5rem; }
+        #page { max-width: 48rem; margin: 0 auto; padding: 5rem 1.5rem 0; }
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -80,8 +80,9 @@
         }
         .grid-tile:hover .grid-tile-label { opacity: 1; transform: translateY(0); }
         footer {
-            max-width: 48rem; margin: 3rem auto 0;
-            padding: 1.5rem; border-top: 1px solid var(--timeline);
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
             display: flex; justify-content: space-between;
             font-size: 0.65rem; text-transform: uppercase;
             letter-spacing: 0.15em; color: var(--text-muted);
@@ -106,12 +107,11 @@
             <h1 class="text-4xl font-semibold tracking-tight">BlUE</h1>
         </header>
         <div class="photo-grid" id="grid"></div>
+        <footer>
+            <span>&copy; 2026 Jasaman Saini</span>
+            <a href="index.html">Homepage</a>
+        </footer>
     </div>
-
-    <footer>
-        <span>&copy; 2026 Jasaman Saini</span>
-        <a href="index.html">Homepage</a>
-    </footer>
 
     <script>
     if (localStorage.getItem('theme') === 'dark') {
