@@ -72,21 +72,20 @@
         .header-inner {
             display: flex;
             flex-direction: row;
-            align-items: flex-start;
+            align-items: stretch;
             gap: 1rem;
         }
         .profile-img {
-            aspect-ratio: 1 / 1;
+            /* width is derived from height via aspect-ratio */
             width: auto;
+            height: 100%;
             align-self: stretch;
-            max-height: 60px;
+            aspect-ratio: 1 / 1;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--border);
             flex-shrink: 0;
-        }
-        @media (min-width: 768px) {
-            .profile-img { max-height: 88px; }
+            display: block;
         }
 
         #theme-toggle {
