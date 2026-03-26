@@ -91,7 +91,6 @@
 
         .photo-item:hover .photo-caption { opacity: 1; }
 
-        /* Lightbox */
         .lightbox {
             display: none;
             position: fixed;
@@ -203,12 +202,12 @@
         <div class="section-label">Istanbul &mdash; Sep 2020</div>
         <div class="photo-grid">
             <div class="photo-item" onclick="openLightbox(0)">
-                <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I02.jpg" alt="Kasap Nuri" loading="lazy">
-                <div class="photo-caption">Kasap Nuri</div>
+                <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I01.jpg" alt="Teknik Solar" loading="lazy">
+                <div class="photo-caption">Teknik Solar</div>
             </div>
             <div class="photo-item" onclick="openLightbox(1)">
-                <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I03.jpg" alt="Bosphorus Bridge" loading="lazy">
-                <div class="photo-caption">Bosphorus Bridge</div>
+                <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I02.jpg" alt="Kasap Nuri" loading="lazy">
+                <div class="photo-caption">Kasap Nuri</div>
             </div>
             <div class="photo-item" onclick="openLightbox(2)">
                 <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I04.jpg" alt="Kiz Kulesi" loading="lazy">
@@ -310,8 +309,8 @@
 
     <script>
         const photos = [
+            { full: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I01.jpg', caption: 'Teknik Solar &mdash; 23 Sep 2020' },
             { full: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I02.jpg', caption: 'Kasap Nuri &mdash; 23 Sep 2020' },
-            { full: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I03.jpg', caption: 'Bosphorus Bridge &mdash; 21 Sep 2020' },
             { full: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I04.jpg', caption: 'Kiz Kulesi &mdash; 21 Sep 2020' },
             { full: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I05.jpg', caption: 'Seagulls &mdash; 19 Sep 2020' },
             { full: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I06.jpg', caption: 'Uncharted &mdash; 19 Sep 2020' },
@@ -356,7 +355,6 @@
             document.getElementById('lightbox-info').innerHTML = p.caption;
         }
 
-        // Close on backdrop click
         document.getElementById('lightbox').addEventListener('click', function(e) {
             if (e.target === this) closeLightbox();
         });
