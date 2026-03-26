@@ -49,7 +49,13 @@
         }
         .bar-btn:hover { color: var(--cosmic-purple); }
         #page { max-width: 48rem; margin: 0 auto; padding: 5rem 1.5rem 1.5rem; }
-        h1 { font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            margin-bottom: 3rem;
+            line-height: 1.1;
+        }
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -124,10 +130,26 @@
     var BASE = 'https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/';
 
     var posts = [
-        { id: '224105519781', thumb: BASE + '224105519781_thumb.jpg', title: '' },
-        { id: '224012140603', thumb: BASE + '224012140603_thumb.jpg', title: '' }
-        // Add more posts here as you upload them:
-        // { id: 'POST_ID', thumb: BASE + 'POST_ID_thumb.jpg', title: '' },
+        { id: '224105519781', thumb: BASE + '224105519781_thumb.jpg', title: 'SUPERIA 400 | HOME' },
+        { id: '224012140603', thumb: BASE + '224012140603_thumb.jpg', title: 'Reflx Lab 400 (069)' },
+        { id: '223877679702', thumb: BASE + '223877679702_thumb.jpg', title: '' },
+        { id: '223763004365', thumb: BASE + '223763004365_thumb.jpg', title: '' },
+        { id: '223638578946', thumb: BASE + '223638578946_thumb.jpg', title: '' },
+        { id: '223207890396', thumb: BASE + '223207890396_thumb.jpg', title: '' },
+        { id: '223103649848', thumb: BASE + '223103649848_thumb.jpg', title: '' },
+        { id: '223100906215', thumb: BASE + '223100906215_thumb.jpg', title: '' },
+        { id: '223082536112', thumb: BASE + '223082536112_thumb.jpg', title: '' },
+        { id: '223081641739', thumb: BASE + '223081641739_thumb.jpg', title: '' },
+        { id: '223068994946', thumb: BASE + '223068994946_thumb.jpg', title: '' },
+        { id: '223053854704', thumb: BASE + '223053854704_thumb.jpg', title: '' },
+        { id: '223039033918', thumb: BASE + '223039033918_thumb.jpg', title: '' },
+        { id: '223037804979', thumb: BASE + '223037804979_thumb.jpg', title: '' },
+        { id: '222992056399', thumb: BASE + '222992056399_thumb.jpg', title: '' },
+        { id: '222964951577', thumb: BASE + '222964951577_thumb.jpg', title: '' },
+        { id: '222959949075', thumb: BASE + '222959949075_thumb.jpg', title: '' },
+        { id: '222871146026', thumb: BASE + '222871146026_thumb.jpg', title: '' },
+        { id: '222741287151', thumb: BASE + '222741287151_thumb.jpg', title: '' },
+        { id: '222741221176', thumb: BASE + '222741221176_thumb.jpg', title: '' }
     ];
 
     var grid = document.getElementById('grid');
