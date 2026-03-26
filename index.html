@@ -69,6 +69,15 @@
         .section-divider { height: 1px; background: var(--timeline); flex-grow: 1; }
         .footer-border { border-top: 1px solid var(--timeline); }
 
+        .profile-img {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+        }
+
         #theme-toggle {
             position: absolute;
             top: 1.25rem;
@@ -114,7 +123,7 @@
     </button>
 
     <header class="mb-16">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
                 <h1 class="text-4xl font-semibold tracking-tight">Jasaman Saini</h1>
                 <p class="text-xl text-dynamic-muted mt-2">Business Administration &amp; Electrical Engineering</p>
@@ -123,6 +132,11 @@
                     <a href="mailto:sainijasaman@gmail.com" class="hover:text-[#7C3AED] transition-colors"><i class="fa-solid fa-envelope mr-2"></i>Email</a>
                 </div>
             </div>
+            <img
+                src="https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/profileImage.png"
+                alt="Jasaman Saini"
+                class="profile-img"
+            >
         </div>
     </header>
 
