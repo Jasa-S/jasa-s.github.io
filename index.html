@@ -208,7 +208,8 @@
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
                 </div>
             </a>
-            <a href="s-venr.html" class="block group">
+            <!-- S-VENR hidden until ready -->
+            <a href="s-venr.html" class="block group" style="display:none;">
                 <div class="photo-card p-6 rounded-2xl flex items-center justify-between hover:bg-zinc-50 transition-all">
                     <div class="flex items-center gap-6">
                         <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">&#128248;</div>
@@ -271,7 +272,6 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
 
-        // Live S&P 500 via Yahoo Finance (proxied through corsproxy.io to bypass CORS)
         (function fetchSPX() {
             var ticker = document.getElementById('sp500-ticker');
             var url = 'https://corsproxy.io/?' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1d&range=1d');

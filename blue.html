@@ -91,6 +91,16 @@
             letter-spacing: 0.15em; color: var(--text-muted);
         }
         footer a { color: var(--text-muted); text-decoration: none; }
+        @keyframes spin-globe {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        .icon-globe {
+            display: inline-block;
+            animation: spin-globe 8s linear infinite;
+            margin-right: 0.5rem;
+            font-style: normal;
+        }
     </style>
 </head>
 <body>
@@ -107,7 +117,9 @@
 
     <div id="page">
         <header class="mb-12">
-            <h1 class="text-4xl font-semibold tracking-tight">BlUE</h1>
+            <h1 class="text-4xl font-semibold tracking-tight flex items-center">
+                <span class="icon-globe">&#127757;</span>BlUE
+            </h1>
         </header>
         <div class="photo-grid" id="grid"></div>
         <footer>
