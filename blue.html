@@ -23,7 +23,6 @@
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
-        /* STICKY BAR */
         #sticky-bar {
             position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
             z-index: 500; display: flex; align-items: center; gap: 0.35rem;
@@ -49,7 +48,6 @@
             display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
         }
         .bar-btn:hover { color: var(--cosmic-purple); }
-        /* GRID */
         #page { max-width: 48rem; margin: 0 auto; padding: 5rem 1.5rem 1.5rem; }
         h1 { font-size: 2.2rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
         .photo-grid {
@@ -113,7 +111,6 @@
     </footer>
 
     <script>
-    // THEME
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark');
         document.getElementById('theme-icon').className = 'fa-solid fa-sun';
@@ -124,22 +121,15 @@
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
 
-    // POSTS — add/remove entries here.
-    // thumb: square crop shown in the grid
-    // Keep this list in the order you want them to appear (newest first recommended)
+    var BASE = 'https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/';
+
     var posts = [
-        { id: 'ffm-01',    thumb: 'https://placehold.co/600x600/e8e3db/888?text=01', title: 'Along the Main',      date: 'Mar 2025', location: 'Frankfurt' },
-        { id: 'ffm-02',    thumb: 'https://placehold.co/600x600/d5dce8/888?text=02', title: 'Sachsenhausen',       date: 'Feb 2025', location: 'Frankfurt' },
-        { id: 'ffm-03',    thumb: 'https://placehold.co/600x600/e8dbd5/888?text=03', title: 'Skyline at dusk',     date: 'Jan 2025', location: 'Frankfurt' },
-        { id: 'seoul-01',  thumb: 'https://placehold.co/600x600/dce8d5/888?text=04', title: 'Hangang',             date: 'Nov 2024', location: 'Seoul'     },
-        { id: 'seoul-02',  thumb: 'https://placehold.co/600x600/e8e3d5/888?text=05', title: 'Insadong',            date: 'Oct 2024', location: 'Seoul'     },
-        { id: 'seoul-03',  thumb: 'https://placehold.co/600x600/d5e8e8/888?text=06', title: 'Bukchon after rain',  date: 'Sep 2024', location: 'Seoul'     },
-        { id: 'tokyo-01',  thumb: 'https://placehold.co/600x600/e8d5e0/888?text=07', title: 'Shimokitazawa',       date: 'Dec 2022', location: 'Tokyo'     },
-        { id: 'tokyo-02',  thumb: 'https://placehold.co/600x600/ddd5e8/888?text=08', title: 'Yanaka',              date: 'Nov 2022', location: 'Tokyo'     },
-        { id: 'tokyo-03',  thumb: 'https://placehold.co/600x600/e8e8d5/888?text=09', title: 'Koenji',              date: 'Oct 2022', location: 'Tokyo'     }
+        { id: '224105519781', thumb: BASE + '224105519781_thumb.jpg', title: '' },
+        { id: '224012140603', thumb: BASE + '224012140603_thumb.jpg', title: '' }
+        // Add more posts here as you upload them:
+        // { id: 'POST_ID', thumb: BASE + 'POST_ID_thumb.jpg', title: '' },
     ];
 
-    // BUILD GRID
     var grid = document.getElementById('grid');
     posts.forEach(function(p) {
         var a = document.createElement('a');
