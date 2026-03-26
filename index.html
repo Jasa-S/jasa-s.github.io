@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https://raw.githubusercontent.com; connect-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https://raw.githubusercontent.com; connect-src https://corsproxy.io https://query1.finance.yahoo.com;">
     <title>Jasaman Saini | Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -94,6 +94,10 @@
             display: inline-block;
             animation: spin-globe 8s linear infinite;
         }
+
+        #sp500-ticker { letter-spacing: 0.1em; }
+        #sp500-ticker .spx-up   { color: #16a34a; }
+        #sp500-ticker .spx-down { color: #dc2626; }
     </style>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12 md:py-24" style="position:relative;">
@@ -248,7 +252,7 @@
 
     <footer class="pt-12 footer-border flex justify-between items-center text-dynamic-muted text-[10px] uppercase tracking-widest">
         <p>&copy; 2026 Jasaman Saini</p>
-        <p>Augsburg &bull; Frankfurt &bull; Seoul</p>
+        <p id="sp500-ticker">S&amp;P 500 &mdash;</p>
     </footer>
 
     <script>
@@ -266,6 +270,32 @@
             icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
+
+        // Live S&P 500 via Yahoo Finance (proxied through corsproxy.io to bypass CORS)
+        (function fetchSPX() {
+            var ticker = document.getElementById('sp500-ticker');
+            var url = 'https://corsproxy.io/?' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1d&range=1d');
+            fetch(url)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var meta = data.chart.result[0].meta;
+                    var price = meta.regularMarketPrice;
+                    var prev  = meta.chartPreviousClose;
+                    var change = price - prev;
+                    var pct    = (change / prev) * 100;
+                    var up     = change >= 0;
+                    var arrow  = up ? '&#9650;' : '&#9660;';
+                    var sign   = up ? '+' : '';
+                    var cls    = up ? 'spx-up' : 'spx-down';
+                    ticker.innerHTML =
+                        'S&amp;P 500 &nbsp;'
+                        + price.toFixed(2)
+                        + ' &nbsp;<span class="' + cls + '">' + arrow + ' ' + sign + change.toFixed(2) + ' (' + sign + pct.toFixed(2) + '%)</span>';
+                })
+                .catch(function() {
+                    ticker.textContent = 'S&P 500 — unavailable';
+                });
+        })();
     </script>
 
 </body>
