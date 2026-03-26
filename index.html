@@ -22,7 +22,6 @@
             --timeline: #e5e7eb;
             --cosmic-purple: #7C3AED;
         }
-
         body.dark {
             --bg: #0a0a0a;
             --text-main: #ffffff;
@@ -32,7 +31,6 @@
             --border: rgba(255,255,255,0.05);
             --timeline: #27272a;
         }
-
         body {
             background-color: var(--bg);
             color: var(--text-main);
@@ -40,7 +38,6 @@
             scroll-behavior: smooth;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-
         .glass {
             background: var(--card);
             border: 1px solid var(--border);
@@ -60,56 +57,38 @@
             border: 1px solid var(--border);
             transition: background 0.2s;
         }
-        .photo-card:hover {
-            background: var(--card-hover);
-        }
+        .photo-card:hover { background: var(--card-hover); }
         .timeline-border { border-left: 1px solid var(--timeline); }
         .text-dynamic-muted { color: var(--text-muted); }
         .purple-glow { box-shadow: 0 0 10px rgba(124,58,237,0.3); }
         .section-divider { height: 1px; background: var(--timeline); flex-grow: 1; }
         .footer-border { border-top: 1px solid var(--timeline); }
 
-        .header-inner {
-            display: flex;
-            flex-direction: row;
-            align-items: stretch;
-            gap: 1rem;
-        }
+        /* Profile image — fixed circle, right side */
         .profile-img {
-            /* width is derived from height via aspect-ratio */
-            width: auto;
-            height: 100%;
-            align-self: stretch;
-            aspect-ratio: 1 / 1;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             flex-shrink: 0;
-            display: block;
+        }
+        @media (min-width: 768px) {
+            .profile-img { width: 96px; height: 96px; }
         }
 
         #theme-toggle {
             position: absolute;
-            top: 1.25rem;
-            right: 1.5rem;
+            top: 1.25rem; right: 1.5rem;
             z-index: 50;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #7C3AED;
-            font-size: 1.1rem;
+            background: none; border: none; cursor: pointer;
+            color: #7C3AED; font-size: 1.1rem;
             opacity: 0.75;
             transition: opacity 0.2s, transform 0.3s;
-            padding: 0.25rem;
-            line-height: 1;
+            padding: 0.25rem; line-height: 1;
         }
-        @media (min-width: 768px) {
-            #theme-toggle { position: fixed; }
-        }
-        #theme-toggle:hover {
-            opacity: 1;
-            transform: rotate(20deg) scale(1.2);
-        }
+        @media (min-width: 768px) { #theme-toggle { position: fixed; } }
+        #theme-toggle:hover { opacity: 1; transform: rotate(20deg) scale(1.2); }
 
         @keyframes spin-globe {
             from { transform: rotate(0deg); }
@@ -120,140 +99,145 @@
             animation: spin-globe 8s linear infinite;
             margin-right: 0.5rem;
         }
-
         #sp500-ticker { letter-spacing: 0.1em; }
         #sp500-ticker .spx-up   { color: #16a34a; }
         #sp500-ticker .spx-down { color: #dc2626; }
     </style>
 </head>
-<body class="max-w-3xl mx-auto px-6 py-12 md:py-24" style="position:relative;">
+<body class="max-w-3xl mx-auto px-6 py-12 md:py-20" style="position:relative;">
 
     <button id="theme-toggle" aria-label="Toggle dark mode">
         <i id="theme-icon" class="fa-solid fa-moon"></i>
     </button>
 
-    <header class="mb-12 md:mb-16">
-        <div class="header-inner">
+    <!-- HEADER -->
+    <header class="mb-14">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Jasaman Saini</h1>
+                <p class="text-sm text-dynamic-muted mt-1">Business Administration &amp; Electrical Engineering</p>
+                <div class="flex flex-wrap gap-4 mt-5 text-xs text-dynamic-muted">
+                    <span><i class="fa-solid fa-location-dot mr-1.5"></i>Frankfurt</span>
+                    <a href="mailto:sainijasaman@gmail.com" class="hover:text-[#7C3AED] transition-colors">
+                        <i class="fa-solid fa-envelope mr-1.5"></i>Email
+                    </a>
+                </div>
+            </div>
             <img
                 src="https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/profileImage.png"
                 alt="Jasaman Saini"
-                class="profile-img"
+                class="profile-img mt-1"
             >
-            <div>
-                <h1 class="text-2xl md:text-4xl font-semibold tracking-tight">Jasaman Saini</h1>
-                <p class="text-sm md:text-xl text-dynamic-muted mt-1 md:mt-2">Business Administration &amp; Electrical Engineering</p>
-                <div class="flex flex-wrap gap-3 md:gap-4 mt-4 md:mt-6 text-xs md:text-sm text-dynamic-muted">
-                    <span><i class="fa-solid fa-location-dot mr-1 md:mr-2"></i>Frankfurt</span>
-                    <a href="mailto:sainijasaman@gmail.com" class="hover:text-[#7C3AED] transition-colors"><i class="fa-solid fa-envelope mr-1 md:mr-2"></i>Email</a>
-                </div>
-            </div>
         </div>
     </header>
 
-    <section class="mb-12 md:mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-6 md:mb-8 flex items-center">
+    <!-- EXPERIENCE -->
+    <section class="mb-14">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-7 flex items-center">
             <span class="mr-4">Professional Experience</span>
             <div class="section-divider ml-4"></div>
         </h2>
-        <div class="space-y-6 md:space-y-8 timeline-border ml-2 pl-5 md:pl-6">
+        <div class="space-y-7 timeline-border ml-2 pl-6">
             <div class="relative">
-                <div class="absolute -left-[29px] md:-left-[31px] top-1.5 w-2 h-2 rounded-full purple-glow" style="background-color:var(--cosmic-purple);"></div>
-                <p class="text-xs text-dynamic-muted mb-1">11/2023 &mdash; Present</p>
-                <h3 class="text-base md:text-lg font-medium">Consultant @ x-markets</h3>
-                <p class="text-xs md:text-sm text-dynamic-muted font-light italic">Eschborn, Germany</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full purple-glow" style="background-color:var(--cosmic-purple);"></div>
+                <p class="text-xs text-dynamic-muted mb-0.5">11/2023 &mdash; Present</p>
+                <h3 class="text-sm font-medium">Consultant @ x-markets</h3>
+                <p class="text-xs text-dynamic-muted italic">Eschborn, Germany</p>
             </div>
             <div class="relative">
-                <div class="absolute -left-[29px] md:-left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
-                <p class="text-xs text-dynamic-muted mb-1">09/2024 &mdash; 03/2025</p>
-                <h3 class="text-base md:text-lg font-medium">Visiting Student Researcher @ KAIST Technology Innovation Lab</h3>
-                <p class="text-xs md:text-sm text-dynamic-muted font-light italic">Daejeon, South Korea</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
+                <p class="text-xs text-dynamic-muted mb-0.5">09/2024 &mdash; 03/2025</p>
+                <h3 class="text-sm font-medium">Visiting Student Researcher @ KAIST Technology Innovation Lab</h3>
+                <p class="text-xs text-dynamic-muted italic">Daejeon, South Korea</p>
             </div>
             <div class="relative">
-                <div class="absolute -left-[29px] md:-left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
-                <p class="text-xs text-dynamic-muted mb-1">04/2021 &mdash; 07/2022</p>
-                <h3 class="text-base md:text-lg font-medium">Working Student Business Analysis @ CGI</h3>
-                <p class="text-xs md:text-sm text-dynamic-muted font-light italic">Munich, Germany</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
+                <p class="text-xs text-dynamic-muted mb-0.5">04/2021 &mdash; 07/2022</p>
+                <h3 class="text-sm font-medium">Working Student Business Analysis @ CGI</h3>
+                <p class="text-xs text-dynamic-muted italic">Munich, Germany</p>
             </div>
             <div class="relative">
-                <div class="absolute -left-[29px] md:-left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
-                <p class="text-xs text-dynamic-muted mb-1">03/2020 &mdash; 07/2020</p>
-                <h3 class="text-base md:text-lg font-medium">Intern Project Management @ MAN Energy Solutions</h3>
-                <p class="text-xs md:text-sm text-dynamic-muted font-light italic">Augsburg, Germany</p>
+                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
+                <p class="text-xs text-dynamic-muted mb-0.5">03/2020 &mdash; 07/2020</p>
+                <h3 class="text-sm font-medium">Intern Project Management @ MAN Energy Solutions</h3>
+                <p class="text-xs text-dynamic-muted italic">Augsburg, Germany</p>
             </div>
         </div>
     </section>
 
-    <section class="mb-12 md:mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-6 md:mb-8 flex items-center">
+    <!-- EDUCATION -->
+    <section class="mb-14">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-7 flex items-center">
             <span class="mr-4">Education</span>
             <div class="section-divider ml-4"></div>
         </h2>
-        <div class="grid gap-3 md:gap-4">
-            <div class="glass p-4 md:p-5 rounded-xl">
-                <div class="flex justify-between items-start mb-1 md:mb-2">
-                    <h3 class="font-medium text-base md:text-lg">Technical University of Darmstadt</h3>
-                    <span class="text-xs text-dynamic-muted ml-2 shrink-0">2021 &mdash; 2025</span>
+        <div class="grid gap-3">
+            <div class="glass p-4 rounded-xl">
+                <div class="flex justify-between items-start gap-2">
+                    <h3 class="font-medium text-sm">Technical University of Darmstadt</h3>
+                    <span class="text-xs text-dynamic-muted shrink-0">2021 &mdash; 2025</span>
                 </div>
-                <p class="text-dynamic-muted text-xs md:text-sm">M.Sc. Business Administration and Engineering (Electrical Engineering)</p>
-                <p class="text-xs text-dynamic-muted mt-1 md:mt-2 italic">Master&apos;s thesis: The Role of Venture Capital in Deep Tech</p>
+                <p class="text-dynamic-muted text-xs mt-1">M.Sc. Business Administration and Engineering (Electrical Engineering)</p>
+                <p class="text-xs text-dynamic-muted mt-1 italic">Master&apos;s thesis: The Role of Venture Capital in Deep Tech</p>
             </div>
-            <div class="glass p-4 md:p-5 rounded-xl">
-                <div class="flex justify-between items-start mb-1 md:mb-2">
-                    <h3 class="font-medium text-base md:text-lg">KAIST (Daejeon, South Korea)</h3>
-                    <span class="text-xs text-dynamic-muted ml-2 shrink-0">2022 &mdash; 2023</span>
+            <div class="glass p-4 rounded-xl">
+                <div class="flex justify-between items-start gap-2">
+                    <h3 class="font-medium text-sm">KAIST (Daejeon, South Korea)</h3>
+                    <span class="text-xs text-dynamic-muted shrink-0">2022 &mdash; 2023</span>
                 </div>
-                <p class="text-dynamic-muted text-xs md:text-sm">Exchange year &ndash; School of Electrical Engineering</p>
+                <p class="text-dynamic-muted text-xs mt-1">Exchange year &ndash; School of Electrical Engineering</p>
             </div>
-            <div class="glass p-4 md:p-5 rounded-xl">
-                <div class="flex justify-between items-start mb-1 md:mb-2">
-                    <h3 class="font-medium text-base md:text-lg">Technical University of Applied Sciences Augsburg</h3>
-                    <span class="text-xs text-dynamic-muted ml-2 shrink-0">2017 &mdash; 2021</span>
+            <div class="glass p-4 rounded-xl">
+                <div class="flex justify-between items-start gap-2">
+                    <h3 class="font-medium text-sm">Technical University of Applied Sciences Augsburg</h3>
+                    <span class="text-xs text-dynamic-muted shrink-0">2017 &mdash; 2021</span>
                 </div>
-                <p class="text-dynamic-muted text-xs md:text-sm">B.Eng. International Management and Engineering (Electrical Engineering)</p>
-                <p class="text-xs text-dynamic-muted mt-1 md:mt-2 italic">Bachelor&apos;s thesis: The Potential of Machine Learning in Insurance</p>
+                <p class="text-dynamic-muted text-xs mt-1">B.Eng. International Management and Engineering (Electrical Engineering)</p>
+                <p class="text-xs text-dynamic-muted mt-1 italic">Bachelor&apos;s thesis: The Potential of Machine Learning in Insurance</p>
             </div>
-            <div class="glass p-4 md:p-5 rounded-xl">
-                <div class="flex justify-between items-start mb-1 md:mb-2">
-                    <h3 class="font-medium text-base md:text-lg">Soongsil University (Seoul, South Korea)</h3>
-                    <span class="text-xs text-dynamic-muted ml-2 shrink-0">2019</span>
+            <div class="glass p-4 rounded-xl">
+                <div class="flex justify-between items-start gap-2">
+                    <h3 class="font-medium text-sm">Soongsil University (Seoul, South Korea)</h3>
+                    <span class="text-xs text-dynamic-muted shrink-0">2019</span>
                 </div>
-                <p class="text-dynamic-muted text-xs md:text-sm">Exchange semester &ndash; School of Business Administration</p>
+                <p class="text-dynamic-muted text-xs mt-1">Exchange semester &ndash; School of Business Administration</p>
             </div>
         </div>
     </section>
 
-    <section class="mb-12 md:mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-5 md:mb-6 flex items-center">
+    <!-- CREATIVE WORK -->
+    <section class="mb-14">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-5 flex items-center">
             <span class="mr-4">Creative Work</span>
             <div class="section-divider ml-4"></div>
         </h2>
         <div class="flex flex-col gap-3">
             <a href="blue.html" class="block group">
-                <div class="photo-card p-4 md:p-6 rounded-2xl flex items-center justify-between transition-all">
-                    <h3 class="text-2xl md:text-3xl font-medium tracking-tight flex items-center">
+                <div class="photo-card p-5 rounded-2xl flex items-center justify-between transition-all">
+                    <h3 class="text-2xl font-medium tracking-tight flex items-center">
                         <span class="icon-globe">&#127757;</span>BlUE
                     </h3>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
                 </div>
             </a>
-            <!-- S-VENR hidden until ready -->
             <a href="s-venr.html" class="block group" style="display:none;">
-                <div class="photo-card p-4 md:p-6 rounded-2xl flex items-center justify-between transition-all">
-                    <h3 class="text-2xl md:text-3xl font-medium tracking-tight">S-VENR</h3>
+                <div class="photo-card p-5 rounded-2xl flex items-center justify-between transition-all">
+                    <h3 class="text-2xl font-medium tracking-tight">S-VENR</h3>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
                 </div>
             </a>
         </div>
     </section>
 
-    <section class="mb-12 md:mb-16">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-5 md:mb-6 flex items-center">
+    <!-- SKILLS -->
+    <section class="mb-14">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-5 flex items-center">
             <span class="mr-4">Skills &amp; Additional Qualifications</span>
             <div class="section-divider ml-4"></div>
         </h2>
-        <div class="grid md:grid-cols-2 gap-6 md:gap-8">
+        <div class="grid md:grid-cols-2 gap-7">
             <div>
-                <p class="text-xs text-dynamic-muted mb-3 md:mb-4 uppercase tracking-widest">Languages</p>
+                <p class="text-xs text-dynamic-muted mb-3 uppercase tracking-widest">Languages</p>
                 <div class="flex flex-wrap gap-2">
                     <span class="badge px-3 py-1 rounded-full text-xs">German (Native)</span>
                     <span class="badge px-3 py-1 rounded-full text-xs">Punjabi (Native, Spoken)</span>
@@ -262,7 +246,7 @@
                 </div>
             </div>
             <div>
-                <p class="text-xs text-dynamic-muted mb-3 md:mb-4 uppercase tracking-widest">Technical &amp; IT</p>
+                <p class="text-xs text-dynamic-muted mb-3 uppercase tracking-widest">Technical &amp; IT</p>
                 <div class="flex flex-wrap gap-2">
                     <span class="badge px-3 py-1 rounded-full text-xs">Python</span>
                     <span class="badge px-3 py-1 rounded-full text-xs">MATLAB</span>
@@ -276,7 +260,7 @@
         </div>
     </section>
 
-    <footer class="pt-10 md:pt-12 footer-border flex justify-between items-center text-dynamic-muted text-[10px] uppercase tracking-widest">
+    <footer class="pt-10 footer-border flex justify-between items-center text-dynamic-muted text-[10px] uppercase tracking-widest">
         <p>&copy; 2026 Jasaman Saini</p>
         <p id="sp500-ticker">S&amp;P 500</p>
     </footer>
@@ -284,28 +268,25 @@
     <script>
         var body = document.body;
         var icon = document.getElementById('theme-icon');
-        var btn = document.getElementById('theme-toggle');
-
+        var btn  = document.getElementById('theme-toggle');
         if (localStorage.getItem('theme') === 'dark') {
             body.classList.add('dark');
             icon.className = 'fa-solid fa-sun';
         }
-
         btn.addEventListener('click', function() {
             var isDark = body.classList.toggle('dark');
             icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
-
         (function fetchSPX() {
             var ticker = document.getElementById('sp500-ticker');
             var url = 'https://corsproxy.io/?' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1d&range=1d');
             fetch(url)
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    var meta = data.chart.result[0].meta;
-                    var price = meta.regularMarketPrice;
-                    var prev  = meta.chartPreviousClose;
+                    var meta   = data.chart.result[0].meta;
+                    var price  = meta.regularMarketPrice;
+                    var prev   = meta.chartPreviousClose;
                     var change = price - prev;
                     var pct    = (change / prev) * 100;
                     var up     = change >= 0;
@@ -314,9 +295,7 @@
                     var cls    = up ? 'spx-up' : 'spx-down';
                     ticker.innerHTML = 'S&amp;P 500 &nbsp;<span class="' + cls + '">' + arrow + ' ' + sign + pct.toFixed(2) + '%</span>';
                 })
-                .catch(function() {
-                    ticker.textContent = 'S&P 500';
-                });
+                .catch(function() { ticker.textContent = 'S&P 500'; });
         })();
     </script>
 
