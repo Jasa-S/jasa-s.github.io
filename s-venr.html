@@ -65,7 +65,6 @@
             border-color: var(--cosmic-purple);
             background: rgba(124,58,237,0.07);
         }
-
         /* Grid icon — 4 dots */
         .icon-grid {
             display: grid;
@@ -74,13 +73,8 @@
             width: 13px;
             height: 13px;
         }
-        .icon-grid span {
-            display: block;
-            background: currentColor;
-            border-radius: 1px;
-        }
-
-        /* Scroll/list icon — 3 horizontal lines with image placeholder */
+        .icon-grid span { display: block; background: currentColor; border-radius: 1px; }
+        /* Scroll icon */
         .icon-scroll {
             display: flex;
             flex-direction: column;
@@ -89,24 +83,35 @@
             height: 13px;
             justify-content: center;
         }
-        .icon-scroll span {
-            display: block;
-            height: 2px;
-            background: currentColor;
-            border-radius: 1px;
-        }
+        .icon-scroll span { display: block; height: 2px; background: currentColor; border-radius: 1px; }
         .icon-scroll span:first-child { width: 100%; height: 6px; border-radius: 1.5px; }
         .icon-scroll span:last-child { width: 75%; }
 
+        /* ---- SECTION LABEL ---- */
+        .section-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-weight: 700;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--timeline); }
+
         /* ---- GRID LAYOUT ---- */
+        #grid-view { display: block; }
+        #grid-view.hidden { display: none; }
+
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 0.75rem;
         }
-        @media (min-width: 768px) {
-            .photo-grid { grid-template-columns: repeat(3, 1fr); }
-        }
+        @media (min-width: 768px) { .photo-grid { grid-template-columns: repeat(3, 1fr); } }
+
         .photo-item {
             position: relative;
             overflow: hidden;
@@ -115,12 +120,7 @@
             background: var(--card);
             cursor: pointer;
         }
-        .photo-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-        }
+        .photo-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
         .photo-item:hover img { transform: scale(1.04); }
         .photo-caption {
             position: absolute;
@@ -135,95 +135,38 @@
         .photo-item:hover .photo-caption { opacity: 1; }
 
         /* ---- FEED LAYOUT ---- */
-        /* Full-screen overlay, dark bg, images at natural aspect ratio centred */
-        #feed-container {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: #111;
-            overflow-y: scroll;
-            -webkit-overflow-scrolling: touch;
-        }
-        #feed-container.active { display: block; }
+        #feed-view { display: none; }
+        #feed-view.active { display: block; }
 
-        .feed-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 3.5rem 1rem 2rem;
-            box-sizing: border-box;
+        .feed-section { margin-bottom: 3rem; }
+
+        .feed-photo {
+            width: 100%;
+            margin-bottom: 1.5rem;
         }
-        .feed-item img {
-            max-width: 100%;
-            max-height: 82vh;
-            width: auto;
+        .feed-photo img {
+            width: 100%;
             height: auto;
-            object-fit: contain;
             display: block;
-            border-radius: 4px;
+            border-radius: 0.75rem;
         }
-        .feed-item-meta {
-            margin-top: 0.75rem;
-            text-align: center;
-            color: rgba(255,255,255,0.55);
-            font-size: 0.72rem;
-            letter-spacing: 0.04em;
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
+        .feed-photo-meta {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
         }
-        .feed-item-meta strong {
-            display: block;
-            color: rgba(255,255,255,0.85);
-            font-weight: 500;
+        .feed-photo-meta .name {
             font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-main);
         }
-
-        /* separator between feed items */
-        .feed-item + .feed-item {
-            border-top: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .feed-close {
-            position: fixed;
-            top: 1.1rem;
-            right: 1.4rem;
-            z-index: 200;
-            color: rgba(255,255,255,0.75);
-            background: rgba(0,0,0,0.35);
-            border: none;
-            border-radius: 50%;
-            width: 2.4rem;
-            height: 2.4rem;
-            font-size: 1rem;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-            backdrop-filter: blur(4px);
-        }
-        .feed-close.active { display: flex; }
-        .feed-close:hover { background: rgba(0,0,0,0.65); color: white; }
-
-        .feed-counter {
-            position: fixed;
-            top: 1.35rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 200;
-            color: rgba(255,255,255,0.5);
+        .feed-photo-meta .date {
             font-size: 0.68rem;
-            font-family: 'Inter', sans-serif;
-            letter-spacing: 0.12em;
-            display: none;
-            pointer-events: none;
+            color: var(--text-muted);
         }
-        .feed-counter.active { display: block; }
 
-        /* ---- LIGHTBOX (grid mode) ---- */
+        /* ---- LIGHTBOX ---- */
         .lightbox {
             display: none;
             position: fixed;
@@ -235,28 +178,15 @@
             padding: 1rem;
         }
         .lightbox.active { display: flex; }
-        .lightbox img {
-            max-width: 80vw;
-            max-height: 85vh;
-            object-fit: contain;
-            border-radius: 0.5rem;
-            user-select: none;
-        }
-        .lightbox-close {
-            position: absolute;
-            top: 1.25rem; right: 1.5rem;
-            color: white; font-size: 1.5rem;
-            cursor: pointer; opacity: 0.7;
-            transition: opacity 0.2s; z-index: 10;
-        }
+        .lightbox img { max-width: 80vw; max-height: 85vh; object-fit: contain; border-radius: 0.5rem; user-select: none; }
+        .lightbox-close { position: absolute; top: 1.25rem; right: 1.5rem; color: white; font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; z-index: 10; }
         .lightbox-close:hover { opacity: 1; }
         .lightbox-nav {
-            position: absolute; top: 50%;
-            transform: translateY(-50%);
+            position: absolute; top: 50%; transform: translateY(-50%);
             color: white; font-size: 1.5rem; cursor: pointer;
             opacity: 0.5; transition: opacity 0.2s, transform 0.2s;
-            background: rgba(255,255,255,0.08);
-            border-radius: 50%; width: 2.75rem; height: 2.75rem;
+            background: rgba(255,255,255,0.08); border-radius: 50%;
+            width: 2.75rem; height: 2.75rem;
             display: flex; align-items: center; justify-content: center; z-index: 10;
         }
         .lightbox-nav:hover { opacity: 1; background: rgba(255,255,255,0.18); }
@@ -264,31 +194,10 @@
         .lightbox-next { right: 1.25rem; }
         .lightbox-prev:hover { transform: translateY(-50%) translateX(-2px); }
         .lightbox-next:hover { transform: translateY(-50%) translateX(2px); }
-        .lightbox-info {
-            position: absolute; bottom: 1.5rem;
-            left: 50%; transform: translateX(-50%);
-            color: rgba(255,255,255,0.7); font-size: 0.8rem;
-            text-align: center; font-family: 'Inter',sans-serif; white-space: nowrap;
-        }
-
-        /* section label */
-        .section-label {
-            font-size: 0.65rem; text-transform: uppercase;
-            letter-spacing: 0.2em; font-weight: 700;
-            color: var(--text-muted);
-            display: flex; align-items: center; gap: 1rem;
-            margin-bottom: 1.25rem;
-        }
-        .section-label::after {
-            content: ''; flex: 1; height: 1px; background: var(--timeline);
-        }
+        .lightbox-info { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.7); font-size: 0.8rem; text-align: center; font-family: 'Inter',sans-serif; white-space: nowrap; }
     </style>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12 md:py-24">
-
-    <div id="feed-container"></div>
-    <button class="feed-close" id="feed-close"><i class="fa-solid fa-xmark"></i></button>
-    <div class="feed-counter" id="feed-counter"></div>
 
     <div class="mb-12 flex items-center justify-between">
         <a href="index.html" class="back-btn">
@@ -297,15 +206,10 @@
         </a>
         <div class="layout-toggle">
             <button class="layout-btn active" id="btn-grid" title="Grid view" onclick="setLayout('grid')">
-                <div class="icon-grid">
-                    <span></span><span></span><span></span><span></span>
-                </div>
+                <div class="icon-grid"><span></span><span></span><span></span><span></span></div>
             </button>
             <button class="layout-btn" id="btn-feed" title="Scroll view" onclick="setLayout('feed')">
-                <div class="icon-scroll">
-                    <span></span>
-                    <span></span>
-                </div>
+                <div class="icon-scroll"><span></span><span></span></div>
             </button>
         </div>
     </div>
@@ -314,96 +218,78 @@
         <h1 class="text-4xl font-semibold tracking-tight">S-VENR</h1>
     </header>
 
+    <!-- ===== GRID VIEW ===== -->
     <div id="grid-view">
 
         <section class="mb-10">
             <div class="section-label">Istanbul &mdash; Sep 2020</div>
             <div class="photo-grid">
-                <div class="photo-item" onclick="openLightbox(0)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I01.jpg" alt="Teknik Solar" loading="lazy">
-                    <div class="photo-caption">Teknik Solar</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(1)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I02.jpg" alt="Kasap Nuri" loading="lazy">
-                    <div class="photo-caption">Kasap Nuri</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(2)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I04.jpg" alt="Kiz Kulesi" loading="lazy">
-                    <div class="photo-caption">Kiz Kulesi</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(3)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I05.jpg" alt="Seagulls" loading="lazy">
-                    <div class="photo-caption">Seagulls</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(4)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I06.jpg" alt="Uncharted" loading="lazy">
-                    <div class="photo-caption">Uncharted</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(5)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I07.jpg" alt="Grand Bazaar" loading="lazy">
-                    <div class="photo-caption">Grand Bazaar</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(6)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I09.jpg" alt="Hagia Sophia" loading="lazy">
-                    <div class="photo-caption">Hagia Sophia</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(7)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I010.jpg" alt="Hagia Sophia Interior" loading="lazy">
-                    <div class="photo-caption">Hagia Sophia Interior</div>
-                </div>
+                <div class="photo-item" onclick="openLightbox(0)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I01.jpg" alt="Teknik Solar" loading="lazy"><div class="photo-caption">Teknik Solar</div></div>
+                <div class="photo-item" onclick="openLightbox(1)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I02.jpg" alt="Kasap Nuri" loading="lazy"><div class="photo-caption">Kasap Nuri</div></div>
+                <div class="photo-item" onclick="openLightbox(2)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I04.jpg" alt="Kiz Kulesi" loading="lazy"><div class="photo-caption">Kiz Kulesi</div></div>
+                <div class="photo-item" onclick="openLightbox(3)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I05.jpg" alt="Seagulls" loading="lazy"><div class="photo-caption">Seagulls</div></div>
+                <div class="photo-item" onclick="openLightbox(4)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I06.jpg" alt="Uncharted" loading="lazy"><div class="photo-caption">Uncharted</div></div>
+                <div class="photo-item" onclick="openLightbox(5)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I07.jpg" alt="Grand Bazaar" loading="lazy"><div class="photo-caption">Grand Bazaar</div></div>
+                <div class="photo-item" onclick="openLightbox(6)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I09.jpg" alt="Hagia Sophia" loading="lazy"><div class="photo-caption">Hagia Sophia</div></div>
+                <div class="photo-item" onclick="openLightbox(7)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/I010.jpg" alt="Hagia Sophia Interior" loading="lazy"><div class="photo-caption">Hagia Sophia Interior</div></div>
             </div>
         </section>
 
         <section class="mb-10">
             <div class="section-label">Tokyo &mdash; Nov 2019</div>
             <div class="photo-grid">
-                <div class="photo-item" onclick="openLightbox(8)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T01.JPG" alt="Asakusa" loading="lazy">
-                    <div class="photo-caption">Asakusa</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(9)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T02.JPG" alt="Tokyo Skytree" loading="lazy">
-                    <div class="photo-caption">Tokyo Skytree</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(10)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T03.JPG" alt="Tokyo Metropolitan Government Building" loading="lazy">
-                    <div class="photo-caption">Tokyo Metropolitan Govt. Building</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(11)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T04.JPG" alt="Yanagimori Shrine" loading="lazy">
-                    <div class="photo-caption">Yanagimori Shrine</div>
-                </div>
+                <div class="photo-item" onclick="openLightbox(8)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T01.JPG" alt="Asakusa" loading="lazy"><div class="photo-caption">Asakusa</div></div>
+                <div class="photo-item" onclick="openLightbox(9)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T02.JPG" alt="Tokyo Skytree" loading="lazy"><div class="photo-caption">Tokyo Skytree</div></div>
+                <div class="photo-item" onclick="openLightbox(10)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T03.JPG" alt="Tokyo Metropolitan Government Building" loading="lazy"><div class="photo-caption">Tokyo Metropolitan Govt. Building</div></div>
+                <div class="photo-item" onclick="openLightbox(11)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/T04.JPG" alt="Yanagimori Shrine" loading="lazy"><div class="photo-caption">Yanagimori Shrine</div></div>
             </div>
         </section>
 
         <section class="mb-10">
             <div class="section-label">South Korea &mdash; 2019</div>
             <div class="photo-grid">
-                <div class="photo-item" onclick="openLightbox(12)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/01.jpg" alt="Haneul Park" loading="lazy">
-                    <div class="photo-caption">Haneul Park</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(13)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/02.jpg" alt="Paju" loading="lazy">
-                    <div class="photo-caption">Paju</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(14)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/03.jpg" alt="Incheon" loading="lazy">
-                    <div class="photo-caption">Incheon</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(15)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/04.jpg" alt="Busan" loading="lazy">
-                    <div class="photo-caption">Busan</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(16)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/05.jpg" alt="Bukchon Hanok Village" loading="lazy">
-                    <div class="photo-caption">Bukchon Hanok Village</div>
-                </div>
-                <div class="photo-item" onclick="openLightbox(17)">
-                    <img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/06.jpg" alt="Sokcho" loading="lazy">
-                    <div class="photo-caption">Sokcho</div>
-                </div>
+                <div class="photo-item" onclick="openLightbox(12)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/01.jpg" alt="Haneul Park" loading="lazy"><div class="photo-caption">Haneul Park</div></div>
+                <div class="photo-item" onclick="openLightbox(13)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/02.jpg" alt="Paju" loading="lazy"><div class="photo-caption">Paju</div></div>
+                <div class="photo-item" onclick="openLightbox(14)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/03.jpg" alt="Incheon" loading="lazy"><div class="photo-caption">Incheon</div></div>
+                <div class="photo-item" onclick="openLightbox(15)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/04.jpg" alt="Busan" loading="lazy"><div class="photo-caption">Busan</div></div>
+                <div class="photo-item" onclick="openLightbox(16)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/05.jpg" alt="Bukchon Hanok Village" loading="lazy"><div class="photo-caption">Bukchon Hanok Village</div></div>
+                <div class="photo-item" onclick="openLightbox(17)"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/thumbs/06.jpg" alt="Sokcho" loading="lazy"><div class="photo-caption">Sokcho</div></div>
             </div>
+        </section>
+
+    </div>
+
+    <!-- ===== FEED VIEW ===== -->
+    <div id="feed-view">
+
+        <section class="feed-section">
+            <div class="section-label">Istanbul &mdash; Sep 2020</div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I01.jpg" alt="Teknik Solar" loading="lazy"><div class="feed-photo-meta"><span class="name">Teknik Solar</span><span class="date">23 Sep 2020</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I02.jpg" alt="Kasap Nuri" loading="lazy"><div class="feed-photo-meta"><span class="name">Kasap Nuri</span><span class="date">23 Sep 2020</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I04.jpg" alt="Kiz Kulesi" loading="lazy"><div class="feed-photo-meta"><span class="name">Kiz Kulesi</span><span class="date">21 Sep 2020</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I05.jpg" alt="Seagulls" loading="lazy"><div class="feed-photo-meta"><span class="name">Seagulls</span><span class="date">19 Sep 2020</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I06.jpg" alt="Uncharted" loading="lazy"><div class="feed-photo-meta"><span class="name">Uncharted</span><span class="date">19 Sep 2020</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I07.jpg" alt="Grand Bazaar" loading="lazy"><div class="feed-photo-meta"><span class="name">Grand Bazaar</span><span class="date">19 Sep 2020</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I09.jpg" alt="Hagia Sophia" loading="lazy"><div class="feed-photo-meta"><span class="name">Hagia Sophia</span><span class="date">19 Sep 2020</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I010.jpg" alt="Hagia Sophia Interior" loading="lazy"><div class="feed-photo-meta"><span class="name">Hagia Sophia Interior</span><span class="date">19 Sep 2020</span></div></div>
+        </section>
+
+        <section class="feed-section">
+            <div class="section-label">Tokyo &mdash; Nov 2019</div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T01.JPG" alt="Asakusa" loading="lazy"><div class="feed-photo-meta"><span class="name">Asakusa</span><span class="date">22 Nov 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T02.JPG" alt="Tokyo Skytree" loading="lazy"><div class="feed-photo-meta"><span class="name">Tokyo Skytree</span><span class="date">21 Nov 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T03.JPG" alt="Tokyo Metropolitan Govt. Building" loading="lazy"><div class="feed-photo-meta"><span class="name">Tokyo Metropolitan Govt. Building</span><span class="date">21 Nov 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T04.JPG" alt="Yanagimori Shrine" loading="lazy"><div class="feed-photo-meta"><span class="name">Yanagimori Shrine</span><span class="date">20 Nov 2019</span></div></div>
+        </section>
+
+        <section class="feed-section">
+            <div class="section-label">South Korea &mdash; 2019</div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/01.jpg" alt="Haneul Park" loading="lazy"><div class="feed-photo-meta"><span class="name">Haneul Park</span><span class="date">16 Nov 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/02.jpg" alt="Paju" loading="lazy"><div class="feed-photo-meta"><span class="name">Paju</span><span class="date">05 Nov 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/03.jpg" alt="Incheon" loading="lazy"><div class="feed-photo-meta"><span class="name">Incheon</span><span class="date">03 Nov 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/04.jpg" alt="Busan" loading="lazy"><div class="feed-photo-meta"><span class="name">Busan</span><span class="date">04 Oct 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/05.jpg" alt="Bukchon Hanok Village" loading="lazy"><div class="feed-photo-meta"><span class="name">Bukchon Hanok Village</span><span class="date">29 Sep 2019</span></div></div>
+            <div class="feed-photo"><img src="https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/06.jpg" alt="Sokcho" loading="lazy"><div class="feed-photo-meta"><span class="name">Sokcho</span><span class="date">13 Sep 2019</span></div></div>
         </section>
 
     </div>
@@ -426,30 +312,48 @@
     </footer>
 
     <script>
-        const photos = [
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I01.jpg',  caption: 'Teknik Solar', date: '23 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I02.jpg',  caption: 'Kasap Nuri', date: '23 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I04.jpg',  caption: 'Kiz Kulesi', date: '21 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I05.jpg',  caption: 'Seagulls', date: '19 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I06.jpg',  caption: 'Uncharted', date: '19 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I07.jpg',  caption: 'Grand Bazaar', date: '19 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I09.jpg',  caption: 'Hagia Sophia', date: '19 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I010.jpg', caption: 'Hagia Sophia Interior', date: '19 Sep 2020', city: 'Istanbul' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T01.JPG',  caption: 'Asakusa', date: '22 Nov 2019', city: 'Tokyo' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T02.JPG',  caption: 'Tokyo Skytree', date: '21 Nov 2019', city: 'Tokyo' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T03.JPG',  caption: 'Tokyo Metropolitan Govt. Building', date: '21 Nov 2019', city: 'Tokyo' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T04.JPG',  caption: 'Yanagimori Shrine', date: '20 Nov 2019', city: 'Tokyo' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/01.jpg',   caption: 'Haneul Park', date: '16 Nov 2019', city: 'South Korea' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/02.jpg',   caption: 'Paju', date: '05 Nov 2019', city: 'South Korea' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/03.jpg',   caption: 'Incheon', date: '03 Nov 2019', city: 'South Korea' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/04.jpg',   caption: 'Busan', date: '04 Oct 2019', city: 'South Korea' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/05.jpg',   caption: 'Bukchon Hanok Village', date: '29 Sep 2019', city: 'South Korea' },
-            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/06.jpg',   caption: 'Sokcho', date: '13 Sep 2019', city: 'South Korea' },
-        ];
-
         if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
 
-        // --- Lightbox ---
+        // Save/restore layout preference
+        var savedLayout = localStorage.getItem('svenr-layout') || 'grid';
+        setLayout(savedLayout, true);
+
+        function setLayout(mode, init) {
+            if (mode === 'feed') {
+                document.getElementById('feed-view').classList.add('active');
+                document.getElementById('grid-view').classList.add('hidden');
+                document.getElementById('btn-feed').classList.add('active');
+                document.getElementById('btn-grid').classList.remove('active');
+            } else {
+                document.getElementById('grid-view').classList.remove('hidden');
+                document.getElementById('feed-view').classList.remove('active');
+                document.getElementById('btn-grid').classList.add('active');
+                document.getElementById('btn-feed').classList.remove('active');
+            }
+            if (!init) localStorage.setItem('svenr-layout', mode);
+        }
+
+        // Lightbox (grid mode)
+        const photos = [
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I01.jpg',  caption: 'Teknik Solar', date: '23 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I02.jpg',  caption: 'Kasap Nuri', date: '23 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I04.jpg',  caption: 'Kiz Kulesi', date: '21 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I05.jpg',  caption: 'Seagulls', date: '19 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I06.jpg',  caption: 'Uncharted', date: '19 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I07.jpg',  caption: 'Grand Bazaar', date: '19 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I09.jpg',  caption: 'Hagia Sophia', date: '19 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/I010.jpg', caption: 'Hagia Sophia Interior', date: '19 Sep 2020' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T01.JPG',  caption: 'Asakusa', date: '22 Nov 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T02.JPG',  caption: 'Tokyo Skytree', date: '21 Nov 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T03.JPG',  caption: 'Tokyo Metropolitan Govt. Building', date: '21 Nov 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/T04.JPG',  caption: 'Yanagimori Shrine', date: '20 Nov 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/01.jpg',   caption: 'Haneul Park', date: '16 Nov 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/02.jpg',   caption: 'Paju', date: '05 Nov 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/03.jpg',   caption: 'Incheon', date: '03 Nov 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/04.jpg',   caption: 'Busan', date: '04 Oct 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/05.jpg',   caption: 'Bukchon Hanok Village', date: '29 Sep 2019' },
+            { src: 'https://raw.githubusercontent.com/Saido-8/sidewalk/main/images/fulls/06.jpg',   caption: 'Sokcho', date: '13 Sep 2019' },
+        ];
         var current = 0;
         function openLightbox(i) { current = i; renderLightbox(); document.getElementById('lightbox').classList.add('active'); document.body.style.overflow = 'hidden'; }
         function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); document.getElementById('lightbox-img').src = ''; document.body.style.overflow = ''; }
@@ -462,71 +366,6 @@
             if (e.key === 'ArrowLeft') navigate(-1);
             if (e.key === 'ArrowRight') navigate(1);
         });
-
-        // --- Feed ---
-        var feedBuilt = false;
-        function buildFeed() {
-            if (feedBuilt) return;
-            feedBuilt = true;
-            var fc = document.getElementById('feed-container');
-            photos.forEach(function(p) {
-                var item = document.createElement('div');
-                item.className = 'feed-item';
-                var img = document.createElement('img');
-                img.src = p.src;
-                img.alt = p.caption;
-                img.loading = 'lazy';
-                var meta = document.createElement('div');
-                meta.className = 'feed-item-meta';
-                meta.innerHTML = '<strong>' + p.caption + '</strong>' + p.city + ' &mdash; ' + p.date;
-                item.appendChild(img);
-                item.appendChild(meta);
-                fc.appendChild(item);
-            });
-
-            // update counter as user scrolls
-            var items = fc.querySelectorAll('.feed-item');
-            var observer = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
-                    if (entry.isIntersecting) {
-                        var idx = Array.prototype.indexOf.call(items, entry.target);
-                        document.getElementById('feed-counter').textContent = (idx + 1) + ' / ' + photos.length;
-                    }
-                });
-            }, { threshold: 0.5 });
-            items.forEach(function(el) { observer.observe(el); });
-        }
-
-        function openFeed() {
-            buildFeed();
-            document.getElementById('feed-container').classList.add('active');
-            document.getElementById('feed-container').scrollTop = 0;
-            document.getElementById('feed-close').classList.add('active');
-            document.getElementById('feed-counter').textContent = '1 / ' + photos.length;
-            document.getElementById('feed-counter').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeFeed() {
-            document.getElementById('feed-container').classList.remove('active');
-            document.getElementById('feed-close').classList.remove('active');
-            document.getElementById('feed-counter').classList.remove('active');
-            document.body.style.overflow = '';
-            document.getElementById('btn-grid').classList.add('active');
-            document.getElementById('btn-feed').classList.remove('active');
-        }
-        document.getElementById('feed-close').addEventListener('click', closeFeed);
-
-        function setLayout(mode) {
-            if (mode === 'feed') {
-                document.getElementById('btn-feed').classList.add('active');
-                document.getElementById('btn-grid').classList.remove('active');
-                openFeed();
-            } else {
-                document.getElementById('btn-grid').classList.add('active');
-                document.getElementById('btn-feed').classList.remove('active');
-                closeFeed();
-            }
-        }
     </script>
 
 </body>
