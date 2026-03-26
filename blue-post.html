@@ -23,8 +23,6 @@
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
-
-        /* ── sticky top bar ── */
         #sticky-bar {
             position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
             z-index: 500; display: flex; align-items: center; gap: 0.35rem;
@@ -58,8 +56,6 @@
         }
         .bar-nav-btn:hover { color: var(--cosmic-purple); }
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
-
-        /* ── layout wrapper ── */
         #layout {
             display: flex;
             justify-content: center;
@@ -68,57 +64,22 @@
             max-width: 72rem;
             margin: 0 auto;
         }
-
-        /* ── desktop sticky sidebar ── */
-        #sidebar {
-            display: none;
-        }
+        #sidebar { display: none; }
         @media (min-width: 900px) {
-            #sidebar {
-                display: block;
-                width: 12rem;
-                flex-shrink: 0;
-            }
-            #sidebar-inner {
-                position: sticky;
-                top: 5.5rem;
-            }
-            .sidebar-label {
-                font-size: 0.62rem;
-                text-transform: uppercase;
-                letter-spacing: 0.13em;
-                color: var(--text-muted);
-                margin-bottom: 0.4rem;
-            }
-            .sidebar-category {
-                font-size: 0.78rem;
-                font-weight: 500;
-                color: var(--cosmic-purple);
-                text-decoration: none;
-                line-height: 1.4;
-            }
+            #sidebar { display: block; width: 12rem; flex-shrink: 0; }
+            #sidebar-inner { position: sticky; top: 5.5rem; }
+            .sidebar-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--text-muted); margin-bottom: 0.4rem; }
+            .sidebar-category { font-size: 0.78rem; font-weight: 500; color: var(--cosmic-purple); text-decoration: none; line-height: 1.4; }
             .sidebar-category:hover { opacity: 0.75; }
         }
-
-        /* ── post content ── */
         #page { max-width: 48rem; width: 100%; flex: 1; }
-
-        /* mobile category tag — shown only below 900px */
         .mobile-category {
-            display: block;
-            font-size: 0.68rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.13em;
-            color: var(--cosmic-purple);
-            margin-bottom: 0.45rem;
-            text-decoration: none;
+            display: block; font-size: 0.68rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.13em;
+            color: var(--cosmic-purple); margin-bottom: 0.45rem; text-decoration: none;
         }
         .mobile-category:hover { opacity: 0.75; }
-        @media (min-width: 900px) {
-            .mobile-category { display: none; }
-        }
-
+        @media (min-width: 900px) { .mobile-category { display: none; } }
         .post-title { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.35rem; line-height: 1.2; }
         .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2rem; }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
@@ -127,7 +88,6 @@
         .post-body { font-size: 0.93rem; line-height: 1.8; color: var(--text-main); }
         .post-body p { margin-bottom: 1.1rem; }
         .post-divider { height: 1px; background: var(--timeline); margin: 2.5rem 0; }
-
         footer {
             max-width: 48rem; margin: 0 auto;
             padding: 1.5rem; border-top: 1px solid var(--timeline);
@@ -154,15 +114,12 @@
     </div>
 
     <div id="layout">
-        <!-- desktop sidebar -->
         <div id="sidebar">
             <div id="sidebar-inner">
                 <div class="sidebar-label">Camera</div>
                 <a id="sidebar-category" class="sidebar-category" href="#"></a>
             </div>
         </div>
-
-        <!-- main post -->
         <div id="page">
             <a id="mobile-category" class="mobile-category" href="#"></a>
             <div class="post-title" id="post-title"></div>
@@ -190,58 +147,147 @@
 
     var BASE = 'https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/';
 
-    // ---- POST DATA ----
     var posts = [
         {
-            id: '224105519781',
-            title: 'SUPERIA 400 | HOME',
-            category: 'Yashica T3',
-            categoryUrl: 'https://m.blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=24&logCode=0&categoryName=Yashica+T3#postlist_block',
+            id: '224105519781', title: 'SUPERIA 400 | HOME',
+            category: 'Yashica T3', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=24&from=postList&parentCategoryNo=24',
             date: '', location: '',
-            images: [
-                { src: BASE + '224105519781_01.jpg', caption: '' },
-                { src: BASE + '224105519781_02.jpg', caption: '' },
-                { src: BASE + '224105519781_03.jpg', caption: '' },
-                { src: BASE + '224105519781_04.jpg', caption: '' },
-                { src: BASE + '224105519781_05.jpg', caption: '' },
-                { src: BASE + '224105519781_06.jpg', caption: '' },
-                { src: BASE + '224105519781_07.jpg', caption: '' },
-                { src: BASE + '224105519781_08.jpg', caption: '' },
-                { src: BASE + '224105519781_09.jpg', caption: '' },
-                { src: BASE + '224105519781_10.jpg', caption: '' },
-                { src: BASE + '224105519781_11.jpg', caption: '' },
-                { src: BASE + '224105519781_12.jpg', caption: '' },
-                { src: BASE + '224105519781_13.jpg', caption: '' },
-                { src: BASE + '224105519781_14.jpg', caption: '' },
-                { src: BASE + '224105519781_15.jpg', caption: '' },
-                { src: BASE + '224105519781_16.jpg', caption: '' },
-                { src: BASE + '224105519781_17.jpg', caption: '' }
-            ],
+            images: [{src:BASE+'224105519781_01.jpg'},{src:BASE+'224105519781_02.jpg'},{src:BASE+'224105519781_03.jpg'},{src:BASE+'224105519781_04.jpg'},{src:BASE+'224105519781_05.jpg'},{src:BASE+'224105519781_06.jpg'},{src:BASE+'224105519781_07.jpg'},{src:BASE+'224105519781_08.jpg'},{src:BASE+'224105519781_09.jpg'},{src:BASE+'224105519781_10.jpg'},{src:BASE+'224105519781_11.jpg'},{src:BASE+'224105519781_12.jpg'},{src:BASE+'224105519781_13.jpg'},{src:BASE+'224105519781_14.jpg'},{src:BASE+'224105519781_15.jpg'},{src:BASE+'224105519781_16.jpg'},{src:BASE+'224105519781_17.jpg'}],
             body: []
         },
         {
-            id: '224012140603',
-            title: 'Reflx Lab 400 (069)',
-            category: 'Yashica T3',
-            categoryUrl: 'https://m.blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=24&logCode=0&categoryName=Yashica+T3#postlist_block',
+            id: '224012140603', title: 'Reflx Lab 400 (069)',
+            category: 'Yashica T3', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=24&from=postList&parentCategoryNo=24',
             date: '', location: '',
-            images: [
-                { src: BASE + '224012140603_01.jpg', caption: '' },
-                { src: BASE + '224012140603_02.jpg', caption: '' },
-                { src: BASE + '224012140603_03.jpg', caption: '' },
-                { src: BASE + '224012140603_04.jpg', caption: '' },
-                { src: BASE + '224012140603_05.jpg', caption: '' },
-                { src: BASE + '224012140603_06.jpg', caption: '' },
-                { src: BASE + '224012140603_07.jpg', caption: '' },
-                { src: BASE + '224012140603_08.jpg', caption: '' },
-                { src: BASE + '224012140603_09.jpg', caption: '' },
-                { src: BASE + '224012140603_10.jpg', caption: '' },
-                { src: BASE + '224012140603_11.jpg', caption: '' },
-                { src: BASE + '224012140603_12.jpg', caption: '' }
-            ],
+            images: [{src:BASE+'224012140603_01.jpg'},{src:BASE+'224012140603_02.jpg'},{src:BASE+'224012140603_03.jpg'},{src:BASE+'224012140603_04.jpg'},{src:BASE+'224012140603_05.jpg'},{src:BASE+'224012140603_06.jpg'},{src:BASE+'224012140603_07.jpg'},{src:BASE+'224012140603_08.jpg'},{src:BASE+'224012140603_09.jpg'},{src:BASE+'224012140603_10.jpg'},{src:BASE+'224012140603_11.jpg'},{src:BASE+'224012140603_12.jpg'}],
+            body: []
+        },
+        {
+            id: '223877679702', title: 'Napoli',
+            category: 'Hidden Inventory', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=17&from=postList&parentCategoryNo=17',
+            date: '', location: '',
+            images: [{src:BASE+'223877679702_01.jpg'},{src:BASE+'223877679702_02.jpg'},{src:BASE+'223877679702_03.jpg'},{src:BASE+'223877679702_04.jpg'},{src:BASE+'223877679702_05.jpg'},{src:BASE+'223877679702_06.jpg'},{src:BASE+'223877679702_07.jpg'},{src:BASE+'223877679702_08.jpg'},{src:BASE+'223877679702_09.jpg'},{src:BASE+'223877679702_10.jpg'},{src:BASE+'223877679702_11.jpg'},{src:BASE+'223877679702_12.jpg'},{src:BASE+'223877679702_13.jpg'},{src:BASE+'223877679702_14.jpg'},{src:BASE+'223877679702_15.jpg'},{src:BASE+'223877679702_16.jpg'},{src:BASE+'223877679702_17.jpg'},{src:BASE+'223877679702_18.jpg'},{src:BASE+'223877679702_19.jpg'},{src:BASE+'223877679702_20.jpg'}],
+            body: []
+        },
+        {
+            id: '223763004365', title: 'WAVE 400',
+            category: 'Pentax ESPIO', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=12&from=postList&parentCategoryNo=12',
+            date: '', location: '',
+            images: [{src:BASE+'223763004365_01.jpg'},{src:BASE+'223763004365_02.jpg'},{src:BASE+'223763004365_03.jpg'},{src:BASE+'223763004365_04.jpg'},{src:BASE+'223763004365_05.jpg'},{src:BASE+'223763004365_06.jpg'},{src:BASE+'223763004365_07.jpg'},{src:BASE+'223763004365_08.jpg'},{src:BASE+'223763004365_09.jpg'},{src:BASE+'223763004365_10.jpg'},{src:BASE+'223763004365_11.jpg'},{src:BASE+'223763004365_12.jpg'},{src:BASE+'223763004365_13.jpg'},{src:BASE+'223763004365_14.jpg'},{src:BASE+'223763004365_15.jpg'},{src:BASE+'223763004365_16.jpg'},{src:BASE+'223763004365_17.jpg'},{src:BASE+'223763004365_18.jpg'},{src:BASE+'223763004365_19.jpg'},{src:BASE+'223763004365_20.jpg'},{src:BASE+'223763004365_21.jpg'},{src:BASE+'223763004365_22.jpg'},{src:BASE+'223763004365_23.jpg'},{src:BASE+'223763004365_24.jpg'},{src:BASE+'223763004365_25.jpg'},{src:BASE+'223763004365_26.jpg'},{src:BASE+'223763004365_27.jpg'},{src:BASE+'223763004365_28.jpg'},{src:BASE+'223763004365_29.jpg'},{src:BASE+'223763004365_30.jpg'},{src:BASE+'223763004365_31.jpg'},{src:BASE+'223763004365_32.jpg'}],
+            body: []
+        },
+        {
+            id: '223638578946', title: 'BTDIO',
+            category: 'Hidden Inventory', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=17&from=postList&parentCategoryNo=17',
+            date: '', location: '',
+            images: [{src:BASE+'223638578946_01.jpg'},{src:BASE+'223638578946_02.jpg'},{src:BASE+'223638578946_03.jpg'},{src:BASE+'223638578946_04.jpg'},{src:BASE+'223638578946_05.jpg'},{src:BASE+'223638578946_06.jpg'},{src:BASE+'223638578946_07.jpg'},{src:BASE+'223638578946_08.jpg'},{src:BASE+'223638578946_09.jpg'},{src:BASE+'223638578946_10.jpg'},{src:BASE+'223638578946_11.jpg'},{src:BASE+'223638578946_12.jpg'},{src:BASE+'223638578946_13.jpg'},{src:BASE+'223638578946_14.jpg'},{src:BASE+'223638578946_15.jpg'},{src:BASE+'223638578946_16.jpg'},{src:BASE+'223638578946_17.jpg'},{src:BASE+'223638578946_18.jpg'},{src:BASE+'223638578946_19.jpg'},{src:BASE+'223638578946_20.jpg'},{src:BASE+'223638578946_21.jpg'},{src:BASE+'223638578946_22.jpg'},{src:BASE+'223638578946_23.jpg'},{src:BASE+'223638578946_24.jpg'},{src:BASE+'223638578946_25.jpg'},{src:BASE+'223638578946_26.jpg'},{src:BASE+'223638578946_27.jpg'},{src:BASE+'223638578946_28.jpg'},{src:BASE+'223638578946_29.jpg'},{src:BASE+'223638578946_30.jpg'},{src:BASE+'223638578946_31.jpg'},{src:BASE+'223638578946_32.jpg'},{src:BASE+'223638578946_33.jpg'},{src:BASE+'223638578946_34.jpg'},{src:BASE+'223638578946_35.jpg'},{src:BASE+'223638578946_36.jpg'},{src:BASE+'223638578946_37.jpg'},{src:BASE+'223638578946_38.jpg'},{src:BASE+'223638578946_39.jpg'},{src:BASE+'223638578946_40.jpg'},{src:BASE+'223638578946_41.jpg'},{src:BASE+'223638578946_42.jpg'},{src:BASE+'223638578946_43.jpg'},{src:BASE+'223638578946_44.jpg'},{src:BASE+'223638578946_45.jpg'},{src:BASE+'223638578946_46.jpg'},{src:BASE+'223638578946_47.jpg'},{src:BASE+'223638578946_48.jpg'},{src:BASE+'223638578946_49.jpg'},{src:BASE+'223638578946_50.jpg'},{src:BASE+'223638578946_51.jpg'}],
+            body: []
+        },
+        {
+            id: '223207890396', title: 'FUJICOLOR 100',
+            category: 'Pentax ESPIO', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=12&from=postList&parentCategoryNo=12',
+            date: '', location: '',
+            images: [{src:BASE+'223207890396_01.jpg'},{src:BASE+'223207890396_02.jpg'},{src:BASE+'223207890396_03.jpg'},{src:BASE+'223207890396_04.jpg'},{src:BASE+'223207890396_05.jpg'},{src:BASE+'223207890396_06.jpg'},{src:BASE+'223207890396_07.jpg'},{src:BASE+'223207890396_08.jpg'},{src:BASE+'223207890396_09.jpg'},{src:BASE+'223207890396_10.jpg'},{src:BASE+'223207890396_11.jpg'},{src:BASE+'223207890396_12.jpg'},{src:BASE+'223207890396_13.jpg'},{src:BASE+'223207890396_14.jpg'},{src:BASE+'223207890396_15.jpg'},{src:BASE+'223207890396_16.jpg'}],
+            body: []
+        },
+        {
+            id: '223103649848', title: 'LUCKY SUPER 100 (EXPIRED)',
+            category: 'Pentax ESPIO', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=12&from=postList&parentCategoryNo=12',
+            date: '', location: '',
+            images: [{src:BASE+'223103649848_01.jpg'},{src:BASE+'223103649848_02.jpg'},{src:BASE+'223103649848_03.jpg'},{src:BASE+'223103649848_04.jpg'},{src:BASE+'223103649848_05.jpg'},{src:BASE+'223103649848_06.jpg'},{src:BASE+'223103649848_07.jpg'},{src:BASE+'223103649848_08.jpg'},{src:BASE+'223103649848_09.jpg'},{src:BASE+'223103649848_10.jpg'},{src:BASE+'223103649848_11.jpg'},{src:BASE+'223103649848_12.jpg'},{src:BASE+'223103649848_13.jpg'},{src:BASE+'223103649848_14.jpg'},{src:BASE+'223103649848_15.jpg'},{src:BASE+'223103649848_16.jpg'},{src:BASE+'223103649848_17.jpg'},{src:BASE+'223103649848_18.jpg'},{src:BASE+'223103649848_19.jpg'},{src:BASE+'223103649848_20.jpg'},{src:BASE+'223103649848_21.jpg'},{src:BASE+'223103649848_22.jpg'},{src:BASE+'223103649848_23.jpg'}],
+            body: []
+        },
+        {
+            id: '223100906215', title: 'CINESTILL 400D',
+            category: 'Pentax ESPIO', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=12&from=postList&parentCategoryNo=12',
+            date: '', location: '',
+            images: [{src:BASE+'223100906215_01.jpg'},{src:BASE+'223100906215_02.jpg'},{src:BASE+'223100906215_03.jpg'},{src:BASE+'223100906215_04.jpg'},{src:BASE+'223100906215_05.jpg'},{src:BASE+'223100906215_06.jpg'},{src:BASE+'223100906215_07.jpg'},{src:BASE+'223100906215_08.jpg'},{src:BASE+'223100906215_09.jpg'},{src:BASE+'223100906215_10.jpg'},{src:BASE+'223100906215_11.jpg'},{src:BASE+'223100906215_12.jpg'},{src:BASE+'223100906215_13.jpg'},{src:BASE+'223100906215_14.jpg'},{src:BASE+'223100906215_15.jpg'},{src:BASE+'223100906215_16.jpg'},{src:BASE+'223100906215_17.jpg'},{src:BASE+'223100906215_18.jpg'},{src:BASE+'223100906215_19.jpg'},{src:BASE+'223100906215_20.jpg'},{src:BASE+'223100906215_21.jpg'}],
+            body: []
+        },
+        {
+            id: '223082536112', title: 'X-TRA 400 [2]',
+            category: 'Minolta X-300', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=23&from=postList&parentCategoryNo=23',
+            date: '', location: '',
+            images: [{src:BASE+'223082536112_01.jpg'},{src:BASE+'223082536112_02.jpg'},{src:BASE+'223082536112_03.jpg'},{src:BASE+'223082536112_04.jpg'},{src:BASE+'223082536112_05.jpg'},{src:BASE+'223082536112_06.jpg'},{src:BASE+'223082536112_07.jpg'},{src:BASE+'223082536112_08.jpg'},{src:BASE+'223082536112_09.jpg'},{src:BASE+'223082536112_10.jpg'},{src:BASE+'223082536112_11.jpg'},{src:BASE+'223082536112_12.jpg'},{src:BASE+'223082536112_13.jpg'},{src:BASE+'223082536112_14.jpg'},{src:BASE+'223082536112_15.jpg'},{src:BASE+'223082536112_16.jpg'},{src:BASE+'223082536112_17.jpg'},{src:BASE+'223082536112_18.jpg'},{src:BASE+'223082536112_19.jpg'},{src:BASE+'223082536112_20.jpg'},{src:BASE+'223082536112_21.jpg'},{src:BASE+'223082536112_22.jpg'},{src:BASE+'223082536112_23.jpg'}],
+            body: []
+        },
+        {
+            id: '223081641739', title: 'X-TRA 400 [1]',
+            category: 'Minolta X-300', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=23&from=postList&parentCategoryNo=23',
+            date: '', location: '',
+            images: [{src:BASE+'223081641739_01.jpg'},{src:BASE+'223081641739_02.jpg'},{src:BASE+'223081641739_03.jpg'},{src:BASE+'223081641739_04.jpg'},{src:BASE+'223081641739_05.jpg'},{src:BASE+'223081641739_06.jpg'},{src:BASE+'223081641739_07.jpg'},{src:BASE+'223081641739_08.jpg'},{src:BASE+'223081641739_09.jpg'},{src:BASE+'223081641739_10.jpg'},{src:BASE+'223081641739_11.jpg'},{src:BASE+'223081641739_12.jpg'},{src:BASE+'223081641739_13.jpg'},{src:BASE+'223081641739_14.jpg'},{src:BASE+'223081641739_15.jpg'},{src:BASE+'223081641739_16.jpg'},{src:BASE+'223081641739_17.jpg'},{src:BASE+'223081641739_18.jpg'},{src:BASE+'223081641739_19.jpg'},{src:BASE+'223081641739_20.jpg'}],
+            body: []
+        },
+        {
+            id: '223068994946', title: 'NATURA 1600',
+            category: 'Fujifilm X-E4', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=21&from=postList&parentCategoryNo=21',
+            date: '', location: '',
+            images: [{src:BASE+'223068994946_01.jpg'},{src:BASE+'223068994946_02.jpg'},{src:BASE+'223068994946_03.jpg'},{src:BASE+'223068994946_04.jpg'},{src:BASE+'223068994946_05.jpg'},{src:BASE+'223068994946_06.jpg'},{src:BASE+'223068994946_07.jpg'},{src:BASE+'223068994946_08.jpg'},{src:BASE+'223068994946_09.jpg'},{src:BASE+'223068994946_10.jpg'},{src:BASE+'223068994946_11.jpg'},{src:BASE+'223068994946_12.jpg'},{src:BASE+'223068994946_13.jpg'},{src:BASE+'223068994946_14.jpg'},{src:BASE+'223068994946_15.jpg'},{src:BASE+'223068994946_16.jpg'},{src:BASE+'223068994946_17.jpg'},{src:BASE+'223068994946_18.jpg'},{src:BASE+'223068994946_19.jpg'},{src:BASE+'223068994946_20.jpg'},{src:BASE+'223068994946_21.jpg'},{src:BASE+'223068994946_22.jpg'},{src:BASE+'223068994946_23.jpg'},{src:BASE+'223068994946_24.jpg'},{src:BASE+'223068994946_25.jpg'},{src:BASE+'223068994946_26.jpg'},{src:BASE+'223068994946_27.jpg'}],
+            body: []
+        },
+        {
+            id: '223053854704', title: 'AKIRA 800T',
+            category: 'Pentax ESPIO', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=12&from=postList&parentCategoryNo=12',
+            date: '', location: '',
+            images: [{src:BASE+'223053854704_01.jpg'},{src:BASE+'223053854704_02.jpg'},{src:BASE+'223053854704_03.jpg'},{src:BASE+'223053854704_04.jpg'},{src:BASE+'223053854704_05.jpg'},{src:BASE+'223053854704_06.jpg'},{src:BASE+'223053854704_07.jpg'},{src:BASE+'223053854704_08.jpg'},{src:BASE+'223053854704_09.jpg'},{src:BASE+'223053854704_10.jpg'},{src:BASE+'223053854704_11.jpg'},{src:BASE+'223053854704_12.jpg'},{src:BASE+'223053854704_13.jpg'},{src:BASE+'223053854704_14.jpg'},{src:BASE+'223053854704_15.jpg'},{src:BASE+'223053854704_16.jpg'},{src:BASE+'223053854704_17.jpg'},{src:BASE+'223053854704_18.jpg'},{src:BASE+'223053854704_19.jpg'},{src:BASE+'223053854704_20.jpg'},{src:BASE+'223053854704_21.jpg'},{src:BASE+'223053854704_22.jpg'},{src:BASE+'223053854704_23.jpg'},{src:BASE+'223053854704_24.jpg'},{src:BASE+'223053854704_25.jpg'},{src:BASE+'223053854704_26.jpg'},{src:BASE+'223053854704_27.jpg'},{src:BASE+'223053854704_28.jpg'}],
+            body: []
+        },
+        {
+            id: '223039033918', title: 'UNDEFINED 400 | BANGKOK',
+            category: 'Olympus Pen EED', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=22&from=postList&parentCategoryNo=22',
+            date: '', location: '',
+            images: [{src:BASE+'223039033918_01.jpg'},{src:BASE+'223039033918_02.jpg'},{src:BASE+'223039033918_03.jpg'},{src:BASE+'223039033918_04.jpg'},{src:BASE+'223039033918_05.jpg'},{src:BASE+'223039033918_06.jpg'},{src:BASE+'223039033918_07.jpg'},{src:BASE+'223039033918_08.jpg'},{src:BASE+'223039033918_09.jpg'},{src:BASE+'223039033918_10.jpg'},{src:BASE+'223039033918_11.jpg'},{src:BASE+'223039033918_12.jpg'},{src:BASE+'223039033918_13.jpg'},{src:BASE+'223039033918_14.jpg'},{src:BASE+'223039033918_15.jpg'},{src:BASE+'223039033918_16.jpg'},{src:BASE+'223039033918_17.jpg'},{src:BASE+'223039033918_18.jpg'},{src:BASE+'223039033918_19.jpg'},{src:BASE+'223039033918_20.jpg'},{src:BASE+'223039033918_21.jpg'},{src:BASE+'223039033918_22.jpg'},{src:BASE+'223039033918_23.jpg'},{src:BASE+'223039033918_24.jpg'},{src:BASE+'223039033918_25.jpg'},{src:BASE+'223039033918_26.jpg'},{src:BASE+'223039033918_27.jpg'},{src:BASE+'223039033918_28.jpg'},{src:BASE+'223039033918_29.jpg'},{src:BASE+'223039033918_30.jpg'},{src:BASE+'223039033918_31.jpg'},{src:BASE+'223039033918_32.jpg'},{src:BASE+'223039033918_33.jpg'},{src:BASE+'223039033918_34.jpg'},{src:BASE+'223039033918_35.jpg'},{src:BASE+'223039033918_36.jpg'}],
+            body: []
+        },
+        {
+            id: '223037804979', title: 'KODAK GOLD 200 | CHIANG MAI',
+            category: 'Olympus Pen EED', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=22&from=postList&parentCategoryNo=22',
+            date: '', location: '',
+            images: [{src:BASE+'223037804979_01.jpg'},{src:BASE+'223037804979_02.jpg'},{src:BASE+'223037804979_03.jpg'},{src:BASE+'223037804979_04.jpg'},{src:BASE+'223037804979_05.jpg'},{src:BASE+'223037804979_06.jpg'},{src:BASE+'223037804979_07.jpg'},{src:BASE+'223037804979_08.jpg'},{src:BASE+'223037804979_09.jpg'},{src:BASE+'223037804979_10.jpg'},{src:BASE+'223037804979_11.jpg'},{src:BASE+'223037804979_12.jpg'},{src:BASE+'223037804979_13.jpg'},{src:BASE+'223037804979_14.jpg'},{src:BASE+'223037804979_15.jpg'},{src:BASE+'223037804979_16.jpg'},{src:BASE+'223037804979_17.jpg'},{src:BASE+'223037804979_18.jpg'},{src:BASE+'223037804979_19.jpg'},{src:BASE+'223037804979_20.jpg'},{src:BASE+'223037804979_21.jpg'},{src:BASE+'223037804979_22.jpg'}],
+            body: []
+        },
+        {
+            id: '222992056399', title: 'PROVIA | 東京',
+            category: 'Fujifilm X-E4', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=21&from=postList&parentCategoryNo=21',
+            date: '', location: '',
+            images: [{src:BASE+'222992056399_01.jpg'},{src:BASE+'222992056399_02.jpg'},{src:BASE+'222992056399_03.jpg'},{src:BASE+'222992056399_04.jpg'},{src:BASE+'222992056399_05.jpg'},{src:BASE+'222992056399_06.jpg'},{src:BASE+'222992056399_07.jpg'},{src:BASE+'222992056399_08.jpg'},{src:BASE+'222992056399_09.jpg'},{src:BASE+'222992056399_10.jpg'},{src:BASE+'222992056399_11.jpg'},{src:BASE+'222992056399_12.jpg'},{src:BASE+'222992056399_13.jpg'},{src:BASE+'222992056399_14.jpg'},{src:BASE+'222992056399_15.jpg'},{src:BASE+'222992056399_16.jpg'},{src:BASE+'222992056399_17.jpg'},{src:BASE+'222992056399_18.jpg'},{src:BASE+'222992056399_19.jpg'},{src:BASE+'222992056399_20.jpg'},{src:BASE+'222992056399_21.jpg'},{src:BASE+'222992056399_22.jpg'},{src:BASE+'222992056399_23.jpg'},{src:BASE+'222992056399_24.jpg'},{src:BASE+'222992056399_25.jpg'}],
+            body: []
+        },
+        {
+            id: '222964951577', title: 'FALL',
+            category: 'Hidden Inventory', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=17&from=postList&parentCategoryNo=17',
+            date: '', location: '',
+            images: [{src:BASE+'222964951577_01.jpg'},{src:BASE+'222964951577_02.jpg'},{src:BASE+'222964951577_03.jpg'},{src:BASE+'222964951577_04.jpg'},{src:BASE+'222964951577_05.jpg'},{src:BASE+'222964951577_06.jpg'},{src:BASE+'222964951577_07.jpg'},{src:BASE+'222964951577_08.jpg'},{src:BASE+'222964951577_09.jpg'},{src:BASE+'222964951577_10.jpg'},{src:BASE+'222964951577_11.jpg'},{src:BASE+'222964951577_12.jpg'},{src:BASE+'222964951577_13.jpg'},{src:BASE+'222964951577_14.jpg'},{src:BASE+'222964951577_15.jpg'},{src:BASE+'222964951577_16.jpg'},{src:BASE+'222964951577_17.jpg'},{src:BASE+'222964951577_18.jpg'},{src:BASE+'222964951577_19.jpg'},{src:BASE+'222964951577_20.jpg'},{src:BASE+'222964951577_21.jpg'},{src:BASE+'222964951577_22.jpg'},{src:BASE+'222964951577_23.jpg'},{src:BASE+'222964951577_24.jpg'},{src:BASE+'222964951577_25.jpg'},{src:BASE+'222964951577_26.jpg'},{src:BASE+'222964951577_27.jpg'},{src:BASE+'222964951577_28.jpg'},{src:BASE+'222964951577_29.jpg'},{src:BASE+'222964951577_30.jpg'}],
+            body: []
+        },
+        {
+            id: '222959949075', title: 'PORTRA 400',
+            category: 'Pentax ESPIO', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=12&from=postList&parentCategoryNo=12',
+            date: '', location: '',
+            images: [{src:BASE+'222959949075_01.jpg'},{src:BASE+'222959949075_02.jpg'},{src:BASE+'222959949075_03.jpg'},{src:BASE+'222959949075_04.jpg'},{src:BASE+'222959949075_05.jpg'},{src:BASE+'222959949075_06.jpg'},{src:BASE+'222959949075_07.jpg'},{src:BASE+'222959949075_08.jpg'},{src:BASE+'222959949075_09.jpg'},{src:BASE+'222959949075_10.jpg'},{src:BASE+'222959949075_11.jpg'},{src:BASE+'222959949075_12.jpg'},{src:BASE+'222959949075_13.jpg'},{src:BASE+'222959949075_14.jpg'},{src:BASE+'222959949075_15.jpg'},{src:BASE+'222959949075_16.jpg'},{src:BASE+'222959949075_17.jpg'},{src:BASE+'222959949075_18.jpg'},{src:BASE+'222959949075_19.jpg'}],
+            body: []
+        },
+        {
+            id: '222871146026', title: 'ACROS | 서울',
+            category: 'Fujifilm X-E4', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=21&from=postList&parentCategoryNo=21',
+            date: '', location: '',
+            images: [{src:BASE+'222871146026_01.jpg'},{src:BASE+'222871146026_02.jpg'},{src:BASE+'222871146026_03.jpg'},{src:BASE+'222871146026_04.jpg'},{src:BASE+'222871146026_05.jpg'},{src:BASE+'222871146026_06.jpg'},{src:BASE+'222871146026_07.jpg'}],
+            body: []
+        },
+        {
+            id: '222741287151', title: 'X-TRA 400 [0]',
+            category: 'Minolta X-300', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=23&from=postList&parentCategoryNo=23',
+            date: '', location: '',
+            images: [{src:BASE+'222741287151_01.jpg'},{src:BASE+'222741287151_02.jpg'},{src:BASE+'222741287151_03.jpg'},{src:BASE+'222741287151_04.jpg'},{src:BASE+'222741287151_05.jpg'},{src:BASE+'222741287151_06.jpg'}],
+            body: []
+        },
+        {
+            id: '222741221176', title: 'AGFA APX 100 | IP',
+            category: 'Minolta X-300', categoryUrl: 'https://blog.naver.com/PostList.naver?blogId=sai-do&categoryNo=23&from=postList&parentCategoryNo=23',
+            date: '', location: '',
+            images: [{src:BASE+'222741221176_01.jpg'},{src:BASE+'222741221176_02.jpg'},{src:BASE+'222741221176_03.jpg'},{src:BASE+'222741221176_04.jpg'},{src:BASE+'222741221176_05.jpg'},{src:BASE+'222741221176_06.jpg'},{src:BASE+'222741221176_07.jpg'}],
             body: []
         }
-        // Add new posts here as you run the script for more Naver posts
     ];
 
     var ids = posts.map(function(p){ return p.id; });
@@ -257,7 +303,6 @@
     var metaParts = [post.location, post.date].filter(Boolean);
     document.getElementById('post-meta').textContent = metaParts.join(' \u2014 ');
 
-    // category labels
     var cat = post.category || '';
     var catUrl = post.categoryUrl || '#';
     var mobileCat = document.getElementById('mobile-category');
