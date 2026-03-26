@@ -14,7 +14,7 @@
             --text-main: #111827;
             --text-muted: #6b7280;
             --card: #f9fafb;
-            --border: rgba(0,0,0,0.08);
+            --border: rgba(0,0,0,0.07);
             --cosmic-purple: #7C3AED;
             --timeline: #e5e7eb;
         }
@@ -23,7 +23,7 @@
             --text-main: #ffffff;
             --text-muted: #a1a1aa;
             --card: #141414;
-            --border: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.07);
             --timeline: #27272a;
         }
         body {
@@ -50,6 +50,7 @@
             padding: 0.3rem 0.55rem;
             box-shadow: 0 2px 12px rgba(0,0,0,0.07);
             transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+            white-space: nowrap;
         }
         body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
 
@@ -83,7 +84,7 @@
 
         #theme-toggle { font-size: 0.85rem; }
 
-        /* ---- LAYOUT: centred page-wrap, sidebar fixed outside flow ---- */
+        /* ---- LAYOUT ---- */
         #page-wrap {
             position: relative;
             max-width: 48rem;
@@ -96,7 +97,6 @@
             #sidebar {
                 display: block;
                 position: fixed;
-                /* align right edge flush with left edge of centred content */
                 left: calc(50% - 24rem - 1.5rem - 8rem);
                 top: 5.5rem;
                 width: 8rem;

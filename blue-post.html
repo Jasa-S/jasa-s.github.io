@@ -44,7 +44,7 @@
         .bar-btn {
             background: none; border: none; border-radius: 999px;
             padding: 0.25rem 0.4rem; cursor: pointer; color: var(--text-muted);
-            transition: color 0.2s; line-height: 1;
+            transition: color 0.2s, background 0.2s; line-height: 1;
             display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
         }
         .bar-btn:hover { color: var(--cosmic-purple); }
@@ -57,7 +57,6 @@
         .bar-nav-btn:hover { color: var(--cosmic-purple); }
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
 
-        /* Centred content, sidebar fixed outside flow */
         #page-wrap {
             position: relative;
             max-width: 48rem;
@@ -182,7 +181,7 @@
     document.title = (post.title || 'Post') + ' | BlUE';
     document.getElementById('post-title').textContent = post.title || '';
     var metaParts = [post.location, post.date].filter(Boolean);
-    document.getElementById('post-meta').textContent = metaParts.join(' \u2014 ');
+    document.getElementById('post-meta').textContent = metaParts.join(' — ');
 
     var cat = post.category || '';
     var mobileCat = document.getElementById('mobile-category');
