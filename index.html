@@ -82,6 +82,15 @@
             opacity: 1;
             transform: rotate(20deg) scale(1.2);
         }
+
+        @keyframes spin-globe {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        .icon-globe {
+            display: inline-block;
+            animation: spin-globe 8s linear infinite;
+        }
     </style>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12 md:py-24" style="position:relative;">
@@ -184,7 +193,9 @@
             <a href="blue.html" class="block group">
                 <div class="photo-card p-6 rounded-2xl flex items-center justify-between hover:bg-zinc-50 transition-all">
                     <div class="flex items-center gap-6">
-                        <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">&#128248;</div>
+                        <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">
+                            <span class="icon-globe">&#127757;</span>
+                        </div>
                         <h3 class="text-2xl font-medium tracking-tighter">BlUE</h3>
                     </div>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
@@ -193,7 +204,7 @@
             <a href="s-venr.html" class="block group">
                 <div class="photo-card p-6 rounded-2xl flex items-center justify-between hover:bg-zinc-50 transition-all">
                     <div class="flex items-center gap-6">
-                        <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">&#127757;</div>
+                        <div class="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center text-xl">&#128248;</div>
                         <h3 class="text-2xl font-medium tracking-tighter">S-VENR</h3>
                     </div>
                     <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
