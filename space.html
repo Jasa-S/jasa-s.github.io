@@ -520,11 +520,17 @@ function animate(){
 
     starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 2 : 4));
 
+    // Compensate perceived speed for portrait: aspect < 1 means taller than wide,
+    // so stars cross less screen per world-unit — boost to match landscape feel.
+    const aspect = innerWidth / innerHeight;
+    const speedMult = aspect < 1 ? Math.max(1, 1 / aspect) : 1;
+    const effectiveSpeed = starSpeed * speedMult;
+
     const stretch = 1 + (thrust * 40);
     const pa = stars.geometry.attributes.position.array;
     for(let i=0; i<STARS; i++){
         const ix = i*6;
-        pa[ix+2] += starSpeed * dt;
+        pa[ix+2] += effectiveSpeed * dt;
         if(pa[ix+2] > 55){
             const nz = -5000 - Math.random()*600;
             pa[ix+2] = nz; pa[ix+5] = nz;
@@ -537,7 +543,7 @@ function animate(){
 
     const da = dust.geometry.attributes.position.array;
     for(let i=0; i<700; i++){
-        da[i*3+2] += (starSpeed * .22 + .8) * dt;
+        da[i*3+2] += (effectiveSpeed * .22 + .8) * dt;
         if(da[i*3+2] > 40) da[i*3+2] = -900 - Math.random()*200;
     }
     dust.geometry.attributes.position.needsUpdate = true;
