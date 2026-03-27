@@ -226,9 +226,11 @@
 
 <script>
 (function(){
-    var touch = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+    // pointer:fine = mouse/trackpad (desktop), pointer:coarse = finger (touch-only device)
+    // This correctly handles touchscreen laptops where the primary input is still a mouse
+    var isTouchOnly = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
     var el = document.getElementById('thrust-hint');
-    if (touch) {
+    if (isTouchOnly) {
         el.textContent = 'Tap & hold to thrust';
     } else {
         el.innerHTML = 'Tap or hold <span class="kbd">Space</span> to thrust';
@@ -252,7 +254,8 @@ if (isLight) document.body.classList.add('light');
 
 document.getElementById('space-close').addEventListener('click', () => window.close());
 
-const isMobile = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+// Same smarter detection for the Three.js isMobile flag
+const isMobile = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
 
 // ── NASA data ────────────────────────────────────────────
 const KEY = 'Mn4mtIRZZqWqflCEjoEjAktRB4QrIAKww2IVkk3A';
