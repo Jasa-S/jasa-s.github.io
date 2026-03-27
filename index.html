@@ -78,26 +78,20 @@
 
         #theme-toggle {
             position: absolute;
-            /* on mobile sit below the top edge so it clears the profile image */
-            top: 1.25rem;
+            top: 0.4rem;
             right: 1.5rem;
             z-index: 50;
             background: none; border: none; cursor: pointer;
-            color: #7C3AED; font-size: 1.1rem;
+            color: #7C3AED;
+            font-size: 0.85rem;
             opacity: 0.75;
             transition: opacity 0.2s, transform 0.3s;
-            padding: 0.25rem; line-height: 1;
+            padding: 0.25rem 0.4rem;
+            line-height: 1;
+            display: flex; align-items: center;
         }
         @media (max-width: 767px) {
-            /* push toggle above the header content on mobile */
-            #theme-toggle {
-                top: 0.75rem;
-                right: 1.5rem;
-            }
-            body {
-                /* add a little top breathing room so toggle isn't clipped */
-                padding-top: 2.5rem;
-            }
+            body { padding-top: 2.5rem; }
         }
         @media (min-width: 768px) {
             #theme-toggle { position: fixed; top: 1.25rem; right: 1.5rem; }
