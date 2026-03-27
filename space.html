@@ -105,10 +105,11 @@
             letter-spacing: 0.08em;
         }
 
-        /* ── NASA panel — desktop ── */
+        /* ── NASA panel — all screens ── */
         #nasa-panel {
             position: absolute;
-            bottom: 1.5rem; right: 1.5rem;
+            bottom: 1.5rem;
+            right: 1.5rem;
             z-index: 150;
             display: flex;
             flex-direction: column;
@@ -156,55 +157,39 @@
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
 
-        /* ── NASA panel — mobile portrait ── */
-        @media (max-width: 768px) and (orientation: portrait) {
+        /* ── mobile: smaller cards, safe-area aware, sub-lines hidden ── */
+        @media (max-width: 768px) {
             #nasa-panel {
-                bottom: 0; right: 0; left: 0;
-                top: auto;
-                flex-direction: row;
-                gap: 0.4rem;
-                overflow-x: auto;
-                padding: 0.5rem 0.75rem;
-                padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
+                bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+                right: calc(0.75rem + env(safe-area-inset-right, 0px));
+                gap: 0.35rem;
             }
-            #nasa-panel::-webkit-scrollbar { display: none; }
             .nasa-card {
-                flex-shrink: 0;
-                min-width: 130px;
-                max-width: 150px;
-                padding: 0.5rem 0.65rem;
-                border-radius: 0.55rem;
+                min-width: 140px;
+                max-width: 165px;
+                padding: 0.55rem 0.75rem;
+                border-radius: 0.6rem;
             }
-            .nasa-label { font-size: 0.52rem; margin-bottom: 0.2rem; }
-            .nasa-value  { font-size: 0.58rem; line-height: 1.55; }
+            .nasa-label { font-size: 0.55rem; margin-bottom: 0.2rem; }
+            .nasa-value  { font-size: 0.6rem;  line-height: 1.55; }
             .nasa-value .sub { display: none; }
         }
 
-        /* ── NASA panel — mobile landscape ── */
+        /* ── landscape phone: even more compact ── */
         @media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
             #nasa-panel {
-                bottom: 0.5rem;
-                right: calc(0.5rem + env(safe-area-inset-right, 0px));
-                left: auto; top: auto;
-                flex-direction: column;
-                gap: 0.3rem;
-                overflow-y: auto;
-                max-height: calc(100vh - 1rem);
-                padding: 0;
-                scrollbar-width: none;
+                bottom: 0.4rem;
+                right: calc(0.4rem + env(safe-area-inset-right, 0px));
+                gap: 0.25rem;
             }
-            #nasa-panel::-webkit-scrollbar { display: none; }
             .nasa-card {
-                min-width: 130px;
-                max-width: 150px;
-                padding: 0.4rem 0.6rem;
+                min-width: 120px;
+                max-width: 140px;
+                padding: 0.4rem 0.55rem;
                 border-radius: 0.5rem;
             }
-            .nasa-label { font-size: 0.5rem; margin-bottom: 0.15rem; }
-            .nasa-value  { font-size: 0.55rem; line-height: 1.5; }
-            .nasa-value .sub { display: none; }
+            .nasa-label { font-size: 0.5rem;  margin-bottom: 0.15rem; }
+            .nasa-value  { font-size: 0.55rem; line-height: 1.45; }
             #space-close { top: 0.5rem; left: 0.75rem; }
         }
     </style>
@@ -248,10 +233,8 @@
     } else {
         el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
     }
-    // block iOS long-press callout / magnifier on the whole document
     document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, { passive: false });
-    document.addEventListener('touchstart',  function(e){
-        // only preventDefault on multi-touch (pinch-zoom) — single touch still fires pointerdown
+    document.addEventListener('touchstart', function(e){
         if(e.touches.length > 1) e.preventDefault();
     }, { passive: false });
 })();
@@ -352,7 +335,6 @@ renderer.toneMappingExposure = 0.9;
 renderer.autoClear = false;
 document.body.appendChild(renderer.domElement);
 
-// block iOS callout / magnifier on the canvas element itself
 renderer.domElement.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
 renderer.domElement.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
 
