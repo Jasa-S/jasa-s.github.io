@@ -231,7 +231,7 @@
     if (touch) {
         el.textContent = 'Tap & hold to thrust';
     } else {
-        el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
+        el.innerHTML = 'Tap or hold <span class="kbd">⎋</span> to thrust';
     }
     document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, { passive: false });
     document.addEventListener('touchstart', function(e){
@@ -505,7 +505,7 @@ window.addEventListener('resize', () => {
     composer.setSize(innerWidth, innerHeight);
 });
 
-// ── animate (Upgraded Warp Physics) ───────────────────────
+// ── animate ───────────────────────────────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
 
@@ -514,15 +514,12 @@ function animate(){
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
     
-    // Heavier thrust easing
     thrust = THREE.MathUtils.lerp(thrust, thrusting ? 1 : 0, dt * (thrusting ? 2.5 : 5.0));
 
     skyUniforms.uTime.value = time % 1000.0;
 
-    // Faster top speed interpolation
     starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 2 : 4));
     
-    // Deeper star stretching (the "light needle" effect)
     const stretch = 1 + (thrust * 40);
     const pa = stars.geometry.attributes.position.array;
     for(let i=0; i<STARS; i++){
@@ -534,7 +531,6 @@ function animate(){
             pa[ix]   = (Math.random()-.5)*1400; pa[ix+3] = pa[ix];
             pa[ix+1] = (Math.random()-.5)*1000; pa[ix+4] = pa[ix+1];
         }
-        // Stretch rear vertices backwards
         pa[ix+5] = pa[ix+2] - (1.5 * stretch);
     }
     stars.geometry.attributes.position.needsUpdate = true;
@@ -549,11 +545,9 @@ function animate(){
     moon.rotation.y  += .005 * dt;
     earth.rotation.y += .008 * dt;
 
-    // Upgraded "Dolly Zoom" effect instead of zooming in
     camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV + (thrust * 25), dt * 3);
     camera.updateProjectionMatrix();
 
-    // High-frequency shake when thrusting
     if (thrust > 0.1) {
         camera.position.x = (Math.random() - 0.5) * thrust * 0.2;
         camera.position.y = (Math.random() - 0.5) * thrust * 0.2;
