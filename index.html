@@ -111,44 +111,9 @@
         #sp500-ticker { letter-spacing: 0.1em; }
         #sp500-ticker .spx-up   { color: #16a34a; }
         #sp500-ticker .spx-down { color: #dc2626; }
-
-        /* Easter egg overlay */
-        #space-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: #000;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        #space-overlay.visible { display: block; }
-        #space-overlay.faded   { opacity: 1; }
-        #space-overlay iframe  { width: 100%; height: 100%; border: none; }
-        #space-close {
-            position: absolute;
-            top: 18px; left: 20px;
-            z-index: 10000;
-            background: none; border: none;
-            color: rgba(255,255,255,0.25);
-            font-family: 'Inter', sans-serif;
-            font-size: 10px; letter-spacing: 0.18em;
-            text-transform: uppercase;
-            cursor: pointer; padding: 4px 0;
-            transition: color 0.2s;
-        }
-        @media (hover: hover) and (pointer: fine) {
-            #space-close:hover { color: rgba(124,58,237,0.8); }
-        }
     </style>
 </head>
 <body class="max-w-3xl mx-auto px-6 py-12 md:py-20" style="position:relative;">
-
-    <!-- Easter egg space overlay -->
-    <div id="space-overlay">
-        <button id="space-close">Esc &mdash; Return</button>
-        <iframe id="space-frame" src="" allowfullscreen></iframe>
-    </div>
 
     <button id="theme-toggle" aria-label="Toggle dark mode">
         <i id="theme-icon" class="fa-solid fa-moon"></i>
@@ -356,40 +321,13 @@
                 .catch(function() { ticker.textContent = 'S&P 500'; });
         })();
 
-        // Easter egg: single click on CAD badge
-        (function() {
-            var badge    = document.getElementById('cad-badge');
-            var overlay  = document.getElementById('space-overlay');
-            var frame    = document.getElementById('space-frame');
-            var closeBtn = document.getElementById('space-close');
-
-            function openSpace() {
-                var dark = document.body.classList.contains('dark');
-                frame.src = 'space.html' + (dark ? '?dark=1' : '?dark=0');
-                overlay.classList.add('visible');
-                requestAnimationFrame(function() {
-                    requestAnimationFrame(function() {
-                        overlay.classList.add('faded');
-                    });
-                });
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeSpace() {
-                overlay.classList.remove('faded');
-                setTimeout(function() {
-                    overlay.classList.remove('visible');
-                    frame.src = '';
-                    document.body.style.overflow = '';
-                }, 500);
-            }
-
-            badge.addEventListener('click', openSpace);
-            closeBtn.addEventListener('click', closeSpace);
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && overlay.classList.contains('visible')) closeSpace();
-            });
-        })();
+        // Easter egg: click CAD -> open space.html in new tab
+        document.getElementById('cad-badge').addEventListener('click', function() {
+            // write current theme so space.html can read it
+            var dark = document.body.classList.contains('dark');
+            localStorage.setItem('space-theme', dark ? 'dark' : 'light');
+            window.open('space.html', '_blank');
+        });
     </script>
 
 </body>

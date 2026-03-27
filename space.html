@@ -17,7 +17,7 @@
             justify-content:center; align-items:center;
             z-index:100; gap:20px;
         }
-        body.light #start-overlay { background:rgba(220,230,240,0.88); }
+        body.light #start-overlay { background:rgba(210,225,240,0.88); }
 
         #start-btn {
             background:transparent;
@@ -83,8 +83,8 @@ import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 
-// read dark param
-const isDark = new URLSearchParams(location.search).get('dark') !== '0';
+// read theme from localStorage (set by parent page)
+const isDark = localStorage.getItem('space-theme') !== 'light';
 if (!isDark) document.body.classList.add('light');
 
 // renderer
@@ -102,7 +102,6 @@ const camera = new THREE.PerspectiveCamera(baseFOV, innerWidth/innerHeight, 0.1,
 camera.position.set(0, 5, 28);
 camera.lookAt(0, 1, 0);
 
-// sky shader — dark = nebula, light = bright blue-white space
 const SKY_VS = `varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position,1.0); }`;
 const SKY_FS_DARK = `
   uniform float uTime; varying vec2 vUv;
@@ -139,11 +138,9 @@ const SKY_FS_LIGHT = `
     float t=uTime*0.012;
     float n1=fbm(vUv*2.2+vec2(t,t*0.5));
     float n2=fbm(vUv*3.5-vec2(t*0.6,t*0.9));
-    // light blue-white base
     vec3 col=vec3(0.82,0.90,0.98);
     col=mix(col,vec3(0.65,0.80,0.96),clamp(n1*1.2,0.0,1.0));
     col=mix(col,vec3(0.90,0.92,1.00),clamp(n2*0.8,0.0,1.0));
-    // soft purple wisps
     col=mix(col,vec3(0.72,0.62,0.92),clamp(n1*n2*1.5,0.0,0.35));
     float r=1.0-length(vUv-0.5)*0.8;
     col+=vec3(1.0,1.0,1.0)*clamp(r*0.08,0.0,0.08);
@@ -155,12 +152,7 @@ const skyScene  = new THREE.Scene();
 const skyCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
 skyScene.add(new THREE.Mesh(
     new THREE.PlaneGeometry(2,2),
-    new THREE.ShaderMaterial({
-        uniforms: skyUniforms,
-        vertexShader: SKY_VS,
-        fragmentShader: isDark ? SKY_FS_DARK : SKY_FS_LIGHT,
-        depthWrite:false, depthTest:false
-    })
+    new THREE.ShaderMaterial({ uniforms:skyUniforms, vertexShader:SKY_VS, fragmentShader:isDark?SKY_FS_DARK:SKY_FS_LIGHT, depthWrite:false, depthTest:false })
 ));
 
 // post-processing
@@ -170,7 +162,7 @@ const rpMain = new RenderPass(scene, camera);
 rpMain.clear = false;
 composer.addPass(rpSky);
 composer.addPass(rpMain);
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight), isDark ? 1.1 : 0.5, 0.5, isDark ? 0.55 : 0.7);
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight), isDark?1.1:0.5, 0.5, isDark?0.55:0.7);
 composer.addPass(bloom);
 composer.addPass(new ShaderPass({
     uniforms:{ tDiffuse:{value:null}, d:{value:1.05}, o:{value:0.97} },
@@ -181,10 +173,11 @@ composer.addPass(new ShaderPass({
 }));
 
 // lighting
-scene.add(new THREE.AmbientLight(isDark ? 0x0d1a10 : 0xd0e8ff, isDark ? 2.0 : 3.5));
-const sun = new THREE.DirectionalLight(0xfff8ee, isDark ? 7 : 10);
+scene.add(new THREE.AmbientLight(isDark?0x0d1a10:0xd0e8ff, isDark?2.0:3.5));
+const sun = new THREE.DirectionalLight(0xfff8ee, isDark?7:10);
 sun.position.set(600,250,300); scene.add(sun);
-scene.add(Object.assign(new THREE.DirectionalLight(isDark ? 0x1a4030 : 0xaaccff, isDark ? 1.5 : 2.0), {position: new THREE.Vector3(-300,-80,-200)}));
+const fill = new THREE.DirectionalLight(isDark?0x1a4030:0xaaccff, isDark?1.5:2.0);
+fill.position.set(-300,-80,-200); scene.add(fill);
 const engineGlow = new THREE.PointLight(0x7C3AED, 0, 120);
 scene.add(engineGlow);
 
@@ -200,8 +193,8 @@ const earth = new THREE.Mesh(new THREE.SphereGeometry(48,40,40), new THREE.MeshS
 earth.position.set(-820,220,-5000); scene.add(earth);
 earth.add(new THREE.Mesh(new THREE.SphereGeometry(51,40,40), new THREE.MeshStandardMaterial({color:0x33aaff,transparent:true,opacity:0.10,side:THREE.FrontSide})));
 
-// stars — fewer and dimmer in light mode
-const STARS = isDark ? 2400 : 800;
+// stars
+const STARS = isDark?2400:800;
 const sGeo=new THREE.BufferGeometry();
 const sP=new Float32Array(STARS*6), sC=new Float32Array(STARS*6);
 const SCOLS=isDark?[[1,1,1],[0.7,0.9,1],[1,0.95,0.8],[0.6,1,0.75],[0.9,0.7,1]]:[[0.4,0.4,0.6],[0.3,0.3,0.5],[0.5,0.4,0.7]];
@@ -236,34 +229,28 @@ const mCore  =new THREE.MeshBasicMaterial({color:0xc4b5fd,transparent:true,opaci
 const hPts=[];
 for(let i=0;i<=24;i++){const t=i/24; hPts.push(new THREE.Vector2(1.1+(1-t)*0.28+Math.pow(1-t,3)*0.22, t*18-3));}
 ship.add(new THREE.Mesh(new THREE.LatheGeometry(hPts,42),mSteel));
-
 const sh=new THREE.Mesh(new THREE.CylinderGeometry(1.42,1.42,11,42,1,false,-Math.PI*.5,Math.PI*.62),mTile);
 sh.position.y=2.5; ship.add(sh);
-
 const nPts=[];
 for(let i=0;i<=20;i++){const t=i/20; nPts.push(new THREE.Vector2(1.1*(1-Math.pow(t,1.55)),t*6.5));}
 const noseMesh=new THREE.Mesh(new THREE.LatheGeometry(nPts,42),mSteel);
 noseMesh.position.y=15; ship.add(noseMesh);
-
 [[11.5,true],[-2.5,false]].forEach(([y,hdr])=>{
     [-1,1].forEach(side=>{
         const f=new THREE.Mesh(new THREE.BoxGeometry(0.15,hdr?4:4.8,hdr?2:2.6),mDark);
         f.position.set(side*1.38,y,0); f.rotation.z=side*(hdr?.07:-.07); ship.add(f);
     });
 });
-
 [[0,0],[1.05,0],[-1.05,0],[0.52,.9],[-.52,.9],[0,-1.05]].forEach(([bx,bz])=>{
     const b=new THREE.Mesh(new THREE.CylinderGeometry(.22,.36,.85,16),mEngine);
     b.position.set(bx,-11,bz); ship.add(b);
     const r=new THREE.Mesh(new THREE.TorusGeometry(.34,.035,8,22),new THREE.MeshBasicMaterial({color:0x1a1f2e}));
     r.position.set(bx,-11.42,bz); r.rotation.x=Math.PI/2; ship.add(r);
 });
-
 const plume=new THREE.Mesh(new THREE.ConeGeometry(1.4,22,24),mFlame);
 plume.position.y=-22; plume.rotation.x=Math.PI; ship.add(plume);
 const core=new THREE.Mesh(new THREE.ConeGeometry(0.55,16,16),mCore);
 core.position.y=-20; core.rotation.x=Math.PI; ship.add(core);
-
 ship.rotation.x=-Math.PI/2;
 scene.add(ship);
 
