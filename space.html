@@ -157,7 +157,7 @@
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
 
-        /* ── mobile: smaller cards, safe-area aware, sub-lines hidden ── */
+        /* ── mobile ── */
         @media (max-width: 768px) {
             #nasa-panel {
                 bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
@@ -175,7 +175,7 @@
             .nasa-value .sub { display: none; }
         }
 
-        /* ── landscape phone: even more compact ── */
+        /* ── landscape phone ── */
         @media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
             #nasa-panel {
                 bottom: 0.4rem;
@@ -414,7 +414,6 @@ const fill = new THREE.DirectionalLight(0x0a1520, 0.4);
 fill.position.set(-300, -80, -200); scene.add(fill);
 
 // ── moon ───────────────────────────────────────────────────
-const MOON_Z = -1200;
 const texLoader = new THREE.TextureLoader();
 const moonMat = new THREE.MeshStandardMaterial({
     roughness: 0.95,
@@ -426,8 +425,41 @@ texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg', t 
     moonMat.map = t; moonMat.needsUpdate = true;
 });
 const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
-moon.position.set(0, 0, MOON_Z);
 scene.add(moon);
+
+// Moon orbit parameters
+// The moon orbits on an elliptical arc in the XY plane offset deep in Z.
+// angle=0 -> midnight (top of arc), angle=PI -> midday (below horizon)
+const MOON_ORBIT_X = 420;   // horizontal radius (east<->west)
+const MOON_ORBIT_Y = 340;   // vertical radius (horizon<->zenith)
+const MOON_Z_BASE  = -1200; // depth
+
+// Compute current hour angle from local time.
+// Full moon rises ~18:00, peaks ~00:00, sets ~06:00.
+// We map local hours so midnight = top of arc (angle = -PI/2 in standard,
+// i.e. we use angle = ((hours - 0) / 24) * 2*PI offset by -PI/2)
+function moonAngleFromTime() {
+    const now = new Date();
+    const hours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
+    // midnight (0h) -> angle = PI/2 (top), noon (12h) -> angle = -PI/2 (bottom)
+    return (hours / 24) * Math.PI * 2 - Math.PI / 2;
+}
+
+// Initial position
+let moonAngle = moonAngleFromTime();
+function updateMoonPosition() {
+    moon.position.set(
+        Math.cos(moonAngle) * MOON_ORBIT_X,
+        Math.sin(-moonAngle + Math.PI / 2) * MOON_ORBIT_Y,  // sin gives vertical arc
+        MOON_Z_BASE
+    );
+    // y < 0 means below horizon: fade out smoothly
+    const aboveHorizon = moon.position.y > -60;
+    const targetOpacity = aboveHorizon ? 1.0 : 0.13;
+    moonMat.opacity = THREE.MathUtils.lerp(moonMat.opacity ?? 1.0, targetOpacity, 0.04);
+    moonMat.transparent = true;
+}
+updateMoonPosition();
 
 // ── earth ────────────────────────────────────────────────
 const earth = new THREE.Mesh(
@@ -505,9 +537,14 @@ window.addEventListener('resize', () => {
     composer.setSize(innerWidth, innerHeight);
 });
 
+// Re-sync moon angle from clock every minute
+setInterval(() => { moonAngle = moonAngleFromTime(); }, 60_000);
+
 // ── animate ───────────────────────────────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
+// Moon drifts in real time: 2*PI per 24h in seconds
+const MOON_SPEED = (Math.PI * 2) / (24 * 3600);
 
 function animate(){
     requestAnimationFrame(animate);
@@ -516,6 +553,11 @@ function animate(){
     thrust = THREE.MathUtils.lerp(thrust, thrusting ? 1 : 0, dt * 4.5);
 
     skyUniforms.uTime.value = time % 1000.0;
+
+    // Advance moon angle continuously (real-time speed)
+    moonAngle += MOON_SPEED * dt;
+    updateMoonPosition();
+    moon.rotation.y += .005 * dt; // slow axial spin
 
     starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 4 : 0.8));
     const str = starSpeed * .11;
@@ -540,7 +582,6 @@ function animate(){
     }
     dust.geometry.attributes.position.needsUpdate = true;
 
-    moon.rotation.y  += .005 * dt;
     earth.rotation.y += .008 * dt;
 
     camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV - thrust * 14, dt * 4);
