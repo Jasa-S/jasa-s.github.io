@@ -9,7 +9,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-        /* card/border are always dark — canvas is always black */
         :root {
             --text-main:  #ffffff;
             --text-muted: #a1a1aa;
@@ -17,7 +16,6 @@
             --card:       rgba(255,255,255,0.05);
             --cosmic-purple: #7C3AED;
         }
-        /* light mode only changes UI text colours, not card surfaces */
         body.light {
             --text-main:  #ffffff;
             --text-muted: #a1a1aa;
@@ -166,7 +164,7 @@
 
 <div id="start-overlay">
     <button id="start-btn">Initiate</button>
-    <div class="hint">Hold <span class="kbd">Space</span> to thrust</div>
+    <div class="hint" id="thrust-hint"></div>
 </div>
 
 <div id="nasa-panel">
@@ -183,6 +181,19 @@
         <div class="nasa-value" id="val-neo">Fetching…</div>
     </div>
 </div>
+
+<script>
+// Set hint text before module loads to avoid flash
+(function(){
+    var touch = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+    var el = document.getElementById('thrust-hint');
+    if (touch) {
+        el.textContent = 'Tap & hold to thrust';
+    } else {
+        el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
+    }
+})();
+</script>
 
 <script type="module">
 import * as THREE from 'three';
