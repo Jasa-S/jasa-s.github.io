@@ -122,31 +122,19 @@
             opacity: 0;
             transition: opacity 0.5s ease;
         }
-        #space-overlay.visible {
-            display: block;
-        }
-        #space-overlay.faded {
-            opacity: 1;
-        }
-        #space-overlay iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        #space-overlay.visible { display: block; }
+        #space-overlay.faded   { opacity: 1; }
+        #space-overlay iframe  { width: 100%; height: 100%; border: none; }
         #space-close {
             position: absolute;
-            top: 18px;
-            left: 20px;
+            top: 18px; left: 20px;
             z-index: 10000;
-            background: none;
-            border: none;
+            background: none; border: none;
             color: rgba(255,255,255,0.25);
             font-family: 'Inter', sans-serif;
-            font-size: 10px;
-            letter-spacing: 0.18em;
+            font-size: 10px; letter-spacing: 0.18em;
             text-transform: uppercase;
-            cursor: pointer;
-            padding: 4px 0;
+            cursor: pointer; padding: 4px 0;
             transition: color 0.2s;
         }
         @media (hover: hover) and (pointer: fine) {
@@ -307,7 +295,7 @@
                     <span class="badge px-3 py-1 rounded-full text-xs">Python</span>
                     <span class="badge px-3 py-1 rounded-full text-xs">MATLAB</span>
                     <span class="badge px-3 py-1 rounded-full text-xs">PLECS</span>
-                    <span id="cad-badge" class="badge px-3 py-1 rounded-full text-xs" style="cursor:default;">CAD</span>
+                    <span id="cad-badge" class="badge px-3 py-1 rounded-full text-xs" style="cursor:pointer;">CAD</span>
                     <span class="badge px-3 py-1 rounded-full text-xs">MS Office</span>
                     <span class="badge px-3 py-1 rounded-full text-xs">Machine Learning (DeepLearning.AI)</span>
                     <span class="badge px-3 py-1 rounded-full text-xs">Six Sigma DMAIC</span>
@@ -322,7 +310,6 @@
     </footer>
 
     <script>
-        // ── theme ──────────────────────────────────────────────────────────────
         var body = document.body;
         var icon = document.getElementById('theme-icon');
         var btn  = document.getElementById('theme-toggle');
@@ -349,7 +336,6 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
 
-        // ── S&P 500 ticker ──────────────────────────────────────────────────────
         (function fetchSPX() {
             var ticker = document.getElementById('sp500-ticker');
             var url = 'https://corsproxy.io/?' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1d&range=1d');
@@ -370,17 +356,16 @@
                 .catch(function() { ticker.textContent = 'S&P 500'; });
         })();
 
-        // ── Easter egg: triple-click CAD ─────────────────────────────────────────────
+        // Easter egg: single click on CAD badge
         (function() {
             var badge    = document.getElementById('cad-badge');
             var overlay  = document.getElementById('space-overlay');
             var frame    = document.getElementById('space-frame');
             var closeBtn = document.getElementById('space-close');
-            var clicks   = 0;
-            var timer    = null;
 
             function openSpace() {
-                frame.src = 'space.html';
+                var dark = document.body.classList.contains('dark');
+                frame.src = 'space.html' + (dark ? '?dark=1' : '?dark=0');
                 overlay.classList.add('visible');
                 requestAnimationFrame(function() {
                     requestAnimationFrame(function() {
@@ -399,19 +384,8 @@
                 }, 500);
             }
 
-            badge.addEventListener('click', function() {
-                clicks++;
-                clearTimeout(timer);
-                if (clicks >= 3) {
-                    clicks = 0;
-                    openSpace();
-                } else {
-                    timer = setTimeout(function() { clicks = 0; }, 600);
-                }
-            });
-
+            badge.addEventListener('click', openSpace);
             closeBtn.addEventListener('click', closeSpace);
-
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && overlay.classList.contains('visible')) closeSpace();
             });
