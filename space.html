@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Starship</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --text-muted: #a1a1aa;
@@ -75,26 +72,6 @@
             font-size:9px; font-family:'Inter',sans-serif;
             letter-spacing:0.08em;
         }
-        #space-close {
-            position:absolute; top:20px; left:22px;
-            z-index:200; background:none; border:none;
-            cursor:pointer; font-family:'Inter',sans-serif;
-            font-size:10px; font-weight:400;
-            letter-spacing:0.20em; text-transform:uppercase;
-            color: var(--text-muted); padding:4px 0;
-            transition: color 0.2s;
-        }
-        @media (hover:hover) and (pointer:fine) {
-            #space-close:hover { color: var(--cosmic-purple); }
-        }
-        #ui {
-            position:absolute; bottom:24px; left:24px;
-            color: var(--text-muted);
-            font-size:10px; letter-spacing:0.14em;
-            pointer-events:none; line-height:2.4;
-            text-transform:uppercase; opacity:0.5;
-        }
-        @media (max-width:768px) { #ui { display:none; } }
     </style>
     <script type="importmap">
     { "imports": {
@@ -105,19 +82,10 @@
 </head>
 <body>
 
-<button id="space-close">&#8592;&ensp;Return</button>
-
 <div id="start-overlay">
     <p id="overlay-title">Starship</p>
     <button id="start-btn">Initiate Flight</button>
-    <div class="hint">
-        Hold <span class="kbd">Space</span> to thrust &nbsp;&middot;&nbsp; <span class="kbd">W A S D</span> to steer
-    </div>
-</div>
-
-<div id="ui">
-    <div><span class="kbd">Space</span> &ensp; Main Engine</div>
-    <div><span class="kbd">W S</span> &ensp; Pitch &nbsp;&middot;&nbsp; <span class="kbd">A D</span> &ensp; Roll</div>
+    <div class="hint">Hold <span class="kbd">Space</span> to thrust</div>
 </div>
 
 <script type="module">
@@ -130,26 +98,25 @@ import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 const isDark = localStorage.getItem('space-theme') !== 'light';
 if (!isDark) document.body.classList.add('light');
 
-document.getElementById('space-close').addEventListener('click', () => window.close());
-
-// ── renderer ──────────────────────────────────────────────────────────────────
+// ── renderer ──────────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = isDark ? 1.15 : 0.90;
+renderer.autoClear = false;
 document.body.appendChild(renderer.domElement);
 
-// ── scene / camera ────────────────────────────────────────────────────────────
+// ── scene / camera ────────────────────────────────────────
 const scene = new THREE.Scene();
 const baseFOV = 56;
 const camera = new THREE.PerspectiveCamera(baseFOV, innerWidth/innerHeight, 0.1, 80000);
-camera.position.set(0, 5, 28);
-camera.lookAt(0, 1, 0);
+camera.position.set(0, 0, 28);
+camera.lookAt(0, 0, 0);
 
-// ── sky shaders ───────────────────────────────────────────────────────────────
+// ── sky shader ─────────────────────────────────────────────
 const SKY_VS = `varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position,1.0); }`;
-const SKY_FS_DARK = `
+const SKY_FS = `
   uniform float uTime; varying vec2 vUv;
   float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
   float noise(vec2 p){
@@ -172,41 +139,26 @@ const SKY_FS_DARK = `
     gl_FragColor=vec4(col,1.0);
   }
 `;
-const SKY_FS_LIGHT = `
-  uniform float uTime; varying vec2 vUv;
-  float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
-  float noise(vec2 p){
-    vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
-    return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
-  }
-  float fbm(vec2 p){ float v=0.0,a=0.5; for(int i=0;i<6;i++){v+=a*noise(p);p*=2.1;a*=0.5;} return v; }
-  void main(){
-    float t=uTime*0.012;
-    float n1=fbm(vUv*2.2+vec2(t,t*0.5));
-    float n2=fbm(vUv*3.5-vec2(t*0.6,t*0.9));
-    vec3 col=vec3(0.08,0.13,0.22);
-    col=mix(col,vec3(0.12,0.20,0.38),clamp(n1*1.2,0.0,1.0));
-    col=mix(col,vec3(0.16,0.18,0.32),clamp(n2*0.8,0.0,1.0));
-    col=mix(col,vec3(0.18,0.10,0.30),clamp(n1*n2*1.5,0.0,0.35));
-    float r=1.0-length(vUv-0.5)*0.8;
-    col+=vec3(0.10,0.15,0.28)*clamp(r*0.18,0.0,0.18);
-    gl_FragColor=vec4(col,1.0);
-  }
-`;
 const skyUniforms = { uTime:{ value:0 } };
 const skyScene  = new THREE.Scene();
 const skyCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
 skyScene.add(new THREE.Mesh(
     new THREE.PlaneGeometry(2,2),
-    new THREE.ShaderMaterial({ uniforms:skyUniforms, vertexShader:SKY_VS,
-        fragmentShader:isDark?SKY_FS_DARK:SKY_FS_LIGHT, depthWrite:false, depthTest:false })
+    new THREE.ShaderMaterial({
+        uniforms: skyUniforms,
+        vertexShader: SKY_VS,
+        fragmentShader: SKY_FS,
+        depthWrite: false,
+        depthTest: false
+    })
 ));
 
-// ── post-processing ───────────────────────────────────────────────────────────
+// ── post-processing ─────────────────────────────────────────
 const composer = new EffectComposer(renderer);
 const rpSky = new RenderPass(skyScene, skyCamera);
 const rpMain = new RenderPass(scene, camera);
 rpMain.clear = false;
+rpMain.clearDepth = true;
 composer.addPass(rpSky);
 composer.addPass(rpMain);
 const bloom = new UnrealBloomPass(
@@ -224,20 +176,19 @@ composer.addPass(new ShaderPass({
         gl_FragColor=vec4(c.rgb*clamp(o-d*dot(uv,uv),0.0,1.0),c.a); }`
 }));
 
-// ── lighting ──────────────────────────────────────────────────────────────────
+// ── lighting ───────────────────────────────────────────────
 scene.add(new THREE.AmbientLight(isDark ? 0x0d1a10 : 0x0d1830, isDark ? 2.0 : 1.2));
 const sun = new THREE.DirectionalLight(0xfff8ee, isDark ? 7 : 6);
 sun.position.set(600, 250, 300); scene.add(sun);
 const fill = new THREE.DirectionalLight(isDark ? 0x1a4030 : 0x2244aa, isDark ? 1.5 : 1.0);
 fill.position.set(-300, -80, -200); scene.add(fill);
-const engineGlow = new THREE.PointLight(0x7C3AED, 0, 120);
-scene.add(engineGlow);
 
 const moonLight = new THREE.PointLight(0xfff4e0, isDark ? 3.0 : 2.0, 8000);
-moonLight.position.set(600, 250, -2800);
+moonLight.position.set(0, 0, -800);
 scene.add(moonLight);
 
-// ── moon ──────────────────────────────────────────────────────────────────────
+// ── moon ───────────────────────────────────────────────────
+const MOON_Z = -1200;
 const texLoader = new THREE.TextureLoader();
 const moonMat = new THREE.MeshStandardMaterial({
     roughness:0.92, metalness:0.0,
@@ -247,9 +198,10 @@ texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg', t 
     moonMat.map = t; moonMat.emissiveMap = t; moonMat.needsUpdate = true;
 });
 const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
-moon.position.set(0, 0, -3200); scene.add(moon);
+moon.position.set(0, 0, MOON_Z);
+scene.add(moon);
 
-// ── earth ─────────────────────────────────────────────────────────────────────
+// ── earth ────────────────────────────────────────────────
 const earth = new THREE.Mesh(
     new THREE.SphereGeometry(48, 40, 40),
     new THREE.MeshStandardMaterial({ color:0x1a4d8a, roughness:0.75 })
@@ -260,7 +212,7 @@ earth.add(new THREE.Mesh(
     new THREE.MeshStandardMaterial({ color:0x33aaff, transparent:true, opacity:0.10, side:THREE.FrontSide })
 ));
 
-// ── stars ─────────────────────────────────────────────────────────────────────
+// ── stars ─────────────────────────────────────────────────
 const STARS = isDark ? 2400 : 1600;
 const sGeo = new THREE.BufferGeometry();
 const sP = new Float32Array(STARS*6), sC = new Float32Array(STARS*6);
@@ -283,7 +235,7 @@ const stars = new THREE.LineSegments(sGeo, new THREE.LineBasicMaterial({
 }));
 scene.add(stars);
 
-// ── dust ──────────────────────────────────────────────────────────────────────
+// ── dust ──────────────────────────────────────────────────
 const dGeo = new THREE.BufferGeometry();
 const dP = new Float32Array(700*3);
 for(let i=0;i<700;i++){
@@ -298,152 +250,19 @@ const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({
 }));
 scene.add(dust);
 
-// ── ship ──────────────────────────────────────────────────────────────────────
-// All geometry is built in local Y-up space.
-// Body spans y = -8 (bottom) to y = +12 (top where nose begins).
-// Nose cone sits above that, y = 12 to ~20.
-// Engines attach flush to body bottom at y = -8, hanging below.
-
-const ship = new THREE.Group();
-
-const mSteel  = new THREE.MeshStandardMaterial({ color:0xc8cdd4, metalness:0.92, roughness:0.18 });
-const mDark   = new THREE.MeshStandardMaterial({ color:0x18191d, metalness:0.7,  roughness:0.45 });
-const mTile   = new THREE.MeshStandardMaterial({ color:0x1e2024, metalness:0.4,  roughness:0.88 });
-const mEngine = new THREE.MeshStandardMaterial({ color:0x2a2d35, metalness:0.96, roughness:0.18 });
-const mFlame  = new THREE.MeshBasicMaterial({ color:0x7C3AED, transparent:true, opacity:0 });
-const mCore   = new THREE.MeshBasicMaterial({ color:0xc4b5fd, transparent:true, opacity:0 });
-
-// Derived constants — single source of truth so everything stays connected
-const BODY_RADIUS = 1.6;
-const BODY_HEIGHT = 20;
-const BODY_CY     = 2;                          // body group center Y
-const BODY_TOP    = BODY_CY + BODY_HEIGHT / 2;  // = 12
-const BODY_BOT    = BODY_CY - BODY_HEIGHT / 2;  // = -8
-
-// Main cylindrical body
-const body = new THREE.Mesh(new THREE.CylinderGeometry(BODY_RADIUS, BODY_RADIUS, BODY_HEIGHT, 48), mSteel);
-body.position.y = BODY_CY;
-ship.add(body);
-
-// Heat-shield tile panel (dark half)
-const tileShield = new THREE.Mesh(
-    new THREE.CylinderGeometry(BODY_RADIUS + 0.02, BODY_RADIUS + 0.02, BODY_HEIGHT, 48, 1, false, -Math.PI*0.55, Math.PI*1.1),
-    mTile
-);
-tileShield.position.y = BODY_CY;
-ship.add(tileShield);
-
-// Nose cone — semi-ellipse ogive profile, flush with body top
-const NOSE_HEIGHT = 8.5;
-const nPts = [];
-for(let i=0;i<=28;i++){
-    const t = i / 28;
-    nPts.push(new THREE.Vector2(Math.max(BODY_RADIUS * Math.sqrt(1 - t*t), 0.02), t * NOSE_HEIGHT));
-}
-const noseMesh = new THREE.Mesh(new THREE.LatheGeometry(nPts, 48), mSteel);
-noseMesh.position.y = BODY_TOP;  // base of nose cone sits exactly at body top
-ship.add(noseMesh);
-
-// Forward canard fins — sit just below the nose base
-[-1, 1].forEach(side => {
-    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 3.2, 1.8), mDark);
-    fin.position.set(side * (BODY_RADIUS + 0.06), BODY_TOP - 1.6, 0);
-    fin.rotation.z = side * 0.06;
-    ship.add(fin);
-});
-
-// Aft flaps — span the lower portion of the body
-[-1, 1].forEach(side => {
-    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.12, 5.5, 3.0), mDark);
-    fin.position.set(side * (BODY_RADIUS + 0.06), BODY_BOT + 2.75, 0);
-    fin.rotation.z = side * -0.06;
-    ship.add(fin);
-});
-
-// Interstage ring — sits right at body bottom edge
-const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(BODY_RADIUS + 0.05, 0.055, 10, 52),
-    new THREE.MeshStandardMaterial({ color:0x555a66, metalness:0.8, roughness:0.3 })
-);
-ring.position.y = BODY_BOT;
-ring.rotation.x = Math.PI / 2;
-ship.add(ring);
-
-// Engine nozzle cluster — flush against body bottom
-// Bell geometry: CylinderGeometry(topR, bottomR, height)
-const BELL_H   = 1.1;
-const BELL_TOP = BODY_BOT - BELL_H / 2;   // center of bell Y so top rim = BODY_BOT
-
-// 6 Raptor engines: 3 inner + 3 outer
-const enginePositions = [
-    [0, 0], [0.72, 0], [-0.72, 0],           // inner ring
-    [0, 0.94], [0.81, -0.47], [-0.81, -0.47] // outer ring
-];
-enginePositions.forEach(([bx, bz]) => {
-    const bell = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.18, 0.32, BELL_H, 18),
-        mEngine
-    );
-    bell.position.set(bx, BELL_TOP, bz);
-    ship.add(bell);
-
-    // Nozzle exit rim at bottom of bell
-    const rim = new THREE.Mesh(
-        new THREE.TorusGeometry(0.32, 0.04, 8, 22),
-        new THREE.MeshBasicMaterial({ color:0x1a1f2e })
-    );
-    rim.position.set(bx, BODY_BOT - BELL_H, bz);
-    rim.rotation.x = Math.PI / 2;
-    ship.add(rim);
-});
-
-// Plume cone — tip points up toward engine exits, base fans out below
-// ConeGeometry with rotation.x=PI: tip is at +Y, base at -Y of mesh center
-const PLUME_H   = 24;
-const PLUME_CY  = BODY_BOT - BELL_H - PLUME_H / 2;  // top of cone = engine exits
-const plume = new THREE.Mesh(new THREE.ConeGeometry(1.5, PLUME_H, 28), mFlame);
-plume.position.y = PLUME_CY;
-plume.rotation.x = Math.PI;
-ship.add(plume);
-
-const CORE_H  = 18;
-const core = new THREE.Mesh(new THREE.ConeGeometry(0.6, CORE_H, 16), mCore);
-core.position.y = BODY_BOT - BELL_H - CORE_H / 2;
-core.rotation.x = Math.PI;
-ship.add(core);
-
-// ENGINE_GLOW_LOCAL_Y: world position offset used to place the PointLight
-// In local space the glow center sits at engine exit plane
-const ENGINE_GLOW_LOCAL_Y = BODY_BOT - BELL_H;
-
-ship.rotation.x = -Math.PI / 2;
-scene.add(ship);
-
-// ── input ─────────────────────────────────────────────────────────────────────
+// ── input ─────────────────────────────────────────────────
 let started = false, thrusting = false;
-const keys = { w:false, a:false, s:false, d:false };
-const baseRX = -Math.PI / 2, maxT = 0.38;
-const tgt = { x:baseRX, z:0 };
 
 window.addEventListener('keydown', e => {
     if(!started) return;
-    const k = e.key.toLowerCase();
-    if(k in keys) keys[k] = true;
     if(e.code === 'Space'){ thrusting = true; e.preventDefault(); }
 });
 window.addEventListener('keyup', e => {
-    const k = e.key.toLowerCase();
-    if(k in keys) keys[k] = false;
     if(e.code === 'Space') thrusting = false;
 });
 window.addEventListener('pointerdown', e => { if(started && e.target.id !== 'start-btn') thrusting = true; });
 window.addEventListener('pointerup',      () => thrusting = false);
 window.addEventListener('pointercancel',  () => thrusting = false);
-window.addEventListener('deviceorientation', e => {
-    if(!started) return;
-    tgt.x = baseRX + THREE.MathUtils.clamp((e.beta  || 0) / 45, -1, 1) * maxT;
-    tgt.z =        - THREE.MathUtils.clamp((e.gamma || 0) / 45, -1, 1) * maxT;
-});
 
 document.getElementById('start-btn').addEventListener('click', () => {
     const ov = document.getElementById('start-overlay');
@@ -451,10 +270,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     ov.style.opacity = '0';
     setTimeout(() => ov.remove(), 420);
     started = true;
-    if(typeof DeviceOrientationEvent !== 'undefined' &&
-       typeof DeviceOrientationEvent.requestPermission === 'function'){
-        DeviceOrientationEvent.requestPermission().catch(() => {});
-    }
 });
 
 window.addEventListener('resize', () => {
@@ -464,50 +279,18 @@ window.addEventListener('resize', () => {
     composer.setSize(innerWidth, innerHeight);
 });
 
-// ── animate ───────────────────────────────────────────────────────────────────
+// ── animate ───────────────────────────────────────────────
 const clock = new THREE.Clock();
-let time = 0, starSpeed = 3, thrust = 0, moonSc = 1;
+let time = 0, starSpeed = 3, thrust = 0;
 
 function animate(){
     requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
     thrust = THREE.MathUtils.lerp(thrust, thrusting ? 1 : 0, dt * 4.5);
-    skyUniforms.uTime.value = time;
 
-    if(started){
-        if(keys.s)       tgt.x = THREE.MathUtils.lerp(tgt.x, baseRX + maxT, dt*7);
-        else if(keys.w)  tgt.x = THREE.MathUtils.lerp(tgt.x, baseRX - maxT, dt*7);
-        else             tgt.x = THREE.MathUtils.lerp(tgt.x, baseRX, dt*4);
-        if(keys.a)       tgt.z = THREE.MathUtils.lerp(tgt.z,  maxT, dt*7);
-        else if(keys.d)  tgt.z = THREE.MathUtils.lerp(tgt.z, -maxT, dt*7);
-        else             tgt.z = THREE.MathUtils.lerp(tgt.z, 0, dt*4);
-    }
+    skyUniforms.uTime.value = time % 1000.0;
 
-    ship.rotation.x += (tgt.x - ship.rotation.x) * 6 * dt;
-    ship.rotation.z += (tgt.z - ship.rotation.z) * 6 * dt;
-    ship.rotation.y  = Math.sin(time * .28) * .01;
-    ship.position.x += ((-ship.rotation.z * 14) - ship.position.x) * 2.5 * dt;
-    ship.position.y += ((((baseRX - ship.rotation.x) * 14) + Math.sin(time * 1.7) * .55) - ship.position.y) * 2.5 * dt;
-
-    const flk = .86 + Math.random() * .14;
-    mFlame.opacity = THREE.MathUtils.lerp(mFlame.opacity, thrust * .78 * flk, dt * 20);
-    mCore.opacity  = THREE.MathUtils.lerp(mCore.opacity,  thrust * .96 * flk, dt * 20);
-    plume.scale.set(1, 1 + thrust * .55 * flk, 1);
-    engineGlow.intensity = THREE.MathUtils.lerp(engineGlow.intensity, thrust * 220 * flk, dt * 22);
-
-    // FIX: derive glow world position from ship transform instead of hardcoded offset
-    // ENGINE_GLOW_LOCAL_Y is in ship's local space; with rotation.x=-PI/2, local Y → world -Z.
-    // We only need the screen-space XY to follow the ship, Z offset from camera is fine fixed.
-    const glowLocal = new THREE.Vector3(0, ENGINE_GLOW_LOCAL_Y, 0);
-    glowLocal.applyEuler(ship.rotation);
-    engineGlow.position.set(
-        ship.position.x + glowLocal.x,
-        ship.position.y + glowLocal.y,
-        ship.position.z + glowLocal.z
-    );
-
-    // FIX: framerate-independent starSpeed deceleration (removed the spurious *60)
     starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 4 : 0.8));
     const str = starSpeed * .11;
     const pa = stars.geometry.attributes.position.array;
@@ -531,18 +314,16 @@ function animate(){
     }
     dust.geometry.attributes.position.needsUpdate = true;
 
-    // FIX: moon scale growth is now cleanly dt-based, no hidden *60
-    if(thrust > .05) moonSc = Math.min(moonSc + thrust * 0.18 * dt, 30);
-    else             moonSc = THREE.MathUtils.lerp(moonSc, Math.max(moonSc - 0.001, 1), dt * 0.4);
-    moon.scale.setScalar(moonSc);
     moon.rotation.y  += .005 * dt;
     earth.rotation.y += .008 * dt;
 
-    camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV + thrust * 18, dt * 4);
-    const sway = Math.sin(time * .38) * .07, shk = thrust * .2;
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, (Math.random()-.5)*shk + sway, dt*10);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 5 + (Math.random()-.5)*shk,    dt*10);
+    camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV - thrust * 14, dt * 4);
     camera.updateProjectionMatrix();
+
+    const shk = thrust * 0.18;
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, (Math.random()-.5)*shk, dt*10);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, (Math.random()-.5)*shk, dt*10);
+
     bloom.strength = THREE.MathUtils.lerp(bloom.strength, (isDark ? 1.1 : 0.25) + thrust * 1.8, dt * 5);
 
     composer.render();
