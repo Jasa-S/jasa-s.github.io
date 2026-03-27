@@ -62,11 +62,6 @@
         }
         body.light #start-overlay { background:rgba(20,35,55,0.86); }
 
-        #overlay-title {
-            font-size:11px; font-weight:500;
-            letter-spacing:0.28em; text-transform:uppercase;
-            color:var(--text-muted);
-        }
         #start-btn {
             background: var(--card);
             color: var(--cosmic-purple);
@@ -162,7 +157,6 @@
 <button id="space-close">&#8592;&ensp;Return</button>
 
 <div id="start-overlay">
-    <p id="overlay-title">Flight Sim</p>
     <button id="start-btn">Initiate</button>
     <div class="hint">Hold <span class="kbd">Space</span> to thrust</div>
 </div>
@@ -204,7 +198,6 @@ const todayStr = fmt(today), d7Str = fmt(d7);
 
 function setVal(id, html){ document.getElementById(id).innerHTML = html; }
 
-// Solar flares
 fetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
     .then(r => r.json())
     .then(data => {
@@ -222,7 +215,6 @@ fetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api
     })
     .catch(() => setVal('val-flare', '<span class="dot warn"></span>Unavailable'));
 
-// Geomagnetic storms
 fetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
     .then(r => r.json())
     .then(data => {
@@ -241,12 +233,10 @@ fetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api
     })
     .catch(() => setVal('val-storm', '<span class="dot warn"></span>Unavailable'));
 
-// Near-Earth Objects
 fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${todayStr}&api_key=${KEY}`)
     .then(r => r.json())
     .then(data => {
         const total = data.element_count || 0;
-        // find closest approach
         let closest = null, minDist = Infinity;
         Object.values(data.near_earth_objects || {}).forEach(day => {
             day.forEach(neo => {
@@ -258,12 +248,12 @@ fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${toda
             setVal('val-neo', `<span class="dot"></span><span class="hi">${total}</span> tracked this week`);
             return;
         }
-        const name    = closest.name.replace(/[()]/g,'').trim();
+        const name     = closest.name.replace(/[()]/g,'').trim();
         const lunarDist = minDist.toFixed(1);
-        const hazard  = closest.is_potentially_hazardous_asteroid;
-        const level   = hazard ? 'warn' : '';
-        const diam    = closest.estimated_diameter?.meters;
-        const diamStr = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
+        const hazard   = closest.is_potentially_hazardous_asteroid;
+        const level    = hazard ? 'warn' : '';
+        const diam     = closest.estimated_diameter?.meters;
+        const diamStr  = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
         setVal('val-neo',
             `<span class="dot ${level}"></span><span class="hi">${name}</span><br>
              ${lunarDist} LD away &mdash; ${diamStr}<br>
@@ -334,11 +324,13 @@ rpMain.clear = false;
 rpMain.clearDepth = true;
 composer.addPass(rpSky);
 composer.addPass(rpMain);
+const BLOOM_DARK  = 1.1;
+const BLOOM_LIGHT = 0.55;
 const bloom = new UnrealBloomPass(
     new THREE.Vector2(innerWidth, innerHeight),
-    isDark ? 1.1 : 0.25,
+    isDark ? BLOOM_DARK : BLOOM_LIGHT,
     0.4,
-    isDark ? 0.55 : 0.80
+    isDark ? 0.72 : 0.82   // higher threshold = only the very brightest pixels bloom
 );
 composer.addPass(bloom);
 composer.addPass(new ShaderPass({
@@ -362,11 +354,15 @@ moonLight.position.set(0, 0, -800); scene.add(moonLight);
 const MOON_Z = -1200;
 const texLoader = new THREE.TextureLoader();
 const moonMat = new THREE.MeshStandardMaterial({
-    roughness:0.92, metalness:0.0,
-    emissive:0x334455, emissiveIntensity:0.25
+    roughness: 0.92,
+    metalness: 0.0,
+    emissive: 0x334455,
+    emissiveIntensity: 0.04   // was 0.25 — was pushing bright craters over bloom threshold
 });
 texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg', t => {
-    moonMat.map = t; moonMat.emissiveMap = t; moonMat.needsUpdate = true;
+    moonMat.map = t;
+    // intentionally NOT setting emissiveMap — avoids texture detail getting bloom-amplified
+    moonMat.needsUpdate = true;
 });
 const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
 moon.position.set(0, 0, MOON_Z);
@@ -441,7 +437,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     ov.style.opacity = '0';
     setTimeout(() => ov.remove(), 420);
     started = true;
-    // show NASA panel
     document.getElementById('nasa-panel').classList.add('visible');
 });
 
@@ -497,7 +492,8 @@ function animate(){
     camera.position.x = THREE.MathUtils.lerp(camera.position.x, (Math.random()-.5)*shk, dt*10);
     camera.position.y = THREE.MathUtils.lerp(camera.position.y, (Math.random()-.5)*shk, dt*10);
 
-    bloom.strength = THREE.MathUtils.lerp(bloom.strength, (isDark ? 1.1 : 0.25) + thrust * 1.8, dt * 5);
+    const baseBloom = isDark ? BLOOM_DARK : BLOOM_LIGHT;
+    bloom.strength = THREE.MathUtils.lerp(bloom.strength, baseBloom + thrust * 1.8, dt * 5);
 
     composer.render();
 }
