@@ -33,9 +33,9 @@
             user-select: none;
             -webkit-font-smoothing: antialiased;
         }
-        body.light { background: #1a2a3a; }
+        body.light { background: #000; } /* keep black — scene is always dark */
 
-        /* ── return button ────────────────────────────── */
+        /* ── return button ── */
         #space-close {
             position: absolute;
             top: 1.1rem; left: 1.5rem;
@@ -44,7 +44,7 @@
             border: none;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            font-size: 0.65rem;         /* matches index footer / theme-toggle size */
+            font-size: 0.65rem;
             font-weight: 400;
             letter-spacing: 0.2em;
             text-transform: uppercase;
@@ -56,7 +56,7 @@
             #space-close:hover { color: var(--cosmic-purple); }
         }
 
-        /* ── overlay ───────────────────────────────── */
+        /* ── overlay ── */
         #start-overlay {
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
@@ -65,9 +65,6 @@
             background: rgba(0,0,0,0.78);
             backdrop-filter: blur(2px);
         }
-        body.light #start-overlay { background: rgba(20,35,55,0.86); }
-
-        /* button matches index .badge style but filled with purple accent */
         #start-btn {
             background: var(--card);
             color: var(--cosmic-purple);
@@ -88,8 +85,6 @@
                 border-color: var(--cosmic-purple);
             }
         }
-
-        /* hint line matches index text-xs text-muted tracking-widest */
         .hint {
             font-size: 0.65rem;
             font-weight: 400;
@@ -110,7 +105,7 @@
             letter-spacing: 0.08em;
         }
 
-        /* ── NASA live panel ──────────────────────────── */
+        /* ── NASA live panel ── */
         #nasa-panel {
             position: absolute;
             bottom: 1.5rem; right: 1.5rem;
@@ -123,18 +118,14 @@
             transition: opacity 0.8s;
         }
         #nasa-panel.visible { opacity: 1; }
-
-        /* card mirrors index .glass */
         .nasa-card {
             background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 0.75rem;     /* rounded-xl */
+            border-radius: 0.75rem;
             padding: 0.75rem 1rem;
             min-width: 200px;
             max-width: 260px;
         }
-
-        /* label mirrors index section h2: text-xs uppercase tracking-[0.2em] font-bold text-muted */
         .nasa-label {
             font-size: 0.65rem;
             font-weight: 700;
@@ -143,8 +134,6 @@
             color: var(--text-muted);
             margin-bottom: 0.35rem;
         }
-
-        /* value mirrors index text-xs text-muted */
         .nasa-value {
             font-size: 0.7rem;
             font-weight: 400;
@@ -152,12 +141,10 @@
             color: var(--text-muted);
             line-height: 1.7;
         }
-        /* hi = index font-medium text-main */
         .nasa-value span.hi {
             color: var(--text-main);
             font-weight: 500;
         }
-
         .dot {
             display: inline-block;
             width: 5px; height: 5px;
@@ -168,7 +155,6 @@
         }
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
-
         @media (max-width:600px) { #nasa-panel { display:none; } }
     </style>
     <script type="importmap">
@@ -209,13 +195,14 @@ import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 
-const isDark = localStorage.getItem('space-theme') !== 'light';
-if (!isDark) document.body.classList.add('light');
+// theme only affects UI colours — the 3D scene is always identical
+const isLight = localStorage.getItem('space-theme') === 'light';
+if (isLight) document.body.classList.add('light');
 
 document.getElementById('space-close').addEventListener('click', () => window.close());
 
 // ── NASA data ────────────────────────────────────────────
-const KEY = 'DEMO_KEY';
+const KEY = 'Mn4mtIRZZqWqflCEjoEjAktRB4QrIAKww2IVkk3A';
 const today = new Date();
 const fmt = d => d.toISOString().split('T')[0];
 const d7 = new Date(today); d7.setDate(d7.getDate()-7);
@@ -291,7 +278,7 @@ const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = isDark ? 1.15 : 0.90;
+renderer.toneMappingExposure = 1.15;   // fixed — same for both modes
 renderer.autoClear = false;
 document.body.appendChild(renderer.domElement);
 
@@ -349,13 +336,12 @@ rpMain.clear = false;
 rpMain.clearDepth = true;
 composer.addPass(rpSky);
 composer.addPass(rpMain);
-const BLOOM_DARK  = 1.1;
-const BLOOM_LIGHT = 0.55;
+const BLOOM_BASE = 1.1;
 const bloom = new UnrealBloomPass(
     new THREE.Vector2(innerWidth, innerHeight),
-    isDark ? BLOOM_DARK : BLOOM_LIGHT,
+    BLOOM_BASE,
     0.4,
-    isDark ? 0.72 : 0.82
+    0.72
 );
 composer.addPass(bloom);
 composer.addPass(new ShaderPass({
@@ -366,13 +352,13 @@ composer.addPass(new ShaderPass({
         gl_FragColor=vec4(c.rgb*clamp(o-d*dot(uv,uv),0.0,1.0),c.a); }`
 }));
 
-// ── lighting ───────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(isDark ? 0x0d1a10 : 0x0d1830, isDark ? 2.0 : 1.2));
-const sun = new THREE.DirectionalLight(0xfff8ee, isDark ? 7 : 6);
+// ── lighting (fixed — not theme-dependent) ───────────────────
+scene.add(new THREE.AmbientLight(0x0d1a10, 2.0));
+const sun = new THREE.DirectionalLight(0xfff8ee, 7);
 sun.position.set(600, 250, 300); scene.add(sun);
-const fill = new THREE.DirectionalLight(isDark ? 0x1a4030 : 0x2244aa, isDark ? 1.5 : 1.0);
+const fill = new THREE.DirectionalLight(0x1a4030, 1.5);
 fill.position.set(-300, -80, -200); scene.add(fill);
-const moonLight = new THREE.PointLight(0xfff4e0, isDark ? 3.0 : 2.0, 8000);
+const moonLight = new THREE.PointLight(0xfff4e0, 3.0, 8000);
 moonLight.position.set(0, 0, -800); scene.add(moonLight);
 
 // ── moon ───────────────────────────────────────────────────
@@ -400,13 +386,11 @@ earth.add(new THREE.Mesh(
     new THREE.MeshStandardMaterial({ color:0x33aaff, transparent:true, opacity:0.10, side:THREE.FrontSide })
 ));
 
-// ── stars ─────────────────────────────────────────────────
-const STARS = isDark ? 2400 : 1600;
+// ── stars (fixed count & colours) ───────────────────────────
+const STARS = 2400;
 const sGeo = new THREE.BufferGeometry();
 const sP = new Float32Array(STARS*6), sC = new Float32Array(STARS*6);
-const SCOLS = isDark
-    ? [[1,1,1],[0.7,0.9,1],[1,0.95,0.8],[0.6,1,0.75],[0.9,0.7,1]]
-    : [[1.0,1.0,1.0],[0.8,0.9,1.0],[1.0,0.95,0.7],[0.7,1.0,0.85]];
+const SCOLS = [[1,1,1],[0.7,0.9,1],[1,0.95,0.8],[0.6,1,0.75],[0.9,0.7,1]];
 for(let i=0;i<STARS;i++){
     const x=(Math.random()-.5)*1400, y=(Math.random()-.5)*1000,
           z=(Math.random()-.5)*5000-500, ix=i*6;
@@ -419,7 +403,7 @@ for(let i=0;i<STARS;i++){
 sGeo.setAttribute('position', new THREE.BufferAttribute(sP, 3));
 sGeo.setAttribute('color',    new THREE.BufferAttribute(sC, 3));
 const stars = new THREE.LineSegments(sGeo, new THREE.LineBasicMaterial({
-    vertexColors:true, transparent:true, opacity: isDark ? 0.8 : 0.9
+    vertexColors:true, transparent:true, opacity:0.8
 }));
 scene.add(stars);
 
@@ -433,8 +417,7 @@ for(let i=0;i<700;i++){
 }
 dGeo.setAttribute('position', new THREE.BufferAttribute(dP, 3));
 const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({
-    color: isDark ? 0x44bb77 : 0x8899cc,
-    size:0.15, transparent:true, opacity: isDark ? 0.28 : 0.20
+    color: 0x44bb77, size:0.15, transparent:true, opacity:0.28
 }));
 scene.add(dust);
 
@@ -513,8 +496,7 @@ function animate(){
     camera.position.x = THREE.MathUtils.lerp(camera.position.x, (Math.random()-.5)*shk, dt*10);
     camera.position.y = THREE.MathUtils.lerp(camera.position.y, (Math.random()-.5)*shk, dt*10);
 
-    const baseBloom = isDark ? BLOOM_DARK : BLOOM_LIGHT;
-    bloom.strength = THREE.MathUtils.lerp(bloom.strength, baseBloom + thrust * 1.8, dt * 5);
+    bloom.strength = THREE.MathUtils.lerp(bloom.strength, BLOOM_BASE + thrust * 1.8, dt * 5);
 
     composer.render();
 }
