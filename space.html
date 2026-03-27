@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Starship — Lunar Approach</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: 'Segoe UI', sans-serif;
+            touch-action: none;
+            user-select: none;
+        }
+        #start-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: white;
+            gap: 16px;
+        }
+        #start-overlay h1 {
+            font-size: clamp(18px, 4vw, 32px);
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #c8d8e8;
+        }
+        #start-overlay p {
+            font-size: clamp(11px, 2vw, 14px);
+            opacity: 0.5;
+            letter-spacing: 0.15em;
+        }
+        #start-btn {
+            background: transparent;
+            color: #c8d8e8;
+            border: 1px solid rgba(200,216,232,0.4);
+            padding: 12px 36px;
+            font-size: 13px;
+            font-weight: 400;
+            border-radius: 2px;
+            cursor: pointer;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        #start-btn:hover {
+            background: rgba(200,216,232,0.08);
+            border-color: rgba(200,216,232,0.8);
+        }
+        #ui {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            color: rgba(200,216,232,0.6);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            pointer-events: none;
+            line-height: 2;
+            text-transform: uppercase;
+        }
+        .key {
+            display: inline-block;
+            border: 1px solid rgba(200,216,232,0.3);
+            padding: 1px 6px;
+            border-radius: 2px;
+            font-size: 10px;
+        }
+        #telemetry {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            color: rgba(200,216,232,0.45);
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            text-align: right;
+            pointer-events: none;
+            line-height: 2.2;
+        }
+        @media (max-width: 768px) { #ui { display: none; } }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body>
+
+<div id="start-overlay">
+    <h1>Starship</h1>
+    <p>Lunar Approach &mdash; T+00:00:00</p>
+    <button id="start-btn">Initiate Flight</button>
+    <p style="margin-top:4px;">Hold <span class="key">SPACE</span> to thrust &nbsp;&middot;&nbsp; <span class="key">WASD</span> to steer</p>
+</div>
+
+<div id="ui">
+    <div><span class="key">SPACE</span> / <span class="key">TOUCH</span> &nbsp; Main Engine</div>
+    <div><span class="key">W S</span> &nbsp; Pitch &nbsp;&middot;&nbsp; <span class="key">A D</span> &nbsp; Roll</div>
+</div>
+
+<div id="telemetry">
+    <div id="tel-vel">VELOCITY &nbsp; 0.0 m/s</div>
+    <div id="tel-alt">DISTANCE &nbsp; &infin;</div>
+    <div id="tel-thr">THROTTLE &nbsp; 0%</div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+// ── Scene ──────────────────────────────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x00000a, 0.00035);
+
+const baseFOV = 55;
+const camera = new THREE.PerspectiveCamera(baseFOV, innerWidth/innerHeight, 0.1, 60000);
+camera.position.set(0, 6, 30);
+camera.lookAt(0, 2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.body.appendChild(renderer.domElement);
+
+// ── Post-processing ──────────────────────────────────────────────────────────────────────────
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 1.2, 0.5, 0.6);
+composer.addPass(bloom);
+
+const vignetteShader = {
+    uniforms: { tDiffuse: { value: null }, darkness: { value: 1.1 }, offset: { value: 0.95 } },
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader: `
+        uniform sampler2D tDiffuse;
+        uniform float darkness, offset;
+        varying vec2 vUv;
+        void main(){
+            vec4 color = texture2D(tDiffuse, vUv);
+            vec2 uv = (vUv - 0.5) * 2.0;
+            float vignette = clamp(offset - darkness * dot(uv, uv), 0.0, 1.0);
+            gl_FragColor = vec4(color.rgb * vignette, color.a);
+        }`
+};
+const vigPass = new ShaderPass(vignetteShader);
+composer.addPass(vigPass);
+
+// ── Lighting ───────────────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x0a1020, 1.5));
+
+const sun = new THREE.DirectionalLight(0xfff5e8, 8);
+sun.position.set(800, 300, 200);
+scene.add(sun);
+
+const rimLight = new THREE.DirectionalLight(0x203060, 2);
+rimLight.position.set(-400, -100, -200);
+scene.add(rimLight);
+
+const engineGlow = new THREE.PointLight(0x4488ff, 0, 80);
+scene.add(engineGlow);
+
+// ── Texture Loader ──────────────────────────────────────────────────────────────────────────
+const loader = new THREE.TextureLoader();
+
+const moonColorTex  = loader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/lroc_color_poles_1k.jpg');
+const moonNormalTex = loader.load('https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720/ldem_3_8bit.jpg');
+
+// ── Moon ─────────────────────────────────────────────────────────────────────────────
+const moonMat = new THREE.MeshStandardMaterial({
+    map: moonColorTex,
+    normalMap: moonNormalTex,
+    normalScale: new THREE.Vector2(2.5, 2.5),
+    roughness: 0.95,
+    metalness: 0.0,
+});
+const moon = new THREE.Mesh(new THREE.SphereGeometry(120, 96, 96), moonMat);
+moon.position.set(0, 0, -3800);
+scene.add(moon);
+
+// ── Earth (background) ───────────────────────────────────────────────────────────────────────────
+const earthMat  = new THREE.MeshStandardMaterial({ color: 0x1a4d8a, roughness: 0.8 });
+const earthAtmo = new THREE.MeshStandardMaterial({ color: 0x3399ff, transparent: true, opacity: 0.12, side: THREE.FrontSide });
+const earth = new THREE.Mesh(new THREE.SphereGeometry(55, 48, 48), earthMat);
+earth.position.set(-900, 260, -5000);
+scene.add(earth);
+const earthGlow = new THREE.Mesh(new THREE.SphereGeometry(58, 48, 48), earthAtmo);
+earth.add(earthGlow);
+
+// ── Stars ──────────────────────────────────────────────────────────────────────────────
+const STAR_COUNT = 2200;
+const starGeo = new THREE.BufferGeometry();
+const sPos = new Float32Array(STAR_COUNT * 6);
+const sCol = new Float32Array(STAR_COUNT * 6);
+
+const starColors = [
+    [1.0, 1.0, 1.0], [0.7, 0.85, 1.0], [1.0, 0.95, 0.8],
+    [0.8, 0.9, 1.0],  [1.0, 0.8, 0.7]
+];
+
+for (let i = 0; i < STAR_COUNT; i++) {
+    const x = (Math.random() - 0.5) * 1200;
+    const y = (Math.random() - 0.5) * 900;
+    const z = (Math.random() - 0.5) * 4000 - 500;
+    const idx = i * 6;
+    sPos[idx]=x; sPos[idx+1]=y; sPos[idx+2]=z;
+    sPos[idx+3]=x; sPos[idx+4]=y; sPos[idx+5]=z;
+    const c = starColors[Math.floor(Math.random() * starColors.length)];
+    sCol[idx]=c[0]; sCol[idx+1]=c[1]; sCol[idx+2]=c[2];
+    sCol[idx+3]=c[0]; sCol[idx+4]=c[1]; sCol[idx+5]=c[2];
+}
+starGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+starGeo.setAttribute('color',    new THREE.BufferAttribute(sCol, 3));
+
+const starMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.75 });
+const stars = new THREE.LineSegments(starGeo, starMat);
+scene.add(stars);
+
+// ── Dust particles (depth layer) ────────────────────────────────────────────────────────────────────
+const dustGeo = new THREE.BufferGeometry();
+const dustPos = new Float32Array(600 * 3);
+for (let i = 0; i < 600; i++) {
+    dustPos[i*3]   = (Math.random()-0.5)*300;
+    dustPos[i*3+1] = (Math.random()-0.5)*200;
+    dustPos[i*3+2] = (Math.random()-0.5)*800 - 100;
+}
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+    color: 0x8899bb, size: 0.18, transparent: true, opacity: 0.35
+}));
+scene.add(dust);
+
+// ── Starship (improved primitives) ────────────────────────────────────────────────────────────────────
+const ship = new THREE.Group();
+
+const steelMat  = new THREE.MeshStandardMaterial({ color: 0xd8dde2, metalness: 0.92, roughness: 0.18 });
+const darkMat   = new THREE.MeshStandardMaterial({ color: 0x1a1c20, metalness: 0.7,  roughness: 0.4  });
+const tilesMat  = new THREE.MeshStandardMaterial({ color: 0x2a2c30, metalness: 0.5,  roughness: 0.8  });
+const engineMat = new THREE.MeshStandardMaterial({ color: 0x303540, metalness: 0.95, roughness: 0.2  });
+const flameMat  = new THREE.MeshBasicMaterial({ color: 0x55aaff, transparent: true, opacity: 0 });
+const innerFlameMat = new THREE.MeshBasicMaterial({ color: 0xaaddff, transparent: true, opacity: 0 });
+
+const hullPoints = [];
+for (let i = 0; i <= 20; i++) {
+    const t = i / 20;
+    const r = 1.4 + (1 - t) * 0.35 + Math.pow(1-t,3) * 0.3;
+    const y = t * 16 - 2;
+    hullPoints.push(new THREE.Vector2(r, y));
+}
+const hull = new THREE.Mesh(new THREE.LatheGeometry(hullPoints, 40), steelMat);
+ship.add(hull);
+
+const shieldGeo = new THREE.CylinderGeometry(1.78, 1.78, 10, 40, 1, false, -Math.PI*0.52, Math.PI*0.65);
+const shield = new THREE.Mesh(shieldGeo, tilesMat);
+shield.position.y = 2;
+ship.add(shield);
+
+const nosePoints = [];
+for (let i = 0; i <= 18; i++) {
+    const t = i / 18;
+    const r = 1.4 * (1 - Math.pow(t, 1.6));
+    nosePoints.push(new THREE.Vector2(r, t * 6));
+}
+const nose = new THREE.Mesh(new THREE.LatheGeometry(nosePoints, 40), steelMat);
+nose.position.y = 14;
+ship.add(nose);
+
+function makeFlapSet(yPos, zPos, isHeader) {
+    const geo = new THREE.BoxGeometry(isHeader ? 0.18 : 0.18, 3.5, isHeader ? 1.8 : 2.2);
+    const flapL = new THREE.Mesh(geo, darkMat);
+    flapL.position.set(-1.75, yPos, zPos);
+    flapL.rotation.z = isHeader ?  0.08 : -0.08;
+    const flapR = new THREE.Mesh(geo, darkMat);
+    flapR.position.set( 1.75, yPos, zPos);
+    flapR.rotation.z = isHeader ? -0.08 :  0.08;
+    ship.add(flapL, flapR);
+}
+makeFlapSet(10, 0.3, true);
+makeFlapSet(-3, -0.3, false);
+
+const bellPositions = [
+    [0, 0], [1.1, 0], [-1.1, 0],
+    [0.55, 0.95], [-0.55, 0.95], [0, -1.1]
+];
+bellPositions.forEach(([bx, bz]) => {
+    const bell = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.28, 0.42, 0.9, 16),
+        engineMat
+    );
+    bell.position.set(bx, -9.2, bz);
+    ship.add(bell);
+});
+
+bellPositions.forEach(([bx, bz]) => {
+    const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.4, 0.04, 8, 24),
+        new THREE.MeshBasicMaterial({ color: 0x223344 })
+    );
+    ring.position.set(bx, -9.65, bz);
+    ring.rotation.x = Math.PI / 2;
+    ship.add(ring);
+});
+
+const plume = new THREE.Mesh(new THREE.ConeGeometry(1.6, 12, 24), flameMat);
+plume.position.y = -16;
+plume.rotation.x = Math.PI;
+ship.add(plume);
+
+const innerPlume = new THREE.Mesh(new THREE.ConeGeometry(0.7, 8, 16), innerFlameMat);
+innerPlume.position.y = -14;
+innerPlume.rotation.x = Math.PI;
+ship.add(innerPlume);
+
+ship.rotation.x = -Math.PI / 2;
+scene.add(ship);
+
+// ── Input ─────────────────────────────────────────────────────────────────────────────
+let isThrusting = false;
+const keys = { w:false, a:false, s:false, d:false };
+
+window.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    if (k in keys) keys[k] = true;
+    if (e.code === 'Space') { isThrusting = true; e.preventDefault(); }
+});
+window.addEventListener('keyup', e => {
+    const k = e.key.toLowerCase();
+    if (k in keys) keys[k] = false;
+    if (e.code === 'Space') isThrusting = false;
+});
+
+window.addEventListener('pointerdown', e => { if (e.target.tagName !== 'BUTTON') isThrusting = true; });
+window.addEventListener('pointerup',   () => isThrusting = false);
+window.addEventListener('pointercancel', () => isThrusting = false);
+
+const baseRX = -Math.PI / 2;
+const maxTilt = 0.38;
+const tgt = { x: baseRX, z: 0 };
+
+function handleOrientation(e) {
+    tgt.x = baseRX + THREE.MathUtils.clamp((e.beta  || 0) / 45, -1, 1) * maxTilt;
+    tgt.z =        - THREE.MathUtils.clamp((e.gamma || 0) / 45, -1, 1) * maxTilt;
+}
+
+document.getElementById('start-btn').addEventListener('click', () => {
+    document.getElementById('start-overlay').style.display = 'none';
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+            .then(s => { if (s === 'granted') window.addEventListener('deviceorientation', handleOrientation); })
+            .catch(console.error);
+    } else {
+        window.addEventListener('deviceorientation', handleOrientation);
+    }
+});
+
+window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+    composer.setSize(innerWidth, innerHeight);
+});
+
+// ── Animation ───────────────────────────────────────────────────────────────────────────
+const clock = new THREE.Clock();
+let time = 0;
+let starSpeed = 4;
+let thrustLevel = 0;
+let moonScale  = 1.0;
+let totalDist  = 0;
+
+const telVel = document.getElementById('tel-vel');
+const telAlt = document.getElementById('tel-alt');
+const telThr = document.getElementById('tel-thr');
+
+function animate() {
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    time += dt;
+
+    thrustLevel = THREE.MathUtils.lerp(thrustLevel, isThrusting ? 1.0 : 0.0, dt * 4);
+
+    if (!window.DeviceOrientationEvent || window.innerWidth > 768) {
+        if (keys.s) tgt.x = THREE.MathUtils.lerp(tgt.x, baseRX + maxTilt, dt * 6);
+        else if (keys.w) tgt.x = THREE.MathUtils.lerp(tgt.x, baseRX - maxTilt, dt * 6);
+        else tgt.x = THREE.MathUtils.lerp(tgt.x, baseRX, dt * 4);
+
+        if (keys.a) tgt.z = THREE.MathUtils.lerp(tgt.z,  maxTilt, dt * 6);
+        else if (keys.d) tgt.z = THREE.MathUtils.lerp(tgt.z, -maxTilt, dt * 6);
+        else tgt.z = THREE.MathUtils.lerp(tgt.z, 0, dt * 4);
+    }
+
+    ship.rotation.x += (tgt.x - ship.rotation.x) * 6 * dt;
+    ship.rotation.z += (tgt.z - ship.rotation.z) * 6 * dt;
+    ship.rotation.y  = Math.sin(time * 0.3) * 0.012;
+
+    ship.position.x += ((-ship.rotation.z * 12) - ship.position.x) * 2.5 * dt;
+    ship.position.y += ((((baseRX - ship.rotation.x) * 12) + Math.sin(time * 1.8) * 0.6) - ship.position.y) * 2.5 * dt;
+
+    const flicker = 0.88 + Math.random() * 0.12;
+    flameMat.opacity      = THREE.MathUtils.lerp(flameMat.opacity,      thrustLevel * 0.82 * flicker, dt * 18);
+    innerFlameMat.opacity = THREE.MathUtils.lerp(innerFlameMat.opacity, thrustLevel * 0.95 * flicker, dt * 18);
+    plume.scale.set(1, (1 + thrustLevel * 0.6 * flicker), 1);
+    engineGlow.intensity  = THREE.MathUtils.lerp(engineGlow.intensity,  thrustLevel * 180 * flicker, dt * 20);
+    engineGlow.position.copy(ship.position);
+    engineGlow.position.y -= 12;
+
+    starSpeed = THREE.MathUtils.lerp(starSpeed, isThrusting ? 900 : 4, dt * (isThrusting ? 3.5 : 1.5));
+    const stretch = starSpeed * 0.12;
+    const posArr  = stars.geometry.attributes.position.array;
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+        const idx = i * 6;
+        posArr[idx+2] += starSpeed * dt;
+        if (posArr[idx+2] > 60) {
+            const nz = -4000 - Math.random() * 600;
+            posArr[idx+2] = nz; posArr[idx+5] = nz;
+            posArr[idx]   = (Math.random()-0.5)*1200; posArr[idx+3] = posArr[idx];
+            posArr[idx+1] = (Math.random()-0.5)*900;  posArr[idx+4] = posArr[idx+1];
+        }
+        posArr[idx+5] = posArr[idx+2] - (0.8 + stretch);
+    }
+    stars.geometry.attributes.position.needsUpdate = true;
+
+    const dArr = dust.geometry.attributes.position.array;
+    for (let i = 0; i < 600; i++) {
+        dArr[i*3+2] += (starSpeed * 0.25 + 1) * dt;
+        if (dArr[i*3+2] > 40) dArr[i*3+2] = -800 - Math.random()*200;
+    }
+    dust.geometry.attributes.position.needsUpdate = true;
+
+    if (thrustLevel > 0.05) {
+        moonScale += thrustLevel * 0.0025 * dt * 60;
+        moonScale  = Math.min(moonScale, 28);
+    } else {
+        moonScale = THREE.MathUtils.lerp(moonScale, Math.max(moonScale - 0.002, 1.0), dt * 0.5);
+    }
+    moon.scale.setScalar(moonScale);
+    moon.rotation.y += 0.006 * dt;
+
+    earth.rotation.y += 0.01 * dt;
+
+    camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV + thrustLevel * 16, dt * 4);
+    const idleSway = Math.sin(time * 0.4) * 0.08;
+    const shakeAmt = thrustLevel * 0.22;
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, (Math.random()-0.5)*shakeAmt + idleSway, dt*10);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, 6 + (Math.random()-0.5)*shakeAmt, dt*10);
+    camera.updateProjectionMatrix();
+
+    bloom.strength = THREE.MathUtils.lerp(bloom.strength, 1.2 + thrustLevel * 1.6, dt * 5);
+
+    const vel = (starSpeed * 0.4).toFixed(1);
+    totalDist += starSpeed * dt * 0.4;
+    const dist = totalDist > 1000 ? (totalDist/1000).toFixed(2) + ' km' : totalDist.toFixed(0) + ' m';
+    telVel.textContent = 'VELOCITY   ' + vel + ' m/s';
+    telAlt.textContent = 'DISTANCE   ' + dist;
+    telThr.textContent = 'THROTTLE   ' + Math.round(thrustLevel * 100) + '%';
+
+    composer.render();
+}
+
+animate();
+</script>
+</body>
+</html>
