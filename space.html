@@ -183,7 +183,6 @@
 </div>
 
 <script>
-// Set hint text before module loads to avoid flash
 (function(){
     var touch = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
     var el = document.getElementById('thrust-hint');
@@ -357,13 +356,15 @@ composer.addPass(new ShaderPass({
 }));
 
 // ── lighting ───────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x0d1a10, 2.0));
-const sun = new THREE.DirectionalLight(0xfff8ee, 7);
+// ambient: very dim green-tinted, just barely lifts the dark side
+scene.add(new THREE.AmbientLight(0x0a0f0a, 2.2));
+// sun: primary warm directional from upper-right
+const sun = new THREE.DirectionalLight(0xfff8ee, 8);
 sun.position.set(600, 250, 300); scene.add(sun);
-const fill = new THREE.DirectionalLight(0x1a4030, 1.5);
+// fill: subtle cool counter-light, dim so dark side stays dark
+const fill = new THREE.DirectionalLight(0x0a1520, 1.0);
 fill.position.set(-300, -80, -200); scene.add(fill);
-const moonLight = new THREE.PointLight(0xfff4e0, 3.0, 8000);
-moonLight.position.set(0, 0, -800); scene.add(moonLight);
+// no point light near the moon — it was causing the flat glue glow
 
 // ── moon ───────────────────────────────────────────────────
 const MOON_Z = -1200;
