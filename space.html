@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Starship</title>
+    <title>Initiate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --text-muted: #a1a1aa;
@@ -27,6 +30,28 @@
         }
         body.light { background:#1a2a3a; }
 
+        /* ── return button ── */
+        #space-close {
+            position:absolute;
+            top:20px; left:22px;
+            z-index:200;
+            background:none;
+            border:none;
+            cursor:pointer;
+            font-family:'Inter',sans-serif;
+            font-size:10px;
+            font-weight:400;
+            letter-spacing:0.20em;
+            text-transform:uppercase;
+            color:var(--text-muted);
+            padding:4px 0;
+            transition:color 0.2s;
+        }
+        @media (hover:hover) and (pointer:fine) {
+            #space-close:hover { color:var(--cosmic-purple); }
+        }
+
+        /* ── overlay ── */
         #start-overlay {
             position:absolute; inset:0;
             display:flex; flex-direction:column;
@@ -72,6 +97,58 @@
             font-size:9px; font-family:'Inter',sans-serif;
             letter-spacing:0.08em;
         }
+
+        /* ── NASA live panel ── */
+        #nasa-panel {
+            position:absolute;
+            bottom:24px; right:24px;
+            z-index:150;
+            display:flex;
+            flex-direction:column;
+            gap:10px;
+            pointer-events:none;
+            opacity:0;
+            transition: opacity 0.8s;
+        }
+        #nasa-panel.visible { opacity:1; }
+        .nasa-card {
+            background: rgba(0,0,0,0.45);
+            border: 1px solid var(--border);
+            border-radius:8px;
+            padding:10px 14px;
+            min-width:200px;
+            max-width:260px;
+        }
+        .nasa-label {
+            font-size:8px;
+            font-weight:500;
+            letter-spacing:0.22em;
+            text-transform:uppercase;
+            color: var(--cosmic-purple);
+            margin-bottom:6px;
+        }
+        .nasa-value {
+            font-size:10px;
+            font-weight:400;
+            letter-spacing:0.06em;
+            color: var(--text-muted);
+            line-height:1.7;
+        }
+        .nasa-value span.hi {
+            color:#e2e8f0;
+            font-weight:500;
+        }
+        .dot {
+            display:inline-block;
+            width:5px; height:5px;
+            border-radius:50%;
+            margin-right:5px;
+            vertical-align:middle;
+            background:#44bb77;
+        }
+        .dot.warn  { background:#f59e0b; }
+        .dot.alert { background:#ef4444; }
+        @media (max-width:600px) { #nasa-panel { display:none; } }
     </style>
     <script type="importmap">
     { "imports": {
@@ -82,10 +159,28 @@
 </head>
 <body>
 
+<button id="space-close">&#8592;&ensp;Return</button>
+
 <div id="start-overlay">
-    <p id="overlay-title">Starship</p>
-    <button id="start-btn">Initiate Flight</button>
+    <p id="overlay-title">Flight Sim</p>
+    <button id="start-btn">Initiate</button>
     <div class="hint">Hold <span class="kbd">Space</span> to thrust</div>
+</div>
+
+<!-- NASA live data panel -->
+<div id="nasa-panel">
+    <div class="nasa-card" id="card-flare">
+        <div class="nasa-label">Solar Activity</div>
+        <div class="nasa-value" id="val-flare">Fetching…</div>
+    </div>
+    <div class="nasa-card" id="card-storm">
+        <div class="nasa-label">Geomagnetic Storm</div>
+        <div class="nasa-value" id="val-storm">Fetching…</div>
+    </div>
+    <div class="nasa-card" id="card-neo">
+        <div class="nasa-label">Near-Earth Object</div>
+        <div class="nasa-value" id="val-neo">Fetching…</div>
+    </div>
 </div>
 
 <script type="module">
@@ -97,6 +192,84 @@ import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 
 const isDark = localStorage.getItem('space-theme') !== 'light';
 if (!isDark) document.body.classList.add('light');
+
+document.getElementById('space-close').addEventListener('click', () => window.close());
+
+// ── NASA data ────────────────────────────────────────────
+const KEY = 'DEMO_KEY';
+const today = new Date();
+const fmt = d => d.toISOString().split('T')[0];
+const d7 = new Date(today); d7.setDate(d7.getDate()-7);
+const todayStr = fmt(today), d7Str = fmt(d7);
+
+function setVal(id, html){ document.getElementById(id).innerHTML = html; }
+
+// Solar flares
+fetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
+    .then(r => r.json())
+    .then(data => {
+        if(!data || !data.length){
+            setVal('val-flare', `<span class="dot"></span><span class="hi">Quiet</span> &mdash; no flares in 7 days`);
+            return;
+        }
+        const last = data[data.length-1];
+        const cls  = last.classType || '?';
+        const when = last.beginTime ? last.beginTime.slice(0,10) : '';
+        const level = cls.startsWith('X') ? 'alert' : cls.startsWith('M') ? 'warn' : '';
+        setVal('val-flare',
+            `<span class="dot ${level}"></span><span class="hi">Class ${cls}</span> flare<br>
+             ${when} &mdash; ${data.length} event${data.length>1?'s':''} this week`);
+    })
+    .catch(() => setVal('val-flare', '<span class="dot warn"></span>Unavailable'));
+
+// Geomagnetic storms
+fetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
+    .then(r => r.json())
+    .then(data => {
+        if(!data || !data.length){
+            setVal('val-storm', `<span class="dot"></span><span class="hi">None</span> in past 7 days`);
+            return;
+        }
+        const last   = data[data.length-1];
+        const kpMax  = last.allKpIndex ? Math.max(...last.allKpIndex.map(k=>k.kpIndex)) : '?';
+        const kpStr  = kpMax !== '?' ? kpMax.toFixed(1) : '?';
+        const level  = kpMax >= 7 ? 'alert' : kpMax >= 5 ? 'warn' : '';
+        const when   = last.startTime ? last.startTime.slice(0,10) : '';
+        setVal('val-storm',
+            `<span class="dot ${level}"></span>Kp <span class="hi">${kpStr}</span> peak<br>
+             ${when} &mdash; ${data.length} storm${data.length>1?'s':''} this week`);
+    })
+    .catch(() => setVal('val-storm', '<span class="dot warn"></span>Unavailable'));
+
+// Near-Earth Objects
+fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${todayStr}&api_key=${KEY}`)
+    .then(r => r.json())
+    .then(data => {
+        const total = data.element_count || 0;
+        // find closest approach
+        let closest = null, minDist = Infinity;
+        Object.values(data.near_earth_objects || {}).forEach(day => {
+            day.forEach(neo => {
+                const dist = parseFloat(neo.close_approach_data?.[0]?.miss_distance?.lunar ?? Infinity);
+                if(dist < minDist){ minDist = dist; closest = neo; }
+            });
+        });
+        if(!closest){
+            setVal('val-neo', `<span class="dot"></span><span class="hi">${total}</span> tracked this week`);
+            return;
+        }
+        const name    = closest.name.replace(/[()]/g,'').trim();
+        const lunarDist = minDist.toFixed(1);
+        const hazard  = closest.is_potentially_hazardous_asteroid;
+        const level   = hazard ? 'warn' : '';
+        const diam    = closest.estimated_diameter?.meters;
+        const diamStr = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
+        setVal('val-neo',
+            `<span class="dot ${level}"></span><span class="hi">${name}</span><br>
+             ${lunarDist} LD away &mdash; ${diamStr}<br>
+             <span style="opacity:.6;font-size:9px">${total} objects tracked this week</span>`);
+    })
+    .catch(() => setVal('val-neo', '<span class="dot warn"></span>Unavailable'));
 
 // ── renderer ──────────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
@@ -182,10 +355,8 @@ const sun = new THREE.DirectionalLight(0xfff8ee, isDark ? 7 : 6);
 sun.position.set(600, 250, 300); scene.add(sun);
 const fill = new THREE.DirectionalLight(isDark ? 0x1a4030 : 0x2244aa, isDark ? 1.5 : 1.0);
 fill.position.set(-300, -80, -200); scene.add(fill);
-
 const moonLight = new THREE.PointLight(0xfff4e0, isDark ? 3.0 : 2.0, 8000);
-moonLight.position.set(0, 0, -800);
-scene.add(moonLight);
+moonLight.position.set(0, 0, -800); scene.add(moonLight);
 
 // ── moon ───────────────────────────────────────────────────
 const MOON_Z = -1200;
@@ -270,6 +441,8 @@ document.getElementById('start-btn').addEventListener('click', () => {
     ov.style.opacity = '0';
     setTimeout(() => ov.remove(), 420);
     started = true;
+    // show NASA panel
+    document.getElementById('nasa-panel').classList.add('visible');
 });
 
 window.addEventListener('resize', () => {
