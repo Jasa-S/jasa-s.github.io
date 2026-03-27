@@ -100,7 +100,7 @@
             letter-spacing: 0.08em;
         }
 
-        /* ── NASA panel ── */
+        /* ── NASA panel — desktop ── */
         #nasa-panel {
             position: absolute;
             bottom: 1.5rem; right: 1.5rem;
@@ -151,27 +151,34 @@
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
 
-        /* ── mobile: same layout, just smaller ── */
+        /* ── NASA panel — mobile ── */
         @media (max-width: 600px) {
             #nasa-panel {
-                bottom: 1rem;
-                right: 0.75rem;
-                gap: 0.35rem;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                flex-direction: row;
+                gap: 0.4rem;
+                overflow-x: auto;
+                padding: 0.6rem 0.75rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
             }
+            #nasa-panel::-webkit-scrollbar { display: none; }
             .nasa-card {
-                min-width: 0;
-                width: 155px;
-                padding: 0.5rem 0.65rem;
+                flex-shrink: 0;
+                min-width: 140px;
+                max-width: 160px;
+                padding: 0.55rem 0.7rem;
                 border-radius: 0.6rem;
             }
             .nasa-label {
                 font-size: 0.55rem;
-                margin-bottom: 0.2rem;
-                letter-spacing: 0.15em;
+                margin-bottom: 0.25rem;
             }
             .nasa-value {
                 font-size: 0.6rem;
-                line-height: 1.55;
+                line-height: 1.6;
             }
         }
     </style>
@@ -365,10 +372,15 @@ rpMain.clear = false;
 rpMain.clearDepth = true;
 composer.addPass(rpSky);
 composer.addPass(rpMain);
-const BLOOM_BASE = 0.45;
+
+// bloom: threshold low enough to catch the moon's bright lit side,
+// strength moderate so it stays a soft halo not a full blowout
+const BLOOM_BASE = 0.7;
 const bloom = new UnrealBloomPass(
     new THREE.Vector2(innerWidth, innerHeight),
-    BLOOM_BASE, 0.5, 0.88
+    BLOOM_BASE,  // strength
+    0.45,        // radius
+    0.78         // threshold
 );
 composer.addPass(bloom);
 composer.addPass(new ShaderPass({
