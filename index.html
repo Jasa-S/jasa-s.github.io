@@ -277,15 +277,33 @@
         var body = document.body;
         var icon = document.getElementById('theme-icon');
         var btn  = document.getElementById('theme-toggle');
-        if (localStorage.getItem('theme') === 'dark') {
-            body.classList.add('dark');
-            icon.className = 'fa-solid fa-sun';
+
+        function applyTheme(dark) {
+            body.classList.toggle('dark', dark);
+            icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
+
+        // 1. Manual override stored? Use it.
+        // 2. Otherwise follow OS preference.
+        var stored = localStorage.getItem('theme');
+        if (stored) {
+            applyTheme(stored === 'dark');
+        } else {
+            applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
+        }
+
+        // Live-update when OS changes and no manual override is set.
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            if (!localStorage.getItem('theme')) applyTheme(e.matches);
+        });
+
+        // Button click = manual override.
         btn.addEventListener('click', function() {
             var isDark = body.classList.toggle('dark');
             icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
+
         (function fetchSPX() {
             var ticker = document.getElementById('sp500-ticker');
             var url = 'https://corsproxy.io/?' + encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1d&range=1d');
