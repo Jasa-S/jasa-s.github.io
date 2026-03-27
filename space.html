@@ -100,6 +100,7 @@
             letter-spacing: 0.08em;
         }
 
+        /* ── NASA panel — desktop ── */
         #nasa-panel {
             position: absolute;
             bottom: 1.5rem; right: 1.5rem;
@@ -149,7 +150,37 @@
         }
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
-        @media (max-width:600px) { #nasa-panel { display:none; } }
+
+        /* ── NASA panel — mobile ── */
+        @media (max-width: 600px) {
+            #nasa-panel {
+                bottom: 0;
+                right: 0;
+                left: 0;
+                flex-direction: row;
+                gap: 0.4rem;
+                overflow-x: auto;
+                padding: 0.6rem 0.75rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            #nasa-panel::-webkit-scrollbar { display: none; }
+            .nasa-card {
+                flex-shrink: 0;
+                min-width: 140px;
+                max-width: 160px;
+                padding: 0.55rem 0.7rem;
+                border-radius: 0.6rem;
+            }
+            .nasa-label {
+                font-size: 0.55rem;
+                margin-bottom: 0.25rem;
+            }
+            .nasa-value {
+                font-size: 0.6rem;
+                line-height: 1.6;
+            }
+        }
     </style>
     <script type="importmap">
     { "imports": {
@@ -356,15 +387,11 @@ composer.addPass(new ShaderPass({
 }));
 
 // ── lighting ───────────────────────────────────────────────
-// ambient: very dim green-tinted, just barely lifts the dark side
 scene.add(new THREE.AmbientLight(0x0a0f0a, 2.2));
-// sun: primary warm directional from upper-right
 const sun = new THREE.DirectionalLight(0xfff8ee, 8);
 sun.position.set(600, 250, 300); scene.add(sun);
-// fill: subtle cool counter-light, dim so dark side stays dark
 const fill = new THREE.DirectionalLight(0x0a1520, 1.0);
 fill.position.set(-300, -80, -200); scene.add(fill);
-// no point light near the moon — it was causing the flat glue glow
 
 // ── moon ───────────────────────────────────────────────────
 const MOON_Z = -1200;
