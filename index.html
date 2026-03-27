@@ -76,9 +76,8 @@
             .profile-img { width: 96px; height: 96px; }
         }
 
-        /* Identical styling to blue.html pill button */
         #theme-toggle {
-            position: fixed;
+            position: absolute;
             top: 1.1rem;
             right: 1.5rem;
             z-index: 500;
@@ -93,7 +92,13 @@
             display: flex;
             align-items: center;
         }
-        #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
+        /* Only apply fixed + hover effects on real pointer devices */
+        @media (min-width: 768px) {
+            #theme-toggle { position: fixed; }
+        }
+        @media (hover: hover) and (pointer: fine) {
+            #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
+        }
 
         @keyframes spin-globe {
             from { transform: rotate(0deg); }
