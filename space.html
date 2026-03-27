@@ -6,71 +6,80 @@
     <title>Initiate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
         :root {
+            --text-main:  #ffffff;
             --text-muted: #a1a1aa;
-            --border: rgba(255,255,255,0.08);
-            --card: rgba(255,255,255,0.04);
+            --border:     rgba(255,255,255,0.05);
+            --card:       rgba(255,255,255,0.04);
             --cosmic-purple: #7C3AED;
         }
         body.light {
+            --text-main:  #111827;
             --text-muted: #6b7280;
-            --border: rgba(0,0,0,0.10);
-            --card: rgba(0,0,0,0.05);
+            --border:     rgba(0,0,0,0.05);
+            --card:       rgba(0,0,0,0.04);
         }
+
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            overflow:hidden;
-            background:#000;
-            font-family:'Inter',sans-serif;
-            touch-action:none;
-            user-select:none;
-            -webkit-font-smoothing:antialiased;
+            overflow: hidden;
+            background: #000;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
         }
-        body.light { background:#1a2a3a; }
+        body.light { background: #1a2a3a; }
 
-        /* ── return button ── */
+        /* ── return button ────────────────────────────── */
         #space-close {
-            position:absolute;
-            top:20px; left:22px;
-            z-index:200;
-            background:none;
-            border:none;
-            cursor:pointer;
-            font-family:'Inter',sans-serif;
-            font-size:10px;
-            font-weight:400;
-            letter-spacing:0.20em;
-            text-transform:uppercase;
-            color:var(--text-muted);
-            padding:4px 0;
-            transition:color 0.2s;
+            position: absolute;
+            top: 1.1rem; left: 1.5rem;
+            z-index: 200;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;         /* matches index footer / theme-toggle size */
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 0.25rem 0.4rem;
+            transition: color 0.2s;
         }
         @media (hover:hover) and (pointer:fine) {
-            #space-close:hover { color:var(--cosmic-purple); }
+            #space-close:hover { color: var(--cosmic-purple); }
         }
 
-        /* ── overlay ── */
+        /* ── overlay ───────────────────────────────── */
         #start-overlay {
-            position:absolute; inset:0;
-            display:flex; flex-direction:column;
-            justify-content:center; align-items:center;
-            z-index:100; gap:28px;
-            background:rgba(0,0,0,0.78);
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100; gap: 28px;
+            background: rgba(0,0,0,0.78);
             backdrop-filter: blur(2px);
         }
-        body.light #start-overlay { background:rgba(20,35,55,0.86); }
+        body.light #start-overlay { background: rgba(20,35,55,0.86); }
 
+        /* button matches index .badge style but filled with purple accent */
         #start-btn {
             background: var(--card);
             color: var(--cosmic-purple);
             border: 1px solid rgba(124,58,237,0.45);
-            padding: 10px 40px;
-            font-family:'Inter',sans-serif;
-            font-size:10px; font-weight:500;
-            border-radius:999px; cursor:pointer;
-            letter-spacing:0.28em; text-transform:uppercase;
+            padding: 0.6rem 2.5rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 500;
+            border-radius: 999px;
+            cursor: pointer;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
             transition: background 0.2s, border-color 0.2s;
         }
         @media (hover:hover) and (pointer:fine) {
@@ -79,70 +88,87 @@
                 border-color: var(--cosmic-purple);
             }
         }
+
+        /* hint line matches index text-xs text-muted tracking-widest */
         .hint {
-            font-size:10px; color: var(--text-muted);
-            letter-spacing:0.14em; text-align:center; line-height:2.2;
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            letter-spacing: 0.2em;
+            text-align: center;
+            line-height: 2.2;
         }
         .kbd {
-            display:inline-block;
+            display: inline-block;
             background: var(--card);
             border: 1px solid var(--border);
             color: var(--text-muted);
-            padding:1px 7px; border-radius:4px;
-            font-size:9px; font-family:'Inter',sans-serif;
-            letter-spacing:0.08em;
+            padding: 1px 7px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.08em;
         }
 
-        /* ── NASA live panel ── */
+        /* ── NASA live panel ──────────────────────────── */
         #nasa-panel {
-            position:absolute;
-            bottom:24px; right:24px;
-            z-index:150;
-            display:flex;
-            flex-direction:column;
-            gap:10px;
-            pointer-events:none;
-            opacity:0;
+            position: absolute;
+            bottom: 1.5rem; right: 1.5rem;
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+            opacity: 0;
             transition: opacity 0.8s;
         }
-        #nasa-panel.visible { opacity:1; }
+        #nasa-panel.visible { opacity: 1; }
+
+        /* card mirrors index .glass */
         .nasa-card {
-            background: rgba(0,0,0,0.45);
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius:8px;
-            padding:10px 14px;
-            min-width:200px;
-            max-width:260px;
+            border-radius: 0.75rem;     /* rounded-xl */
+            padding: 0.75rem 1rem;
+            min-width: 200px;
+            max-width: 260px;
         }
+
+        /* label mirrors index section h2: text-xs uppercase tracking-[0.2em] font-bold text-muted */
         .nasa-label {
-            font-size:8px;
-            font-weight:500;
-            letter-spacing:0.22em;
-            text-transform:uppercase;
-            color: var(--cosmic-purple);
-            margin-bottom:6px;
-        }
-        .nasa-value {
-            font-size:10px;
-            font-weight:400;
-            letter-spacing:0.06em;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
             color: var(--text-muted);
-            line-height:1.7;
+            margin-bottom: 0.35rem;
         }
+
+        /* value mirrors index text-xs text-muted */
+        .nasa-value {
+            font-size: 0.7rem;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+        /* hi = index font-medium text-main */
         .nasa-value span.hi {
-            color:#e2e8f0;
-            font-weight:500;
+            color: var(--text-main);
+            font-weight: 500;
         }
+
         .dot {
-            display:inline-block;
-            width:5px; height:5px;
-            border-radius:50%;
-            margin-right:5px;
-            vertical-align:middle;
-            background:#44bb77;
+            display: inline-block;
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+            background: #44bb77;
         }
-        .dot.warn  { background:#f59e0b; }
-        .dot.alert { background:#ef4444; }
+        .dot.warn  { background: #f59e0b; }
+        .dot.alert { background: #ef4444; }
+
         @media (max-width:600px) { #nasa-panel { display:none; } }
     </style>
     <script type="importmap">
@@ -161,17 +187,16 @@
     <div class="hint">Hold <span class="kbd">Space</span> to thrust</div>
 </div>
 
-<!-- NASA live data panel -->
 <div id="nasa-panel">
-    <div class="nasa-card" id="card-flare">
+    <div class="nasa-card">
         <div class="nasa-label">Solar Activity</div>
         <div class="nasa-value" id="val-flare">Fetching…</div>
     </div>
-    <div class="nasa-card" id="card-storm">
+    <div class="nasa-card">
         <div class="nasa-label">Geomagnetic Storm</div>
         <div class="nasa-value" id="val-storm">Fetching…</div>
     </div>
-    <div class="nasa-card" id="card-neo">
+    <div class="nasa-card">
         <div class="nasa-label">Near-Earth Object</div>
         <div class="nasa-value" id="val-neo">Fetching…</div>
     </div>
@@ -205,9 +230,9 @@ fetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api
             setVal('val-flare', `<span class="dot"></span><span class="hi">Quiet</span> &mdash; no flares in 7 days`);
             return;
         }
-        const last = data[data.length-1];
-        const cls  = last.classType || '?';
-        const when = last.beginTime ? last.beginTime.slice(0,10) : '';
+        const last  = data[data.length-1];
+        const cls   = last.classType || '?';
+        const when  = last.beginTime ? last.beginTime.slice(0,10) : '';
         const level = cls.startsWith('X') ? 'alert' : cls.startsWith('M') ? 'warn' : '';
         setVal('val-flare',
             `<span class="dot ${level}"></span><span class="hi">Class ${cls}</span> flare<br>
@@ -222,11 +247,11 @@ fetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api
             setVal('val-storm', `<span class="dot"></span><span class="hi">None</span> in past 7 days`);
             return;
         }
-        const last   = data[data.length-1];
-        const kpMax  = last.allKpIndex ? Math.max(...last.allKpIndex.map(k=>k.kpIndex)) : '?';
-        const kpStr  = kpMax !== '?' ? kpMax.toFixed(1) : '?';
-        const level  = kpMax >= 7 ? 'alert' : kpMax >= 5 ? 'warn' : '';
-        const when   = last.startTime ? last.startTime.slice(0,10) : '';
+        const last  = data[data.length-1];
+        const kpMax = last.allKpIndex ? Math.max(...last.allKpIndex.map(k=>k.kpIndex)) : '?';
+        const kpStr = kpMax !== '?' ? kpMax.toFixed(1) : '?';
+        const level = kpMax >= 7 ? 'alert' : kpMax >= 5 ? 'warn' : '';
+        const when  = last.startTime ? last.startTime.slice(0,10) : '';
         setVal('val-storm',
             `<span class="dot ${level}"></span>Kp <span class="hi">${kpStr}</span> peak<br>
              ${when} &mdash; ${data.length} storm${data.length>1?'s':''} this week`);
@@ -248,16 +273,16 @@ fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${toda
             setVal('val-neo', `<span class="dot"></span><span class="hi">${total}</span> tracked this week`);
             return;
         }
-        const name     = closest.name.replace(/[()]/g,'').trim();
+        const name      = closest.name.replace(/[()]/g,'').trim();
         const lunarDist = minDist.toFixed(1);
-        const hazard   = closest.is_potentially_hazardous_asteroid;
-        const level    = hazard ? 'warn' : '';
-        const diam     = closest.estimated_diameter?.meters;
-        const diamStr  = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
+        const hazard    = closest.is_potentially_hazardous_asteroid;
+        const level     = hazard ? 'warn' : '';
+        const diam      = closest.estimated_diameter?.meters;
+        const diamStr   = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
         setVal('val-neo',
             `<span class="dot ${level}"></span><span class="hi">${name}</span><br>
              ${lunarDist} LD away &mdash; ${diamStr}<br>
-             <span style="opacity:.6;font-size:9px">${total} objects tracked this week</span>`);
+             <span style="opacity:.55;font-size:0.6rem;">${total} objects tracked this week</span>`);
     })
     .catch(() => setVal('val-neo', '<span class="dot warn"></span>Unavailable'));
 
@@ -318,7 +343,7 @@ skyScene.add(new THREE.Mesh(
 
 // ── post-processing ─────────────────────────────────────────
 const composer = new EffectComposer(renderer);
-const rpSky = new RenderPass(skyScene, skyCamera);
+const rpSky  = new RenderPass(skyScene, skyCamera);
 const rpMain = new RenderPass(scene, camera);
 rpMain.clear = false;
 rpMain.clearDepth = true;
@@ -330,7 +355,7 @@ const bloom = new UnrealBloomPass(
     new THREE.Vector2(innerWidth, innerHeight),
     isDark ? BLOOM_DARK : BLOOM_LIGHT,
     0.4,
-    isDark ? 0.72 : 0.82   // higher threshold = only the very brightest pixels bloom
+    isDark ? 0.72 : 0.82
 );
 composer.addPass(bloom);
 composer.addPass(new ShaderPass({
@@ -354,15 +379,11 @@ moonLight.position.set(0, 0, -800); scene.add(moonLight);
 const MOON_Z = -1200;
 const texLoader = new THREE.TextureLoader();
 const moonMat = new THREE.MeshStandardMaterial({
-    roughness: 0.92,
-    metalness: 0.0,
-    emissive: 0x334455,
-    emissiveIntensity: 0.04   // was 0.25 — was pushing bright craters over bloom threshold
+    roughness: 0.92, metalness: 0.0,
+    emissive: 0x334455, emissiveIntensity: 0.04
 });
 texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg', t => {
-    moonMat.map = t;
-    // intentionally NOT setting emissiveMap — avoids texture detail getting bloom-amplified
-    moonMat.needsUpdate = true;
+    moonMat.map = t; moonMat.needsUpdate = true;
 });
 const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
 moon.position.set(0, 0, MOON_Z);
