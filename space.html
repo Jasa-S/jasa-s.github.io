@@ -25,7 +25,16 @@
             font-family: 'Inter', sans-serif;
             touch-action: none;
             user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
             -webkit-font-smoothing: antialiased;
+        }
+        canvas {
+            display: block;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
 
         #space-close {
@@ -147,7 +156,7 @@
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
 
-        /* ── NASA panel — mobile portrait: horizontal scrollable bar at bottom ── */
+        /* ── NASA panel — mobile portrait ── */
         @media (max-width: 768px) and (orientation: portrait) {
             #nasa-panel {
                 bottom: 0; right: 0; left: 0;
@@ -170,15 +179,13 @@
             }
             .nasa-label { font-size: 0.52rem; margin-bottom: 0.2rem; }
             .nasa-value  { font-size: 0.58rem; line-height: 1.55; }
-            /* hide secondary sub-lines on mobile */
             .nasa-value .sub { display: none; }
         }
 
-        /* ── NASA panel — mobile landscape: compact column on the right ── */
+        /* ── NASA panel — mobile landscape ── */
         @media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
             #nasa-panel {
                 bottom: 0.5rem;
-                right: 0.5rem;
                 right: calc(0.5rem + env(safe-area-inset-right, 0px));
                 left: auto; top: auto;
                 flex-direction: column;
@@ -198,7 +205,6 @@
             .nasa-label { font-size: 0.5rem; margin-bottom: 0.15rem; }
             .nasa-value  { font-size: 0.55rem; line-height: 1.5; }
             .nasa-value .sub { display: none; }
-            /* push Return button clear of the cards */
             #space-close { top: 0.5rem; left: 0.75rem; }
         }
     </style>
@@ -242,6 +248,12 @@
     } else {
         el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
     }
+    // block iOS long-press callout / magnifier on the whole document
+    document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, { passive: false });
+    document.addEventListener('touchstart',  function(e){
+        // only preventDefault on multi-touch (pinch-zoom) — single touch still fires pointerdown
+        if(e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
 })();
 </script>
 
@@ -257,7 +269,6 @@ if (isLight) document.body.classList.add('light');
 
 document.getElementById('space-close').addEventListener('click', () => window.close());
 
-// isMobile flag — used to strip sub-lines from card content
 const isMobile = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
 
 // ── NASA data ────────────────────────────────────────────
@@ -340,6 +351,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.9;
 renderer.autoClear = false;
 document.body.appendChild(renderer.domElement);
+
+// block iOS callout / magnifier on the canvas element itself
+renderer.domElement.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
+renderer.domElement.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
 
 // ── scene / camera ────────────────────────────────────────
 const scene = new THREE.Scene();
