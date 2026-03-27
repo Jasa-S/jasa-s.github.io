@@ -16,10 +16,6 @@
             --card:       rgba(255,255,255,0.05);
             --cosmic-purple: #7C3AED;
         }
-        body.light {
-            --text-main:  #ffffff;
-            --text-muted: #a1a1aa;
-        }
 
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -151,35 +147,59 @@
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
 
-        /* ── NASA panel — mobile ── */
-        @media (max-width: 600px) {
+        /* ── NASA panel — mobile portrait: horizontal scrollable bar at bottom ── */
+        @media (max-width: 768px) and (orientation: portrait) {
             #nasa-panel {
-                bottom: 0;
-                right: 0;
-                left: 0;
+                bottom: 0; right: 0; left: 0;
+                top: auto;
                 flex-direction: row;
                 gap: 0.4rem;
                 overflow-x: auto;
-                padding: 0.6rem 0.75rem;
+                padding: 0.5rem 0.75rem;
+                padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: none;
             }
             #nasa-panel::-webkit-scrollbar { display: none; }
             .nasa-card {
                 flex-shrink: 0;
-                min-width: 140px;
-                max-width: 160px;
-                padding: 0.55rem 0.7rem;
-                border-radius: 0.6rem;
+                min-width: 130px;
+                max-width: 150px;
+                padding: 0.5rem 0.65rem;
+                border-radius: 0.55rem;
             }
-            .nasa-label {
-                font-size: 0.55rem;
-                margin-bottom: 0.25rem;
+            .nasa-label { font-size: 0.52rem; margin-bottom: 0.2rem; }
+            .nasa-value  { font-size: 0.58rem; line-height: 1.55; }
+            /* hide secondary sub-lines on mobile */
+            .nasa-value .sub { display: none; }
+        }
+
+        /* ── NASA panel — mobile landscape: compact column on the right ── */
+        @media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
+            #nasa-panel {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                right: calc(0.5rem + env(safe-area-inset-right, 0px));
+                left: auto; top: auto;
+                flex-direction: column;
+                gap: 0.3rem;
+                overflow-y: auto;
+                max-height: calc(100vh - 1rem);
+                padding: 0;
+                scrollbar-width: none;
             }
-            .nasa-value {
-                font-size: 0.6rem;
-                line-height: 1.6;
+            #nasa-panel::-webkit-scrollbar { display: none; }
+            .nasa-card {
+                min-width: 130px;
+                max-width: 150px;
+                padding: 0.4rem 0.6rem;
+                border-radius: 0.5rem;
             }
+            .nasa-label { font-size: 0.5rem; margin-bottom: 0.15rem; }
+            .nasa-value  { font-size: 0.55rem; line-height: 1.5; }
+            .nasa-value .sub { display: none; }
+            /* push Return button clear of the cards */
+            #space-close { top: 0.5rem; left: 0.75rem; }
         }
     </style>
     <script type="importmap">
@@ -237,6 +257,9 @@ if (isLight) document.body.classList.add('light');
 
 document.getElementById('space-close').addEventListener('click', () => window.close());
 
+// isMobile flag — used to strip sub-lines from card content
+const isMobile = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
+
 // ── NASA data ────────────────────────────────────────────
 const KEY = 'Mn4mtIRZZqWqflCEjoEjAktRB4QrIAKww2IVkk3A';
 const today = new Date();
@@ -245,12 +268,13 @@ const d7 = new Date(today); d7.setDate(d7.getDate()-7);
 const todayStr = fmt(today), d7Str = fmt(d7);
 
 function setVal(id, html){ document.getElementById(id).innerHTML = html; }
+const sub = (html) => isMobile ? '' : `<span class="sub">${html}</span>`;
 
 fetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
     .then(r => r.json())
     .then(data => {
         if(!data || !data.length){
-            setVal('val-flare', `<span class="dot"></span><span class="hi">Quiet</span> &mdash; no flares in 7 days`);
+            setVal('val-flare', `<span class="dot"></span><span class="hi">Quiet</span>${sub(' &mdash; no flares in 7 days')}`);
             return;
         }
         const last  = data[data.length-1];
@@ -258,8 +282,8 @@ fetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api
         const when  = last.beginTime ? last.beginTime.slice(0,10) : '';
         const level = cls.startsWith('X') ? 'alert' : cls.startsWith('M') ? 'warn' : '';
         setVal('val-flare',
-            `<span class="dot ${level}"></span><span class="hi">Class ${cls}</span> flare<br>
-             ${when} &mdash; ${data.length} event${data.length>1?'s':''} this week`);
+            `<span class="dot ${level}"></span><span class="hi">Class ${cls}</span> flare
+             ${sub(`<br>${when} &mdash; ${data.length} event${data.length>1?'s':''} this week`)}`);
     })
     .catch(() => setVal('val-flare', '<span class="dot warn"></span>Unavailable'));
 
@@ -267,7 +291,7 @@ fetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api
     .then(r => r.json())
     .then(data => {
         if(!data || !data.length){
-            setVal('val-storm', `<span class="dot"></span><span class="hi">None</span> in past 7 days`);
+            setVal('val-storm', `<span class="dot"></span><span class="hi">None</span>${sub(' in past 7 days')}`);
             return;
         }
         const last  = data[data.length-1];
@@ -276,8 +300,8 @@ fetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api
         const level = kpMax >= 7 ? 'alert' : kpMax >= 5 ? 'warn' : '';
         const when  = last.startTime ? last.startTime.slice(0,10) : '';
         setVal('val-storm',
-            `<span class="dot ${level}"></span>Kp <span class="hi">${kpStr}</span> peak<br>
-             ${when} &mdash; ${data.length} storm${data.length>1?'s':''} this week`);
+            `<span class="dot ${level}"></span>Kp <span class="hi">${kpStr}</span> peak
+             ${sub(`<br>${when} &mdash; ${data.length} storm${data.length>1?'s':''} this week`)}`);
     })
     .catch(() => setVal('val-storm', '<span class="dot warn"></span>Unavailable'));
 
@@ -293,7 +317,7 @@ fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${toda
             });
         });
         if(!closest){
-            setVal('val-neo', `<span class="dot"></span><span class="hi">${total}</span> tracked this week`);
+            setVal('val-neo', `<span class="dot"></span><span class="hi">${total}</span>${sub(' tracked this week')}`);
             return;
         }
         const name      = closest.name.replace(/[()]/g,'').trim();
@@ -303,9 +327,8 @@ fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${toda
         const diam      = closest.estimated_diameter?.meters;
         const diamStr   = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
         setVal('val-neo',
-            `<span class="dot ${level}"></span><span class="hi">${name}</span><br>
-             ${lunarDist} LD away &mdash; ${diamStr}<br>
-             <span style="opacity:.55;font-size:0.6rem;">${total} objects tracked this week</span>`);
+            `<span class="dot ${level}"></span><span class="hi">${name}</span>
+             ${sub(`<br>${lunarDist} LD away &mdash; ${diamStr}<br><span style="opacity:.55;font-size:0.6rem;">${total} objects tracked this week</span>`)}`);
     })
     .catch(() => setVal('val-neo', '<span class="dot warn"></span>Unavailable'));
 
@@ -372,15 +395,10 @@ rpMain.clear = false;
 rpMain.clearDepth = true;
 composer.addPass(rpSky);
 composer.addPass(rpMain);
-
-// bloom: threshold low enough to catch the moon's bright lit side,
-// strength moderate so it stays a soft halo not a full blowout
 const BLOOM_BASE = 0.7;
 const bloom = new UnrealBloomPass(
     new THREE.Vector2(innerWidth, innerHeight),
-    BLOOM_BASE,  // strength
-    0.45,        // radius
-    0.78         // threshold
+    BLOOM_BASE, 0.45, 0.78
 );
 composer.addPass(bloom);
 composer.addPass(new ShaderPass({
