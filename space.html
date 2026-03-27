@@ -314,7 +314,7 @@ const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 0.9;
 renderer.autoClear = false;
 document.body.appendChild(renderer.domElement);
 
@@ -372,10 +372,15 @@ rpMain.clear = false;
 rpMain.clearDepth = true;
 composer.addPass(rpSky);
 composer.addPass(rpMain);
-const BLOOM_BASE = 1.1;
+
+// bloom: high threshold so only truly emissive/bright things glow
+// NOT the moon surface lit by a directional light
+const BLOOM_BASE = 0.45;
 const bloom = new UnrealBloomPass(
     new THREE.Vector2(innerWidth, innerHeight),
-    BLOOM_BASE, 0.4, 0.72
+    BLOOM_BASE,  // strength
+    0.5,         // radius
+    0.88         // threshold — raised so moon surface doesn’t trigger it
 );
 composer.addPass(bloom);
 composer.addPass(new ShaderPass({
@@ -387,10 +392,13 @@ composer.addPass(new ShaderPass({
 }));
 
 // ── lighting ───────────────────────────────────────────────
-scene.add(new THREE.AmbientLight(0x0a0f0a, 2.2));
-const sun = new THREE.DirectionalLight(0xfff8ee, 8);
+// ambient: very dim, just barely lifts shadow side so it’s not pure black
+scene.add(new THREE.AmbientLight(0x0a0f0a, 1.2));
+// sun: warm directional — kept moderate so ACES tonemapping doesn’t blow it out
+const sun = new THREE.DirectionalLight(0xfff8ee, 3.5);
 sun.position.set(600, 250, 300); scene.add(sun);
-const fill = new THREE.DirectionalLight(0x0a1520, 1.0);
+// fill: very subtle cool counter-light
+const fill = new THREE.DirectionalLight(0x0a1520, 0.4);
 fill.position.set(-300, -80, -200); scene.add(fill);
 
 // ── moon ───────────────────────────────────────────────────
@@ -530,7 +538,8 @@ function animate(){
     camera.position.x = THREE.MathUtils.lerp(camera.position.x, (Math.random()-.5)*shk, dt*10);
     camera.position.y = THREE.MathUtils.lerp(camera.position.y, (Math.random()-.5)*shk, dt*10);
 
-    bloom.strength = THREE.MathUtils.lerp(bloom.strength, BLOOM_BASE + thrust * 1.8, dt * 5);
+    // during thrust, bloom strength ramps up for the warp effect
+    bloom.strength = THREE.MathUtils.lerp(bloom.strength, BLOOM_BASE + thrust * 1.2, dt * 5);
 
     composer.render();
 }
