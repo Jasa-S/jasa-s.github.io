@@ -4,55 +4,131 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Starship</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --text-muted: #a1a1aa;
+            --border: rgba(255,255,255,0.08);
+            --card: rgba(255,255,255,0.04);
+            --cosmic-purple: #7C3AED;
+        }
+        body.light {
+            --text-muted: #6b7280;
+            --border: rgba(0,0,0,0.10);
+            --card: rgba(0,0,0,0.05);
+        }
+
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { overflow:hidden; background:#000; font-family:'Inter',sans-serif; touch-action:none; user-select:none; }
+        body {
+            overflow:hidden;
+            background:#000;
+            font-family:'Inter',sans-serif;
+            touch-action:none;
+            user-select:none;
+            -webkit-font-smoothing:antialiased;
+        }
         body.light { background:#e8eff5; }
 
+        /* ── overlay ── */
         #start-overlay {
             position:absolute; inset:0;
-            background:rgba(0,0,0,0.82);
             display:flex; flex-direction:column;
             justify-content:center; align-items:center;
-            z-index:100; gap:20px;
+            z-index:100; gap:28px;
+            background:rgba(0,0,0,0.78);
+            backdrop-filter: blur(2px);
         }
-        body.light #start-overlay { background:rgba(210,225,240,0.88); }
+        body.light #start-overlay {
+            background:rgba(232,239,245,0.86);
+        }
 
+        /* title above button — matches homepage h1 weight */
+        #overlay-title {
+            font-size:11px;
+            font-weight:500;
+            letter-spacing:0.28em;
+            text-transform:uppercase;
+            color:var(--text-muted);
+        }
+
+        /* button — matches homepage glass badge style */
         #start-btn {
-            background:transparent;
-            color:#7C3AED;
-            border:1px solid rgba(124,58,237,0.5);
-            padding:12px 42px;
+            background: var(--card);
+            color: var(--cosmic-purple);
+            border: 1px solid rgba(124,58,237,0.45);
+            padding: 10px 40px;
             font-family:'Inter',sans-serif;
-            font-size:11px; font-weight:500;
-            border-radius:999px; cursor:pointer;
-            letter-spacing:0.28em; text-transform:uppercase;
-            transition:background 0.25s, border-color 0.25s;
+            font-size:10px;
+            font-weight:500;
+            border-radius:999px;
+            cursor:pointer;
+            letter-spacing:0.28em;
+            text-transform:uppercase;
+            transition: background 0.2s, border-color 0.2s;
         }
         @media (hover:hover) and (pointer:fine) {
-            #start-btn:hover { background:rgba(124,58,237,0.1); border-color:#7C3AED; }
+            #start-btn:hover {
+                background: rgba(124,58,237,0.12);
+                border-color: var(--cosmic-purple);
+            }
         }
+
+        /* hint line — matches homepage .text-dynamic-muted sizing */
         .hint {
-            font-size:10px; color:rgba(255,255,255,0.25);
-            letter-spacing:0.14em; text-align:center; line-height:2;
+            font-size:10px;
+            color: var(--text-muted);
+            letter-spacing:0.14em;
+            text-align:center;
+            line-height:2.2;
         }
-        body.light .hint { color:rgba(0,0,0,0.3); }
+
+        /* kbd — matches homepage .badge style */
         .kbd {
             display:inline-block;
-            border:1px solid rgba(124,58,237,0.35);
-            color:rgba(124,58,237,0.75);
-            padding:1px 6px; border-radius:3px;
-            font-size:9px; font-family:'Inter',sans-serif;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding:1px 7px;
+            border-radius:4px;
+            font-size:9px;
+            font-family:'Inter',sans-serif;
+            letter-spacing:0.08em;
         }
+
+        /* close button — top-left, matches homepage footer uppercase muted style */
+        #space-close {
+            position:absolute;
+            top:20px; left:22px;
+            z-index:200;
+            background:none;
+            border:none;
+            cursor:pointer;
+            font-family:'Inter',sans-serif;
+            font-size:10px;
+            font-weight:400;
+            letter-spacing:0.20em;
+            text-transform:uppercase;
+            color: var(--text-muted);
+            padding:4px 0;
+            transition: color 0.2s;
+        }
+        @media (hover:hover) and (pointer:fine) {
+            #space-close:hover { color: var(--cosmic-purple); }
+        }
+
+        /* in-game UI — bottom-left controls hint */
         #ui {
             position:absolute; bottom:24px; left:24px;
-            color:rgba(255,255,255,0.22);
-            font-size:10px; letter-spacing:0.14em;
-            pointer-events:none; line-height:2.2;
+            color: var(--text-muted);
+            font-size:10px;
+            letter-spacing:0.14em;
+            pointer-events:none;
+            line-height:2.4;
             text-transform:uppercase;
+            opacity:0.5;
         }
-        body.light #ui { color:rgba(0,0,0,0.25); }
         @media (max-width:768px) { #ui { display:none; } }
     </style>
     <script type="importmap">
@@ -64,7 +140,10 @@
 </head>
 <body>
 
+<button id="space-close">&#8592;&ensp;Return</button>
+
 <div id="start-overlay">
+    <p id="overlay-title">Starship</p>
     <button id="start-btn">Initiate Flight</button>
     <div class="hint">
         Hold <span class="kbd">Space</span> to thrust &nbsp;&middot;&nbsp; <span class="kbd">W A S D</span> to steer
@@ -72,8 +151,8 @@
 </div>
 
 <div id="ui">
-    <div><span class="kbd">Space</span> &nbsp; Main Engine</div>
-    <div><span class="kbd">W S</span> &nbsp; Pitch &nbsp;&middot;&nbsp; <span class="kbd">A D</span> &nbsp; Roll</div>
+    <div><span class="kbd">Space</span> &ensp; Main Engine</div>
+    <div><span class="kbd">W S</span> &ensp; Pitch &nbsp;&middot;&nbsp; <span class="kbd">A D</span> &ensp; Roll</div>
 </div>
 
 <script type="module">
@@ -83,9 +162,11 @@ import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 
-// read theme from localStorage (set by parent page)
 const isDark = localStorage.getItem('space-theme') !== 'light';
 if (!isDark) document.body.classList.add('light');
+
+// close button
+document.getElementById('space-close').addEventListener('click', () => window.close());
 
 // renderer
 const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
