@@ -231,7 +231,7 @@
     if (touch) {
         el.textContent = 'Tap & hold to thrust';
     } else {
-        el.innerHTML = 'Tap or hold <span class="kbd">⎋</span> to thrust';
+        el.innerHTML = 'Tap or hold <span class="kbd">Space</span> to thrust';
     }
     document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, { passive: false });
     document.addEventListener('touchstart', function(e){
@@ -513,13 +513,13 @@ function animate(){
     requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
-    
+
     thrust = THREE.MathUtils.lerp(thrust, thrusting ? 1 : 0, dt * (thrusting ? 2.5 : 5.0));
 
     skyUniforms.uTime.value = time % 1000.0;
 
     starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 2 : 4));
-    
+
     const stretch = 1 + (thrust * 40);
     const pa = stars.geometry.attributes.position.array;
     for(let i=0; i<STARS; i++){
