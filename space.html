@@ -505,7 +505,7 @@ window.addEventListener('resize', () => {
     composer.setSize(innerWidth, innerHeight);
 });
 
-// ── animate ───────────────────────────────────────────────
+// ── animate (Upgraded Warp Physics) ───────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
 
@@ -513,12 +513,17 @@ function animate(){
     requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
-    thrust = THREE.MathUtils.lerp(thrust, thrusting ? 1 : 0, dt * 4.5);
+    
+    // Heavier thrust easing
+    thrust = THREE.MathUtils.lerp(thrust, thrusting ? 1 : 0, dt * (thrusting ? 2.5 : 5.0));
 
     skyUniforms.uTime.value = time % 1000.0;
 
-    starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 4 : 0.8));
-    const str = starSpeed * .11;
+    // Faster top speed interpolation
+    starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 2 : 4));
+    
+    // Deeper star stretching (the "light needle" effect)
+    const stretch = 1 + (thrust * 40);
     const pa = stars.geometry.attributes.position.array;
     for(let i=0; i<STARS; i++){
         const ix = i*6;
@@ -529,7 +534,8 @@ function animate(){
             pa[ix]   = (Math.random()-.5)*1400; pa[ix+3] = pa[ix];
             pa[ix+1] = (Math.random()-.5)*1000; pa[ix+4] = pa[ix+1];
         }
-        pa[ix+5] = pa[ix+2] - (0.7 + str);
+        // Stretch rear vertices backwards
+        pa[ix+5] = pa[ix+2] - (1.5 * stretch);
     }
     stars.geometry.attributes.position.needsUpdate = true;
 
@@ -543,12 +549,18 @@ function animate(){
     moon.rotation.y  += .005 * dt;
     earth.rotation.y += .008 * dt;
 
-    camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV - thrust * 14, dt * 4);
+    // Upgraded "Dolly Zoom" effect instead of zooming in
+    camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV + (thrust * 25), dt * 3);
     camera.updateProjectionMatrix();
 
-    const shk = thrust * 0.18;
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, (Math.random()-.5)*shk, dt*10);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, (Math.random()-.5)*shk, dt*10);
+    // High-frequency shake when thrusting
+    if (thrust > 0.1) {
+        camera.position.x = (Math.random() - 0.5) * thrust * 0.2;
+        camera.position.y = (Math.random() - 0.5) * thrust * 0.2;
+    } else {
+        camera.position.x = THREE.MathUtils.lerp(camera.position.x, 0, dt * 5);
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, 0, dt * 5);
+    }
 
     bloom.strength = THREE.MathUtils.lerp(bloom.strength, BLOOM_BASE + thrust * 1.2, dt * 5);
 
