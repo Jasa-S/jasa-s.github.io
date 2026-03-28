@@ -35,7 +35,6 @@
             background-color: var(--bg);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            scroll-behavior: smooth;
             transition: background-color 0.3s ease, color 0.3s ease;
             max-width: 48rem;
             margin: 0 auto;
@@ -44,7 +43,6 @@
         }
         @media (min-width: 768px) { body { padding: 5rem 1.5rem; } }
 
-        /* cards */
         .glass {
             background: var(--card);
             border: 1px solid var(--border);
@@ -76,10 +74,8 @@
         }
         .photo-card:hover { background: var(--card-hover); }
 
-        /* layout helpers */
         .timeline-border { border-left: 1px solid var(--timeline); margin-left: 0.5rem; padding-left: 1.5rem; }
         .text-muted { color: var(--text-muted); }
-        .purple-glow { box-shadow: 0 0 10px rgba(124,58,237,0.3); }
         .section-divider { height: 1px; background: var(--timeline); flex-grow: 1; }
         .footer-border { border-top: 1px solid var(--timeline); }
         .section-heading {
@@ -115,17 +111,6 @@
             #rocket-btn:hover   { color: var(--cosmic-purple); transform: translateY(-2px) scale(1.15); }
         }
 
-        @keyframes spin-globe {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
-        .icon-globe {
-            display: inline-block;
-            animation: spin-globe 8s linear infinite;
-            margin-right: 0.5rem;
-        }
-
-        /* timeline entries */
         .tl-entry { position: relative; margin-bottom: 1.75rem; }
         .tl-entry:last-child { margin-bottom: 0; }
         .tl-dot {
@@ -138,16 +123,13 @@
         .tl-title { font-size: 0.875rem; font-weight: 500; }
         .tl-sub   { font-size: 0.75rem; color: var(--text-muted); font-style: italic; margin-top: 0.125rem; }
 
-        /* skills grid */
         .skills-grid { display: grid; gap: 1.75rem; }
         @media (min-width: 640px) { .skills-grid { grid-template-columns: 1fr 1fr; } }
         .skill-group-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
         .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
-        /* ed grid */
         .ed-grid { display: grid; gap: 0.75rem; }
 
-        /* footer */
         footer {
             padding-top: 2.5rem;
             display: flex; justify-content: space-between; align-items: center;
@@ -158,9 +140,18 @@
         #sp500-ticker .spx-up   { color: #16a34a; }
         #sp500-ticker .spx-down { color: #dc2626; }
 
-        /* creative card arrow */
         .arrow-icon { color: var(--text-muted); transition: transform 0.2s; font-size: 0.85rem; }
         a:hover .arrow-icon { transform: translateX(3px); }
+
+        @keyframes spin-globe {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        .icon-globe {
+            display: inline-block;
+            animation: spin-globe 8s linear infinite;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -172,7 +163,6 @@
         <i class="fa-solid fa-rocket"></i>
     </button>
 
-    <!-- HEADER -->
     <header style="margin-bottom:3.5rem;">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
             <div>
@@ -193,7 +183,6 @@
         </div>
     </header>
 
-    <!-- EXPERIENCE -->
     <section>
         <h2 class="section-heading"><span>Professional Experience</span><div class="section-divider"></div></h2>
         <div class="timeline-border">
@@ -224,7 +213,6 @@
         </div>
     </section>
 
-    <!-- EDUCATION -->
     <section>
         <h2 class="section-heading"><span>Education</span><div class="section-divider"></div></h2>
         <div class="ed-grid">
@@ -261,7 +249,6 @@
         </div>
     </section>
 
-    <!-- CREATIVE WORK -->
     <section>
         <h2 class="section-heading"><span>Creative Work</span><div class="section-divider"></div></h2>
         <div style="display:flex;flex-direction:column;gap:0.75rem;">
@@ -276,7 +263,6 @@
         </div>
     </section>
 
-    <!-- SKILLS -->
     <section>
         <h2 class="section-heading"><span>Skills &amp; Additional Qualifications</span><div class="section-divider"></div></h2>
         <div class="skills-grid">
