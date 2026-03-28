@@ -255,7 +255,7 @@ document.getElementById('space-close').addEventListener('click', () => window.cl
 const isMobile = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
 
 // ── NASA data ────────────────────────────────────────────
-const KEY = 'Mn4mtIRZZqWqflCEjoEjAktRB4QrIAKww2IVkk3A';
+const KEY = 'DEMO_KEY';
 const today = new Date();
 const fmt = d => d.toISOString().split('T')[0];
 const d7 = new Date(today); d7.setDate(d7.getDate()-7);
@@ -508,6 +508,9 @@ window.addEventListener('resize', () => {
 // ── animate ───────────────────────────────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
+let aspect = innerWidth / innerHeight;
+
+window.addEventListener('resize', () => { aspect = innerWidth / innerHeight; });
 
 function animate(){
     requestAnimationFrame(animate);
@@ -522,7 +525,6 @@ function animate(){
 
     // Compensate perceived speed for portrait: aspect < 1 means taller than wide,
     // so stars cross less screen per world-unit — boost to match landscape feel.
-    const aspect = innerWidth / innerHeight;
     const speedMult = aspect < 1 ? Math.max(1, 1 / aspect) : 1;
     const effectiveSpeed = starSpeed * speedMult;
 
