@@ -485,7 +485,6 @@ scene.add(dust);
 
 // ── input ──────────────────────────────────────────────────
 let started = false, thrusting = false;
-const canvas = renderer.domElement;
 
 window.addEventListener('keydown', e => {
     if(!started) return;
@@ -494,26 +493,9 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => {
     if(e.code === 'Space') thrusting = false;
 });
-
-// Guard both start-btn and space-close from triggering thrust
-const thrustBlockIds = new Set(['start-btn', 'space-close']);
-window.addEventListener('pointerdown', e => {
-    if(started && !thrustBlockIds.has(e.target.id)) thrusting = true;
-});
-window.addEventListener('pointerup',     () => thrusting = false);
-window.addEventListener('pointercancel', () => thrusting = false);
-
-// Pointer lock on desktop so mouse leaving window doesn't cut thrust
-if (!isMobile && document.pointerLockElement !== undefined) {
-    canvas.addEventListener('click', () => {
-        if (started && document.pointerLockElement !== canvas) {
-            canvas.requestPointerLock();
-        }
-    });
-    document.addEventListener('pointerlockchange', () => {
-        if (document.pointerLockElement !== canvas) thrusting = false;
-    });
-}
+window.addEventListener('pointerdown', e => { if(started && e.target.id !== 'start-btn') thrusting = true; });
+window.addEventListener('pointerup',      () => thrusting = false);
+window.addEventListener('pointercancel',  () => thrusting = false);
 
 document.getElementById('start-btn').addEventListener('click', () => {
     const ov = document.getElementById('start-overlay');
@@ -522,10 +504,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     setTimeout(() => ov.remove(), 420);
     started = true;
     document.getElementById('nasa-panel').classList.add('visible');
-    // Request pointer lock on desktop after start
-    if (!isMobile && document.pointerLockElement !== undefined) {
-        canvas.requestPointerLock();
-    }
 });
 
 let aspect = innerWidth / innerHeight;
@@ -542,7 +520,6 @@ const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
 let animPaused = false;
 
-// Pause the render loop when the tab is hidden to save GPU/CPU
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         animPaused = true;
