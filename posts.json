@@ -1,5 +1,5 @@
 {
-  "base": "https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/",
+  "base": "https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/",
   "posts": [
     { "id": "upsilon", "imageId": "224105519781", "title": "SUPERIA 400 | HOME",          "category": "Yashica T3",     "date": "2025", "location": "", "count": 17, "thumb": "01", "body": [] },
     { "id": "tau",     "imageId": "224012140603", "title": "Reflx Lab 400 (069)",         "category": "Yashica T3",     "date": "2025", "location": "", "count": 12, "thumb": "05", "body": [] },
@@ -15,10 +15,10 @@
     { "id": "iota",   "imageId": "223053854704", "title": "AKIRA 800T",                  "category": "Pentax ESPIO",   "date": "2023", "location": "", "count": 28, "thumb": "18", "body": [] },
     { "id": "theta",  "imageId": "223039033918", "title": "UNDEFINED 400 | BANGKOK",     "category": "Olympus Pen EED","date": "2023", "location": "", "count": 36, "thumb": "03", "body": [] },
     { "id": "eta",    "imageId": "223037804979", "title": "KODAK GOLD 200 | CHIANG MAI", "category": "Olympus Pen EED","date": "2023", "location": "", "count": 22, "thumb": "07", "body": [] },
-    { "id": "zeta",   "imageId": "222992056399", "title": "PROVIA | 東京",               "category": "Fujifilm X-E4",  "date": "2022", "location": "", "count": 25, "thumb": "02", "body": [] },
+    { "id": "zeta",   "imageId": "222992056399", "title": "PROVIA | \u6771\u4eac",               "category": "Fujifilm X-E4",  "date": "2022", "location": "", "count": 25, "thumb": "02", "body": [] },
     { "id": "epsilon","imageId": "222964951577", "title": "FALL",                        "category": "iPhone",         "date": "2022", "location": "", "count": 30, "thumb": "06", "body": [] },
     { "id": "delta",  "imageId": "222959949075", "title": "PORTRA 400",                  "category": "Pentax ESPIO",   "date": "2022", "location": "", "count": 19, "thumb": "04", "body": [] },
-    { "id": "gamma",  "imageId": "222871146026", "title": "ACROS | 서울",                "category": "Fujifilm X-E4",  "date": "2022", "location": "", "count": 7,  "thumb": "05", "body": [] },
+    { "id": "gamma",  "imageId": "222871146026", "title": "ACROS | \uc11c\uc6b8",                "category": "Fujifilm X-E4",  "date": "2022", "location": "", "count": 7,  "thumb": "05", "body": [] },
     { "id": "beta",   "imageId": "222741287151", "title": "X-TRA 400 [0]",               "category": "Minolta X-300",  "date": "2022", "location": "", "count": 6,  "thumb": "06", "body": [] },
     { "id": "alpha",  "imageId": "222741221176", "title": "AGFA APX 100 | IP",           "category": "Minolta X-300",  "date": "2022", "location": "", "count": 7,  "thumb": "06", "body": [] }
   ]
