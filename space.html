@@ -251,7 +251,7 @@ document.getElementById('space-close').addEventListener('click', () => { window.
 
 const isMobile = window.isMobile;
 
-// ── NASA data (cached per day in localStorage) ────────────
+// NASA DEMO_KEY is intentionally public — rate-limited to 30 req/hour per IP by NASA
 const KEY = 'DEMO_KEY';
 const today = new Date();
 const fmt = d => d.toISOString().split('T')[0];
@@ -516,8 +516,22 @@ window.addEventListener('resize', () => {
 // ── animate ────────────────────────────────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
+let animPaused = false;
+
+// Pause the render loop when the tab is hidden to save GPU/CPU
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        animPaused = true;
+        clock.stop();
+    } else {
+        animPaused = false;
+        clock.start();
+        requestAnimationFrame(animate);
+    }
+});
 
 function animate(){
+    if (animPaused) return;
     requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
