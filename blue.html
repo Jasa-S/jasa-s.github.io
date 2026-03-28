@@ -163,7 +163,7 @@
             var BASE  = data.base;
             data.posts.forEach(function(p) {
                 var n    = p.thumb || '01';
-                var src  = BASE + p.id + '_' + n + '.jpg';
+                var src  = BASE + p.imageId + '_' + n + '.jpg';
                 var a    = document.createElement('a');
                 a.className = 'grid-tile';
                 a.href = 'blue-post.html?id=' + encodeURIComponent(p.id);

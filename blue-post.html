@@ -193,7 +193,7 @@
             var html = '';
             for (var i = 0; i < post.count; i++) {
                 var n   = String(i + 1).padStart(2, '0');
-                var src = BASE + post.id + '_' + n + '.jpg';
+                var src = BASE + post.imageId + '_' + n + '.jpg';
                 var cap = (post.captions && post.captions[i]) || '';
                 html += '<div class="post-image">'
                     + '<img src="' + escAttr(src) + '" alt="' + escAttr(cap) + '"'
