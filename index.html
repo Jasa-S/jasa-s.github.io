@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https://raw.githubusercontent.com; connect-src https://corsproxy.io https://query1.finance.yahoo.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline'; img-src 'self' data: https://raw.githubusercontent.com; connect-src https://corsproxy.io https://query1.finance.yahoo.com;">
     <title>Jasaman Saini | Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
@@ -31,16 +30,26 @@
             --border: rgba(255,255,255,0.05);
             --timeline: #27272a;
         }
+        * { box-sizing: border-box; }
         body {
             background-color: var(--bg);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
             transition: background-color 0.3s ease, color 0.3s ease;
+            max-width: 48rem;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+            position: relative;
         }
+        @media (min-width: 768px) { body { padding: 5rem 1.5rem; } }
+
+        /* cards */
         .glass {
             background: var(--card);
             border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
         }
         .glass:hover {
@@ -51,53 +60,56 @@
             background: var(--card);
             border: 1px solid var(--border);
             color: var(--text-muted);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
         }
         .photo-card {
             background: var(--card);
             border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem;
             transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .photo-card:hover { background: var(--card-hover); }
-        .timeline-border { border-left: 1px solid var(--timeline); }
-        .text-dynamic-muted { color: var(--text-muted); }
+
+        /* layout helpers */
+        .timeline-border { border-left: 1px solid var(--timeline); margin-left: 0.5rem; padding-left: 1.5rem; }
+        .text-muted { color: var(--text-muted); }
         .purple-glow { box-shadow: 0 0 10px rgba(124,58,237,0.3); }
         .section-divider { height: 1px; background: var(--timeline); flex-grow: 1; }
         .footer-border { border-top: 1px solid var(--timeline); }
+        .section-heading {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--text-muted); font-weight: 700;
+            margin-bottom: 1.75rem;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .section-heading .section-divider { margin-left: 0; }
+        section { margin-bottom: 3.5rem; }
 
         .profile-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 1px solid var(--border);
-            flex-shrink: 0;
+            width: 80px; height: 80px;
+            border-radius: 50%; object-fit: cover;
+            border: 1px solid var(--border); flex-shrink: 0;
         }
-        @media (min-width: 768px) {
-            .profile-img { width: 96px; height: 96px; }
-        }
+        @media (min-width: 768px) { .profile-img { width: 96px; height: 96px; } }
 
         .top-btn {
-            position: absolute;
+            position: fixed;
             top: 1.1rem;
             z-index: 500;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 0.85rem;
             transition: color 0.2s, transform 0.3s;
             padding: 0.25rem 0.4rem;
-            line-height: 1;
-            display: flex;
-            align-items: center;
+            line-height: 1; display: flex; align-items: center;
         }
-        @media (min-width: 768px) {
-            .top-btn { position: fixed; }
-        }
-
         #theme-toggle { right: 1.5rem; }
         #rocket-btn   { right: 3.2rem; }
-
         @media (hover: hover) and (pointer: fine) {
             #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
             #rocket-btn:hover   { color: var(--cosmic-purple); transform: translateY(-2px) scale(1.15); }
@@ -112,174 +124,189 @@
             animation: spin-globe 8s linear infinite;
             margin-right: 0.5rem;
         }
+
+        /* timeline entries */
+        .tl-entry { position: relative; margin-bottom: 1.75rem; }
+        .tl-entry:last-child { margin-bottom: 0; }
+        .tl-dot {
+            position: absolute; left: -1.95rem; top: 0.375rem;
+            width: 0.5rem; height: 0.5rem; border-radius: 50%;
+        }
+        .tl-dot.active { background-color: var(--cosmic-purple); box-shadow: 0 0 10px rgba(124,58,237,0.3); }
+        .tl-dot.past   { background-color: #a1a1aa; }
+        .tl-date  { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.125rem; }
+        .tl-title { font-size: 0.875rem; font-weight: 500; }
+        .tl-sub   { font-size: 0.75rem; color: var(--text-muted); font-style: italic; margin-top: 0.125rem; }
+
+        /* skills grid */
+        .skills-grid { display: grid; gap: 1.75rem; }
+        @media (min-width: 640px) { .skills-grid { grid-template-columns: 1fr 1fr; } }
+        .skill-group-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; }
+        .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+        /* ed grid */
+        .ed-grid { display: grid; gap: 0.75rem; }
+
+        /* footer */
+        footer {
+            padding-top: 2.5rem;
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--text-muted); font-size: 0.625rem;
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
         #sp500-ticker { letter-spacing: 0.1em; }
         #sp500-ticker .spx-up   { color: #16a34a; }
         #sp500-ticker .spx-down { color: #dc2626; }
+
+        /* creative card arrow */
+        .arrow-icon { color: var(--text-muted); transition: transform 0.2s; font-size: 0.85rem; }
+        a:hover .arrow-icon { transform: translateX(3px); }
     </style>
 </head>
-<body class="max-w-3xl mx-auto px-6 py-12 md:py-20" style="position:relative;">
+<body>
 
     <button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
         <i id="theme-icon" class="fa-solid fa-moon"></i>
     </button>
-
     <button id="rocket-btn" class="top-btn" aria-label="Open space view">
         <i class="fa-solid fa-rocket"></i>
     </button>
 
     <!-- HEADER -->
-    <header class="mb-14">
-        <div class="flex items-start justify-between gap-4">
+    <header style="margin-bottom:3.5rem;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;">
             <div>
-                <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Jasaman Saini</h1>
-                <p class="text-sm text-dynamic-muted mt-1">Business Administration &amp; Electrical Engineering</p>
-                <div class="flex flex-wrap gap-4 mt-5 text-xs text-dynamic-muted">
-                    <span><i class="fa-solid fa-location-dot mr-1.5"></i>Frankfurt</span>
-                    <a href="mailto:sainijasaman@gmail.com" class="hover:text-[#7C3AED] transition-colors">
-                        <i class="fa-solid fa-envelope mr-1.5"></i>Email
+                <h1 style="font-size:1.5rem;font-weight:600;letter-spacing:-0.025em;margin:0;">Jasaman Saini</h1>
+                <p class="text-muted" style="font-size:0.875rem;margin:0.25rem 0 0;">Business Administration &amp; Electrical Engineering</p>
+                <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.25rem;font-size:0.75rem;" class="text-muted">
+                    <span><i class="fa-solid fa-location-dot" style="margin-right:0.375rem;"></i>Frankfurt</span>
+                    <a href="mailto:sainijasaman@gmail.com" style="color:var(--text-muted);text-decoration:none;transition:color 0.2s;"
+                       onmouseover="this.style.color='#7C3AED'" onmouseout="this.style.color='var(--text-muted)'">
+                        <i class="fa-solid fa-envelope" style="margin-right:0.375rem;"></i>Email
                     </a>
                 </div>
             </div>
             <img
                 src="https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/profileImage.png"
-                alt="Jasaman Saini"
-                class="profile-img mt-1"
+                alt="Jasaman Saini" class="profile-img" style="margin-top:0.25rem;"
             >
         </div>
     </header>
 
     <!-- EXPERIENCE -->
-    <section class="mb-14">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-7 flex items-center">
-            <span class="mr-4">Professional Experience</span>
-            <div class="section-divider ml-4"></div>
-        </h2>
-        <div class="space-y-7 timeline-border ml-2 pl-6">
-            <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full purple-glow" style="background-color:var(--cosmic-purple);"></div>
-                <p class="text-xs text-dynamic-muted mb-0.5">11/2023 &mdash; Present</p>
-                <h3 class="text-sm font-medium">Consultant @ x-markets</h3>
-                <p class="text-xs text-dynamic-muted italic">Eschborn, Germany</p>
+    <section>
+        <h2 class="section-heading"><span>Professional Experience</span><div class="section-divider"></div></h2>
+        <div class="timeline-border">
+            <div class="tl-entry">
+                <div class="tl-dot active"></div>
+                <p class="tl-date">11/2023 &mdash; Present</p>
+                <p class="tl-title">Consultant @ x-markets</p>
+                <p class="tl-sub">Eschborn, Germany</p>
             </div>
-            <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
-                <p class="text-xs text-dynamic-muted mb-0.5">09/2024 &mdash; 03/2025</p>
-                <h3 class="text-sm font-medium">Visiting Student Researcher @ KAIST Technology Innovation Lab</h3>
-                <p class="text-xs text-dynamic-muted italic">Daejeon, South Korea</p>
+            <div class="tl-entry">
+                <div class="tl-dot past"></div>
+                <p class="tl-date">09/2024 &mdash; 03/2025</p>
+                <p class="tl-title">Visiting Student Researcher @ KAIST Technology Innovation Lab</p>
+                <p class="tl-sub">Daejeon, South Korea</p>
             </div>
-            <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
-                <p class="text-xs text-dynamic-muted mb-0.5">04/2021 &mdash; 07/2022</p>
-                <h3 class="text-sm font-medium">Working Student Business Analysis @ CGI</h3>
-                <p class="text-xs text-dynamic-muted italic">Munich, Germany</p>
+            <div class="tl-entry">
+                <div class="tl-dot past"></div>
+                <p class="tl-date">04/2021 &mdash; 07/2022</p>
+                <p class="tl-title">Working Student Business Analysis @ CGI</p>
+                <p class="tl-sub">Munich, Germany</p>
             </div>
-            <div class="relative">
-                <div class="absolute -left-[31px] top-1.5 w-2 h-2 rounded-full bg-zinc-400"></div>
-                <p class="text-xs text-dynamic-muted mb-0.5">03/2020 &mdash; 07/2020</p>
-                <h3 class="text-sm font-medium">Intern Project Management @ MAN Energy Solutions</h3>
-                <p class="text-xs text-dynamic-muted italic">Augsburg, Germany</p>
+            <div class="tl-entry">
+                <div class="tl-dot past"></div>
+                <p class="tl-date">03/2020 &mdash; 07/2020</p>
+                <p class="tl-title">Intern Project Management @ MAN Energy Solutions</p>
+                <p class="tl-sub">Augsburg, Germany</p>
             </div>
         </div>
     </section>
 
     <!-- EDUCATION -->
-    <section class="mb-14">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-7 flex items-center">
-            <span class="mr-4">Education</span>
-            <div class="section-divider ml-4"></div>
-        </h2>
-        <div class="grid gap-3">
-            <div class="glass p-4 rounded-xl">
-                <div class="flex justify-between items-start gap-2">
-                    <h3 class="font-medium text-sm">Technical University of Darmstadt</h3>
-                    <span class="text-xs text-dynamic-muted shrink-0">2021 &mdash; 2025</span>
+    <section>
+        <h2 class="section-heading"><span>Education</span><div class="section-divider"></div></h2>
+        <div class="ed-grid">
+            <div class="glass">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+                    <p style="font-size:0.875rem;font-weight:500;margin:0;">Technical University of Darmstadt</p>
+                    <span class="text-muted" style="font-size:0.75rem;white-space:nowrap;">2021 &mdash; 2025</span>
                 </div>
-                <p class="text-dynamic-muted text-xs mt-1">M.Sc. Business Administration and Engineering (Electrical Engineering)</p>
-                <p class="text-xs text-dynamic-muted mt-1 italic">Master&apos;s thesis: The Role of Venture Capital in Deep Tech</p>
+                <p class="text-muted" style="font-size:0.75rem;margin:0.25rem 0 0;">M.Sc. Business Administration and Engineering (Electrical Engineering)</p>
+                <p class="text-muted" style="font-size:0.75rem;margin:0.25rem 0 0;font-style:italic;">Master&apos;s thesis: The Role of Venture Capital in Deep Tech</p>
             </div>
-            <div class="glass p-4 rounded-xl">
-                <div class="flex justify-between items-start gap-2">
-                    <h3 class="font-medium text-sm">KAIST (Daejeon, South Korea)</h3>
-                    <span class="text-xs text-dynamic-muted shrink-0">2022 &mdash; 2023</span>
+            <div class="glass">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+                    <p style="font-size:0.875rem;font-weight:500;margin:0;">KAIST (Daejeon, South Korea)</p>
+                    <span class="text-muted" style="font-size:0.75rem;white-space:nowrap;">2022 &mdash; 2023</span>
                 </div>
-                <p class="text-dynamic-muted text-xs mt-1">Exchange year &ndash; School of Electrical Engineering</p>
+                <p class="text-muted" style="font-size:0.75rem;margin:0.25rem 0 0;">Exchange year &ndash; School of Electrical Engineering</p>
             </div>
-            <div class="glass p-4 rounded-xl">
-                <div class="flex justify-between items-start gap-2">
-                    <h3 class="font-medium text-sm">Technical University of Applied Sciences Augsburg</h3>
-                    <span class="text-xs text-dynamic-muted shrink-0">2017 &mdash; 2021</span>
+            <div class="glass">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+                    <p style="font-size:0.875rem;font-weight:500;margin:0;">Technical University of Applied Sciences Augsburg</p>
+                    <span class="text-muted" style="font-size:0.75rem;white-space:nowrap;">2017 &mdash; 2021</span>
                 </div>
-                <p class="text-dynamic-muted text-xs mt-1">B.Eng. International Management and Engineering (Electrical Engineering)</p>
-                <p class="text-xs text-dynamic-muted mt-1 italic">Bachelor&apos;s thesis: The Potential of Machine Learning in Insurance</p>
+                <p class="text-muted" style="font-size:0.75rem;margin:0.25rem 0 0;">B.Eng. International Management and Engineering (Electrical Engineering)</p>
+                <p class="text-muted" style="font-size:0.75rem;margin:0.25rem 0 0;font-style:italic;">Bachelor&apos;s thesis: The Potential of Machine Learning in Insurance</p>
             </div>
-            <div class="glass p-4 rounded-xl">
-                <div class="flex justify-between items-start gap-2">
-                    <h3 class="font-medium text-sm">Soongsil University (Seoul, South Korea)</h3>
-                    <span class="text-xs text-dynamic-muted shrink-0">2019</span>
+            <div class="glass">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+                    <p style="font-size:0.875rem;font-weight:500;margin:0;">Soongsil University (Seoul, South Korea)</p>
+                    <span class="text-muted" style="font-size:0.75rem;white-space:nowrap;">2019</span>
                 </div>
-                <p class="text-dynamic-muted text-xs mt-1">Exchange semester &ndash; School of Business Administration</p>
+                <p class="text-muted" style="font-size:0.75rem;margin:0.25rem 0 0;">Exchange semester &ndash; School of Business Administration</p>
             </div>
         </div>
     </section>
 
     <!-- CREATIVE WORK -->
-    <section class="mb-14">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-5 flex items-center">
-            <span class="mr-4">Creative Work</span>
-            <div class="section-divider ml-4"></div>
-        </h2>
-        <div class="flex flex-col gap-3">
-            <a href="blue.html" class="block group">
-                <div class="photo-card p-5 rounded-2xl flex items-center justify-between transition-all">
-                    <h3 class="text-2xl font-medium tracking-tight flex items-center">
+    <section>
+        <h2 class="section-heading"><span>Creative Work</span><div class="section-divider"></div></h2>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <a href="blue.html" style="text-decoration:none;display:block;">
+                <div class="photo-card">
+                    <h3 style="font-size:1.5rem;font-weight:500;letter-spacing:-0.025em;margin:0;display:flex;align-items:center;">
                         <span class="icon-globe">&#127757;</span>BlUE
                     </h3>
-                    <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
-                </div>
-            </a>
-            <a href="s-venr.html" class="block group" style="display:none;">
-                <div class="photo-card p-5 rounded-2xl flex items-center justify-between transition-all">
-                    <h3 class="text-2xl font-medium tracking-tight">S-VENR</h3>
-                    <i class="fa-solid fa-arrow-right text-dynamic-muted group-hover:translate-x-1 transition-all"></i>
+                    <i class="fa-solid fa-arrow-right arrow-icon"></i>
                 </div>
             </a>
         </div>
     </section>
 
     <!-- SKILLS -->
-    <section class="mb-14">
-        <h2 class="text-xs uppercase tracking-[0.2em] text-dynamic-muted font-bold mb-5 flex items-center">
-            <span class="mr-4">Skills &amp; Additional Qualifications</span>
-            <div class="section-divider ml-4"></div>
-        </h2>
-        <div class="grid md:grid-cols-2 gap-7">
+    <section>
+        <h2 class="section-heading"><span>Skills &amp; Additional Qualifications</span><div class="section-divider"></div></h2>
+        <div class="skills-grid">
             <div>
-                <p class="text-xs text-dynamic-muted mb-3 uppercase tracking-widest">Languages</p>
-                <div class="flex flex-wrap gap-2">
-                    <span class="badge px-3 py-1 rounded-full text-xs">German (Native)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">Punjabi (Native, Spoken)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">English (Business Fluent / C1)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">Korean (Basic)</span>
+                <p class="skill-group-label">Languages</p>
+                <div class="badges">
+                    <span class="badge">German (Native)</span>
+                    <span class="badge">Punjabi (Native, Spoken)</span>
+                    <span class="badge">English (Business Fluent / C1)</span>
+                    <span class="badge">Korean (Basic)</span>
                 </div>
             </div>
             <div>
-                <p class="text-xs text-dynamic-muted mb-3 uppercase tracking-widest">Technical &amp; IT</p>
-                <div class="flex flex-wrap gap-2">
-                    <span class="badge px-3 py-1 rounded-full text-xs">Python</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">MATLAB</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">PLECS</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">CAD</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">MS Office</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">Machine Learning (DeepLearning.AI)</span>
-                    <span class="badge px-3 py-1 rounded-full text-xs">Six Sigma DMAIC</span>
+                <p class="skill-group-label">Technical &amp; IT</p>
+                <div class="badges">
+                    <span class="badge">Python</span>
+                    <span class="badge">MATLAB</span>
+                    <span class="badge">PLECS</span>
+                    <span class="badge">CAD</span>
+                    <span class="badge">MS Office</span>
+                    <span class="badge">Machine Learning (DeepLearning.AI)</span>
+                    <span class="badge">Six Sigma DMAIC</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="pt-10 footer-border flex justify-between items-center text-dynamic-muted text-[10px] uppercase tracking-widest">
-        <p>&copy; 2026 Jasaman Saini</p>
-        <p id="sp500-ticker">S&amp;P 500</p>
+    <footer class="footer-border">
+        <p style="margin:0;">&copy; 2026 Jasaman Saini</p>
+        <p id="sp500-ticker" style="margin:0;">S&amp;P 500</p>
     </footer>
 
     <script>
@@ -291,18 +318,15 @@
             body.classList.toggle('dark', dark);
             icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
-
         var stored = localStorage.getItem('theme');
         if (stored) {
             applyTheme(stored === 'dark');
         } else {
             applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
         }
-
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
             if (!localStorage.getItem('theme')) applyTheme(e.matches);
         });
-
         btn.addEventListener('click', function() {
             var isDark = body.classList.toggle('dark');
             icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
