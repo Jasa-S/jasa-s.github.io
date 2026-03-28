@@ -320,9 +320,7 @@
         });
 
         document.getElementById('rocket-btn').addEventListener('click', function() {
-            var dark = document.body.classList.contains('dark');
-            localStorage.setItem('space-theme', dark ? 'dark' : 'light');
-            window.open('space.html', '_blank');
+            window.location = 'space.html';
         });
 
         (function fetchSPX() {
