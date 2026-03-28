@@ -105,7 +105,6 @@
             letter-spacing: 0.08em;
         }
 
-        /* ── NASA panel — all screens ── */
         #nasa-panel {
             position: absolute;
             bottom: 1.5rem;
@@ -157,7 +156,6 @@
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
 
-        /* ── mobile ── */
         @media (max-width: 768px) {
             #nasa-panel {
                 bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
@@ -175,7 +173,6 @@
             .nasa-value .sub { display: none; }
         }
 
-        /* ── landscape phone ── */
         @media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
             #nasa-panel {
                 bottom: 0.4rem;
@@ -246,9 +243,6 @@ import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
-
-const isLight = localStorage.getItem('space-theme') === 'light';
-if (isLight) document.body.classList.add('light');
 
 document.getElementById('space-close').addEventListener('click', () => window.close());
 
@@ -498,8 +492,10 @@ document.getElementById('start-btn').addEventListener('click', () => {
     document.getElementById('nasa-panel').classList.add('visible');
 });
 
+let aspect = innerWidth / innerHeight;
 window.addEventListener('resize', () => {
-    camera.aspect = innerWidth / innerHeight;
+    aspect = innerWidth / innerHeight;
+    camera.aspect = aspect;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
     composer.setSize(innerWidth, innerHeight);
@@ -508,9 +504,6 @@ window.addEventListener('resize', () => {
 // ── animate ───────────────────────────────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
-let aspect = innerWidth / innerHeight;
-
-window.addEventListener('resize', () => { aspect = innerWidth / innerHeight; });
 
 function animate(){
     requestAnimationFrame(animate);
@@ -523,8 +516,6 @@ function animate(){
 
     starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 2 : 4));
 
-    // Compensate perceived speed for portrait: aspect < 1 means taller than wide,
-    // so stars cross less screen per world-unit — boost to match landscape feel.
     const speedMult = aspect < 1 ? Math.max(1, 1 / aspect) : 1;
     const effectiveSpeed = starSpeed * speedMult;
 
