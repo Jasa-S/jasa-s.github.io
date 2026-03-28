@@ -1,0 +1,11 @@
+/* ── Shared styles: spin-globe animation ── */
+@keyframes spin-globe {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+.icon-globe {
+    display: inline-block;
+    animation: spin-globe 8s linear infinite;
+    margin-right: 0.5rem;
+    font-style: normal;
+}

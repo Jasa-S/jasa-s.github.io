@@ -10,12 +10,12 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237C3AED'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='600'>%C2%A5</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
         :root {
             --bg: #ffffff; --text-main: #111827; --text-muted: #6b7280;
-            --card: #f9fafb; --card-hover: #f0f0f0; --border: rgba(0,0,0,0.07);
+            --card: #f9fafb; --border: rgba(0,0,0,0.07);
             --cosmic-purple: #7C3AED; --timeline: #e5e7eb;
             --radius-card: 0.75rem;
             --ls-wide: 0.15em;
@@ -24,7 +24,7 @@
         }
         body.dark {
             --bg: #0a0a0a; --text-main: #ffffff; --text-muted: #a1a1aa;
-            --card: #141414; --card-hover: #1e1e1e; --border: rgba(255,255,255,0.07); --timeline: #27272a;
+            --card: #141414; --border: rgba(255,255,255,0.07); --timeline: #27272a;
         }
         body {
             background-color: var(--bg); color: var(--text-main);
@@ -63,6 +63,8 @@
             display: inline-flex; align-items: center; gap: 0.3rem;
         }
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
+        /* nav group hidden until posts are loaded */
+        #nav-group { display: none; }
         @media (hover: hover) and (pointer: fine) {
             .bar-back:hover { color: var(--cosmic-purple); }
             .bar-back:hover .back-arrow { transform: translateX(-2px); }
@@ -99,7 +101,7 @@
             text-transform: uppercase; letter-spacing: var(--ls-mid);
             color: var(--cosmic-purple); margin-bottom: 0.45rem;
         }
-        @media (max-width: 899px) { .mobile-category { display: block; } }
+        @media (max-width: 900px) { .mobile-category { display: block; } }
         .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 0.35rem; line-height: 1.2; }
         .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 1.5rem; }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
@@ -128,9 +130,11 @@
             <span>BlUE</span>
         </a>
         <div class="bar-divider"></div>
-        <button class="bar-nav-btn disabled" id="btn-prev"><i class="fa-solid fa-chevron-left" style="font-size:0.65rem;"></i></button>
-        <button class="bar-nav-btn disabled" id="btn-next"><i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></button>
-        <div class="bar-divider"></div>
+        <span id="nav-group" style="display:none;align-items:center;gap:0.35rem;">
+            <button class="bar-nav-btn disabled" id="btn-prev"><i class="fa-solid fa-chevron-left" style="font-size:0.65rem;"></i></button>
+            <button class="bar-nav-btn disabled" id="btn-next"><i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></button>
+            <div class="bar-divider"></div>
+        </span>
         <button class="bar-btn" id="theme-toggle" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
@@ -152,34 +156,14 @@
         </footer>
     </div>
 
+    <script src="theme.js"></script>
     <script>
     document.getElementById('copy-year').textContent = new Date().getFullYear();
-
-    var bd   = document.body;
-    var icon = document.getElementById('theme-icon');
-
-    function applyTheme(dark) {
-        bd.classList.toggle('dark', dark);
-        icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    }
-    var stored = localStorage.getItem('theme');
-    if (stored) {
-        applyTheme(stored === 'dark');
-    } else {
-        applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-        if (!localStorage.getItem('theme')) applyTheme(e.matches);
-    });
-    document.getElementById('theme-toggle').addEventListener('click', function() {
-        var isDark = bd.classList.toggle('dark');
-        icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     var allPosts = null;
+    var pendingId = null;
 
     function renderPost(postId) {
         if (!allPosts) return;
@@ -223,12 +207,14 @@
 
         window.scrollTo(0, 0);
 
-        var prevBtn = document.getElementById('btn-prev');
-        var nextBtn = document.getElementById('btn-next');
+        var prevBtn   = document.getElementById('btn-prev');
+        var nextBtn   = document.getElementById('btn-next');
+        var navGroup  = document.getElementById('nav-group');
         prevBtn.className = idx > 0 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
         nextBtn.className = idx < ids.length - 1 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
         prevBtn.onclick = idx > 0 ? (function(i) { return function() { navigateTo(ids[i - 1]); }; }(idx)) : null;
         nextBtn.onclick = idx < ids.length - 1 ? (function(i) { return function() { navigateTo(ids[i + 1]); }; }(idx)) : null;
+        navGroup.style.display = 'inline-flex';
     }
 
     function navigateTo(id) {
@@ -238,8 +224,13 @@
 
     window.addEventListener('popstate', function() {
         var id = decodeURIComponent(window.location.hash.slice(1));
-        if (id && allPosts) renderPost(id);
-        else window.location = 'blue.html';
+        if (!id) { window.location = 'blue.html'; return; }
+        if (allPosts) {
+            renderPost(id);
+        } else {
+            // fetch not yet resolved — queue the id and render once data arrives
+            pendingId = id;
+        }
     });
 
     var initialId = decodeURIComponent(window.location.hash.slice(1));
@@ -248,7 +239,9 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
             allPosts = data;
-            renderPost(initialId || (data.posts[0] && data.posts[0].id) || '');
+            var targetId = pendingId || initialId || (data.posts[0] && data.posts[0].id) || '';
+            pendingId = null;
+            renderPost(targetId);
         })
         .catch(function() { window.location = 'blue.html'; });
     </script>

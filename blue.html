@@ -10,9 +10,10 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237C3AED'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='600'>%C2%A5</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
         :root {
             --bg: #ffffff; --text-main: #111827; --text-muted: #6b7280;
             --card: #f9fafb; --card-hover: #f0f0f0; --border: rgba(0,0,0,0.07);
@@ -134,16 +135,6 @@
             letter-spacing: var(--ls-wide); color: var(--text-muted);
         }
         footer a { text-decoration: none; }
-        @keyframes spin-globe {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
-        .icon-globe {
-            display: inline-block;
-            animation: spin-globe 8s linear infinite;
-            margin-right: 0.5rem;
-            font-style: normal;
-        }
     </style>
 </head>
 <body>
@@ -169,34 +160,12 @@
         </footer>
     </div>
 
+    <script src="theme.js"></script>
     <script>
     document.getElementById('copy-year').textContent = new Date().getFullYear();
 
-    var bd   = document.body;
-    var icon = document.getElementById('theme-icon');
-
-    function applyTheme(dark) {
-        bd.classList.toggle('dark', dark);
-        icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    }
-    var stored = localStorage.getItem('theme');
-    if (stored) {
-        applyTheme(stored === 'dark');
-    } else {
-        applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-        if (!localStorage.getItem('theme')) applyTheme(e.matches);
-    });
-    document.getElementById('theme-toggle').addEventListener('click', function() {
-        var isDark = bd.classList.toggle('dark');
-        icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
-
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    // render 12 skeleton tiles while posts.json loads
     var grid = document.getElementById('grid');
     var SKELETON_COUNT = 12;
     for (var s = 0; s < SKELETON_COUNT; s++) {
@@ -211,7 +180,7 @@
             grid.innerHTML = '';
             var BASE = data.base;
             data.posts.forEach(function(p, i) {
-                var src = BASE + p.imageId + '_' + p.thumb + '.jpg';
+                var src = BASE + p.imageId + '_' + p.cover + '.jpg';
                 var a   = document.createElement('a');
                 a.className = 'grid-tile';
                 a.href = 'blue-post.html#' + encodeURIComponent(p.id);
