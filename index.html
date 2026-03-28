@@ -47,6 +47,27 @@
         }
         @media (min-width: 768px) { body { padding: 5rem 1.5rem; } }
 
+        /* ── mobile portrait: slightly tighter scale ── */
+        @media (max-width: 640px) {
+            body { font-size: 0.9375rem; padding: 2.5rem 1.25rem; }
+            section { margin-bottom: 2.75rem; }
+            .tl-entry { margin-bottom: 1.4rem; }
+        }
+
+        /* ── mobile landscape: compact everything ── */
+        @media (max-width: 900px) and (orientation: landscape) {
+            body { padding: 2rem 1.25rem; font-size: 0.875rem; }
+            section { margin-bottom: 2.25rem; }
+            header  { margin-bottom: 2.25rem !important; }
+            .tl-entry { margin-bottom: 1.1rem; }
+            .section-heading { margin-bottom: 1.25rem; font-size: 0.6rem; }
+            .tl-date  { font-size: 0.6875rem; }
+            .tl-title { font-size: 0.8125rem; }
+            .tl-sub   { font-size: 0.75rem; }
+            .skill-group-label { font-size: 0.625rem; }
+            .badge { font-size: 0.6875rem; }
+        }
+
         a { color: inherit; }
         a:visited { color: inherit; }
 
@@ -95,7 +116,7 @@
         section { margin-bottom: 3.5rem; }
 
         .profile-img {
-            width: 80px; height: 80px;
+            width: 72px; height: 72px;
             border-radius: 50%; object-fit: cover;
             border: 1px solid var(--border); flex-shrink: 0;
         }
