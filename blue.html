@@ -67,10 +67,10 @@
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 0.2rem;
+            gap: 0.25rem;
         }
         @media (min-width: 640px) {
-            .photo-grid { gap: 0.25rem; grid-template-columns: repeat(4, 1fr); }
+            .photo-grid { grid-template-columns: repeat(4, 1fr); }
         }
         .grid-tile {
             aspect-ratio: 1 / 1; overflow: hidden;
@@ -91,6 +91,17 @@
             opacity: 0; transform: translateY(4px);
             transition: opacity 0.25s, transform 0.25s;
             text-shadow: 0 1px 3px rgba(0,0,0,0.6); line-height: 1.3;
+        }
+        /* skeleton tiles */
+        .grid-skeleton {
+            aspect-ratio: 1 / 1;
+            border-radius: var(--radius-card);
+            background: var(--card);
+            animation: skeleton-pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes skeleton-pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.45; }
         }
         .grid-error {
             grid-column: 1 / -1;
@@ -185,10 +196,19 @@
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+    // render 12 skeleton tiles while posts.json loads
+    var grid = document.getElementById('grid');
+    var SKELETON_COUNT = 12;
+    for (var s = 0; s < SKELETON_COUNT; s++) {
+        var sk = document.createElement('div');
+        sk.className = 'grid-skeleton';
+        grid.appendChild(sk);
+    }
+
     fetch('posts.json')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            var grid = document.getElementById('grid');
+            grid.innerHTML = '';
             var BASE = data.base;
             data.posts.forEach(function(p, i) {
                 var src = BASE + p.imageId + '_' + p.thumb + '.jpg';
@@ -204,7 +224,7 @@
             });
         })
         .catch(function() {
-            document.getElementById('grid').innerHTML =
+            grid.innerHTML =
                 '<div class="grid-error"><i class="fa-regular fa-image"></i>Could not load posts &mdash; please try again later.</div>';
         });
     </script>
