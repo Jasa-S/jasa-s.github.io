@@ -1,0 +1,25 @@
+{
+  "base": "https://raw.githubusercontent.com/Saido-8/Saido-8.github.io/main/blue-images/",
+  "posts": [
+    { "id": "224105519781", "title": "SUPERIA 400 | HOME",          "category": "Yashica T3",     "date": "2025", "location": "", "count": 17, "body": [] },
+    { "id": "224012140603", "title": "Reflx Lab 400 (069)",         "category": "Yashica T3",     "date": "2025", "location": "", "count": 12, "body": [] },
+    { "id": "223877679702", "title": "Napoli",                       "category": "iPhone",         "date": "2025", "location": "", "count": 20, "body": [] },
+    { "id": "223763004365", "title": "WAVE 400",                     "category": "Pentax ESPIO",   "date": "2025", "location": "", "count": 32, "body": [] },
+    { "id": "223638578946", "title": "BTDIO",                        "category": "iPhone",         "date": "2024", "location": "", "count": 51, "body": [] },
+    { "id": "223207890396", "title": "FUJICOLOR 100",                "category": "Pentax ESPIO",   "date": "2023", "location": "", "count": 16, "body": [] },
+    { "id": "223103649848", "title": "LUCKY SUPER 100 (EXPIRED)",   "category": "Pentax ESPIO",   "date": "2023", "location": "", "count": 23, "body": [] },
+    { "id": "223100906215", "title": "CINESTILL 400D",              "category": "Pentax ESPIO",   "date": "2023", "location": "", "count": 21, "body": [] },
+    { "id": "223082536112", "title": "X-TRA 400 [2]",               "category": "Minolta X-300",  "date": "2023", "location": "", "count": 23, "body": [] },
+    { "id": "223081641739", "title": "X-TRA 400 [1]",               "category": "Minolta X-300",  "date": "2023", "location": "", "count": 20, "body": [] },
+    { "id": "223068994946", "title": "NATURA 1600",                 "category": "Fujifilm X-E4",  "date": "2023", "location": "", "count": 27, "body": [] },
+    { "id": "223053854704", "title": "AKIRA 800T",                  "category": "Pentax ESPIO",   "date": "2023", "location": "", "count": 28, "body": [] },
+    { "id": "223039033918", "title": "UNDEFINED 400 | BANGKOK",     "category": "Olympus Pen EED","date": "2023", "location": "", "count": 36, "body": [] },
+    { "id": "223037804979", "title": "KODAK GOLD 200 | CHIANG MAI", "category": "Olympus Pen EED","date": "2023", "location": "", "count": 22, "body": [] },
+    { "id": "222992056399", "title": "PROVIA | 東京",               "category": "Fujifilm X-E4",  "date": "2022", "location": "", "count": 25, "body": [] },
+    { "id": "222964951577", "title": "FALL",                        "category": "iPhone",         "date": "2022", "location": "", "count": 30, "body": [] },
+    { "id": "222959949075", "title": "PORTRA 400",                  "category": "Pentax ESPIO",   "date": "2022", "location": "", "count": 19, "body": [] },
+    { "id": "222871146026", "title": "ACROS | 서울",                "category": "Fujifilm X-E4",  "date": "2022", "location": "", "count": 7,  "body": [] },
+    { "id": "222741287151", "title": "X-TRA 400 [0]",               "category": "Minolta X-300",  "date": "2022", "location": "", "count": 6,  "body": [] },
+    { "id": "222741221176", "title": "AGFA APX 100 | IP",           "category": "Minolta X-300",  "date": "2022", "location": "", "count": 7,  "body": [] }
+  ]
+}
