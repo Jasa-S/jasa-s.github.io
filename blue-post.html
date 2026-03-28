@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
-    <meta name="description" content="BlUE — a film and digital photography journal by Jasaman Saini.">
+    <meta name="description" content="BlUE &mdash; a film and digital photography journal by Jasaman Saini.">
     <meta property="og:title" content="BlUE | Jasaman Saini">
     <meta property="og:description" content="A film and digital photography journal.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/224105519781_01.jpg">
@@ -31,7 +30,6 @@
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
-        /* Reset browser link colours globally */
         a { color: inherit; }
         a:visited { color: inherit; }
         #sticky-bar {
@@ -88,11 +86,11 @@
             .sidebar-category { font-size: 0.78rem; font-weight: 500; color: var(--cosmic-purple); line-height: 1.4; text-transform: uppercase; letter-spacing: 0.13em; }
         }
         .mobile-category {
-            display: block; font-size: 0.68rem; font-weight: 500;
+            display: none; font-size: 0.68rem; font-weight: 500;
             text-transform: uppercase; letter-spacing: 0.13em;
             color: var(--cosmic-purple); margin-bottom: 0.45rem;
         }
-        @media (min-width: 900px) { .mobile-category { display: none; } }
+        @media (max-width: 899px) { .mobile-category { display: block; } }
         .post-title { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.35rem; line-height: 1.2; }
         .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2rem; }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
@@ -142,11 +140,11 @@
     </div>
 
     <script>
-    var body = document.body;
+    var bd   = document.body;
     var icon = document.getElementById('theme-icon');
 
     function applyTheme(dark) {
-        body.classList.toggle('dark', dark);
+        bd.classList.toggle('dark', dark);
         icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
     var stored = localStorage.getItem('theme');
@@ -159,13 +157,12 @@
         if (!localStorage.getItem('theme')) applyTheme(e.matches);
     });
     document.getElementById('theme-toggle').addEventListener('click', function() {
-        var isDark = body.classList.toggle('dark');
+        var isDark = bd.classList.toggle('dark');
         icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
 
-    function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     var allPosts = null;
 
@@ -179,21 +176,16 @@
 
         if (!post) { window.location = 'blue.html'; return; }
 
-        document.title = escHtml(post.title || 'Post') + ' | BlUE';
+        document.title = (post.title || 'Post') + ' | BlUE';
         document.getElementById('post-title').textContent = post.title || '';
         var metaParts = [post.location, post.date].filter(Boolean);
         document.getElementById('post-meta').textContent = metaParts.join(' \u2014 ');
 
-        var cat = post.category || '';
+        var cat        = post.category || '';
         var mobileCat  = document.getElementById('mobile-category');
         var sidebarCat = document.getElementById('sidebar-category');
-        if (cat) {
-            mobileCat.textContent  = cat;
-            sidebarCat.textContent = cat;
-            mobileCat.style.display = '';
-        } else {
-            mobileCat.style.display = 'none';
-        }
+        mobileCat.textContent  = cat;
+        sidebarCat.textContent = cat;
 
         var html = '';
         for (var i = 0; i < post.count; i++) {
@@ -201,15 +193,15 @@
             var src = BASE + post.imageId + '_' + n + '.jpg';
             var cap = (post.captions && post.captions[i]) || '';
             html += '<div class="post-image">'
-                + '<img src="' + escAttr(src) + '" alt="' + escAttr(cap) + '"'
-                + (i === 0 ? ' loading="eager" fetchpriority="high"' : ' loading="lazy"')
+                + '<img src="' + esc(src) + '" alt="' + esc(cap) + '"'
+                + (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"')
                 + '>'
-                + (cap ? '<div class="post-image-caption">' + escHtml(cap) + '</div>' : '')
+                + (cap ? '<div class="post-image-caption">' + esc(cap) + '</div>' : '')
                 + '</div>';
         }
         if (post.body && post.body.length) {
             html += '<div class="post-body">';
-            post.body.forEach(function(p){ if(p) html += '<p>' + escHtml(p) + '</p>'; });
+            post.body.forEach(function(p){ if(p) html += '<p>' + esc(p) + '</p>'; });
             html += '</div>';
         }
         document.getElementById('post-content').innerHTML = html;
@@ -217,20 +209,10 @@
 
         var prevBtn = document.getElementById('btn-prev');
         var nextBtn = document.getElementById('btn-next');
-        // reset
-        prevBtn.className = 'bar-nav-btn disabled';
-        nextBtn.className = 'bar-nav-btn disabled';
-        prevBtn.onclick = null;
-        nextBtn.onclick = null;
-
-        if (idx > 0) {
-            prevBtn.className = 'bar-nav-btn';
-            prevBtn.onclick = function() { navigateTo(ids[idx - 1]); };
-        }
-        if (idx < ids.length - 1) {
-            nextBtn.className = 'bar-nav-btn';
-            nextBtn.onclick = function() { navigateTo(ids[idx + 1]); };
-        }
+        prevBtn.className = idx > 0 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
+        nextBtn.className = idx < ids.length - 1 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
+        prevBtn.onclick = idx > 0 ? function() { navigateTo(ids[idx - 1]); } : null;
+        nextBtn.onclick = idx < ids.length - 1 ? function() { navigateTo(ids[idx + 1]); } : null;
     }
 
     function navigateTo(id) {
@@ -250,8 +232,7 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
             allPosts = data;
-            var firstId = data.posts[0] ? data.posts[0].id : '';
-            renderPost(initialId || firstId);
+            renderPost(initialId || (data.posts[0] && data.posts[0].id) || '');
         })
         .catch(function() { window.location = 'blue.html'; });
     </script>

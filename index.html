@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
-    <meta name="description" content="Jasaman Saini — Business Administration &amp; Electrical Engineering. Portfolio, creative work, and professional experience.">
+    <meta name="description" content="Jasaman Saini &mdash; Business Administration &amp; Electrical Engineering. Portfolio, creative work, and professional experience.">
     <meta property="og:title" content="Jasaman Saini">
     <meta property="og:description" content="Business Administration &amp; Electrical Engineering. Portfolio, creative work, and professional experience.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
@@ -49,7 +48,6 @@
         }
         @media (min-width: 768px) { body { padding: 5rem 1.5rem; } }
 
-        /* Reset browser link colours globally */
         a { color: inherit; }
         a:visited { color: inherit; }
 
@@ -119,6 +117,7 @@
         @media (hover: hover) and (pointer: fine) {
             #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
             #rocket-btn:hover   { color: var(--cosmic-purple); transform: translateY(-2px) scale(1.15); }
+            .email-link:hover   { color: var(--cosmic-purple); }
         }
 
         .tl-entry { position: relative; margin-bottom: 1.75rem; }
@@ -180,8 +179,7 @@
                 <p class="text-muted" style="font-size:0.875rem;margin:0.25rem 0 0;">Business Administration &amp; Electrical Engineering</p>
                 <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.25rem;font-size:0.75rem;" class="text-muted">
                     <span><i class="fa-solid fa-location-dot" style="margin-right:0.375rem;"></i>Frankfurt</span>
-                    <a href="mailto:sainijasaman@gmail.com" style="text-decoration:none;transition:color 0.2s;"
-                       onmouseover="this.style.color='#7C3AED'" onmouseout="this.style.color=''">
+                    <a href="mailto:sainijasaman@gmail.com" class="email-link" style="text-decoration:none;transition:color 0.2s;">
                         <i class="fa-solid fa-envelope" style="margin-right:0.375rem;"></i>Email
                     </a>
                 </div>
@@ -306,12 +304,12 @@
     </footer>
 
     <script>
-        var body = document.body;
+        var bd   = document.body;
         var icon = document.getElementById('theme-icon');
         var btn  = document.getElementById('theme-toggle');
 
         function applyTheme(dark) {
-            body.classList.toggle('dark', dark);
+            bd.classList.toggle('dark', dark);
             icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
         }
         var stored = localStorage.getItem('theme');
@@ -324,7 +322,7 @@
             if (!localStorage.getItem('theme')) applyTheme(e.matches);
         });
         btn.addEventListener('click', function() {
-            var isDark = body.classList.toggle('dark');
+            var isDark = bd.classList.toggle('dark');
             icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });

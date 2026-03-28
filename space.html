@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
     <meta name="description" content="An interactive space simulation by Jasaman Saini. Hold Space (or tap) to thrust.">
     <meta property="og:title" content="Initiate | Jasaman Saini">
     <meta property="og:description" content="An interactive space simulation. Hold Space or tap to thrust.">
@@ -237,7 +236,7 @@
     } else {
         el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
     }
-    document.addEventListener('contextmenu', function(e){ e.preventDefault(); }, { passive: false });
+    // Block multi-touch gestures (pinch-zoom etc.) on the page
     document.addEventListener('touchstart', function(e){
         if(e.touches.length > 1) e.preventDefault();
     }, { passive: false });
@@ -266,7 +265,7 @@ function setVal(id, html) { document.getElementById(id).innerHTML = html; }
 const sub = html => isMobile ? '' : `<span class="sub">${html}</span>`;
 
 function cachedFetch(url) {
-    const cacheKey = 'nasa_cache_' + todayStr + '_' + url;
+    const cacheKey = 'nasa_' + todayStr + '_' + url.slice(-40);
     try {
         const cached = localStorage.getItem(cacheKey);
         if (cached) return Promise.resolve(JSON.parse(cached));
@@ -277,7 +276,7 @@ function cachedFetch(url) {
             try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e) {}
             try {
                 Object.keys(localStorage)
-                    .filter(k => k.startsWith('nasa_cache_') && !k.startsWith('nasa_cache_' + todayStr))
+                    .filter(k => k.startsWith('nasa_') && !k.startsWith('nasa_' + todayStr))
                     .forEach(k => localStorage.removeItem(k));
             } catch(e) {}
             return data;
@@ -352,6 +351,7 @@ renderer.toneMappingExposure = 0.9;
 renderer.autoClear = false;
 document.body.appendChild(renderer.domElement);
 
+// Block right-click and multi-touch on the canvas
 renderer.domElement.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
 renderer.domElement.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
 
