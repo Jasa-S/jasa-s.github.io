@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
     <title>Initiate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -258,7 +259,6 @@ const todayStr = fmt(today), d7Str = fmt(d7);
 function setVal(id, html) { document.getElementById(id).innerHTML = html; }
 const sub = html => isMobile ? '' : `<span class="sub">${html}</span>`;
 
-// Returns cached JSON for url if fetched today, otherwise fetches and caches it
 function cachedFetch(url) {
     const cacheKey = 'nasa_cache_' + todayStr + '_' + url;
     try {
@@ -269,7 +269,6 @@ function cachedFetch(url) {
         .then(r => r.json())
         .then(data => {
             try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e) {}
-            // prune yesterday's entries to keep localStorage tidy
             try {
                 Object.keys(localStorage)
                     .filter(k => k.startsWith('nasa_cache_') && !k.startsWith('nasa_cache_' + todayStr))
