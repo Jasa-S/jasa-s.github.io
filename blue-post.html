@@ -15,12 +15,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
         :root {
             --bg: #ffffff; --text-main: #111827; --text-muted: #6b7280;
-            --card: #f9fafb; --border: rgba(0,0,0,0.07);
+            --card: #f9fafb; --card-hover: #f0f0f0; --border: rgba(0,0,0,0.07);
             --cosmic-purple: #7C3AED; --timeline: #e5e7eb;
+            --radius-card: 0.75rem;
+            --ls-wide: 0.15em;
+            --ls-mid:  0.1em;
+            --ls-tight: 0.05em;
         }
         body.dark {
             --bg: #0a0a0a; --text-main: #ffffff; --text-muted: #a1a1aa;
-            --card: #141414; --border: rgba(255,255,255,0.07); --timeline: #27272a;
+            --card: #141414; --card-hover: #1e1e1e; --border: rgba(255,255,255,0.07); --timeline: #27272a;
         }
         body {
             background-color: var(--bg); color: var(--text-main);
@@ -80,29 +84,36 @@
                 top: 5.5rem;
                 width: 8rem;
             }
-            .sidebar-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--text-muted); margin-bottom: 0.4rem; }
-            .sidebar-category { font-size: 0.78rem; font-weight: 500; color: var(--cosmic-purple); line-height: 1.4; text-transform: uppercase; letter-spacing: 0.13em; }
+            .sidebar-label {
+                font-size: 0.7rem; text-transform: uppercase;
+                letter-spacing: var(--ls-mid); color: var(--text-muted);
+                margin-bottom: 0.4rem;
+            }
+            .sidebar-category {
+                font-size: 0.78rem; font-weight: 500; color: var(--cosmic-purple);
+                line-height: 1.4; text-transform: uppercase; letter-spacing: var(--ls-mid);
+            }
         }
         .mobile-category {
             display: none; font-size: 0.68rem; font-weight: 500;
-            text-transform: uppercase; letter-spacing: 0.13em;
+            text-transform: uppercase; letter-spacing: var(--ls-mid);
             color: var(--cosmic-purple); margin-bottom: 0.45rem;
         }
         @media (max-width: 899px) { .mobile-category { display: block; } }
-        .post-title { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.35rem; line-height: 1.2; }
-        .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2rem; }
+        .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 0.35rem; line-height: 1.2; }
+        .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 1.5rem; }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
-        .post-image img { width: 100%; height: auto; display: block; border-radius: 0.6rem; }
+        .post-image img { width: 100%; height: auto; display: block; border-radius: var(--radius-card); }
         .post-image-caption { margin-top: 0.4rem; font-size: 0.68rem; color: var(--text-muted); text-align: center; }
         .post-body { font-size: 0.93rem; line-height: 1.8; color: var(--text-main); }
-        .post-body p { margin-bottom: 1.1rem; }
+        .post-body p { margin-bottom: 1rem; }
         footer {
             padding: 1.5rem 0;
             margin-top: 3rem;
             border-top: 1px solid var(--timeline);
             display: flex; justify-content: space-between;
             font-size: 0.65rem; text-transform: uppercase;
-            letter-spacing: 0.15em; color: var(--text-muted);
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
         }
         footer a { text-decoration: none; }
     </style>
