@@ -61,7 +61,11 @@
             .email-link:hover   { color: var(--cosmic-purple); }
         }
 
-        /* desktop ≥ 641px: fixed top-right */
+        /*
+         * Desktop ≥ 641px: fixed top-right
+         * body padding-top 3rem = viewport top → name
+         * All major gaps use 3rem as base unit
+         */
         @media (min-width: 641px) {
             .top-bar {
                 position: fixed;
@@ -75,19 +79,23 @@
             body { padding-top: 3rem; }
         }
 
-        /* mobile portrait ≤ 640px: in-flow */
+        /*
+         * Mobile portrait ≤ 640px: in-flow
+         * padding-top 1rem + btn ~1.45rem + padding-bottom 0.55rem = 3rem above name
+         * Matches desktop body padding-top 3rem exactly
+         */
         @media (max-width: 640px) {
             .top-bar {
                 display: flex;
                 justify-content: flex-end;
                 align-items: center;
                 gap: 0.25rem;
-                padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
-                padding-bottom: 0.375rem;
+                padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+                padding-bottom: 0.55rem;
             }
         }
 
-        /* mobile landscape: in-flow, compact */
+        /* Mobile landscape: in-flow, compact */
         @media (max-width: 900px) and (orientation: landscape) {
             .top-bar {
                 display: flex;
