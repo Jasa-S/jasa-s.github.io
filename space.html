@@ -236,7 +236,6 @@
     } else {
         el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
     }
-    // Block multi-touch gestures (pinch-zoom etc.) on the page
     document.addEventListener('touchstart', function(e){
         if(e.touches.length > 1) e.preventDefault();
     }, { passive: false });
@@ -264,8 +263,8 @@ const todayStr = fmt(today), d7Str = fmt(d7);
 function setVal(id, html) { document.getElementById(id).innerHTML = html; }
 const sub = html => isMobile ? '' : `<span class="sub">${html}</span>`;
 
-function cachedFetch(url) {
-    const cacheKey = 'nasa_' + todayStr + '_' + url.slice(-40);
+function cachedFetch(label, url) {
+    const cacheKey = 'nasa_' + todayStr + '_' + label;
     try {
         const cached = localStorage.getItem(cacheKey);
         if (cached) return Promise.resolve(JSON.parse(cached));
@@ -283,7 +282,7 @@ function cachedFetch(url) {
         });
 }
 
-cachedFetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
+cachedFetch('flr', `https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
     .then(data => {
         if (!data || !data.length) {
             setVal('val-flare', `<span class="dot"></span><span class="hi">Quiet</span>${sub(' &mdash; no flares in 7 days')}`);
@@ -299,7 +298,7 @@ cachedFetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todaySt
     })
     .catch(() => setVal('val-flare', '<span class="dot warn"></span>Unavailable'));
 
-cachedFetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
+cachedFetch('gst', `https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
     .then(data => {
         if (!data || !data.length) {
             setVal('val-storm', `<span class="dot"></span><span class="hi">None</span>${sub(' in past 7 days')}`);
@@ -316,7 +315,7 @@ cachedFetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todaySt
     })
     .catch(() => setVal('val-storm', '<span class="dot warn"></span>Unavailable'));
 
-cachedFetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${todayStr}&api_key=${KEY}`)
+cachedFetch('neo', `https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${todayStr}&api_key=${KEY}`)
     .then(data => {
         const total = data.element_count || 0;
         let closest = null, minDist = Infinity;
@@ -335,7 +334,7 @@ cachedFetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=
         const hazard    = closest.is_potentially_hazardous_asteroid;
         const level     = hazard ? 'warn' : '';
         const diam      = closest.estimated_diameter?.meters;
-        const diamStr   = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
+        const diamStr   = diam ? `${Math.round(diam.estimated_diameter_min)}\u2013${Math.round(diam.estimated_diameter_max)} m` : '';
         setVal('val-neo',
             `<span class="dot ${level}"></span><span class="hi">${name}</span>
              ${sub(`<br>${lunarDist} LD away &mdash; ${diamStr}<br><span style="opacity:.55;font-size:0.6rem;">${total} objects tracked this week</span>`)}`);
@@ -351,7 +350,6 @@ renderer.toneMappingExposure = 0.9;
 renderer.autoClear = false;
 document.body.appendChild(renderer.domElement);
 
-// Block right-click and multi-touch on the canvas
 renderer.domElement.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
 renderer.domElement.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
 
