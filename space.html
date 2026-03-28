@@ -223,7 +223,6 @@
 
 <script>
 (function(){
-    // shared across both scripts via window
     window.isMobile = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
     var el = document.getElementById('thrust-hint');
     if (window.isMobile) {
@@ -245,7 +244,7 @@ import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 
-document.getElementById('space-close').addEventListener('click', () => window.close());
+document.getElementById('space-close').addEventListener('click', () => { window.location = 'index.html'; });
 
 const isMobile = window.isMobile;
 
