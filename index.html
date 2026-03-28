@@ -147,6 +147,9 @@
             flex-shrink: 0;
             margin-top: 0.25rem;
         }
+        body.dark .profile-img {
+            border-color: rgba(255,255,255,0.15);
+        }
         @media (min-width: 768px) {
             .profile-img { width: 96px; height: 96px; }
         }
@@ -158,6 +161,7 @@
             border-radius: var(--radius-card);
             padding: 1.25rem;
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            will-change: transform;
         }
         .glass:hover {
             border-color: rgba(125,125,125,0.3);
@@ -391,11 +395,13 @@
     </section>
 
     <footer>
-        <p style="margin:0;">&copy; 2026 Jasaman Saini</p>
+        <p style="margin:0;">&copy; <span id="copy-year"></span> Jasaman Saini</p>
         <p id="sp500-ticker" style="margin:0;">S&amp;P 500</p>
     </footer>
 
     <script>
+        document.getElementById('copy-year').textContent = new Date().getFullYear();
+
         var bd   = document.body;
         var icon = document.getElementById('theme-icon');
         var btn  = document.getElementById('theme-toggle');

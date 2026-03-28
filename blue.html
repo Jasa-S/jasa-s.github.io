@@ -100,6 +100,12 @@
             font-size: 0.8rem;
             letter-spacing: var(--ls-tight);
         }
+        .grid-error i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+        }
         @media (hover: hover) and (pointer: fine) {
             .bar-back:hover { color: var(--cosmic-purple); }
             .bar-back:hover .back-arrow { transform: translateX(-2px); }
@@ -147,12 +153,14 @@
         </header>
         <div class="photo-grid" id="grid"></div>
         <footer>
-            <span>&copy; 2026 Jasaman Saini</span>
+            <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
             <a href="index.html">Homepage</a>
         </footer>
     </div>
 
     <script>
+    document.getElementById('copy-year').textContent = new Date().getFullYear();
+
     var bd   = document.body;
     var icon = document.getElementById('theme-icon');
 
@@ -197,7 +205,7 @@
         })
         .catch(function() {
             document.getElementById('grid').innerHTML =
-                '<div class="grid-error">Could not load posts &mdash; please try again later.</div>';
+                '<div class="grid-error"><i class="fa-regular fa-image"></i>Could not load posts &mdash; please try again later.</div>';
         });
     </script>
 </body>
