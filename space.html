@@ -493,7 +493,9 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => {
     if(e.code === 'Space') thrusting = false;
 });
-window.addEventListener('pointerdown', e => { if(started && e.target.id !== 'start-btn') thrusting = true; });
+window.addEventListener('pointerdown', e => {
+    if(started && e.target.id !== 'start-btn' && e.target.id !== 'space-close') thrusting = true;
+});
 window.addEventListener('pointerup',      () => thrusting = false);
 window.addEventListener('pointercancel',  () => thrusting = false);
 // Release thrust if cursor leaves the window (prevents stuck thrust state)
