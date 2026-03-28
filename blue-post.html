@@ -104,6 +104,7 @@
             font-size: 0.65rem; text-transform: uppercase;
             letter-spacing: 0.15em; color: var(--text-muted);
         }
+        footer a { text-decoration: none; }
     </style>
 </head>
 <body>
@@ -177,7 +178,7 @@
         document.title = (post.title || 'Post') + ' | BlUE';
         document.getElementById('post-title').textContent = post.title || '';
         var metaParts = [post.location, post.date].filter(Boolean);
-        document.getElementById('post-meta').textContent = metaParts.join(' \u2014 ');
+        document.getElementById('post-meta').textContent = metaParts.join(' — ');
 
         var cat        = post.category || '';
         var mobileCat  = document.getElementById('mobile-category');
