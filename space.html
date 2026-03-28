@@ -209,15 +209,15 @@
 <div id="nasa-panel">
     <div class="nasa-card">
         <div class="nasa-label">Solar Activity</div>
-        <div class="nasa-value" id="val-flare">Fetching…</div>
+        <div class="nasa-value" id="val-flare">Loading&hellip;</div>
     </div>
     <div class="nasa-card">
         <div class="nasa-label">Geomagnetic Storm</div>
-        <div class="nasa-value" id="val-storm">Fetching…</div>
+        <div class="nasa-value" id="val-storm">Loading&hellip;</div>
     </div>
     <div class="nasa-card">
         <div class="nasa-label">Near-Earth Object</div>
-        <div class="nasa-value" id="val-neo">Fetching…</div>
+        <div class="nasa-value" id="val-neo">Loading&hellip;</div>
     </div>
 </div>
 
@@ -248,67 +248,85 @@ document.getElementById('space-close').addEventListener('click', () => { window.
 
 const isMobile = window.isMobile;
 
-// ── NASA data ────────────────────────────────────────────
+// ── NASA data (cached per day in localStorage) ────────────
 const KEY = 'DEMO_KEY';
 const today = new Date();
 const fmt = d => d.toISOString().split('T')[0];
-const d7 = new Date(today); d7.setDate(d7.getDate()-7);
+const d7 = new Date(today); d7.setDate(d7.getDate() - 7);
 const todayStr = fmt(today), d7Str = fmt(d7);
 
-function setVal(id, html){ document.getElementById(id).innerHTML = html; }
-const sub = (html) => isMobile ? '' : `<span class="sub">${html}</span>`;
+function setVal(id, html) { document.getElementById(id).innerHTML = html; }
+const sub = html => isMobile ? '' : `<span class="sub">${html}</span>`;
 
-fetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
-    .then(r => r.json())
+// Returns cached JSON for url if fetched today, otherwise fetches and caches it
+function cachedFetch(url) {
+    const cacheKey = 'nasa_cache_' + todayStr + '_' + url;
+    try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return Promise.resolve(JSON.parse(cached));
+    } catch(e) {}
+    return fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch(e) {}
+            // prune yesterday's entries to keep localStorage tidy
+            try {
+                Object.keys(localStorage)
+                    .filter(k => k.startsWith('nasa_cache_') && !k.startsWith('nasa_cache_' + todayStr))
+                    .forEach(k => localStorage.removeItem(k));
+            } catch(e) {}
+            return data;
+        });
+}
+
+cachedFetch(`https://api.nasa.gov/DONKI/FLR?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
     .then(data => {
-        if(!data || !data.length){
+        if (!data || !data.length) {
             setVal('val-flare', `<span class="dot"></span><span class="hi">Quiet</span>${sub(' &mdash; no flares in 7 days')}`);
             return;
         }
-        const last  = data[data.length-1];
+        const last  = data[data.length - 1];
         const cls   = last.classType || '?';
-        const when  = last.beginTime ? last.beginTime.slice(0,10) : '';
+        const when  = last.beginTime ? last.beginTime.slice(0, 10) : '';
         const level = cls.startsWith('X') ? 'alert' : cls.startsWith('M') ? 'warn' : '';
         setVal('val-flare',
             `<span class="dot ${level}"></span><span class="hi">Class ${cls}</span> flare
-             ${sub(`<br>${when} &mdash; ${data.length} event${data.length>1?'s':''} this week`)}`);
+             ${sub(`<br>${when} &mdash; ${data.length} event${data.length > 1 ? 's' : ''} this week`)}`);
     })
     .catch(() => setVal('val-flare', '<span class="dot warn"></span>Unavailable'));
 
-fetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
-    .then(r => r.json())
+cachedFetch(`https://api.nasa.gov/DONKI/GST?startDate=${d7Str}&endDate=${todayStr}&api_key=${KEY}`)
     .then(data => {
-        if(!data || !data.length){
+        if (!data || !data.length) {
             setVal('val-storm', `<span class="dot"></span><span class="hi">None</span>${sub(' in past 7 days')}`);
             return;
         }
-        const last  = data[data.length-1];
-        const kpMax = last.allKpIndex ? Math.max(...last.allKpIndex.map(k=>k.kpIndex)) : '?';
+        const last  = data[data.length - 1];
+        const kpMax = last.allKpIndex ? Math.max(...last.allKpIndex.map(k => k.kpIndex)) : '?';
         const kpStr = kpMax !== '?' ? kpMax.toFixed(1) : '?';
         const level = kpMax >= 7 ? 'alert' : kpMax >= 5 ? 'warn' : '';
-        const when  = last.startTime ? last.startTime.slice(0,10) : '';
+        const when  = last.startTime ? last.startTime.slice(0, 10) : '';
         setVal('val-storm',
             `<span class="dot ${level}"></span>Kp <span class="hi">${kpStr}</span> peak
-             ${sub(`<br>${when} &mdash; ${data.length} storm${data.length>1?'s':''} this week`)}`);
+             ${sub(`<br>${when} &mdash; ${data.length} storm${data.length > 1 ? 's' : ''} this week`)}`);
     })
     .catch(() => setVal('val-storm', '<span class="dot warn"></span>Unavailable'));
 
-fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${todayStr}&api_key=${KEY}`)
-    .then(r => r.json())
+cachedFetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${todayStr}&api_key=${KEY}`)
     .then(data => {
         const total = data.element_count || 0;
         let closest = null, minDist = Infinity;
         Object.values(data.near_earth_objects || {}).forEach(day => {
             day.forEach(neo => {
                 const dist = parseFloat(neo.close_approach_data?.[0]?.miss_distance?.lunar ?? Infinity);
-                if(dist < minDist){ minDist = dist; closest = neo; }
+                if (dist < minDist) { minDist = dist; closest = neo; }
             });
         });
-        if(!closest){
+        if (!closest) {
             setVal('val-neo', `<span class="dot"></span><span class="hi">${total}</span>${sub(' tracked this week')}`);
             return;
         }
-        const name      = closest.name.replace(/[()]/g,'').trim();
+        const name      = closest.name.replace(/[()]/g, '').trim();
         const lunarDist = minDist.toFixed(1);
         const hazard    = closest.is_potentially_hazardous_asteroid;
         const level     = hazard ? 'warn' : '';
@@ -320,7 +338,7 @@ fetch(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&end_date=${toda
     })
     .catch(() => setVal('val-neo', '<span class="dot warn"></span>Unavailable'));
 
-// ── renderer ──────────────────────────────────────────────────
+// ── renderer ───────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -332,7 +350,7 @@ document.body.appendChild(renderer.domElement);
 renderer.domElement.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
 renderer.domElement.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
 
-// ── scene / camera ────────────────────────────────────────
+// ── scene / camera ─────────────────────────────────────────
 const scene = new THREE.Scene();
 const baseFOV = 56;
 const camera = new THREE.PerspectiveCamera(baseFOV, innerWidth/innerHeight, 0.1, 80000);
@@ -378,7 +396,7 @@ skyScene.add(new THREE.Mesh(
     })
 ));
 
-// ── post-processing ─────────────────────────────────────────
+// ── post-processing ────────────────────────────────────────
 const composer = new EffectComposer(renderer);
 const rpMain = new RenderPass(scene, camera);
 rpMain.clear = false;
@@ -416,7 +434,7 @@ const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
 moon.position.set(0, 0, -1200);
 scene.add(moon);
 
-// ── earth ────────────────────────────────────────────────
+// ── earth ──────────────────────────────────────────────────
 const earth = new THREE.Mesh(
     new THREE.SphereGeometry(48, 40, 40),
     new THREE.MeshStandardMaterial({ color:0x1a4d8a, roughness:0.75 })
@@ -427,7 +445,7 @@ earth.add(new THREE.Mesh(
     new THREE.MeshStandardMaterial({ color:0x33aaff, transparent:true, opacity:0.10, side:THREE.FrontSide })
 ));
 
-// ── stars ─────────────────────────────────────────────────
+// ── stars ──────────────────────────────────────────────────
 const STARS = 2400;
 const sGeo = new THREE.BufferGeometry();
 const sP = new Float32Array(STARS*6), sC = new Float32Array(STARS*6);
@@ -448,7 +466,7 @@ const stars = new THREE.LineSegments(sGeo, new THREE.LineBasicMaterial({
 }));
 scene.add(stars);
 
-// ── dust ──────────────────────────────────────────────────
+// ── dust ───────────────────────────────────────────────────
 const dGeo = new THREE.BufferGeometry();
 const dP = new Float32Array(700*3);
 for(let i=0;i<700;i++){
@@ -462,7 +480,7 @@ const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({
 }));
 scene.add(dust);
 
-// ── input ─────────────────────────────────────────────────
+// ── input ──────────────────────────────────────────────────
 let started = false, thrusting = false;
 
 window.addEventListener('keydown', e => {
@@ -494,7 +512,7 @@ window.addEventListener('resize', () => {
     composer.setSize(innerWidth, innerHeight);
 });
 
-// ── animate ───────────────────────────────────────────────
+// ── animate ────────────────────────────────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
 
