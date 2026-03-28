@@ -238,14 +238,23 @@
             html += '</div>';
         }
         document.getElementById('post-content').innerHTML = html;
+
+        /* reset progress bar and scroll position on post navigation */
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
         window.scrollTo(0, 0);
+        /* re-enable transition after reset frame */
+        requestAnimationFrame(function() {
+            progressBar.style.transition = 'width 0.1s linear';
+        });
 
         var prevBtn = document.getElementById('btn-prev');
         var nextBtn = document.getElementById('btn-next');
         prevBtn.className = idx > 0 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
         nextBtn.className = idx < ids.length - 1 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
-        prevBtn.onclick = idx > 0 ? function() { navigateTo(ids[idx - 1]); } : null;
-        nextBtn.onclick = idx < ids.length - 1 ? function() { navigateTo(ids[idx + 1]); } : null;
+        /* fix closure: capture idx by value with IIFE */
+        prevBtn.onclick = idx > 0 ? (function(i) { return function() { navigateTo(ids[i - 1]); }; }(idx)) : null;
+        nextBtn.onclick = idx < ids.length - 1 ? (function(i) { return function() { navigateTo(ids[i + 1]); }; }(idx)) : null;
     }
 
     function navigateTo(id) {

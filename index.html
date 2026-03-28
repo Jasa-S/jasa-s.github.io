@@ -446,7 +446,9 @@
                     var cls    = up ? 'spx-up' : 'spx-down';
                     ticker.innerHTML = 'S&amp;P 500 &nbsp;<span class="' + cls + '">' + arrow + ' ' + sign + pct.toFixed(2) + '%</span>';
                 })
-                .catch(function() { ticker.textContent = 'S&P 500'; });
+                .catch(function() {
+                    ticker.innerHTML = 'S&amp;P 500 &nbsp;<span style="opacity:0.45">&mdash;</span>';
+                });
         })();
     </script>
 
