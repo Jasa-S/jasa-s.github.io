@@ -451,8 +451,10 @@ const STARS = 2400;
 const sGeo = new THREE.BufferGeometry();
 const sP = new Float32Array(STARS*6), sC = new Float32Array(STARS*6);
 const SCOLS = [[1,1,1],[0.7,0.9,1],[1,0.95,0.8],[0.6,1,0.75],[0.9,0.7,1]];
+// Scale Y spread for portrait screens so stars fill top/bottom
+const portraitScale = Math.max(1, innerHeight / innerWidth);
 for(let i=0;i<STARS;i++){
-    const x=(Math.random()-.5)*1400, y=(Math.random()-.5)*1000,
+    const x=(Math.random()-.5)*1400, y=(Math.random()-.5)*1000*portraitScale,
           z=(Math.random()-.5)*5000-500, ix=i*6;
     sP[ix]=x; sP[ix+1]=y; sP[ix+2]=z;
     sP[ix+3]=x; sP[ix+4]=y; sP[ix+5]=z;
@@ -483,6 +485,7 @@ scene.add(dust);
 
 // ── input ──────────────────────────────────────────────────
 let started = false, thrusting = false;
+const canvas = renderer.domElement;
 
 window.addEventListener('keydown', e => {
     if(!started) return;
@@ -491,9 +494,26 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => {
     if(e.code === 'Space') thrusting = false;
 });
-window.addEventListener('pointerdown', e => { if(started && e.target.id !== 'start-btn') thrusting = true; });
-window.addEventListener('pointerup',      () => thrusting = false);
-window.addEventListener('pointercancel',  () => thrusting = false);
+
+// Guard both start-btn and space-close from triggering thrust
+const thrustBlockIds = new Set(['start-btn', 'space-close']);
+window.addEventListener('pointerdown', e => {
+    if(started && !thrustBlockIds.has(e.target.id)) thrusting = true;
+});
+window.addEventListener('pointerup',     () => thrusting = false);
+window.addEventListener('pointercancel', () => thrusting = false);
+
+// Pointer lock on desktop so mouse leaving window doesn't cut thrust
+if (!isMobile && document.pointerLockElement !== undefined) {
+    canvas.addEventListener('click', () => {
+        if (started && document.pointerLockElement !== canvas) {
+            canvas.requestPointerLock();
+        }
+    });
+    document.addEventListener('pointerlockchange', () => {
+        if (document.pointerLockElement !== canvas) thrusting = false;
+    });
+}
 
 document.getElementById('start-btn').addEventListener('click', () => {
     const ov = document.getElementById('start-overlay');
@@ -502,6 +522,10 @@ document.getElementById('start-btn').addEventListener('click', () => {
     setTimeout(() => ov.remove(), 420);
     started = true;
     document.getElementById('nasa-panel').classList.add('visible');
+    // Request pointer lock on desktop after start
+    if (!isMobile && document.pointerLockElement !== undefined) {
+        canvas.requestPointerLock();
+    }
 });
 
 let aspect = innerWidth / innerHeight;
@@ -554,7 +578,7 @@ function animate(){
             const nz = -5000 - Math.random()*600;
             pa[ix+2] = nz; pa[ix+5] = nz;
             pa[ix]   = (Math.random()-.5)*1400; pa[ix+3] = pa[ix];
-            pa[ix+1] = (Math.random()-.5)*1000; pa[ix+4] = pa[ix+1];
+            pa[ix+1] = (Math.random()-.5)*1000*portraitScale; pa[ix+4] = pa[ix+1];
         }
         pa[ix+5] = pa[ix+2] - (1.5 * stretch);
     }
