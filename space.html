@@ -496,6 +496,8 @@ window.addEventListener('keyup', e => {
 window.addEventListener('pointerdown', e => { if(started && e.target.id !== 'start-btn') thrusting = true; });
 window.addEventListener('pointerup',      () => thrusting = false);
 window.addEventListener('pointercancel',  () => thrusting = false);
+// Release thrust if cursor leaves the window (prevents stuck thrust state)
+document.addEventListener('mouseleave', () => { thrusting = false; });
 
 document.getElementById('start-btn').addEventListener('click', () => {
     const ov = document.getElementById('start-overlay');
