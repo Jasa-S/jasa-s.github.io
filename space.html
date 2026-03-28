@@ -6,7 +6,7 @@
     <meta name="description" content="An interactive space simulation by Jasaman Saini. Hold Space (or tap) to thrust.">
     <meta property="og:title" content="Initiate | Jasaman Saini">
     <meta property="og:description" content="An interactive space simulation. Hold Space or tap to thrust.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/224105519781_01.jpg">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
     <meta property="og:type" content="website">
     <title>Initiate</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237C3AED'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='600'>J</text></svg>">
@@ -334,7 +334,7 @@ cachedFetch('neo', `https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&en
         const hazard    = closest.is_potentially_hazardous_asteroid;
         const level     = hazard ? 'warn' : '';
         const diam      = closest.estimated_diameter?.meters;
-        const diamStr   = diam ? `${Math.round(diam.estimated_diameter_min)}\u2013${Math.round(diam.estimated_diameter_max)} m` : '';
+        const diamStr   = diam ? `${Math.round(diam.estimated_diameter_min)}–${Math.round(diam.estimated_diameter_max)} m` : '';
         setVal('val-neo',
             `<span class="dot ${level}"></span><span class="hi">${name}</span>
              ${sub(`<br>${lunarDist} LD away &mdash; ${diamStr}<br><span style="opacity:.55;font-size:0.6rem;">${total} objects tracked this week</span>`)}`);
