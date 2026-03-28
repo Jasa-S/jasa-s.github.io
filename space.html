@@ -223,9 +223,10 @@
 
 <script>
 (function(){
-    var isTouchOnly = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+    // shared across both scripts via window
+    window.isMobile = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
     var el = document.getElementById('thrust-hint');
-    if (isTouchOnly) {
+    if (window.isMobile) {
         el.textContent = 'Tap & hold to thrust';
     } else {
         el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
@@ -246,7 +247,7 @@ import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 
 document.getElementById('space-close').addEventListener('click', () => window.close());
 
-const isMobile = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+const isMobile = window.isMobile;
 
 // ── NASA data ────────────────────────────────────────────
 const KEY = 'DEMO_KEY';
@@ -380,11 +381,10 @@ skyScene.add(new THREE.Mesh(
 
 // ── post-processing ─────────────────────────────────────────
 const composer = new EffectComposer(renderer);
-const rpSky  = new RenderPass(skyScene, skyCamera);
 const rpMain = new RenderPass(scene, camera);
 rpMain.clear = false;
 rpMain.clearDepth = true;
-composer.addPass(rpSky);
+composer.addPass(new RenderPass(skyScene, skyCamera));
 composer.addPass(rpMain);
 const BLOOM_BASE = 0.7;
 const bloom = new UnrealBloomPass(
@@ -408,19 +408,13 @@ const fill = new THREE.DirectionalLight(0x0a1520, 0.4);
 fill.position.set(-300, -80, -200); scene.add(fill);
 
 // ── moon ───────────────────────────────────────────────────
-const MOON_Z = -1200;
 const texLoader = new THREE.TextureLoader();
-const moonMat = new THREE.MeshStandardMaterial({
-    roughness: 0.95,
-    metalness: 0.0,
-    emissive:  new THREE.Color(0x000000),
-    emissiveIntensity: 0.0
-});
+const moonMat = new THREE.MeshStandardMaterial({ roughness: 0.95 });
 texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg', t => {
     moonMat.map = t; moonMat.needsUpdate = true;
 });
 const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
-moon.position.set(0, 0, MOON_Z);
+moon.position.set(0, 0, -1200);
 scene.add(moon);
 
 // ── earth ────────────────────────────────────────────────
