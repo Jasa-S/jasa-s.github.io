@@ -166,7 +166,7 @@
                 var src  = BASE + p.imageId + '_' + n + '.jpg';
                 var a    = document.createElement('a');
                 a.className = 'grid-tile';
-                a.href = 'blue-post.html?id=' + encodeURIComponent(p.id);
+                a.href = 'blue-post.html#' + encodeURIComponent(p.id);
                 a.innerHTML =
                     '<img src="' + escAttr(src) + '" alt="' + escAttr(p.title) + '" loading="lazy">'
                     + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + escAttr(p.title) + '</div></div>';

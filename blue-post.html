@@ -159,8 +159,7 @@
     function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    var params = new URLSearchParams(window.location.search);
-    var currentId = params.get('id');
+    var currentId = decodeURIComponent(window.location.hash.slice(1));
 
     fetch('posts.json')
         .then(function(r) { return r.json(); })
@@ -213,11 +212,11 @@
             var nextBtn = document.getElementById('btn-next');
             if (idx > 0) {
                 prevBtn.classList.remove('disabled');
-                prevBtn.addEventListener('click', function(){ window.location = 'blue-post.html?id=' + ids[idx-1]; });
+                prevBtn.addEventListener('click', function(){ window.location = 'blue-post.html#' + ids[idx-1]; });
             }
             if (idx < ids.length - 1) {
                 nextBtn.classList.remove('disabled');
-                nextBtn.addEventListener('click', function(){ window.location = 'blue-post.html?id=' + ids[idx+1]; });
+                nextBtn.addEventListener('click', function(){ window.location = 'blue-post.html#' + ids[idx+1]; });
             }
         })
         .catch(function() { window.location = 'blue.html'; });
