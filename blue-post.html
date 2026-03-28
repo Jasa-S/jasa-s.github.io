@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <meta name="description" content="BlUE — a film and digital photography journal by Jasaman Saini.">
+    <meta property="og:title" content="BlUE | Jasaman Saini">
+    <meta property="og:description" content="A film and digital photography journal.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/224105519781_01.jpg">
+    <meta property="og:type" content="website">
     <title>BlUE | Jasaman Saini</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237C3AED'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='600'>J</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
@@ -161,65 +167,91 @@
     function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    var currentId = decodeURIComponent(window.location.hash.slice(1));
+    var allPosts = null;
+
+    function renderPost(postId) {
+        if (!allPosts) return;
+        var posts = allPosts.posts;
+        var BASE  = allPosts.base;
+        var ids   = posts.map(function(p){ return p.id; });
+        var post  = posts.find(function(p){ return p.id === postId; });
+        var idx   = ids.indexOf(postId);
+
+        if (!post) { window.location = 'blue.html'; return; }
+
+        document.title = escHtml(post.title || 'Post') + ' | BlUE';
+        document.getElementById('post-title').textContent = post.title || '';
+        var metaParts = [post.location, post.date].filter(Boolean);
+        document.getElementById('post-meta').textContent = metaParts.join(' \u2014 ');
+
+        var cat = post.category || '';
+        var mobileCat  = document.getElementById('mobile-category');
+        var sidebarCat = document.getElementById('sidebar-category');
+        if (cat) {
+            mobileCat.textContent  = cat;
+            sidebarCat.textContent = cat;
+            mobileCat.style.display = '';
+        } else {
+            mobileCat.style.display = 'none';
+        }
+
+        var html = '';
+        for (var i = 0; i < post.count; i++) {
+            var n   = String(i + 1).padStart(2, '0');
+            var src = BASE + post.imageId + '_' + n + '.jpg';
+            var cap = (post.captions && post.captions[i]) || '';
+            html += '<div class="post-image">'
+                + '<img src="' + escAttr(src) + '" alt="' + escAttr(cap) + '"'
+                + (i === 0 ? ' loading="eager" fetchpriority="high"' : ' loading="lazy"')
+                + '>'
+                + (cap ? '<div class="post-image-caption">' + escHtml(cap) + '</div>' : '')
+                + '</div>';
+        }
+        if (post.body && post.body.length) {
+            html += '<div class="post-body">';
+            post.body.forEach(function(p){ if(p) html += '<p>' + escHtml(p) + '</p>'; });
+            html += '</div>';
+        }
+        document.getElementById('post-content').innerHTML = html;
+        window.scrollTo(0, 0);
+
+        var prevBtn = document.getElementById('btn-prev');
+        var nextBtn = document.getElementById('btn-next');
+        // reset
+        prevBtn.className = 'bar-nav-btn disabled';
+        nextBtn.className = 'bar-nav-btn disabled';
+        prevBtn.onclick = null;
+        nextBtn.onclick = null;
+
+        if (idx > 0) {
+            prevBtn.className = 'bar-nav-btn';
+            prevBtn.onclick = function() { navigateTo(ids[idx - 1]); };
+        }
+        if (idx < ids.length - 1) {
+            nextBtn.className = 'bar-nav-btn';
+            nextBtn.onclick = function() { navigateTo(ids[idx + 1]); };
+        }
+    }
+
+    function navigateTo(id) {
+        history.pushState(null, '', '#' + id);
+        renderPost(id);
+    }
+
+    window.addEventListener('popstate', function() {
+        var id = decodeURIComponent(window.location.hash.slice(1));
+        if (id && allPosts) renderPost(id);
+        else window.location = 'blue.html';
+    });
+
+    var initialId = decodeURIComponent(window.location.hash.slice(1));
 
     fetch('posts.json')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            var posts = data.posts;
-            var BASE  = data.base;
-            var ids   = posts.map(function(p){ return p.id; });
-
-            if (!currentId) currentId = ids[0];
-            var post = posts.find(function(p){ return p.id === currentId; });
-            var idx  = ids.indexOf(currentId);
-
-            if (!post) { window.location = 'blue.html'; return; }
-
-            document.title = escHtml(post.title || 'Post') + ' | BlUE';
-            document.getElementById('post-title').textContent = post.title || '';
-            var metaParts = [post.location, post.date].filter(Boolean);
-            document.getElementById('post-meta').textContent = metaParts.join(' \u2014 ');
-
-            var cat = post.category || '';
-            var mobileCat  = document.getElementById('mobile-category');
-            var sidebarCat = document.getElementById('sidebar-category');
-            if (cat) {
-                mobileCat.textContent  = cat;
-                sidebarCat.textContent = cat;
-            } else {
-                mobileCat.style.display = 'none';
-            }
-
-            var html = '';
-            for (var i = 0; i < post.count; i++) {
-                var n   = String(i + 1).padStart(2, '0');
-                var src = BASE + post.imageId + '_' + n + '.jpg';
-                var cap = (post.captions && post.captions[i]) || '';
-                html += '<div class="post-image">'
-                    + '<img src="' + escAttr(src) + '" alt="' + escAttr(cap) + '"'
-                    + (i === 0 ? ' loading="eager" fetchpriority="high"' : ' loading="lazy"')
-                    + '>'
-                    + (cap ? '<div class="post-image-caption">' + escHtml(cap) + '</div>' : '')
-                    + '</div>';
-            }
-            if (post.body && post.body.length) {
-                html += '<div class="post-body">';
-                post.body.forEach(function(p){ if(p) html += '<p>' + escHtml(p) + '</p>'; });
-                html += '</div>';
-            }
-            document.getElementById('post-content').innerHTML = html;
-
-            var prevBtn = document.getElementById('btn-prev');
-            var nextBtn = document.getElementById('btn-next');
-            if (idx > 0) {
-                prevBtn.classList.remove('disabled');
-                prevBtn.addEventListener('click', function(){ window.location = 'blue-post.html#' + ids[idx-1]; });
-            }
-            if (idx < ids.length - 1) {
-                nextBtn.classList.remove('disabled');
-                nextBtn.addEventListener('click', function(){ window.location = 'blue-post.html#' + ids[idx+1]; });
-            }
+            allPosts = data;
+            var firstId = data.posts[0] ? data.posts[0].id : '';
+            renderPost(initialId || firstId);
         })
         .catch(function() { window.location = 'blue.html'; });
     </script>
