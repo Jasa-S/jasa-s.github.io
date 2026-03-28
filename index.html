@@ -43,18 +43,27 @@
             transition: background-color 0.3s ease, color 0.3s ease;
             max-width: 48rem;
             margin: 0 auto;
+            /* desktop: generous top, matches blue.html */
             padding: 5rem 1.5rem 0;
             position: relative;
         }
 
-        /* landscape: only compress padding + header, nothing else */
+        /* mobile portrait: reduce top padding to ~3rem */
+        @media (max-width: 640px) {
+            body { padding-top: 3rem; }
+        }
+
+        /* mobile landscape: compact vertical rhythm throughout */
         @media (max-width: 900px) and (orientation: landscape) {
-            body                 { padding-top: 2.5rem; }
-            header               { margin-bottom: 2rem !important; }
+            body                 { padding-top: 1.75rem; }
+            section              { margin-bottom: 1.75rem; }
+            header               { margin-bottom: 1.5rem !important; }
             .header-h1           { font-size: 1.375rem !important; }
             .header-subtitle     { font-size: 0.875rem !important; margin-top: 0.25rem !important; }
             .header-meta         { margin-top: 0.75rem !important; }
             .profile-img         { width: 64px !important; height: 64px !important; }
+            .tl-entry            { margin-bottom: 1rem; }
+            .section-heading     { margin-bottom: 1rem; }
         }
 
         a { color: inherit; }
@@ -94,7 +103,6 @@
         .timeline-border { border-left: 1px solid var(--timeline); margin-left: 0.5rem; padding-left: 1.5rem; }
         .text-muted { color: var(--text-muted); }
         .section-divider { height: 1px; background: var(--timeline); flex-grow: 1; }
-        .footer-border { border-top: 1px solid var(--timeline); }
 
         .section-heading {
             font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em;
@@ -104,7 +112,6 @@
         }
         .section-heading .section-divider { margin-left: 0; }
 
-        /* consistent section rhythm matching blue.html */
         section { margin-bottom: 3rem; }
 
         .profile-img {
@@ -114,9 +121,10 @@
         }
         @media (min-width: 768px) { .profile-img { width: 96px; height: 96px; } }
 
+        /* safe-area-aware fixed buttons (notch/dynamic island) */
         .top-btn {
             position: fixed;
-            top: 1.1rem;
+            top: calc(1.1rem + env(safe-area-inset-top, 0px));
             z-index: 500;
             background: none; border: none; cursor: pointer;
             color: var(--text-muted); font-size: 0.85rem;
@@ -132,7 +140,6 @@
             .email-link:hover   { color: var(--cosmic-purple); }
         }
 
-        /* timeline */
         .tl-entry { position: relative; margin-bottom: 1.5rem; }
         .tl-entry:last-child { margin-bottom: 0; }
         .tl-dot {
