@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta property="og:title" content="Initiate | Jasaman Saini">
+    <meta property="og:title" content="SPACE">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
     <meta property="og:type" content="website">
     <title>SPACE</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237C3AED'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='600'>%C2%A5</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-
         :root {
             --text-main:  #ffffff;
             --text-muted: #a1a1aa;
@@ -56,6 +55,12 @@
             color: var(--text-muted);
             padding: 0.25rem 0.4rem;
             transition: color 0.2s;
+            outline: none;
+        }
+        #space-close:focus-visible {
+            outline: 2px solid var(--cosmic-purple);
+            outline-offset: 3px;
+            border-radius: 4px;
         }
         @media (hover:hover) and (pointer:fine) {
             #space-close:hover { color: var(--cosmic-purple); }
@@ -124,6 +129,8 @@
         #nasa-panel.visible { opacity: 1; }
         .nasa-card {
             background: var(--card);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 0.75rem 1rem;
@@ -339,7 +346,7 @@ cachedFetch('neo', `https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&en
     })
     .catch(() => setVal('val-neo', '<span class="dot warn"></span>Unavailable'));
 
-// ── renderer ───────────────────────────────────────────────
+// ── renderer ────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -351,14 +358,14 @@ document.body.appendChild(renderer.domElement);
 renderer.domElement.addEventListener('contextmenu', e => e.preventDefault(), { passive: false });
 renderer.domElement.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
 
-// ── scene / camera ─────────────────────────────────────────
+// ── scene / camera ─────────────────────────────────────────────────
 const scene = new THREE.Scene();
 const baseFOV = 56;
 const camera = new THREE.PerspectiveCamera(baseFOV, innerWidth/innerHeight, 0.1, 80000);
 camera.position.set(0, 0, 28);
 camera.lookAt(0, 0, 0);
 
-// ── sky shader ─────────────────────────────────────────────
+// ── sky shader ──────────────────────────────────────────────────
 const SKY_VS = `varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position,1.0); }`;
 const SKY_FS = `
   uniform float uTime; varying vec2 vUv;
@@ -397,7 +404,7 @@ skyScene.add(new THREE.Mesh(
     })
 ));
 
-// ── post-processing ────────────────────────────────────────
+// ── post-processing ────────────────────────────────────────────
 const composer = new EffectComposer(renderer);
 const rpMain = new RenderPass(scene, camera);
 rpMain.clear = false;
@@ -418,14 +425,14 @@ composer.addPass(new ShaderPass({
         gl_FragColor=vec4(c.rgb*clamp(o-d*dot(uv,uv),0.0,1.0),c.a); }`
 }));
 
-// ── lighting ───────────────────────────────────────────────
+// ── lighting ─────────────────────────────────────────────────────
 scene.add(new THREE.AmbientLight(0x0a0f0a, 1.2));
 const sun = new THREE.DirectionalLight(0xfff8ee, 3.5);
 sun.position.set(600, 250, 300); scene.add(sun);
 const fill = new THREE.DirectionalLight(0x0a1520, 0.4);
 fill.position.set(-300, -80, -200); scene.add(fill);
 
-// ── moon ───────────────────────────────────────────────────
+// ── moon ────────────────────────────────────────────────────────────
 const texLoader = new THREE.TextureLoader();
 const moonMat = new THREE.MeshStandardMaterial({ roughness: 0.95 });
 texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg', t => {
@@ -435,7 +442,7 @@ const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
 moon.position.set(0, 0, -1200);
 scene.add(moon);
 
-// ── earth ──────────────────────────────────────────────────
+// ── earth ──────────────────────────────────────────────────────────
 const earth = new THREE.Mesh(
     new THREE.SphereGeometry(48, 40, 40),
     new THREE.MeshStandardMaterial({ color:0x1a4d8a, roughness:0.75 })
@@ -446,15 +453,18 @@ earth.add(new THREE.Mesh(
     new THREE.MeshStandardMaterial({ color:0x33aaff, transparent:true, opacity:0.10, side:THREE.FrontSide })
 ));
 
-// ── stars ──────────────────────────────────────────────────
+// ── stars ──────────────────────────────────────────────────────────
 const STARS = 2400;
 const sGeo = new THREE.BufferGeometry();
 const sP = new Float32Array(STARS*6), sC = new Float32Array(STARS*6);
 const SCOLS = [[1,1,1],[0.7,0.9,1],[1,0.95,0.8],[0.6,1,0.75],[0.9,0.7,1]];
-// Scale Y spread for portrait screens so stars fill top/bottom
-const portraitScale = Math.max(1, innerHeight / innerWidth);
+
+// portraitScale is computed live so device rotation is handled correctly
+function getPortraitScale() { return Math.max(1, innerHeight / innerWidth); }
+
 for(let i=0;i<STARS;i++){
-    const x=(Math.random()-.5)*1400, y=(Math.random()-.5)*1000*portraitScale,
+    const ps = getPortraitScale();
+    const x=(Math.random()-.5)*1400, y=(Math.random()-.5)*1000*ps,
           z=(Math.random()-.5)*5000-500, ix=i*6;
     sP[ix]=x; sP[ix+1]=y; sP[ix+2]=z;
     sP[ix+3]=x; sP[ix+4]=y; sP[ix+5]=z;
@@ -469,7 +479,7 @@ const stars = new THREE.LineSegments(sGeo, new THREE.LineBasicMaterial({
 }));
 scene.add(stars);
 
-// ── dust ───────────────────────────────────────────────────
+// ── dust ─────────────────────────────────────────────────────────────
 const dGeo = new THREE.BufferGeometry();
 const dP = new Float32Array(700*3);
 for(let i=0;i<700;i++){
@@ -483,7 +493,7 @@ const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({
 }));
 scene.add(dust);
 
-// ── input ──────────────────────────────────────────────────
+// ── input ──────────────────────────────────────────────────────────────
 let started = false, thrusting = false;
 
 window.addEventListener('keydown', e => {
@@ -498,7 +508,6 @@ window.addEventListener('pointerdown', e => {
 });
 window.addEventListener('pointerup',      () => thrusting = false);
 window.addEventListener('pointercancel',  () => thrusting = false);
-// Release thrust if cursor leaves the window (prevents stuck thrust state)
 document.addEventListener('mouseleave', () => { thrusting = false; });
 
 document.getElementById('start-btn').addEventListener('click', () => {
@@ -519,25 +528,13 @@ window.addEventListener('resize', () => {
     composer.setSize(innerWidth, innerHeight);
 });
 
-// ── animate ────────────────────────────────────────────────
+// ── animate ────────────────────────────────────────────────────────
 const clock = new THREE.Clock();
 let time = 0, starSpeed = 3, thrust = 0;
-let animPaused = false;
-
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        animPaused = true;
-        clock.stop();
-    } else {
-        animPaused = false;
-        clock.start();
-        requestAnimationFrame(animate);
-    }
-});
+let rafId = null;
 
 function animate(){
-    if (animPaused) return;
-    requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(animate);
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
 
@@ -549,6 +546,7 @@ function animate(){
 
     const speedMult = aspect < 1 ? Math.max(1, 1 / aspect) : 1;
     const effectiveSpeed = starSpeed * speedMult;
+    const ps = getPortraitScale();
 
     const stretch = 1 + (thrust * 40);
     const pa = stars.geometry.attributes.position.array;
@@ -559,7 +557,7 @@ function animate(){
             const nz = -5000 - Math.random()*600;
             pa[ix+2] = nz; pa[ix+5] = nz;
             pa[ix]   = (Math.random()-.5)*1400; pa[ix+3] = pa[ix];
-            pa[ix+1] = (Math.random()-.5)*1000*portraitScale; pa[ix+4] = pa[ix+1];
+            pa[ix+1] = (Math.random()-.5)*1000*ps; pa[ix+4] = pa[ix+1];
         }
         pa[ix+5] = pa[ix+2] - (1.5 * stretch);
     }
@@ -590,6 +588,17 @@ function animate(){
 
     composer.render();
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+        clock.stop();
+    } else {
+        clock.start();
+        if (!rafId) rafId = requestAnimationFrame(animate);
+    }
+});
 
 animate();
 </script>
