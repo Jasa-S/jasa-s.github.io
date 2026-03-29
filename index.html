@@ -79,25 +79,29 @@
 
         @media (max-width: 640px) {
             .top-bar {
+                position: absolute;
+                top: env(safe-area-inset-top, 0.5rem);
+                right: 1.5rem;
                 display: flex;
-                justify-content: flex-end;
                 align-items: center;
                 gap: 0.35rem;
-                padding-top: calc(2rem + env(safe-area-inset-top, 0px));
-                padding-bottom: 0.55rem;
+                z-index: 500;
+            }
+            body {
+                padding-top: 3rem;
             }
         }
 
         /* Mobile landscape: in-flow, compact */
         @media (max-width: 900px) and (orientation: landscape) {
             .top-bar {
+                position: static;
                 display: flex;
                 justify-content: flex-end;
                 align-items: center;
                 gap: 0.35rem;
                 padding-top: calc(0.5rem + env(safe-area-inset-top, 0px));
                 padding-bottom: 0.375rem;
-                position: static;
             }
             body             { padding-top: 0; }
             section          { margin-bottom: 1.75rem; }
