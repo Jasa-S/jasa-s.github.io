@@ -353,7 +353,9 @@
             fetch(url)
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    var meta   = data.chart.result[0].meta;
+                    var result = data && data.chart && data.chart.result && data.chart.result[0];
+                    if (!result) throw new Error('unexpected response');
+                    var meta   = result.meta;
                     var price  = meta.regularMarketPrice;
                     var prev   = meta.chartPreviousClose;
                     var pct    = ((price - prev) / prev) * 100;

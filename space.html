@@ -19,7 +19,9 @@
             --text-muted: #a1a1aa;
             --border:     rgba(255,255,255,0.07);
             --card:       rgba(255,255,255,0.05);
-            --cosmic-purple: #7C3AED;
+            --cosmic-purple:        #7C3AED;
+            --cosmic-purple-border: rgba(124,58,237,0.45);
+            --cosmic-purple-hover:  rgba(124,58,237,0.12);
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -79,7 +81,7 @@
         #start-btn {
             background: var(--card);
             color: var(--cosmic-purple);
-            border: 1px solid rgba(124,58,237,0.45);
+            border: 1px solid var(--cosmic-purple-border);
             padding: 0.6rem 2.5rem;
             font-family: 'Inter', sans-serif;
             font-size: 0.65rem;
@@ -92,7 +94,7 @@
         }
         @media (hover:hover) and (pointer:fine) {
             #start-btn:hover {
-                background: rgba(124,58,237,0.12);
+                background: var(--cosmic-purple-hover);
                 border-color: var(--cosmic-purple);
             }
         }
@@ -222,15 +224,15 @@
 <div id="nasa-panel">
     <div class="nasa-card">
         <div class="nasa-label">Solar Activity</div>
-        <div class="nasa-value" id="val-flare">Loading&hellip;</div>
+        <div class="nasa-value" id="val-flare" aria-live="polite">Loading&hellip;</div>
     </div>
     <div class="nasa-card">
         <div class="nasa-label">Geomagnetic Storm</div>
-        <div class="nasa-value" id="val-storm">Loading&hellip;</div>
+        <div class="nasa-value" id="val-storm" aria-live="polite">Loading&hellip;</div>
     </div>
     <div class="nasa-card">
         <div class="nasa-label">Near-Earth Object</div>
-        <div class="nasa-value" id="val-neo">Loading&hellip;</div>
+        <div class="nasa-value" id="val-neo" aria-live="polite">Loading&hellip;</div>
     </div>
 </div>
 
@@ -437,9 +439,11 @@ fill.position.set(-300, -80, -200); scene.add(fill);
 // ── moon ────────────────────────────────────────────────────────────
 const texLoader = new THREE.TextureLoader();
 const moonMat = new THREE.MeshStandardMaterial({ roughness: 0.95 });
-texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg', t => {
-    moonMat.map = t; moonMat.needsUpdate = true;
-});
+texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg',
+    t => { moonMat.map = t; moonMat.needsUpdate = true; },
+    undefined,
+    () => { /* texture unavailable — moon renders without map */ }
+);
 const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
 moon.position.set(0, 0, -1200);
 scene.add(moon);
@@ -464,8 +468,8 @@ const SCOLS = [[1,1,1],[0.7,0.9,1],[1,0.95,0.8],[0.6,1,0.75],[0.9,0.7,1]];
 // portraitScale is computed live so device rotation is handled correctly
 function getPortraitScale() { return Math.max(1, innerHeight / innerWidth); }
 
+const ps = getPortraitScale();
 for(let i=0;i<STARS;i++){
-    const ps = getPortraitScale();
     const x=(Math.random()-.5)*1400, y=(Math.random()-.5)*1000*ps,
           z=(Math.random()-.5)*5000-500, ix=i*6;
     sP[ix]=x; sP[ix+1]=y; sP[ix+2]=z;

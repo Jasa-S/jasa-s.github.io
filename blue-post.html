@@ -11,6 +11,7 @@
     <meta property="og:type" content="website">
     <title>BlUE</title>
     <link rel="icon" type="image/svg+xml" href="apple-touch-icon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
@@ -39,7 +40,7 @@
             display: inline-flex; align-items: center; gap: 0.3rem;
         }
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
-        #nav-group { display: none; }
+        #nav-group { display: none; align-items: center; gap: 0.35rem; }
         @media (hover: hover) and (pointer: fine) {
             .bar-nav-btn:hover { color: var(--cosmic-purple); }
         }
@@ -102,7 +103,7 @@
             <span>Back</span>
         </a>
         <div class="bar-divider"></div>
-        <span id="nav-group" style="display:none;align-items:center;gap:0.35rem;">
+        <span id="nav-group">
             <button class="bar-nav-btn disabled" id="btn-prev"><i class="fa-solid fa-chevron-left" style="font-size:0.65rem;"></i></button>
             <button class="bar-nav-btn disabled" id="btn-next"><i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></button>
             <div class="bar-divider"></div>
@@ -130,6 +131,7 @@
 
     <script src="theme.js"></script>
     <script>
+    (function () {
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     var allPosts = null;
@@ -213,6 +215,7 @@
             renderPost(targetId);
         })
         .catch(function() { window.location = 'blue.html'; });
+    })();
     </script>
 </body>
 </html>
