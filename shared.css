@@ -1,4 +1,6 @@
-/* ── Shared styles: spin-globe animation ── */
+/* ── Shared styles ── */
+
+/* Spin-globe animation */
 @keyframes spin-globe {
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }
@@ -8,4 +10,82 @@
     animation: spin-globe 8s linear infinite;
     margin-right: 0.5rem;
     font-style: normal;
+}
+
+/* Theme variables */
+:root {
+    --bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --card: #f9fafb;
+    --card-hover: #f0f0f0;
+    --border: rgba(0,0,0,0.07);
+    --timeline: #e5e7eb;
+    --cosmic-purple: #7C3AED;
+    --radius-card: 0.75rem;
+    --ls-wide: 0.15em;
+    --ls-mid:  0.1em;
+    --ls-tight: 0.05em;
+}
+body.dark {
+    --bg: #0a0a0a;
+    --text-main: #ffffff;
+    --text-muted: #a1a1aa;
+    --card: #141414;
+    --card-hover: #1e1e1e;
+    --border: rgba(255,255,255,0.07);
+    --timeline: #27272a;
+}
+
+/* Base */
+a { color: inherit; }
+a:visited { color: inherit; }
+
+/* Icon button (top-bar toggles) */
+.top-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); font-size: 0.85rem;
+    transition: color 0.2s, transform 0.3s;
+    padding: 0.3rem 0.4rem;
+    line-height: 1; display: flex; align-items: center;
+}
+
+/* Skill/tag badge */
+.badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+}
+
+/* Section headings */
+.section-divider { height: 1px; background: var(--timeline); flex-grow: 1; }
+.section-heading {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: var(--ls-wide);
+    color: var(--text-muted); font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 1rem;
+}
+.section-heading .section-divider { margin-left: 0; }
+
+/* Pill nav bar (blue + blue-post) */
+.bar-divider { width: 1px; height: 14px; background: var(--border); margin: 0 0.15rem; }
+.bar-back {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    color: var(--text-muted); font-size: 0.75rem; text-decoration: none;
+    padding: 0.2rem 0.3rem; border-radius: 999px; transition: color 0.2s;
+}
+.bar-back .back-arrow { transition: transform 0.2s; }
+.bar-btn {
+    background: none; border: none; border-radius: 999px;
+    padding: 0.25rem 0.4rem; cursor: pointer; color: var(--text-muted);
+    transition: color 0.2s; line-height: 1;
+    display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
+}
+@media (hover: hover) and (pointer: fine) {
+    .bar-back:hover { color: var(--cosmic-purple); }
+    .bar-back:hover .back-arrow { transform: translateX(-2px); }
+    .bar-btn:hover { color: var(--cosmic-purple); }
 }

@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="An interactive 3D space scene with live NASA solar activity and near-Earth object data.">
     <meta property="og:title" content="SPACE">
+    <meta property="og:description" content="An interactive 3D space scene with live NASA solar activity and near-Earth object data.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
     <meta property="og:type" content="website">
     <title>SPACE</title>
@@ -502,7 +504,7 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('keyup', e => {
     if(e.code === 'Space') thrusting = false;
-});
+}, { passive: true });
 window.addEventListener('pointerdown', e => {
     if(started && e.target.id !== 'start-btn' && e.target.id !== 'space-close') thrusting = true;
 });

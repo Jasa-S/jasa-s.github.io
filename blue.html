@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <meta name="description" content="BlUE — a film and digital photography collection by Jasaman Saini.">
     <meta property="og:title" content="BlUE">
+    <meta property="og:description" content="BlUE — a film and digital photography collection by Jasaman Saini.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
     <meta property="og:type" content="website">
     <title>BlUE</title>
@@ -16,28 +18,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link rel="stylesheet" href="shared.css">
     <style>
-        :root {
-            --bg: #ffffff; --text-main: #111827; --text-muted: #6b7280;
-            --card: #f9fafb; --card-hover: #f0f0f0; --border: rgba(0,0,0,0.07);
-            --cosmic-purple: #7C3AED; --timeline: #e5e7eb;
-            --radius-card: 0.75rem;
-            --ls-wide: 0.15em;
-            --ls-mid:  0.1em;
-            --ls-tight: 0.05em;
-        }
-        body.dark {
-            --bg: #0a0a0a; --text-main: #ffffff; --text-muted: #a1a1aa;
-            --card: #141414; --card-hover: #1e1e1e; --border: rgba(255,255,255,0.07); --timeline: #27272a;
-        }
         body {
             background-color: var(--bg); color: var(--text-main);
             font-family: 'Inter', sans-serif;
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
-        a { color: inherit; }
-        a:visited { color: inherit; }
-
         /* ── Centered pill bar (shown when coming from index) ── */
         #sticky-bar {
             position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
@@ -48,19 +34,6 @@
             transition: background 0.3s, border-color 0.3s; white-space: nowrap;
         }
         body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
-        .bar-divider { width:1px; height:14px; background:var(--border); margin:0 0.15rem; }
-        .bar-back {
-            display: inline-flex; align-items: center; gap: 0.35rem;
-            color: var(--text-muted); font-size: 0.75rem; text-decoration: none;
-            padding: 0.2rem 0.3rem; border-radius: 999px; transition: color 0.2s;
-        }
-        .bar-back .back-arrow { transition: transform 0.2s; }
-        .bar-btn {
-            background: none; border: none; border-radius: 999px;
-            padding: 0.25rem 0.4rem; cursor: pointer; color: var(--text-muted);
-            transition: color 0.2s; line-height: 1;
-            display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
-        }
 
         /* ── Top-right standalone toggle (shown on direct visits) ── */
         #top-bar-direct {
@@ -77,14 +50,6 @@
                 right: 1.5rem;
             }
         }
-        .top-btn {
-            background: none; border: none; cursor: pointer;
-            color: var(--text-muted); font-size: 0.85rem;
-            transition: color 0.2s, transform 0.3s;
-            padding: 0.3rem 0.4rem;
-            line-height: 1; display: flex; align-items: center;
-        }
-
         #page { max-width: 48rem; margin: 0 auto; padding: 4.5rem 1.5rem 0; }
         header { margin-bottom: 3rem; }
         header h1 {
@@ -143,10 +108,11 @@
             margin-bottom: 0.75rem;
             opacity: 0.4;
         }
+        .grid-tile:focus-visible {
+            outline: 2px solid var(--cosmic-purple);
+            outline-offset: 2px;
+        }
         @media (hover: hover) and (pointer: fine) {
-            .bar-back:hover { color: var(--cosmic-purple); }
-            .bar-back:hover .back-arrow { transform: translateX(-2px); }
-            .bar-btn:hover { color: var(--cosmic-purple); }
             #top-bar-direct .top-btn:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
             .grid-tile:hover img { transform: scale(1.05); }
             .grid-tile:hover .grid-tile-overlay { background: rgba(0,0,0,0.28); }
@@ -196,8 +162,6 @@
 
     <script src="theme.js"></script>
     <script>
-    document.getElementById('copy-year').textContent = new Date().getFullYear();
-
     (function() {
         var ref = document.referrer;
         var ownHost = location.hostname;
@@ -223,38 +187,40 @@
         }
     })();
 
-    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    (function() {
+        function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    var grid = document.getElementById('grid');
-    var SKELETON_COUNT = 12;
-    for (var s = 0; s < SKELETON_COUNT; s++) {
-        var sk = document.createElement('div');
-        sk.className = 'grid-skeleton';
-        grid.appendChild(sk);
-    }
+        var grid = document.getElementById('grid');
+        var SKELETON_COUNT = 12;
+        for (var s = 0; s < SKELETON_COUNT; s++) {
+            var sk = document.createElement('div');
+            sk.className = 'grid-skeleton';
+            grid.appendChild(sk);
+        }
 
-    fetch('posts.json')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            grid.innerHTML = '';
-            var BASE = data.base;
-            data.posts.forEach(function(p, i) {
-                var src = BASE + p.imageId + '_' + p.cover + '.jpg';
-                var a   = document.createElement('a');
-                a.className = 'grid-tile';
-                a.href = 'blue-post.html#' + encodeURIComponent(p.id);
-                a.innerHTML =
-                    '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
-                    + (i === 0 ? '' : ' loading="lazy"')
-                    + '>'
-                    + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + esc(p.title) + '</div></div>';
-                grid.appendChild(a);
+        fetch('posts.json')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                grid.innerHTML = '';
+                var BASE = data.base;
+                data.posts.forEach(function(p, i) {
+                    var src = BASE + p.imageId + '_' + p.cover + '.jpg';
+                    var a   = document.createElement('a');
+                    a.className = 'grid-tile';
+                    a.href = 'blue-post.html#' + encodeURIComponent(p.id);
+                    a.innerHTML =
+                        '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
+                        + (i === 0 ? '' : ' loading="lazy"')
+                        + '>'
+                        + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + esc(p.title) + '</div></div>';
+                    grid.appendChild(a);
+                });
+            })
+            .catch(function() {
+                grid.innerHTML =
+                    '<div class="grid-error"><i class="fa-regular fa-image"></i>Could not load posts &mdash; please try again later.</div>';
             });
-        })
-        .catch(function() {
-            grid.innerHTML =
-                '<div class="grid-error"><i class="fa-regular fa-image"></i>Could not load posts &mdash; please try again later.</div>';
-        });
+    })();
     </script>
 </body>
 </html>

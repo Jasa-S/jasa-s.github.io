@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <meta name="description" content="BlUE photography — photo post by Jasaman Saini.">
     <meta property="og:title" content="BlUE | Jasaman Saini">
+    <meta property="og:description" content="BlUE photography — photo post by Jasaman Saini.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
     <meta property="og:type" content="website">
     <title>BlUE</title>
@@ -15,27 +17,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link rel="stylesheet" href="shared.css">
     <style>
-        :root {
-            --bg: #ffffff; --text-main: #111827; --text-muted: #6b7280;
-            --card: #f9fafb; --border: rgba(0,0,0,0.07);
-            --cosmic-purple: #7C3AED; --timeline: #e5e7eb;
-            --radius-card: 0.75rem;
-            --ls-wide: 0.15em;
-            --ls-mid:  0.1em;
-            --ls-tight: 0.05em;
-        }
-        body.dark {
-            --bg: #0a0a0a; --text-main: #ffffff; --text-muted: #a1a1aa;
-            --card: #141414; --border: rgba(255,255,255,0.07); --timeline: #27272a;
-        }
         body {
             background-color: var(--bg); color: var(--text-main);
             font-family: 'Inter', sans-serif;
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
-        a { color: inherit; }
-        a:visited { color: inherit; }
         #sticky-bar {
             position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
             z-index: 500; display: flex; align-items: center; gap: 0.35rem;
@@ -45,19 +32,6 @@
             transition: background 0.3s, border-color 0.3s; white-space: nowrap;
         }
         body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
-        .bar-divider { width:1px; height:14px; background:var(--border); margin:0 0.15rem; }
-        .bar-back {
-            display: inline-flex; align-items: center; gap: 0.35rem;
-            color: var(--text-muted); font-size: 0.75rem; text-decoration: none;
-            padding: 0.2rem 0.3rem; border-radius: 999px; transition: color 0.2s;
-        }
-        .bar-back .back-arrow { transition: transform 0.2s; }
-        .bar-btn {
-            background: none; border: none; border-radius: 999px;
-            padding: 0.25rem 0.4rem; cursor: pointer; color: var(--text-muted);
-            transition: color 0.2s; line-height: 1;
-            display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
-        }
         .bar-nav-btn {
             background: none; border: none; padding: 0.2rem 0.3rem;
             cursor: pointer; color: var(--text-muted); font-size: 0.72rem;
@@ -67,9 +41,6 @@
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
         #nav-group { display: none; }
         @media (hover: hover) and (pointer: fine) {
-            .bar-back:hover { color: var(--cosmic-purple); }
-            .bar-back:hover .back-arrow { transform: translateX(-2px); }
-            .bar-btn:hover { color: var(--cosmic-purple); }
             .bar-nav-btn:hover { color: var(--cosmic-purple); }
         }
         #page-wrap {
@@ -141,12 +112,12 @@
         </button>
     </div>
 
-    <div id="sidebar">
+    <aside id="sidebar">
         <div class="sidebar-label">Camera</div>
         <div id="sidebar-category" class="sidebar-category"></div>
-    </div>
+    </aside>
 
-    <div id="page-wrap">
+    <main id="page-wrap">
         <div id="mobile-category" class="mobile-category"></div>
         <div class="post-title" id="post-title"></div>
         <div class="post-meta" id="post-meta"></div>
@@ -155,12 +126,10 @@
             <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
             <a href="index.html">Homepage</a>
         </footer>
-    </div>
+    </main>
 
     <script src="theme.js"></script>
     <script>
-    document.getElementById('copy-year').textContent = new Date().getFullYear();
-
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     var allPosts = null;

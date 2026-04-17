@@ -26,4 +26,7 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
     }
+
+    var yearEl = document.getElementById('copy-year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
 })();
