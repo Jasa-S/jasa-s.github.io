@@ -8,7 +8,7 @@
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
     <meta property="og:type" content="website">
     <title>BlUE</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237C3AED'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='600'>%C2%A5</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%237C3AED'/><text y='.9em' font-size='72' x='50%' dominant-baseline='auto' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='600'>%F0%9F%8C%8D</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
@@ -197,21 +197,16 @@
     <script>
     document.getElementById('copy-year').textContent = new Date().getFullYear();
 
-    // Detect direct visit: no referrer, or referrer is not this site
     (function() {
         var ref = document.referrer;
         var ownHost = location.hostname;
         var fromOwn = ref && (ref.indexOf(ownHost) !== -1 || ref.indexOf('index.html') !== -1);
 
         if (!fromOwn) {
-            // Direct visit: hide the pill bar, show top-right toggle
             document.getElementById('sticky-bar').style.display = 'none';
             document.getElementById('top-bar-direct').style.display = 'block';
-
-            // Show shorter name in footer
             document.getElementById('footer-name').textContent = 'Jasa';
 
-            // Wire up the direct toggle to theme.js icons
             var directBtn = document.getElementById('theme-toggle-direct');
             var directIcon = document.getElementById('theme-icon-direct');
 
