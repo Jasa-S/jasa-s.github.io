@@ -36,6 +36,8 @@
         }
         a { color: inherit; }
         a:visited { color: inherit; }
+
+        /* ── Centered pill bar (shown when coming from index) ── */
         #sticky-bar {
             position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
             z-index: 500; display: flex; align-items: center; gap: 0.35rem;
@@ -58,6 +60,30 @@
             transition: color 0.2s; line-height: 1;
             display: flex; align-items: center; font-size: 0.85rem; font-family: inherit;
         }
+
+        /* ── Top-right standalone toggle (shown on direct visits) ── */
+        #top-bar-direct {
+            display: none;
+            position: fixed;
+            top: 0.75rem;
+            right: 1.25rem;
+            z-index: 500;
+        }
+        @media (max-width: 640px) {
+            #top-bar-direct {
+                position: absolute;
+                top: env(safe-area-inset-top, 0.5rem);
+                right: 1.5rem;
+            }
+        }
+        .top-btn {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: 0.85rem;
+            transition: color 0.2s, transform 0.3s;
+            padding: 0.3rem 0.4rem;
+            line-height: 1; display: flex; align-items: center;
+        }
+
         #page { max-width: 48rem; margin: 0 auto; padding: 4.5rem 1.5rem 0; }
         header { margin-bottom: 3rem; }
         header h1 {
@@ -120,6 +146,7 @@
             .bar-back:hover { color: var(--cosmic-purple); }
             .bar-back:hover .back-arrow { transform: translateX(-2px); }
             .bar-btn:hover { color: var(--cosmic-purple); }
+            #top-bar-direct .top-btn:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
             .grid-tile:hover img { transform: scale(1.05); }
             .grid-tile:hover .grid-tile-overlay { background: rgba(0,0,0,0.28); }
             .grid-tile:hover .grid-tile-label { opacity: 1; transform: translateY(0); }
@@ -136,6 +163,7 @@
     </style>
 </head>
 <body>
+    <!-- Centered pill bar: shown when navigating from index -->
     <div id="sticky-bar">
         <a href="index.html" class="bar-back">
             <i class="fa-solid fa-arrow-left back-arrow" style="font-size:0.7rem;"></i>
@@ -144,6 +172,13 @@
         <div class="bar-divider"></div>
         <button class="bar-btn" id="theme-toggle" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <!-- Top-right standalone toggle: shown on direct visits -->
+    <div id="top-bar-direct">
+        <button class="top-btn" id="theme-toggle-direct" aria-label="Toggle dark mode">
+            <i id="theme-icon-direct" class="fa-solid fa-moon"></i>
         </button>
     </div>
 
@@ -161,6 +196,37 @@
     <script src="theme.js"></script>
     <script>
     document.getElementById('copy-year').textContent = new Date().getFullYear();
+
+    // Detect direct visit: no referrer, or referrer is not this site
+    (function() {
+        var ref = document.referrer;
+        var ownHost = location.hostname;
+        var fromOwn = ref && (ref.indexOf(ownHost) !== -1 || ref.indexOf('index.html') !== -1);
+
+        if (!fromOwn) {
+            // Direct visit: hide the pill bar, show top-right toggle
+            document.getElementById('sticky-bar').style.display = 'none';
+            document.getElementById('top-bar-direct').style.display = 'block';
+
+            // Wire up the direct toggle to theme.js icons
+            var directBtn = document.getElementById('theme-toggle-direct');
+            var directIcon = document.getElementById('theme-icon-direct');
+
+            // Sync icon with whatever theme.js set on load
+            function syncDirectIcon() {
+                var isDark = document.body.classList.contains('dark');
+                directIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+            // theme.js runs before this, so body class is already set
+            syncDirectIcon();
+
+            directBtn.addEventListener('click', function() {
+                // Trigger the existing theme toggle in the pill bar (theme.js owns state)
+                document.getElementById('theme-toggle').click();
+                syncDirectIcon();
+            });
+        }
+    })();
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
