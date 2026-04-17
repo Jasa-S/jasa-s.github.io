@@ -188,7 +188,7 @@
         </header>
         <div class="photo-grid" id="grid"></div>
         <footer>
-            <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
+            <span>&copy; <span id="copy-year"></span> <span id="footer-name">Jasaman Saini</span></span>
             <a href="index.html">Homepage</a>
         </footer>
     </div>
@@ -208,20 +208,20 @@
             document.getElementById('sticky-bar').style.display = 'none';
             document.getElementById('top-bar-direct').style.display = 'block';
 
+            // Show shorter name in footer
+            document.getElementById('footer-name').textContent = 'Jasa';
+
             // Wire up the direct toggle to theme.js icons
             var directBtn = document.getElementById('theme-toggle-direct');
             var directIcon = document.getElementById('theme-icon-direct');
 
-            // Sync icon with whatever theme.js set on load
             function syncDirectIcon() {
                 var isDark = document.body.classList.contains('dark');
                 directIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
             }
-            // theme.js runs before this, so body class is already set
             syncDirectIcon();
 
             directBtn.addEventListener('click', function() {
-                // Trigger the existing theme toggle in the pill bar (theme.js owns state)
                 document.getElementById('theme-toggle').click();
                 syncDirectIcon();
             });
