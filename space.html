@@ -17,9 +17,8 @@
     <style>
         :root {
             --text-main:  #ffffff;
-            --text-muted: #c4c4ce;
-            --text-dim:   #8a8a94;
-            --border:     rgba(255,255,255,0.08);
+            --text-muted: #a1a1aa;
+            --border:     rgba(255,255,255,0.07);
             --card:       rgba(255,255,255,0.05);
             --cosmic-purple:        #7C3AED;
             --cosmic-purple-border: rgba(124,58,237,0.45);
@@ -27,13 +26,6 @@
         }
 
         * { margin:0; padding:0; box-sizing:border-box; }
-        .sr-only {
-            position: absolute !important;
-            width: 1px; height: 1px;
-            padding: 0; margin: -1px;
-            overflow: hidden; clip: rect(0,0,0,0);
-            white-space: nowrap; border: 0;
-        }
         body {
             overflow: hidden;
             background: #000;
@@ -180,186 +172,6 @@
         .dot.warn  { background: #f59e0b; }
         .dot.alert { background: #ef4444; }
 
-        #hud {
-            position: absolute;
-            top: calc(1rem + env(safe-area-inset-top, 0px));
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 150;
-            display: none;
-            align-items: center;
-            gap: 0.9rem;
-            padding: 0.45rem 0.9rem;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            pointer-events: none;
-            font-size: 0.62rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-        #hud.visible { display: flex; }
-        #hud .hud-sep {
-            width: 1px; height: 14px;
-            background: var(--border);
-        }
-        #hud-throttle {
-            position: relative;
-            width: 6px; height: 40px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-        #hud-throttle-fill {
-            position: absolute; left: 0; right: 0; bottom: 0;
-            height: calc(var(--t, 0) * 100%);
-            background: linear-gradient(to top, #7C3AED, #b58cff);
-            transition: height 0.08s linear;
-        }
-        #hud-throttle.aft::after {
-            content: "";
-            position: absolute; inset: -2px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,120,80,0.7);
-            box-shadow: 0 0 8px rgba(255,120,80,0.6);
-            pointer-events: none;
-        }
-        .hud-val { color: var(--text-main); font-weight: 500; letter-spacing: 0.12em; }
-
-        #mobile-throttle {
-            position: absolute;
-            bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px));
-            left: calc(1rem + env(safe-area-inset-left, 0px));
-            z-index: 160;
-            width: 40px; height: 160px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            display: none;
-            touch-action: none;
-        }
-        #mobile-throttle.visible { display: block; }
-        #mobile-throttle-track {
-            position: absolute;
-            left: 50%; top: 10px; bottom: 10px;
-            width: 4px;
-            margin-left: -2px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        #mobile-throttle-fill {
-            position: absolute; left: 0; right: 0; bottom: 0;
-            height: calc(var(--t, 0) * 100%);
-            background: linear-gradient(to top, #7C3AED, #b58cff);
-        }
-        #mobile-throttle-thumb {
-            position: absolute;
-            left: 4px; right: 4px;
-            height: 22px;
-            border-radius: 11px;
-            background: var(--cosmic-purple);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-            bottom: calc(var(--t, 0) * (100% - 32px) + 5px);
-            pointer-events: none;
-        }
-
-        #settings-btn {
-            position: absolute;
-            top: 1.05rem; right: 1.5rem;
-            z-index: 200;
-            width: 32px; height: 32px;
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-        }
-        #settings-btn:focus-visible {
-            outline: 2px solid var(--cosmic-purple);
-            outline-offset: 3px;
-            border-radius: 6px;
-        }
-        @media (hover:hover) and (pointer:fine) {
-            #settings-btn:hover { color: var(--cosmic-purple); }
-        }
-        #settings-btn svg { width: 20px; height: 20px; }
-
-        #settings-modal {
-            color: var(--text-main);
-            background: rgba(14, 12, 24, 0.92);
-            border: 1px solid var(--cosmic-purple-border);
-            border-radius: 14px;
-            padding: 1.4rem 1.6rem;
-            min-width: 300px;
-            max-width: 92vw;
-            font-family: 'Inter', sans-serif;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-        #settings-modal::backdrop { background: rgba(0,0,0,0.6); }
-        #settings-modal h2 {
-            font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            margin-bottom: 1.1rem;
-            color: var(--text-main);
-        }
-        .settings-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            letter-spacing: 0.08em;
-        }
-        .settings-row label { flex: 1; }
-        .settings-row input[type=range] { width: 130px; accent-color: var(--cosmic-purple); }
-        .settings-row select {
-            background: var(--card);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 0.25rem 0.4rem;
-            font-family: inherit;
-            font-size: 0.7rem;
-        }
-        .settings-note {
-            font-size: 0.58rem;
-            color: var(--text-dim);
-            letter-spacing: 0.12em;
-            margin-top: 0.8rem;
-            line-height: 1.6;
-        }
-        .settings-close {
-            margin-top: 1rem;
-            width: 100%;
-            background: var(--card);
-            color: var(--cosmic-purple);
-            border: 1px solid var(--cosmic-purple-border);
-            padding: 0.5rem;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.65rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            #nasa-panel { transition: none; }
-        }
-
         @media (max-width: 768px) {
             #nasa-panel {
                 bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
@@ -372,19 +184,9 @@
                 padding: 0.55rem 0.75rem;
                 border-radius: 0.6rem;
             }
-            .nasa-label { font-size: 0.62rem; margin-bottom: 0.2rem; }
-            .nasa-value { font-size: 0.7rem;  line-height: 1.55; }
+            .nasa-label { font-size: 0.55rem; margin-bottom: 0.2rem; }
+            .nasa-value  { font-size: 0.6rem;  line-height: 1.55; }
             .nasa-value .sub { display: none; }
-            #start-btn { font-size: 0.75rem; padding: 0.75rem 2.8rem; }
-            .hint { font-size: 0.7rem; }
-            #hud {
-                top: calc(0.5rem + env(safe-area-inset-top, 0px));
-                gap: 0.55rem;
-                padding: 0.35rem 0.7rem;
-                font-size: 0.58rem;
-            }
-            #hud-throttle { height: 32px; }
-            #settings-btn { top: 0.7rem; right: 0.9rem; }
         }
 
         @media (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
@@ -402,7 +204,6 @@
             .nasa-label { font-size: 0.5rem;  margin-bottom: 0.15rem; }
             .nasa-value  { font-size: 0.55rem; line-height: 1.45; }
             #space-close { top: 0.5rem; left: 0.75rem; }
-            #mobile-throttle { width: 34px; height: 110px; bottom: 0.5rem; left: 0.5rem; }
         }
     </style>
     <script type="importmap">
@@ -415,67 +216,11 @@
 <body>
 
 <button id="space-close">&#8592;&ensp;Return</button>
-<button id="settings-btn" aria-label="Scene settings" title="Scene settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path>
-    </svg>
-</button>
-
-<div id="scene-status" role="status" aria-live="polite" class="sr-only"></div>
 
 <div id="start-overlay">
     <button id="start-btn">Initiate</button>
     <div class="hint" id="thrust-hint"></div>
 </div>
-
-<div id="hud" aria-hidden="true">
-    <div id="hud-throttle"><div id="hud-throttle-fill"></div></div>
-    <div><span class="hud-lbl">VEL</span> <span class="hud-val" id="hud-vel">0</span></div>
-    <div class="hud-sep"></div>
-    <div><span class="hud-lbl">EARTH</span> <span class="hud-val" id="hud-earth">—</span></div>
-    <div class="hud-sep"></div>
-    <div><span class="hud-lbl">MOON</span> <span class="hud-val" id="hud-moon">—</span></div>
-</div>
-
-<div id="mobile-throttle" aria-hidden="true" role="slider" aria-label="Throttle" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-    <div id="mobile-throttle-track"><div id="mobile-throttle-fill"></div></div>
-    <div id="mobile-throttle-thumb"></div>
-</div>
-
-<dialog id="settings-modal" aria-label="Scene settings">
-    <h2>Scene Settings</h2>
-    <div class="settings-row">
-        <label for="s-quality">Quality</label>
-        <select id="s-quality">
-            <option value="low">Low</option>
-            <option value="med">Medium</option>
-            <option value="high">High</option>
-        </select>
-    </div>
-    <div class="settings-row">
-        <label for="s-bloom">Bloom</label>
-        <input type="range" id="s-bloom" min="0" max="2" step="0.05">
-    </div>
-    <div class="settings-row">
-        <label for="s-density">Star density</label>
-        <input type="range" id="s-density" min="0.3" max="1.5" step="0.05">
-    </div>
-    <div class="settings-row">
-        <label for="s-reduced">Reduce motion</label>
-        <input type="checkbox" id="s-reduced">
-    </div>
-    <div class="settings-row">
-        <label for="s-stretch">Thrust stretch</label>
-        <input type="checkbox" id="s-stretch">
-    </div>
-    <div class="settings-row">
-        <label for="s-hud">Show HUD</label>
-        <input type="checkbox" id="s-hud">
-    </div>
-    <div class="settings-note" id="s-note"></div>
-    <button class="settings-close" id="s-close" type="button">Close</button>
-</dialog>
 
 <div id="nasa-panel">
     <div class="nasa-card">
@@ -497,9 +242,9 @@
     window.isMobile = window.matchMedia('(pointer: coarse) and (hover: none)').matches;
     var el = document.getElementById('thrust-hint');
     if (window.isMobile) {
-        el.innerHTML = 'Tap & hold to thrust<br>Drag throttle to cruise';
+        el.textContent = 'Tap & hold to thrust';
     } else {
-        el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust &nbsp; <span class="kbd">+</span>/<span class="kbd">-</span> throttle';
+        el.innerHTML = 'Hold <span class="kbd">Space</span> to thrust';
     }
     document.addEventListener('touchstart', function(e){
         if(e.touches.length > 1) e.preventDefault();
@@ -517,52 +262,6 @@ import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
 document.getElementById('space-close').addEventListener('click', () => { window.location = 'index.html'; });
 
 const isMobile = window.isMobile;
-
-// ── settings, accessibility, helpers ────────────────────────────────
-const SETTINGS_KEY = 'space_settings_v1';
-const QUALITY_PRESETS = {
-    low:  { far: 600,  mid: 400,  near: 200, octaves: 3, bloom: 0,   dpr: 1.5 },
-    med:  { far: 1400, mid: 1000, near: 500, octaves: 5, bloom: 0.7, dpr: 2   },
-    high: { far: 2200, mid: 1500, near: 700, octaves: 6, bloom: 0.9, dpr: 2   }
-};
-const DEFAULT_SETTINGS = {
-    quality: isMobile ? 'low' : 'med',
-    bloom: null,         // null => use preset default
-    density: 1.0,
-    reduced: false,
-    stretch: true,
-    hud: true
-};
-function loadSettings(){
-    try {
-        const raw = localStorage.getItem(SETTINGS_KEY);
-        if (!raw) return { ...DEFAULT_SETTINGS };
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
-    } catch(e) { return { ...DEFAULT_SETTINGS }; }
-}
-function saveSettings(s){
-    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch(e) {}
-}
-const settings = loadSettings();
-const preset = QUALITY_PRESETS[settings.quality] || QUALITY_PRESETS.med;
-
-const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let reducedMotion = prefersReducedMotion || settings.reduced;
-
-const statusEl = document.getElementById('scene-status');
-let announceTimer = 0;
-function announce(msg){
-    if (!statusEl) return;
-    // throttle so we don't spam screen readers
-    const now = performance.now();
-    if (now - announceTimer < 400) return;
-    announceTimer = now;
-    statusEl.textContent = msg;
-}
-function vibrate(pattern){
-    if (reducedMotion) return;
-    try { navigator.vibrate && navigator.vibrate(pattern); } catch(e) {}
-}
 
 // NASA DEMO_KEY is intentionally public — rate-limited to 30 req/hour per IP by NASA
 const KEY = 'DEMO_KEY';
@@ -655,7 +354,7 @@ cachedFetch('neo', `https://api.nasa.gov/neo/rest/v1/feed?start_date=${d7Str}&en
 // ── renderer ────────────────────────────────────────────
 const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
 renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, preset.dpr));
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.9;
 renderer.autoClear = false;
@@ -673,54 +372,30 @@ camera.lookAt(0, 0, 0);
 
 // ── sky shader ──────────────────────────────────────────────────
 const SKY_VS = `varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position,1.0); }`;
-const SKY_FS_TPL = `
-  uniform float uTime; uniform float uAspect; varying vec2 vUv;
+const SKY_FS = `
+  uniform float uTime; varying vec2 vUv;
   float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
-  vec2 hash2(vec2 p){
-    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
-  }
   float noise(vec2 p){
     vec2 i=floor(p),f=fract(p); f=f*f*(3.0-2.0*f);
     return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
   }
-  float fbm(vec2 p){ float v=0.0,a=0.5; for(int i=0;i<__OCTAVES__;i++){v+=a*noise(p);p*=2.1;a*=0.5;} return v; }
-  vec2 rot(vec2 p, float a){ float c=cos(a),s=sin(a); return mat2(c,-s,s,c)*p; }
+  float fbm(vec2 p){ float v=0.0,a=0.5; for(int i=0;i<6;i++){v+=a*noise(p);p*=2.1;a*=0.5;} return v; }
   void main(){
-    vec2 uv = vUv;
-    uv.x = (uv.x - 0.5) * uAspect + 0.5;
-
-    float t = uTime * 0.018;
-    vec2 ruv = rot(uv - 0.5, uTime * 0.004) + 0.5;
-
-    vec2 w = vec2(fbm(ruv*1.5 + vec2(t, -t*0.5)),
-                  fbm(ruv*1.5 + vec2(-t*0.7, t*0.9)));
-    float n1 = fbm(ruv*2.8 + w*1.2 + vec2(t, t*0.6));
-    float n2 = fbm(ruv*4.2 - w*0.7 - vec2(t*0.7, t*1.1));
-    float n3 = fbm(ruv*1.6 + w*0.4 + vec2(-t*0.4, t*0.9));
-
-    vec3 col = vec3(0.005, 0.018, 0.014);
-    col = mix(col, vec3(0.04, 0.22, 0.12), clamp(n1*1.4, 0.0, 1.0));
-    col = mix(col, vec3(0.08, 0.55, 0.28), clamp(n2*0.7, 0.0, 1.0));
-    col = mix(col, vec3(0.18, 0.06, 0.38), clamp(n3*0.5, 0.0, 1.0));
-    col = mix(col, vec3(0.0,  0.45, 0.30), clamp(n1*n2*1.8, 0.0, 1.0));
-
-    for (int i = 0; i < 5; i++) {
-      vec2 seed = vec2(float(i)*7.13, float(i)*3.71);
-      vec2 c = hash2(seed) * vec2(uAspect, 1.0);
-      float d = length(uv - c);
-      float pulse = 0.45 + 0.55 * sin(uTime * 0.25 + float(i) * 1.7);
-      vec3 tint = mix(vec3(0.9, 0.6, 1.0), vec3(0.6, 1.0, 0.8), hash(seed));
-      col += tint * smoothstep(0.11, 0.0, d) * pulse * 0.55;
-    }
-
-    float r = 1.0 - length(vUv - 0.5) * 1.1;
-    col += vec3(0.08, 0.55, 0.28) * clamp(r * 0.18, 0.0, 0.18);
-
-    gl_FragColor = vec4(col, 1.0);
+    float t=uTime*0.018;
+    float n1=fbm(vUv*2.8+vec2(t,t*0.6));
+    float n2=fbm(vUv*4.2-vec2(t*0.7,t*1.1));
+    float n3=fbm(vUv*1.6+vec2(-t*0.4,t*0.9));
+    vec3 col=vec3(0.005,0.018,0.014);
+    col=mix(col,vec3(0.04,0.22,0.12),clamp(n1*1.4,0.0,1.0));
+    col=mix(col,vec3(0.08,0.55,0.28),clamp(n2*0.7,0.0,1.0));
+    col=mix(col,vec3(0.18,0.06,0.38),clamp(n3*0.5,0.0,1.0));
+    col=mix(col,vec3(0.0,0.45,0.30),clamp(n1*n2*1.8,0.0,1.0));
+    float r=1.0-length(vUv-0.5)*1.1;
+    col+=vec3(0.08,0.55,0.28)*clamp(r*0.18,0.0,0.18);
+    gl_FragColor=vec4(col,1.0);
   }
 `;
-const SKY_FS = SKY_FS_TPL.replace('__OCTAVES__', String(preset.octaves));
-const skyUniforms = { uTime:{ value:0 }, uAspect:{ value: innerWidth/innerHeight } };
+const skyUniforms = { uTime:{ value:0 } };
 const skyScene  = new THREE.Scene();
 const skyCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
 skyScene.add(new THREE.Mesh(
@@ -741,13 +416,12 @@ rpMain.clear = false;
 rpMain.clearDepth = true;
 composer.addPass(new RenderPass(skyScene, skyCamera));
 composer.addPass(rpMain);
-const BLOOM_BASE = (settings.bloom != null) ? settings.bloom : preset.bloom;
+const BLOOM_BASE = 0.7;
 const bloom = new UnrealBloomPass(
     new THREE.Vector2(innerWidth, innerHeight),
     BLOOM_BASE, 0.45, 0.78
 );
-const bloomEnabled = BLOOM_BASE > 0.001;
-if (bloomEnabled) composer.addPass(bloom);
+composer.addPass(bloom);
 composer.addPass(new ShaderPass({
     uniforms:{ tDiffuse:{value:null}, d:{value:1.05}, o:{value:0.97} },
     vertexShader:  `varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position,1.0); }`,
@@ -765,275 +439,83 @@ fill.position.set(-300, -80, -200); scene.add(fill);
 
 // ── moon ────────────────────────────────────────────────────────────
 const texLoader = new THREE.TextureLoader();
-const moonSegs = isMobile ? 48 : 80;
-const moonMat = new THREE.MeshStandardMaterial({ roughness: 0.95, color: 0x888888 });
+const moonMat = new THREE.MeshStandardMaterial({ roughness: 0.95 });
 texLoader.load('https://threejs.org/examples/textures/planets/moon_1024.jpg',
-    t => { moonMat.map = t; moonMat.color.setHex(0xffffff); moonMat.needsUpdate = true; },
+    t => { moonMat.map = t; moonMat.needsUpdate = true; },
     undefined,
     () => { /* texture unavailable — moon renders without map */ }
 );
-const moon = new THREE.Mesh(new THREE.SphereGeometry(110, moonSegs, moonSegs), moonMat);
+const moon = new THREE.Mesh(new THREE.SphereGeometry(110, 80, 80), moonMat);
 moon.position.set(0, 0, -1200);
 scene.add(moon);
 
 // ── earth ──────────────────────────────────────────────────────────
-const earthSegs = isMobile ? 32 : 48;
-const earthMat = new THREE.MeshPhongMaterial({
-    color: 0x1a4d8a,
-    specular: 0x223355,
-    shininess: 14
-});
-texLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg',
-    t => { earthMat.map = t; earthMat.color.setHex(0xffffff); earthMat.needsUpdate = true; },
-    undefined, () => {}
+const earth = new THREE.Mesh(
+    new THREE.SphereGeometry(48, 40, 40),
+    new THREE.MeshStandardMaterial({ color:0x1a4d8a, roughness:0.75 })
 );
-texLoader.load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg',
-    t => { earthMat.specularMap = t; earthMat.specular.setHex(0xffffff); earthMat.shininess = 26; earthMat.needsUpdate = true; },
-    undefined, () => {}
-);
-texLoader.load('https://threejs.org/examples/textures/planets/earth_normal_2048.jpg',
-    t => { earthMat.normalMap = t; earthMat.normalScale = new THREE.Vector2(0.7, 0.7); earthMat.needsUpdate = true; },
-    undefined, () => {}
-);
-const earth = new THREE.Mesh(new THREE.SphereGeometry(48, earthSegs, earthSegs), earthMat);
 earth.position.set(-820, 220, -5000); scene.add(earth);
-earth.rotation.z = 0.408;
+earth.add(new THREE.Mesh(
+    new THREE.SphereGeometry(51, 40, 40),
+    new THREE.MeshStandardMaterial({ color:0x33aaff, transparent:true, opacity:0.10, side:THREE.FrontSide })
+));
 
-// Cloud layer
-const cloudMat = new THREE.MeshPhongMaterial({
-    transparent: true,
-    opacity: 0.0,
-    depthWrite: false
-});
-texLoader.load('https://threejs.org/examples/textures/planets/earth_clouds_1024.png',
-    t => { cloudMat.map = t; cloudMat.opacity = 0.55; cloudMat.needsUpdate = true; },
-    undefined, () => {}
-);
-const clouds = new THREE.Mesh(new THREE.SphereGeometry(48.8, earthSegs, earthSegs), cloudMat);
-earth.add(clouds);
+// ── stars ──────────────────────────────────────────────────────────
+const STARS = 2400;
+const sGeo = new THREE.BufferGeometry();
+const sP = new Float32Array(STARS*6), sC = new Float32Array(STARS*6);
+const SCOLS = [[1,1,1],[0.7,0.9,1],[1,0.95,0.8],[0.6,1,0.75],[0.9,0.7,1]];
 
-// Fresnel-rim atmosphere
-const atmoMat = new THREE.ShaderMaterial({
-    uniforms: { uColor: { value: new THREE.Color(0x66b2ff) } },
-    vertexShader: `
-        varying vec3 vN; varying vec3 vV;
-        void main(){
-            vN = normalize(normalMatrix * normal);
-            vec4 mv = modelViewMatrix * vec4(position, 1.0);
-            vV = normalize(-mv.xyz);
-            gl_Position = projectionMatrix * mv;
-        }
-    `,
-    fragmentShader: `
-        uniform vec3 uColor; varying vec3 vN; varying vec3 vV;
-        void main(){
-            float f = 1.0 - clamp(dot(vN, vV), 0.0, 1.0);
-            float rim = pow(f, 2.4);
-            gl_FragColor = vec4(uColor, rim * 0.9);
-        }
-    `,
-    transparent: true,
-    side: THREE.BackSide,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending
-});
-const atmo = new THREE.Mesh(new THREE.SphereGeometry(52, earthSegs, earthSegs), atmoMat);
-earth.add(atmo);
-
-// ── stars: three parallax tiers sharing one shader material ───────
+// portraitScale is computed live so device rotation is handled correctly
 function getPortraitScale() { return Math.max(1, innerHeight / innerWidth); }
 
-const STAR_COLS = [
-    [1.0, 1.0, 1.0], [0.7, 0.9, 1.0], [1.0, 0.95, 0.8],
-    [0.6, 1.0, 0.75], [0.9, 0.7, 1.0]
-];
-const NEAR_TINT = [0.35, 0.85, 0.55]; // green-ish, absorbs old dust
-
-const density = settings.density || 1.0;
-const TIER_CONFIGS = [
-    { name: 'far',  count: Math.round(preset.far  * density), zNear: -12000, zFar: -6000,  xSpread: 2800, ySpread: 2000, size: 1.4, speedMult: 0.18, brightMin: 0.2, brightMax: 0.6, nearTint: 0 },
-    { name: 'mid',  count: Math.round(preset.mid  * density), zNear: -6000,  zFar: -1500,  xSpread: 2000, ySpread: 1400, size: 2.0, speedMult: 0.55, brightMin: 0.4, brightMax: 0.9, nearTint: 0 },
-    { name: 'near', count: Math.round(preset.near * density), zNear: -1500,  zFar: -50,    xSpread: 900,  ySpread: 700,  size: 2.6, speedMult: 1.0,  brightMin: 0.7, brightMax: 1.0, nearTint: 1 }
-];
-
-const starShared = {
-    uTime:    { value: 0 },
-    uStretch: { value: 1 },
-    uPixelRatio: { value: renderer.getPixelRatio() },
-    uTwinkleAmp: { value: reducedMotion ? 0.0 : 0.35 }
-};
-
-const STAR_VS = `
-    attribute float aSize;
-    attribute float aBrightness;
-    attribute float aPhase;
-    attribute float aNear;
-    varying vec3  vColor;
-    varying float vBright;
-    varying float vPhase;
-    uniform float uTime;
-    uniform float uStretch;
-    uniform float uPixelRatio;
-    void main(){
-        vColor  = color;
-        vBright = aBrightness;
-        vPhase  = aPhase;
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        float dist = max(1.0, -mv.z);
-        float size = aSize * uPixelRatio * (300.0 / dist);
-        // stretch near-tier stars along screen-Y when thrusting
-        size *= 1.0 + uStretch * aNear * 0.4;
-        gl_PointSize = size;
-        gl_Position = projectionMatrix * mv;
-    }
-`;
-const STAR_FS = `
-    varying vec3  vColor;
-    varying float vBright;
-    varying float vPhase;
-    uniform float uTime;
-    uniform float uTwinkleAmp;
-    void main(){
-        vec2 d = gl_PointCoord - 0.5;
-        float r = length(d) * 2.0;
-        float core = smoothstep(1.0, 0.0, r);
-        float halo = smoothstep(1.0, 0.6, r) * 0.35;
-        float a = core + halo;
-        if (a < 0.02) discard;
-        float tw = 1.0 + uTwinkleAmp * sin(uTime * 1.8 + vPhase);
-        gl_FragColor = vec4(vColor * vBright * tw, a);
-    }
-`;
-
-function makeStarTier(cfg){
-    const ps = getPortraitScale();
-    const pos  = new Float32Array(cfg.count * 3);
-    const col  = new Float32Array(cfg.count * 3);
-    const sz   = new Float32Array(cfg.count);
-    const br   = new Float32Array(cfg.count);
-    const ph   = new Float32Array(cfg.count);
-    const near = new Float32Array(cfg.count);
-    for (let i = 0; i < cfg.count; i++){
-        pos[i*3]   = (Math.random() - 0.5) * cfg.xSpread;
-        pos[i*3+1] = (Math.random() - 0.5) * cfg.ySpread * ps;
-        pos[i*3+2] = cfg.zNear + Math.random() * (cfg.zFar - cfg.zNear);
-        const useTint = cfg.nearTint && Math.random() < 0.35;
-        const c = useTint ? NEAR_TINT : STAR_COLS[Math.floor(Math.random() * STAR_COLS.length)];
-        col[i*3]   = c[0]; col[i*3+1] = c[1]; col[i*3+2] = c[2];
-        sz[i]   = cfg.size * (0.7 + Math.random() * 0.6);
-        br[i]   = cfg.brightMin + Math.random() * (cfg.brightMax - cfg.brightMin);
-        ph[i]   = Math.random() * Math.PI * 2;
-        near[i] = cfg.nearTint;
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position',    new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color',       new THREE.BufferAttribute(col, 3));
-    geo.setAttribute('aSize',       new THREE.BufferAttribute(sz, 1));
-    geo.setAttribute('aBrightness', new THREE.BufferAttribute(br, 1));
-    geo.setAttribute('aPhase',      new THREE.BufferAttribute(ph, 1));
-    geo.setAttribute('aNear',       new THREE.BufferAttribute(near, 1));
-    const mat = new THREE.ShaderMaterial({
-        uniforms: starShared,
-        vertexShader: STAR_VS,
-        fragmentShader: STAR_FS,
-        vertexColors: true,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
-    });
-    const points = new THREE.Points(geo, mat);
-    scene.add(points);
-    return { points, geo, cfg };
+const ps = getPortraitScale();
+for(let i=0;i<STARS;i++){
+    const x=(Math.random()-.5)*1400, y=(Math.random()-.5)*1000*ps,
+          z=(Math.random()-.5)*5000-500, ix=i*6;
+    sP[ix]=x; sP[ix+1]=y; sP[ix+2]=z;
+    sP[ix+3]=x; sP[ix+4]=y; sP[ix+5]=z;
+    const c=SCOLS[Math.floor(Math.random()*SCOLS.length)];
+    sC[ix]=c[0]; sC[ix+1]=c[1]; sC[ix+2]=c[2];
+    sC[ix+3]=c[0]; sC[ix+4]=c[1]; sC[ix+5]=c[2];
 }
+sGeo.setAttribute('position', new THREE.BufferAttribute(sP, 3));
+sGeo.setAttribute('color',    new THREE.BufferAttribute(sC, 3));
+const stars = new THREE.LineSegments(sGeo, new THREE.LineBasicMaterial({
+    vertexColors:true, transparent:true, opacity:0.8
+}));
+scene.add(stars);
 
-const starTiers = TIER_CONFIGS.map(makeStarTier);
-
-// ── input: analog thrust ─────────────────────────────────────────────
-let started = false;
-let setpoint = 1.0;    // speed multiplier [0,1] — sets how fast when pressing
-let afterburner = 0;   // spacebar / canvas-tap [0 or 1] — required to actually thrust
-const SP_STEP = 0.1;
-
-function setSetpoint(v, sourceAnnounce){
-    const nv = Math.max(0, Math.min(1, v));
-    if (Math.abs(nv - setpoint) < 0.001) return;
-    const prev = setpoint;
-    setpoint = nv;
-    if (sourceAnnounce) announce('Throttle ' + Math.round(setpoint * 100) + ' percent');
-    if ((prev > 0 && setpoint === 0) || (prev < 1 && setpoint === 1)) vibrate(15);
-    syncMobileThrottleUI();
+// ── dust ─────────────────────────────────────────────────────────────
+const dGeo = new THREE.BufferGeometry();
+const dP = new Float32Array(700*3);
+for(let i=0;i<700;i++){
+    dP[i*3]=(Math.random()-.5)*350;
+    dP[i*3+1]=(Math.random()-.5)*250;
+    dP[i*3+2]=(Math.random()-.5)*900-100;
 }
+dGeo.setAttribute('position', new THREE.BufferAttribute(dP, 3));
+const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({
+    color: 0x44bb77, size:0.15, transparent:true, opacity:0.28
+}));
+scene.add(dust);
+
+// ── input ──────────────────────────────────────────────────────────────
+let started = false, thrusting = false;
 
 window.addEventListener('keydown', e => {
-    if (!started) return;
-    if (e.code === 'Space') {
-        if (!afterburner) { afterburner = 1; vibrate(20); announce('Afterburner engaged'); }
-        e.preventDefault();
-    } else if (e.code === 'Equal' || e.code === 'NumpadAdd') {
-        setSetpoint(setpoint + SP_STEP, true); e.preventDefault();
-    } else if (e.code === 'Minus' || e.code === 'NumpadSubtract') {
-        setSetpoint(setpoint - SP_STEP, true); e.preventDefault();
-    } else if (e.code === 'Digit0' || e.code === 'Numpad0') {
-        setSetpoint(0, true); e.preventDefault();
-    } else if (e.code === 'Escape') {
-        // close settings if open — handled by dialog default
-    }
+    if(!started) return;
+    if(e.code === 'Space'){ thrusting = true; e.preventDefault(); }
 });
 window.addEventListener('keyup', e => {
-    if (e.code === 'Space') afterburner = 0;
+    if(e.code === 'Space') thrusting = false;
 }, { passive: true });
-
-window.addEventListener('wheel', e => {
-    if (!started) return;
-    // only adjust when pointer is over canvas (not over UI)
-    if (e.target && e.target.closest && e.target.closest('button, dialog, #hud, #nasa-panel, #mobile-throttle')) return;
-    setSetpoint(setpoint - e.deltaY * 0.0008, true);
-    e.preventDefault();
-}, { passive: false });
-
-// Canvas-tap afterburner (pointerdown on the canvas only)
-renderer.domElement.addEventListener('pointerdown', () => {
-    if (!started) return;
-    afterburner = 1; vibrate(20);
+window.addEventListener('pointerdown', e => {
+    if(started && e.target.id !== 'start-btn' && e.target.id !== 'space-close') thrusting = true;
 });
-window.addEventListener('pointerup',     () => afterburner = 0);
-window.addEventListener('pointercancel', () => afterburner = 0);
-document.addEventListener('mouseleave',  () => afterburner = 0);
-
-// Mobile throttle slider
-const mobileThrottle = document.getElementById('mobile-throttle');
-const mobileThumb = document.getElementById('mobile-throttle-thumb');
-const mobileFill = document.getElementById('mobile-throttle-fill');
-function syncMobileThrottleUI(){
-    if (mobileThrottle) {
-        mobileThrottle.style.setProperty('--t', setpoint);
-        mobileThrottle.setAttribute('aria-valuenow', Math.round(setpoint * 100));
-    }
-}
-if (isMobile && mobileThrottle) {
-    let dragging = false;
-    const updateFromY = clientY => {
-        const r = mobileThrottle.getBoundingClientRect();
-        const t = 1 - (clientY - r.top) / r.height;
-        setSetpoint(t, false);
-    };
-    mobileThrottle.addEventListener('pointerdown', e => {
-        dragging = true;
-        mobileThrottle.setPointerCapture(e.pointerId);
-        updateFromY(e.clientY);
-        e.preventDefault();
-    });
-    mobileThrottle.addEventListener('pointermove', e => {
-        if (!dragging) return;
-        updateFromY(e.clientY);
-    });
-    const endDrag = e => {
-        dragging = false;
-        try { mobileThrottle.releasePointerCapture(e.pointerId); } catch(_){}
-    };
-    mobileThrottle.addEventListener('pointerup', endDrag);
-    mobileThrottle.addEventListener('pointercancel', endDrag);
-}
+window.addEventListener('pointerup',      () => thrusting = false);
+window.addEventListener('pointercancel',  () => thrusting = false);
+document.addEventListener('mouseleave', () => { thrusting = false; });
 
 document.getElementById('start-btn').addEventListener('click', () => {
     const ov = document.getElementById('start-overlay');
@@ -1042,8 +524,6 @@ document.getElementById('start-btn').addEventListener('click', () => {
     setTimeout(() => ov.remove(), 420);
     started = true;
     document.getElementById('nasa-panel').classList.add('visible');
-    applyHudVisibility();
-    announce('Scene initialized. Hold space to thrust; plus and minus adjust cruise throttle.');
 });
 
 let aspect = innerWidth / innerHeight;
@@ -1053,40 +533,7 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth, innerHeight);
     composer.setSize(innerWidth, innerHeight);
-    skyUniforms.uAspect.value = aspect;
-    starShared.uPixelRatio.value = renderer.getPixelRatio();
 });
-
-// ── HUD update ─────────────────────────────────────────────────────
-const hudEl = document.getElementById('hud');
-const hudVel = document.getElementById('hud-vel');
-const hudEarth = document.getElementById('hud-earth');
-const hudMoon = document.getElementById('hud-moon');
-const hudThrottle = document.getElementById('hud-throttle');
-let hudFrame = 0;
-
-function applyHudVisibility(){
-    const show = started && settings.hud;
-    hudEl.classList.toggle('visible', show);
-    hudEl.setAttribute('aria-hidden', show ? 'false' : 'true');
-    if (isMobile && mobileThrottle) {
-        mobileThrottle.classList.toggle('visible', started && settings.hud);
-        mobileThrottle.setAttribute('aria-hidden', show ? 'false' : 'true');
-    }
-}
-
-function updateHUD(effectiveSpeed){
-    if (!hudEl.classList.contains('visible')) return;
-    hudEl.style.setProperty('--t', setpoint);
-    const fill = document.getElementById('hud-throttle-fill');
-    if (fill) fill.style.height = (setpoint * 100) + '%';
-    hudThrottle.classList.toggle('aft', afterburner > 0);
-    hudVel.textContent = Math.round(effectiveSpeed / 3.2) + ' km/s';
-    const de = camera.position.distanceTo(earth.position);
-    const dm = camera.position.distanceTo(moon.position);
-    hudEarth.textContent = de > 9999 ? (de / 1000).toFixed(1) + 'k u' : Math.round(de) + ' u';
-    hudMoon.textContent  = dm > 9999 ? (dm / 1000).toFixed(1) + 'k u' : Math.round(dm) + ' u';
-}
 
 // ── animate ────────────────────────────────────────────────────────
 const clock = new THREE.Clock();
@@ -1098,53 +545,45 @@ function animate(){
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
 
-    // Press required to thrust; setpoint controls how much thrust when pressed
-    const thrustCmd = afterburner * setpoint;
-    thrust = THREE.MathUtils.lerp(thrust, thrustCmd, dt * (thrustCmd > thrust ? 2.5 : 5.0));
+    thrust = THREE.MathUtils.lerp(thrust, thrusting ? 1 : 0, dt * (thrusting ? 2.5 : 5.0));
 
     skyUniforms.uTime.value = time % 1000.0;
-    starShared.uTime.value  = time % 1000.0;
 
-    const targetSpeed = 3 + thrust * (960 - 3);
-    starSpeed = THREE.MathUtils.lerp(starSpeed, targetSpeed, dt * (targetSpeed > starSpeed ? 2 : 4));
+    starSpeed = THREE.MathUtils.lerp(starSpeed, thrusting ? 960 : 3, dt * (thrusting ? 2 : 4));
 
-    const aspectMult = aspect < 1 ? Math.max(1, 1 / aspect) : 1;
-    const effectiveSpeed = starSpeed * aspectMult;
+    const speedMult = aspect < 1 ? Math.max(1, 1 / aspect) : 1;
+    const effectiveSpeed = starSpeed * speedMult;
     const ps = getPortraitScale();
 
-    const stretchOn = settings.stretch && !reducedMotion;
-    starShared.uStretch.value = stretchOn ? (thrust * 8) : 0;
-
-    // advance each star tier
-    for (const tier of starTiers) {
-        const arr = tier.geo.attributes.position.array;
-        const speed = effectiveSpeed * tier.cfg.speedMult;
-        const step = speed * dt;
-        const xSpread = tier.cfg.xSpread;
-        const ySpread = tier.cfg.ySpread * ps;
-        const zNear = tier.cfg.zNear;
-        const zFar  = tier.cfg.zFar;
-        const count = tier.cfg.count;
-        for (let i = 0; i < count; i++) {
-            const ix = i * 3;
-            arr[ix + 2] += step;
-            if (arr[ix + 2] > 55) {
-                arr[ix]     = (Math.random() - 0.5) * xSpread;
-                arr[ix + 1] = (Math.random() - 0.5) * ySpread;
-                arr[ix + 2] = zNear + Math.random() * (zFar - zNear) * 0.2;
-            }
+    const stretch = 1 + (thrust * 40);
+    const pa = stars.geometry.attributes.position.array;
+    for(let i=0; i<STARS; i++){
+        const ix = i*6;
+        pa[ix+2] += effectiveSpeed * dt;
+        if(pa[ix+2] > 55){
+            const nz = -5000 - Math.random()*600;
+            pa[ix+2] = nz; pa[ix+5] = nz;
+            pa[ix]   = (Math.random()-.5)*1400; pa[ix+3] = pa[ix];
+            pa[ix+1] = (Math.random()-.5)*1000*ps; pa[ix+4] = pa[ix+1];
         }
-        tier.geo.attributes.position.needsUpdate = true;
+        pa[ix+5] = pa[ix+2] - (1.5 * stretch);
     }
+    stars.geometry.attributes.position.needsUpdate = true;
 
-    moon.rotation.y   += 0.04 * dt;
-    earth.rotation.y  += 0.02 * dt;
-    clouds.rotation.y += 0.026 * dt;
+    const da = dust.geometry.attributes.position.array;
+    for(let i=0; i<700; i++){
+        da[i*3+2] += (effectiveSpeed * .22 + .8) * dt;
+        if(da[i*3+2] > 40) da[i*3+2] = -900 - Math.random()*200;
+    }
+    dust.geometry.attributes.position.needsUpdate = true;
+
+    moon.rotation.y  += .005 * dt;
+    earth.rotation.y += .008 * dt;
 
     camera.fov = THREE.MathUtils.lerp(camera.fov, baseFOV + (thrust * 25), dt * 3);
     camera.updateProjectionMatrix();
 
-    if (!reducedMotion && thrust > 0.1) {
+    if (thrust > 0.1) {
         camera.position.x = (Math.random() - 0.5) * thrust * 0.2;
         camera.position.y = (Math.random() - 0.5) * thrust * 0.2;
     } else {
@@ -1152,12 +591,7 @@ function animate(){
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, 0, dt * 5);
     }
 
-    if (bloomEnabled) {
-        const bloomTarget = BLOOM_BASE * (reducedMotion ? 0.5 : 1.0) + thrust * 1.2;
-        bloom.strength = THREE.MathUtils.lerp(bloom.strength, bloomTarget, dt * 5);
-    }
-
-    if ((hudFrame++ % 6) === 0) updateHUD(effectiveSpeed);
+    bloom.strength = THREE.MathUtils.lerp(bloom.strength, BLOOM_BASE + thrust * 1.2, dt * 5);
 
     composer.render();
 }
@@ -1171,70 +605,6 @@ document.addEventListener('visibilitychange', () => {
         clock.start();
         if (!rafId) rafId = requestAnimationFrame(animate);
     }
-});
-
-// ── settings modal wiring ──────────────────────────────────────────
-const modal = document.getElementById('settings-modal');
-const sBtn = document.getElementById('settings-btn');
-const sQuality = document.getElementById('s-quality');
-const sBloom = document.getElementById('s-bloom');
-const sDensity = document.getElementById('s-density');
-const sReduced = document.getElementById('s-reduced');
-const sStretch = document.getElementById('s-stretch');
-const sHud = document.getElementById('s-hud');
-const sClose = document.getElementById('s-close');
-const sNote = document.getElementById('s-note');
-
-function syncSettingsUI(){
-    sQuality.value = settings.quality;
-    sBloom.value   = (settings.bloom != null) ? settings.bloom : preset.bloom;
-    sDensity.value = settings.density;
-    sReduced.checked = settings.reduced;
-    sStretch.checked = settings.stretch;
-    sHud.checked = settings.hud;
-    sNote.textContent = 'Quality and density take effect after reload.';
-}
-syncSettingsUI();
-syncMobileThrottleUI();
-
-sBtn.addEventListener('click', () => {
-    syncSettingsUI();
-    if (typeof modal.showModal === 'function') modal.showModal();
-    else modal.setAttribute('open', '');
-});
-sClose.addEventListener('click', () => {
-    if (typeof modal.close === 'function') modal.close();
-    else modal.removeAttribute('open');
-});
-
-sBloom.addEventListener('input', () => {
-    settings.bloom = parseFloat(sBloom.value);
-    if (bloomEnabled) bloom.strength = settings.bloom + thrust * 1.2;
-    saveSettings(settings);
-});
-sReduced.addEventListener('change', () => {
-    settings.reduced = sReduced.checked;
-    reducedMotion = prefersReducedMotion || settings.reduced;
-    starShared.uTwinkleAmp.value = reducedMotion ? 0 : 0.35;
-    saveSettings(settings);
-    announce(reducedMotion ? 'Reduced motion on' : 'Reduced motion off');
-});
-sStretch.addEventListener('change', () => {
-    settings.stretch = sStretch.checked;
-    saveSettings(settings);
-});
-sHud.addEventListener('change', () => {
-    settings.hud = sHud.checked;
-    saveSettings(settings);
-    applyHudVisibility();
-});
-sQuality.addEventListener('change', () => {
-    settings.quality = sQuality.value;
-    saveSettings(settings);
-});
-sDensity.addEventListener('change', () => {
-    settings.density = parseFloat(sDensity.value);
-    saveSettings(settings);
 });
 
 animate();
