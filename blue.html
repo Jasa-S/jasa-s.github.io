@@ -166,9 +166,14 @@
     (function() {
         var ref = document.referrer;
         var ownHost = location.hostname;
-        var fromOwn = ref && (ref.indexOf(ownHost) !== -1 || ref.indexOf('index.html') !== -1);
+        var rootUrl = location.protocol + '//' + ownHost;
+        var refStripped = ref ? ref.replace(/[?#].*/, '').replace(/\/$/, '') : '';
+        var fromIndex = ref && (
+            ref.indexOf('index.html') !== -1 ||
+            refStripped === rootUrl
+        );
 
-        if (!fromOwn) {
+        if (!fromIndex) {
             document.getElementById('sticky-bar').style.display = 'none';
             document.getElementById('top-bar-direct').style.display = 'block';
 
