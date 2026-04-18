@@ -511,7 +511,7 @@ window.addEventListener('keyup', e => {
     if(e.code === 'Space') thrusting = false;
 }, { passive: true });
 window.addEventListener('pointerdown', e => {
-    if(started && e.target.id !== 'start-btn' && e.target.id !== 'space-close') thrusting = true;
+    if(started && e.target && e.target.id !== 'start-btn' && e.target.id !== 'space-close') thrusting = true;
 });
 window.addEventListener('pointerup',      () => thrusting = false);
 window.addEventListener('pointercancel',  () => thrusting = false);
