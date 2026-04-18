@@ -11,9 +11,9 @@
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
     <meta property="og:type" content="website">
     <title>BlUE</title>
-    <link rel="icon" type="image/svg+xml" href="/earth-icon.svg">
+    <link rel="icon" type="image/png" href="/blue-images/profileImage.png">
     <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/blue-images/profileImage.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
@@ -36,10 +36,10 @@
         }
         body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
         .bar-nav-btn {
-            background: none; border: none; padding: 0.2rem 0.3rem;
+            background: none; border: none; padding: 0.45rem 0.6rem;
             cursor: pointer; color: var(--text-muted); font-size: 0.72rem;
             border-radius: 999px; transition: color 0.2s; font-family: inherit;
-            display: inline-flex; align-items: center; gap: 0.3rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
         }
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
         #nav-group { display: none; align-items: center; gap: 0.35rem; }
@@ -105,8 +105,8 @@
         </a>
         <div class="bar-divider"></div>
         <span id="nav-group">
-            <button class="bar-nav-btn disabled" id="btn-prev"><i class="fa-solid fa-chevron-left" style="font-size:0.65rem;"></i></button>
-            <button class="bar-nav-btn disabled" id="btn-next"><i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></button>
+            <button class="bar-nav-btn disabled" id="btn-prev" aria-label="Previous post"><i class="fa-solid fa-arrow-left-long" style="font-size:0.9rem;"></i></button>
+            <button class="bar-nav-btn disabled" id="btn-next" aria-label="Next post"><i class="fa-solid fa-arrow-right-long" style="font-size:0.9rem;"></i></button>
             <div class="bar-divider"></div>
         </span>
         <button class="bar-btn" id="theme-toggle" aria-label="Toggle dark mode">
