@@ -169,12 +169,27 @@
         var ownHost = location.hostname;
         var rootUrl = location.protocol + '//' + ownHost;
         var refStripped = ref ? ref.replace(/[?#].*/, '').replace(/\/$/, '') : '';
+        var sameOrigin = ref && ref.indexOf(location.origin) === 0;
         var fromIndex = ref && (
             ref.indexOf('index.html') !== -1 ||
             refStripped === rootUrl
         );
+        var fromBluePost = sameOrigin && ref.indexOf('blue-post.html') !== -1;
 
-        if (!fromIndex) {
+        try {
+            if (fromIndex) {
+                sessionStorage.setItem('blueFromIndex', '1');
+            } else if (!fromBluePost) {
+                sessionStorage.removeItem('blueFromIndex');
+            }
+        } catch (e) {}
+
+        var showPill = fromIndex || (fromBluePost && (function() {
+            try { return sessionStorage.getItem('blueFromIndex') === '1'; }
+            catch (e) { return false; }
+        })());
+
+        if (!showPill) {
             document.getElementById('sticky-bar').style.display = 'none';
             document.getElementById('top-bar-direct').style.display = 'block';
 
