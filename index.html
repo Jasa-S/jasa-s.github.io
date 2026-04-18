@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
     <meta property="og:title" content="Jasa">
     <meta property="og:description" content="Jasaman Saini — Business Administration & Electrical Engineering student. Portfolio of professional experience, education, and creative work.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
@@ -163,12 +165,12 @@
         .ed-thesis { font-size: 0.8125rem; margin: 0.25rem 0 0; font-style: italic; }
 
         footer {
-            padding-top: 3rem;
-            padding-bottom: 1.5rem;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
             display: flex; justify-content: space-between; align-items: center;
             color: var(--text-muted); font-size: 0.65rem;
             text-transform: uppercase; letter-spacing: var(--ls-wide);
-            border-top: 1px solid var(--timeline);
         }
         #sp500-ticker { letter-spacing: var(--ls-mid); }
         #sp500-ticker .spx-up   { color: #16a34a; }
@@ -207,7 +209,9 @@
                 </div>
             </div>
             <img
-                src="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png"
+                src="/blue-images/profileImage.png"
+                width="96" height="96"
+                loading="lazy" decoding="async"
                 alt="Jasaman Saini" class="profile-img"
             >
         </div>

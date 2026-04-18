@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
     <meta property="og:title" content="BlUE | Jasaman Saini">
     <meta property="og:description" content="BlUE photography — photo post by Jasaman Saini.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
@@ -51,7 +53,7 @@
             padding: 5rem 1.5rem 0;
         }
         #sidebar { display: none; }
-        @media (min-width: 900px) {
+        @media (min-width: 1100px) {
             #sidebar {
                 display: block;
                 position: fixed;
@@ -74,7 +76,7 @@
             text-transform: uppercase; letter-spacing: var(--ls-mid);
             color: var(--cosmic-purple); margin-bottom: 0.45rem;
         }
-        @media (max-width: 900px) { .mobile-category { display: block; } }
+        @media (max-width: 1099px) { .mobile-category { display: block; } }
         .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 0.35rem; line-height: 1.2; }
         .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 1.5rem; }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
