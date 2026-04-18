@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
     <meta property="og:title" content="BlUE">
     <meta property="og:description" content="BlUE — a film and digital photography collection by Jasaman Saini.">
     <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
@@ -215,6 +217,7 @@
                     a.href = 'blue-post.html#' + encodeURIComponent(p.id);
                     a.innerHTML =
                         '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
+                        + ' width="400" height="400" decoding="async"'
                         + (i === 0 ? '' : ' loading="lazy"')
                         + '>'
                         + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + esc(p.title) + '</div></div>';
