@@ -228,22 +228,6 @@
             pointer-events: none;
         }
         .hud-val { color: var(--text-main); font-weight: 500; letter-spacing: 0.12em; }
-        #hud-reticle {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 28px; height: 28px;
-            margin: -14px 0 0 -14px;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 140;
-            transition: opacity 0.3s;
-        }
-        #hud-reticle.visible { opacity: 0.28; }
-        #hud-reticle.pulse { animation: reticlePulse 1.2s ease-in-out infinite; }
-        @keyframes reticlePulse {
-            0%, 100% { transform: scale(1); opacity: 0.28; }
-            50%      { transform: scale(1.12); opacity: 0.5; }
-        }
 
         #mobile-throttle {
             position: absolute;
@@ -373,7 +357,6 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            #hud-reticle.pulse { animation: none; }
             #nasa-panel { transition: none; }
         }
 
@@ -454,14 +437,6 @@
     <div class="hud-sep"></div>
     <div><span class="hud-lbl">MOON</span> <span class="hud-val" id="hud-moon">—</span></div>
 </div>
-
-<svg id="hud-reticle" viewBox="0 0 28 28" aria-hidden="true">
-    <circle cx="14" cy="14" r="10" fill="none" stroke="#b58cff" stroke-width="1"></circle>
-    <line x1="14" y1="2" x2="14" y2="7" stroke="#b58cff" stroke-width="1"></line>
-    <line x1="14" y1="21" x2="14" y2="26" stroke="#b58cff" stroke-width="1"></line>
-    <line x1="2" y1="14" x2="7" y2="14" stroke="#b58cff" stroke-width="1"></line>
-    <line x1="21" y1="14" x2="26" y2="14" stroke="#b58cff" stroke-width="1"></line>
-</svg>
 
 <div id="mobile-throttle" aria-hidden="true" role="slider" aria-label="Throttle" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
     <div id="mobile-throttle-track"><div id="mobile-throttle-fill"></div></div>
@@ -975,8 +950,8 @@ const starTiers = TIER_CONFIGS.map(makeStarTier);
 
 // ── input: analog thrust ─────────────────────────────────────────────
 let started = false;
-let setpoint = 0;      // persistent throttle [0,1]
-let afterburner = 0;   // spacebar / canvas-tap [0 or 1]
+let setpoint = 1.0;    // speed multiplier [0,1] — sets how fast when pressing
+let afterburner = 0;   // spacebar / canvas-tap [0 or 1] — required to actually thrust
 const SP_STEP = 0.1;
 
 function setSetpoint(v, sourceAnnounce){
@@ -1088,23 +1063,19 @@ const hudVel = document.getElementById('hud-vel');
 const hudEarth = document.getElementById('hud-earth');
 const hudMoon = document.getElementById('hud-moon');
 const hudThrottle = document.getElementById('hud-throttle');
-const hudReticle = document.getElementById('hud-reticle');
 let hudFrame = 0;
 
 function applyHudVisibility(){
     const show = started && settings.hud;
     hudEl.classList.toggle('visible', show);
     hudEl.setAttribute('aria-hidden', show ? 'false' : 'true');
-    if (hudReticle) {
-        hudReticle.classList.toggle('visible', show);
-    }
     if (isMobile && mobileThrottle) {
         mobileThrottle.classList.toggle('visible', started && settings.hud);
         mobileThrottle.setAttribute('aria-hidden', show ? 'false' : 'true');
     }
 }
 
-function updateHUD(effectiveSpeed, thrust){
+function updateHUD(effectiveSpeed){
     if (!hudEl.classList.contains('visible')) return;
     hudEl.style.setProperty('--t', setpoint);
     const fill = document.getElementById('hud-throttle-fill');
@@ -1115,7 +1086,6 @@ function updateHUD(effectiveSpeed, thrust){
     const dm = camera.position.distanceTo(moon.position);
     hudEarth.textContent = de > 9999 ? (de / 1000).toFixed(1) + 'k u' : Math.round(de) + ' u';
     hudMoon.textContent  = dm > 9999 ? (dm / 1000).toFixed(1) + 'k u' : Math.round(dm) + ' u';
-    if (hudReticle) hudReticle.classList.toggle('pulse', thrust > 0.5 && !reducedMotion);
 }
 
 // ── animate ────────────────────────────────────────────────────────
@@ -1128,8 +1098,8 @@ function animate(){
     const dt = Math.min(clock.getDelta(), .05);
     time += dt;
 
-    // analog thrust command: persistent setpoint + momentary afterburner
-    const thrustCmd = Math.min(1, setpoint + afterburner * 0.35);
+    // Press required to thrust; setpoint controls how much thrust when pressed
+    const thrustCmd = afterburner * setpoint;
     thrust = THREE.MathUtils.lerp(thrust, thrustCmd, dt * (thrustCmd > thrust ? 2.5 : 5.0));
 
     skyUniforms.uTime.value = time % 1000.0;
@@ -1187,7 +1157,7 @@ function animate(){
         bloom.strength = THREE.MathUtils.lerp(bloom.strength, bloomTarget, dt * 5);
     }
 
-    if ((hudFrame++ % 6) === 0) updateHUD(effectiveSpeed, thrust);
+    if ((hudFrame++ % 6) === 0) updateHUD(effectiveSpeed);
 
     composer.render();
 }
