@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <meta name="description" content="BlUE photography — photo post by Jasaman Saini.">
+    <meta property="og:title" content="BlUE | Jasaman Saini">
+    <meta property="og:description" content="BlUE photography — photo post by Jasaman Saini.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
+    <meta property="og:type" content="website">
+    <title>BlUE</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="blue-images/IMG_1264.png?v=2">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        body {
+            background-color: var(--bg); color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+        }
+        #sticky-bar {
+            position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
+            z-index: 500; display: flex; align-items: center; gap: 0.35rem;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 999px; padding: 0.3rem 0.55rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            transition: background 0.3s, border-color 0.3s; white-space: nowrap;
+        }
+        body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
+        .bar-nav-btn {
+            background: none; border: none; padding: 0.2rem 0.3rem;
+            cursor: pointer; color: var(--text-muted); font-size: 0.72rem;
+            border-radius: 999px; transition: color 0.2s; font-family: inherit;
+            display: inline-flex; align-items: center; gap: 0.3rem;
+        }
+        .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
+        #nav-group { display: none; align-items: center; gap: 0.35rem; }
+        @media (hover: hover) and (pointer: fine) {
+            .bar-nav-btn:hover { color: var(--cosmic-purple); }
+        }
+        #page-wrap {
+            position: relative;
+            max-width: 48rem;
+            margin: 0 auto;
+            padding: 5rem 1.5rem 0;
+        }
+        #sidebar { display: none; }
+        @media (min-width: 900px) {
+            #sidebar {
+                display: block;
+                position: fixed;
+                left: calc(50% - 24rem - 1.5rem - 8rem);
+                top: 5.5rem;
+                width: 8rem;
+            }
+            .sidebar-label {
+                font-size: 0.7rem; text-transform: uppercase;
+                letter-spacing: var(--ls-mid); color: var(--text-muted);
+                margin-bottom: 0.4rem;
+            }
+            .sidebar-category {
+                font-size: 0.78rem; font-weight: 500; color: var(--cosmic-purple);
+                line-height: 1.4; text-transform: uppercase; letter-spacing: var(--ls-mid);
+            }
+        }
+        .mobile-category {
+            display: none; font-size: 0.68rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: var(--ls-mid);
+            color: var(--cosmic-purple); margin-bottom: 0.45rem;
+        }
+        @media (max-width: 900px) { .mobile-category { display: block; } }
+        .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 0.35rem; line-height: 1.2; }
+        .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 1.5rem; }
+        .post-image { width: 100%; margin-bottom: 1.5rem; }
+        .post-image img { width: 100%; height: auto; display: block; border-radius: var(--radius-card); }
+        .post-image-caption { margin-top: 0.4rem; font-size: 0.68rem; color: var(--text-muted); text-align: center; }
+        .post-body {
+            font-size: 0.93rem; line-height: 1.7; color: var(--text-main);
+            max-width: 38rem;
+        }
+        .post-body p { margin-bottom: 1rem; }
+        footer {
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
+            display: flex; justify-content: space-between;
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+        }
+        footer a { text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div id="sticky-bar">
+        <a href="blue.html" class="bar-back">
+            <i class="fa-solid fa-arrow-left back-arrow" style="font-size:0.7rem;"></i>
+            <span>Back</span>
+        </a>
+        <div class="bar-divider"></div>
+        <span id="nav-group">
+            <button class="bar-nav-btn disabled" id="btn-prev"><i class="fa-solid fa-chevron-left" style="font-size:0.65rem;"></i></button>
+            <button class="bar-nav-btn disabled" id="btn-next"><i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></button>
+            <div class="bar-divider"></div>
+        </span>
+        <button class="bar-btn" id="theme-toggle" aria-label="Toggle dark mode">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <aside id="sidebar">
+        <div class="sidebar-label">Camera</div>
+        <div id="sidebar-category" class="sidebar-category"></div>
+    </aside>
+
+    <main id="page-wrap">
+        <div id="mobile-category" class="mobile-category"></div>
+        <div class="post-title" id="post-title"></div>
+        <div class="post-meta" id="post-meta"></div>
+        <div id="post-content"></div>
+        <footer>
+            <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
+            <a href="index.html">Homepage</a>
+        </footer>
+    </main>
+
+    <script src="theme.js"></script>
+    <script>
+    (function () {
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    var allPosts = null;
+    var pendingId = null;
+
+    function renderPost(postId) {
+        if (!allPosts) return;
+        var posts = allPosts.posts;
+        var BASE  = allPosts.base;
+        var ids   = posts.map(function(p){ return p.id; });
+        var post  = posts.find(function(p){ return p.id === postId; });
+        var idx   = ids.indexOf(postId);
+
+        if (!post) { window.location = 'blue.html'; return; }
+
+        document.title = (post.title || 'Post') + ' | BlUE';
+        document.getElementById('post-title').textContent = post.title || '';
+        var metaParts = [post.location, post.date].filter(Boolean);
+        document.getElementById('post-meta').textContent = metaParts.join(' \u2014 ');
+
+        var cat        = post.category || '';
+        var mobileCat  = document.getElementById('mobile-category');
+        var sidebarCat = document.getElementById('sidebar-category');
+        mobileCat.textContent  = cat;
+        sidebarCat.textContent = cat;
+
+        var html = '';
+        for (var i = 0; i < post.count; i++) {
+            var n   = String(i + 1).padStart(2, '0');
+            var src = BASE + post.imageId + '_' + n + '.jpg';
+            var cap = (post.captions && post.captions[i]) || '';
+            html += '<div class="post-image">'
+                + '<img src="' + esc(src) + '" alt="' + esc(cap) + '"'
+                + (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"')
+                + '>'
+                + (cap ? '<div class="post-image-caption">' + esc(cap) + '</div>' : '')
+                + '</div>';
+        }
+        if (post.body && post.body.length) {
+            html += '<div class="post-body">';
+            post.body.forEach(function(p){ if(p) html += '<p>' + esc(p) + '</p>'; });
+            html += '</div>';
+        }
+        document.getElementById('post-content').innerHTML = html;
+
+        window.scrollTo(0, 0);
+
+        var prevBtn   = document.getElementById('btn-prev');
+        var nextBtn   = document.getElementById('btn-next');
+        var navGroup  = document.getElementById('nav-group');
+        prevBtn.className = idx > 0 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
+        nextBtn.className = idx < ids.length - 1 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
+        prevBtn.onclick = idx > 0 ? (function(i) { return function() { navigateTo(ids[i - 1]); }; }(idx)) : null;
+        nextBtn.onclick = idx < ids.length - 1 ? (function(i) { return function() { navigateTo(ids[i + 1]); }; }(idx)) : null;
+        navGroup.style.display = 'inline-flex';
+    }
+
+    function navigateTo(id) {
+        history.pushState(null, '', '#' + id);
+        renderPost(id);
+    }
+
+    window.addEventListener('popstate', function() {
+        var id = decodeURIComponent(window.location.hash.slice(1));
+        if (!id) { window.location = 'blue.html'; return; }
+        if (allPosts) {
+            renderPost(id);
+        } else {
+            pendingId = id;
+        }
+    });
+
+    var initialId = decodeURIComponent(window.location.hash.slice(1));
+
+    fetch('posts.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            allPosts = data;
+            var targetId = pendingId || initialId || (data.posts[0] && data.posts[0].id) || '';
+            pendingId = null;
+            renderPost(targetId);
+        })
+        .catch(function() { window.location = 'blue.html'; });
+    })();
+    </script>
+</body>
+</html>

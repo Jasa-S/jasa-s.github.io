@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <meta name="description" content="BlUE — a film and digital photography collection by Jasaman Saini.">
+    <meta property="og:title" content="BlUE">
+    <meta property="og:description" content="BlUE — a film and digital photography collection by Jasaman Saini.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
+    <meta property="og:type" content="website">
+    <title>BlUE</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="blue-images/IMG_1264.png?v=2">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        body {
+            background-color: var(--bg); color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+        }
+        /* ── Centered pill bar (shown when coming from index) ── */
+        #sticky-bar {
+            position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
+            z-index: 500; display: flex; align-items: center; gap: 0.35rem;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 999px; padding: 0.3rem 0.55rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            transition: background 0.3s, border-color 0.3s; white-space: nowrap;
+        }
+        body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
+
+        /* ── Top-right standalone toggle (shown on direct visits) ── */
+        #top-bar-direct {
+            display: none;
+            position: fixed;
+            top: 0.75rem;
+            right: 1.25rem;
+            z-index: 500;
+        }
+        @media (max-width: 640px) {
+            #top-bar-direct {
+                position: absolute;
+                top: env(safe-area-inset-top, 0.5rem);
+                right: 1.5rem;
+            }
+        }
+        #page { max-width: 48rem; margin: 0 auto; padding: 4.5rem 1.5rem 0; }
+        header { margin-bottom: 3rem; }
+        header h1 {
+            font-size: 1.75rem; font-weight: 600;
+            letter-spacing: -0.025em;
+            display: flex; align-items: center;
+            margin: 0;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.25rem;
+        }
+        @media (min-width: 640px) {
+            .photo-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .grid-tile {
+            aspect-ratio: 1 / 1; overflow: hidden;
+            background: var(--card); position: relative; display: block;
+            text-decoration: none;
+        }
+        .grid-tile img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        .grid-tile-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0);
+            transition: background 0.3s; display: flex; align-items: flex-end; padding: 0.6rem;
+        }
+        .grid-tile-label {
+            color: white; font-size: 0.7rem; font-weight: 500;
+            opacity: 0; transform: translateY(4px);
+            transition: opacity 0.25s, transform 0.25s;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6); line-height: 1.3;
+        }
+        .grid-skeleton {
+            aspect-ratio: 1 / 1;
+            background: var(--card);
+            animation: skeleton-pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes skeleton-pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.45; }
+        }
+        .grid-error {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            letter-spacing: var(--ls-tight);
+        }
+        .grid-error i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+        }
+        .grid-tile:focus-visible {
+            outline: 2px solid var(--cosmic-purple);
+            outline-offset: 2px;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            #top-bar-direct .top-btn:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
+            .grid-tile:hover img { transform: scale(1.05); }
+            .grid-tile:hover .grid-tile-overlay { background: rgba(0,0,0,0.28); }
+            .grid-tile:hover .grid-tile-label { opacity: 1; transform: translateY(0); }
+        }
+        footer {
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
+            display: flex; justify-content: space-between;
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+        }
+        footer a { text-decoration: none; }
+    </style>
+</head>
+<body>
+    <!-- Centered pill bar: shown when navigating from index -->
+    <div id="sticky-bar">
+        <a href="index.html" class="bar-back">
+            <i class="fa-solid fa-arrow-left back-arrow" style="font-size:0.7rem;"></i>
+            <span>Back</span>
+        </a>
+        <div class="bar-divider"></div>
+        <button class="bar-btn" id="theme-toggle" aria-label="Toggle dark mode">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <!-- Top-right standalone toggle: shown on direct visits -->
+    <div id="top-bar-direct">
+        <button class="top-btn" id="theme-toggle-direct" aria-label="Toggle dark mode">
+            <i id="theme-icon-direct" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <div id="page">
+        <header>
+            <h1><span class="icon-globe">&#127757;</span>BlUE</h1>
+        </header>
+        <div class="photo-grid" id="grid"></div>
+        <footer>
+            <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
+            <a href="index.html">Homepage</a>
+        </footer>
+    </div>
+
+    <script src="theme.js"></script>
+    <script>
+    (function() {
+        var ref = document.referrer;
+        var ownHost = location.hostname;
+        var fromOwn = ref && (ref.indexOf(ownHost) !== -1 || ref.indexOf('index.html') !== -1);
+
+        if (!fromOwn) {
+            document.getElementById('sticky-bar').style.display = 'none';
+            document.getElementById('top-bar-direct').style.display = 'block';
+
+            var directBtn = document.getElementById('theme-toggle-direct');
+            var directIcon = document.getElementById('theme-icon-direct');
+
+            function syncDirectIcon() {
+                var isDark = document.body.classList.contains('dark');
+                directIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+            syncDirectIcon();
+
+            directBtn.addEventListener('click', function() {
+                document.getElementById('theme-toggle').click();
+                syncDirectIcon();
+            });
+        }
+    })();
+
+    (function() {
+        function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        var grid = document.getElementById('grid');
+        var SKELETON_COUNT = 12;
+        for (var s = 0; s < SKELETON_COUNT; s++) {
+            var sk = document.createElement('div');
+            sk.className = 'grid-skeleton';
+            grid.appendChild(sk);
+        }
+
+        fetch('posts.json')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                grid.innerHTML = '';
+                var BASE = data.base;
+                data.posts.forEach(function(p, i) {
+                    var src = BASE + p.imageId + '_' + p.cover + '.jpg';
+                    var a   = document.createElement('a');
+                    a.className = 'grid-tile';
+                    a.href = 'blue-post.html#' + encodeURIComponent(p.id);
+                    a.innerHTML =
+                        '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
+                        + (i === 0 ? '' : ' loading="lazy"')
+                        + '>'
+                        + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + esc(p.title) + '</div></div>';
+                    grid.appendChild(a);
+                });
+            })
+            .catch(function() {
+                grid.innerHTML =
+                    '<div class="grid-error"><i class="fa-regular fa-image"></i>Could not load posts &mdash; please try again later.</div>';
+            });
+    })();
+    </script>
+</body>
+</html>
