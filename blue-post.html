@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
-    <meta name="description" content="BlUE photography — photo post by Jasaman Saini.">
-    <meta property="og:title" content="BlUE | Jasaman Saini">
-    <meta property="og:description" content="BlUE photography — photo post by Jasaman Saini.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/profileImage.png">
-    <meta property="og:type" content="website">
-    <title>BlUE</title>
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
+<title>BlUE</title>
+    <link rel="icon" type="image/svg+xml" href="/earth-icon.svg">
     <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" type="image/png" href="blue-images/IMG_1264.png?v=2">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/blue-images/profileImage.png?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
@@ -25,20 +22,11 @@
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
-        #sticky-bar {
-            position: fixed; top: 1.1rem; left: 50%; transform: translateX(-50%);
-            z-index: 500; display: flex; align-items: center; gap: 0.35rem;
-            background: var(--bg); border: 1px solid var(--border);
-            border-radius: 999px; padding: 0.3rem 0.55rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-            transition: background 0.3s, border-color 0.3s; white-space: nowrap;
-        }
-        body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
         .bar-nav-btn {
-            background: none; border: none; padding: 0.2rem 0.3rem;
+            background: none; border: none; padding: 0.45rem 0.6rem;
             cursor: pointer; color: var(--text-muted); font-size: 0.72rem;
             border-radius: 999px; transition: color 0.2s; font-family: inherit;
-            display: inline-flex; align-items: center; gap: 0.3rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;
         }
         .bar-nav-btn.disabled { opacity: 0.25; pointer-events: none; }
         #nav-group { display: none; align-items: center; gap: 0.35rem; }
@@ -52,7 +40,7 @@
             padding: 5rem 1.5rem 0;
         }
         #sidebar { display: none; }
-        @media (min-width: 900px) {
+        @media (min-width: 1100px) {
             #sidebar {
                 display: block;
                 position: fixed;
@@ -75,7 +63,7 @@
             text-transform: uppercase; letter-spacing: var(--ls-mid);
             color: var(--cosmic-purple); margin-bottom: 0.45rem;
         }
-        @media (max-width: 900px) { .mobile-category { display: block; } }
+        @media (max-width: 1099px) { .mobile-category { display: block; } }
         .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 0.35rem; line-height: 1.2; }
         .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 1.5rem; }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
@@ -99,14 +87,13 @@
 </head>
 <body>
     <div id="sticky-bar">
-        <a href="blue.html" class="bar-back">
-            <i class="fa-solid fa-arrow-left back-arrow" style="font-size:0.7rem;"></i>
-            <span>Back</span>
+        <a href="blue.html" class="bar-back" aria-label="Back to gallery">
+            <i class="fa-solid fa-arrow-left-long back-arrow" style="font-size:0.9rem;"></i>
         </a>
         <div class="bar-divider"></div>
         <span id="nav-group">
-            <button class="bar-nav-btn disabled" id="btn-prev"><i class="fa-solid fa-chevron-left" style="font-size:0.65rem;"></i></button>
-            <button class="bar-nav-btn disabled" id="btn-next"><i class="fa-solid fa-chevron-right" style="font-size:0.65rem;"></i></button>
+            <button class="bar-nav-btn disabled" id="btn-prev" aria-label="Previous post"><i class="fa-solid fa-chevron-left" style="font-size:0.85rem;"></i></button>
+            <button class="bar-nav-btn disabled" id="btn-next" aria-label="Next post"><i class="fa-solid fa-chevron-right" style="font-size:0.85rem;"></i></button>
             <div class="bar-divider"></div>
         </span>
         <button class="bar-btn" id="theme-toggle" aria-label="Toggle dark mode">

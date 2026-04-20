@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
+    <title>ORO</title>
+    <link rel="icon" type="image/svg+xml" href="/earth-icon.svg">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" sizes="180x180" href="/blue-images/profileImage.png?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        body {
+            background-color: var(--bg); color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+        }
+        #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
+        header { margin-bottom: 2rem; }
+        header h1 {
+            font-size: 1.75rem; font-weight: 600;
+            letter-spacing: -0.025em;
+            display: flex; align-items: center;
+            margin: 0;
+        }
+        .sub {
+            font-size: 0.875rem; color: var(--text-muted);
+            margin: 0.4rem 0 0;
+        }
+
+        /* Search */
+        .search-row {
+            display: flex; gap: 0.5rem; align-items: center;
+            margin-bottom: 1.75rem; flex-wrap: wrap;
+        }
+        .search-input {
+            flex: 1 1 12rem; min-width: 0;
+            background: var(--card); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0.55rem 1rem; font-size: 0.9rem;
+            font-family: inherit; outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: var(--cosmic-purple); }
+        .date-input {
+            flex: 0 1 10rem;
+            font-variant-numeric: tabular-nums;
+        }
+        /* Calendar icon inherits current text color so it works in both themes */
+        .date-input::-webkit-calendar-picker-indicator {
+            opacity: 0.6; cursor: pointer;
+        }
+        body.dark .date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+        .btn {
+            background: var(--card); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0.5rem 0.95rem; font-size: 0.8rem;
+            font-family: inherit; cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .btn:hover { background: var(--card-hover); border-color: rgba(125,125,125,0.3); }
+        .btn i { font-size: 0.75rem; }
+
+        /* Summary card */
+        .sun-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 1.25rem; margin-bottom: 1.5rem;
+        }
+        .sun-location {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+            margin: 0 0 0.9rem;
+        }
+        .sun-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+            gap: 1rem 1.25rem;
+        }
+        .sun-item { min-width: 0; }
+        .sun-label {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: var(--ls-mid); color: var(--text-muted);
+            margin: 0 0 0.2rem;
+            display: flex; align-items: center; gap: 0.35rem;
+        }
+        .sun-value {
+            font-size: 0.95rem; font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+        .sun-swatch {
+            width: 0.55rem; height: 0.55rem; border-radius: 50%;
+            display: inline-block; flex-shrink: 0;
+        }
+
+        /* Best window */
+        .best-window {
+            background: linear-gradient(135deg, hsl(35, 90%, 60%) 0%, hsl(20, 85%, 55%) 100%);
+            border-radius: var(--radius-card);
+            padding: 1.1rem 1.25rem; margin-bottom: 1.5rem;
+            color: #1a1207;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem; flex-wrap: wrap;
+        }
+        .best-window-label {
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); font-weight: 600;
+            opacity: 0.75; margin: 0 0 0.25rem;
+        }
+        .best-window-time {
+            font-size: 1.15rem; font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+        .best-window-note {
+            font-size: 0.8rem; opacity: 0.8;
+            margin: 0.15rem 0 0;
+        }
+        .best-window-score {
+            font-size: 2rem; font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+        .best-window-score small {
+            font-size: 0.75rem; opacity: 0.7; font-weight: 400;
+        }
+
+        /* Timeline */
+        .section-title {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+            font-weight: 700; margin: 2rem 0 0.75rem;
+        }
+        .hour-scroll {
+            display: flex; gap: 0.4rem;
+            overflow-x: auto; padding-bottom: 0.75rem;
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+        }
+        .hour-scroll::-webkit-scrollbar { height: 4px; }
+        .hour-scroll::-webkit-scrollbar-thumb { background: var(--timeline); border-radius: 2px; }
+
+        .hour-card {
+            flex: 0 0 auto;
+            width: 4.25rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.6rem;
+            padding: 0.6rem 0.4rem 0.55rem;
+            text-align: center;
+            scroll-snap-align: start;
+            position: relative;
+        }
+        .hour-card.now {
+            border-color: var(--cosmic-purple);
+            box-shadow: inset 0 0 0 100px rgba(124, 58, 237, 0.06);
+        }
+        .hour-card.now .hour-time {
+            color: var(--cosmic-purple);
+            font-weight: 600;
+        }
+        .hour-time {
+            font-size: 0.72rem; color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 0.35rem;
+        }
+        .hour-swatch {
+            width: 100%; height: 1.6rem;
+            border-radius: 0.3rem; margin-bottom: 0.4rem;
+        }
+        .hour-score {
+            font-size: 1rem; font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+        .hour-score small {
+            font-size: 0.6rem; font-weight: 400;
+            color: var(--text-muted);
+        }
+        .hour-cloud {
+            font-size: 0.65rem; color: var(--text-muted);
+            margin-top: 0.25rem;
+            display: flex; align-items: center; justify-content: center; gap: 0.2rem;
+        }
+
+        /* 7-day strip */
+        .day-strip {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.35rem;
+        }
+        .day-cell {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.6rem;
+            padding: 0.6rem 0.3rem;
+            text-align: center;
+            min-width: 0;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            font-family: inherit;
+            color: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .day-cell:focus-visible {
+            outline: 2px solid var(--cosmic-purple);
+            outline-offset: 2px;
+        }
+        .day-cell.selected {
+            border-color: var(--cosmic-purple);
+            box-shadow: inset 0 0 0 100px rgba(124, 58, 237, 0.06);
+        }
+        .day-cell.selected .day-name { color: var(--cosmic-purple); }
+        @media (hover: hover) and (pointer: fine) {
+            .day-cell:hover { background: var(--card-hover); }
+        }
+
+        .local-time-note {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: var(--ls-mid);
+            text-transform: uppercase;
+            margin: 0.6rem 0 0;
+        }
+        .day-name {
+            font-size: 0.65rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: var(--ls-mid);
+            margin-bottom: 0.35rem;
+        }
+        .day-bar {
+            height: 0.4rem; border-radius: 999px;
+            background: var(--timeline); overflow: hidden;
+            margin: 0.4rem 0 0.35rem;
+        }
+        .day-bar-fill {
+            height: 100%; border-radius: 999px;
+            background: linear-gradient(90deg, hsl(220,70%,55%) 0%, hsl(35,90%,60%) 100%);
+        }
+        .day-score {
+            font-size: 0.8rem; font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+        .day-times {
+            font-size: 0.6rem; color: var(--text-muted);
+            margin-top: 0.2rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Status */
+        .status {
+            padding: 2rem 1rem; text-align: center;
+            color: var(--text-muted); font-size: 0.85rem;
+        }
+        .status i { display: block; font-size: 1.3rem; margin-bottom: 0.6rem; opacity: 0.5; }
+        .hidden { display: none !important; }
+
+        /* Skeleton */
+        .skeleton {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        footer {
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
+            display: flex; justify-content: space-between;
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+        }
+        footer a { text-decoration: none; }
+
+        @media (max-width: 520px) {
+            .day-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.25rem; }
+            .day-cell { padding: 0.5rem 0.2rem; }
+            .day-times { font-size: 0.55rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="top-bar-direct">
+        <button class="top-btn" id="theme-toggle" aria-label="Toggle dark mode">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <div id="page">
+        <header>
+            <h1><span class="icon-globe">&#127774;</span>ORO</h1>
+            <p class="sub">Plan your photo walks around the golden hour</p>
+        </header>
+
+        <form class="search-row" id="search-form" autocomplete="off">
+            <input
+                type="text" class="search-input" id="city-input"
+                placeholder="Search a city&hellip;" aria-label="City"
+            >
+            <input
+                type="date" class="search-input date-input" id="date-input"
+                aria-label="Date"
+            >
+            <button type="submit" class="btn" id="search-btn">
+                <i class="fa-solid fa-magnifying-glass"></i>Search
+            </button>
+            <button type="button" class="btn" id="geo-btn" aria-label="Use my location">
+                <i class="fa-solid fa-location-crosshairs"></i>Near me
+            </button>
+        </form>
+
+        <div id="content"></div>
+        <div id="status" class="status hidden"></div>
+
+        <footer>
+            <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
+            <a href="index.html">Homepage</a>
+        </footer>
+    </div>
+
+    <script src="theme.js"></script>
+    <script src="oro.js"></script>
+</body>
+</html>

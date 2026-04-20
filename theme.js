@@ -3,17 +3,15 @@
     var icon = document.getElementById('theme-icon');
     var btn  = document.getElementById('theme-toggle');
 
+    var html = document.documentElement;
+
     function applyTheme(dark) {
         bd.classList.toggle('dark', dark);
+        html.classList.toggle('dark', dark);
         if (icon) icon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
     }
 
-    var stored = localStorage.getItem('theme');
-    if (stored) {
-        applyTheme(stored === 'dark');
-    } else {
-        applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    }
+    applyTheme(html.classList.contains('dark'));
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
         if (!localStorage.getItem('theme')) applyTheme(e.matches);
@@ -21,8 +19,8 @@
 
     if (btn) {
         btn.addEventListener('click', function () {
-            var isDark = bd.classList.toggle('dark');
-            if (icon) icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            var isDark = !bd.classList.contains('dark');
+            applyTheme(isDark);
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
     }
