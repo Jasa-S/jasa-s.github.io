@@ -39,10 +39,21 @@
     }
 
     function reverseGeocode(lat, lon) {
-        // Open-Meteo doesn't offer reverse geocoding; use a nearby city search fallback.
-        return Promise.resolve({
-            lat: lat, lon: lon,
-            name: 'Current location', admin: '', country: ''
+        var url = 'https://api.bigdatacloud.net/data/reverse-geocode-client'
+            + '?latitude=' + lat + '&longitude=' + lon + '&localityLanguage=en';
+        return fetch(url).then(function (r) {
+            if (!r.ok) throw new Error('reverse geocode failed');
+            return r.json();
+        }).then(function (d) {
+            var name = d.city || d.locality || d.principalSubdivision || 'My location';
+            return {
+                lat: lat, lon: lon,
+                name: name,
+                admin: d.principalSubdivision && d.principalSubdivision !== name ? d.principalSubdivision : '',
+                country: d.countryName || ''
+            };
+        }).catch(function () {
+            return { lat: lat, lon: lon, name: 'My location', admin: '', country: '' };
         });
     }
 
@@ -395,6 +406,7 @@
         dateInput.min = available[0];
         dateInput.max = available[available.length - 1];
         dateInput.value = selectedDate;
+        document.getElementById('city-input').value = place.name || '';
         render(place, weather, selectedDate);
     }
 
