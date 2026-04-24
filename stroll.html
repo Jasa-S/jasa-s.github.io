@@ -479,7 +479,10 @@
         <div class="decks">
             <div class="deck">
                 <div class="deck-head">
-                    <h2 class="deck-title"><i class="fa-solid fa-person-walking" style="margin-right:0.4rem;"></i>Walks</h2>
+                    <div>
+                        <h2 class="deck-title"><i class="fa-solid fa-person-walking" style="margin-right:0.4rem;"></i>Walks</h2>
+                        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.2rem;">from Seoul Walker</div>
+                    </div>
                     <button class="add-btn" data-add="walk"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
                 <div id="walk-filters" class="filter-row"></div>
@@ -488,7 +491,10 @@
 
             <div class="deck">
                 <div class="deck-head">
-                    <h2 class="deck-title"><i class="fa-solid fa-music" style="margin-right:0.4rem;"></i>Music</h2>
+                    <div>
+                        <h2 class="deck-title"><i class="fa-solid fa-music" style="margin-right:0.4rem;"></i>Music</h2>
+                        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.2rem;">Joji &middot; Giveon</div>
+                    </div>
                     <button class="add-btn" data-add="track"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
                 <div id="track-filters" class="filter-row"></div>
@@ -510,7 +516,7 @@
             <input id="modal-name" type="text" placeholder="e.g. Shimokitazawa, rainy Sunday">
             <label for="modal-tags">Tags (comma-separated)</label>
             <input id="modal-tags" type="text" placeholder="tokyo, rain, evening">
-            <p class="modal-hint">Tip: use existing tags like <code>seoul</code>, <code>tokyo</code>, <code>night</code>, <code>rain</code> so filters group naturally.</p>
+            <p class="modal-hint">Walks: tag with the neighbourhood (<code>hongdae</code>, <code>gangnam</code>) and a vibe (<code>night</code>, <code>rain</code>). Music: tag with the artist (<code>joji</code>, <code>giveon</code>) so filters group naturally.</p>
             <div class="modal-actions">
                 <button id="modal-cancel" class="btn-ghost">Cancel</button>
                 <button id="modal-save" class="btn-primary">Add</button>

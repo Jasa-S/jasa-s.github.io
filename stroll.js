@@ -7,48 +7,17 @@ const STORE = {
     state: 'stroll.state',
 };
 
-/* Seed library — replace freely via the Add buttons. */
-const SEED_WALKS = [
-    {
-        id: 'w_seed_seoul_hongdae',
-        name: 'Hongdae night walk',
-        videoId: 'l5j3DiNBNxo',
-        tags: ['seoul', 'night'],
-    },
-    {
-        id: 'w_seed_tokyo_shibuya',
-        name: 'Shibuya rainy evening',
-        videoId: 'FzOoyk-jMAg',
-        tags: ['tokyo', 'rain', 'night'],
-    },
-    {
-        id: 'w_seed_tokyo_shinjuku',
-        name: 'Shinjuku at dusk',
-        videoId: 'NnxgQ4uG--g',
-        tags: ['tokyo', 'evening'],
-    },
-];
-
-const SEED_TRACKS = [
-    {
-        id: 't_seed_lofi_girl',
-        name: 'Lofi Girl — beats to relax/study',
-        videoId: 'jfKfPfyJRdk',
-        tags: ['lofi', 'instrumental'],
-    },
-    {
-        id: 't_seed_chillhop',
-        name: 'Chillhop Radio — jazzy & lofi',
-        videoId: '5yx6BWlEVcY',
-        tags: ['lofi', 'jazz'],
-    },
-    {
-        id: 't_seed_korean_jazz',
-        name: 'Korean lofi & jazz mix',
-        videoId: 'Wd64ZB0AvkA',
-        tags: ['korean', 'jazz', 'lofi'],
-    },
-];
+/* Curation sources — restrict library to these only.
+   Walks: Seoul Walker. Music: Joji & Giveon. */
+const SOURCES = {
+    walk:  [{ label: 'Seoul Walker', url: 'https://www.youtube.com/@SeoulWalker/videos' }],
+    track: [
+        { label: 'Joji',   url: 'https://www.youtube.com/@JojiOfficial/videos' },
+        { label: 'Giveon', url: 'https://www.youtube.com/@Giveon/videos' },
+    ],
+};
+const SEED_WALKS = [];
+const SEED_TRACKS = [];
 
 /* ── Persistent state helpers ── */
 function load(key, fallback) {
@@ -64,7 +33,8 @@ function save(key, value) {
 let walks  = load(STORE.walks, SEED_WALKS);
 let tracks = load(STORE.tracks, SEED_TRACKS);
 let pairs  = load(STORE.pairs, []);
-let state  = load(STORE.state, { walkId: null, trackId: null, walkFilter: 'all', trackFilter: 'all', musicVol: 70, cityVol: 15 });
+const DEFAULT_STATE = { walkId: null, trackId: null, walkFilter: 'all', trackFilter: 'all', musicVol: 70, cityVol: 15 };
+let state  = Object.assign({}, DEFAULT_STATE, load(STORE.state, {}));
 
 /* ── YouTube ID parsing ── */
 function parseYouTubeId(input) {
@@ -244,7 +214,14 @@ function renderList(kind) {
     const container = document.getElementById(kind === 'walk' ? 'walk-list' : 'track-list');
     const filtered = filter === 'all' ? items : items.filter(i => (i.tags || []).includes(filter));
     if (filtered.length === 0) {
-        container.innerHTML = `<div style="color:var(--text-muted);font-size:0.8125rem;padding:0.5rem;font-style:italic;">Nothing here yet.</div>`;
+        const sources = SOURCES[kind] || [];
+        const links = sources.map(s =>
+            `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" style="color:var(--cosmic-purple);text-decoration:none;">${escapeHtml(s.label)} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.65rem;"></i></a>`
+        ).join(' &middot; ');
+        const hint = items.length === 0
+            ? `Library empty. Browse ${links} &mdash; copy a video URL, then hit <strong>+ Add</strong>.`
+            : `No matches for this filter.`;
+        container.innerHTML = `<div style="color:var(--text-muted);font-size:0.8125rem;padding:0.65rem 0.5rem;line-height:1.5;">${hint}</div>`;
         return;
     }
     container.innerHTML = filtered.map(item => `
@@ -292,7 +269,7 @@ function openAddModal(kind) {
     document.getElementById('modal-title').textContent = kind === 'walk' ? 'Add a walk' : 'Add a track';
     document.getElementById('modal-url').value = '';
     document.getElementById('modal-name').value = '';
-    document.getElementById('modal-tags').value = kind === 'walk' ? 'seoul' : 'lofi';
+    document.getElementById('modal-tags').value = kind === 'walk' ? 'seoul' : 'joji';
     document.getElementById('modal-bg').classList.add('show');
     setTimeout(() => document.getElementById('modal-url').focus(), 50);
 }
