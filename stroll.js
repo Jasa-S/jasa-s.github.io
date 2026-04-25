@@ -80,8 +80,11 @@ function tryRestoreSelection() {
 }
 
 function handlePlayerStateChange(e) {
-    /* Keep play button label in sync. */
     refreshPlayButton();
+    if (e.data === YT.PlayerState.ENDED) {
+        e.target.seekTo(0);
+        e.target.playVideo();
+    }
 }
 
 /* ── Selection ── */
@@ -90,7 +93,6 @@ function selectWalk(id, autoplay = true) {
     if (!w) return;
     state.walkId = id;
     save(STORE.state, state);
-    document.getElementById('video-placeholder').style.display = 'none';
     if (walkPlayer && playersReady.walk) {
         walkPlayer.loadVideoById({ videoId: w.videoId });
         walkPlayer.setVolume(state.cityVol);
