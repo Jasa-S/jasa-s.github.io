@@ -9,7 +9,10 @@ const STORE = {
 
 const SOURCES = {
     walk:  [{ label: 'Seoul Walker', url: 'https://www.youtube.com/@SeoulWalker/videos' }],
-    track: [],
+    track: [
+        { label: 'Joji',   url: 'https://www.youtube.com/@JojiOfficial/videos' },
+        { label: 'Giveon', url: 'https://www.youtube.com/@Giveon/videos' },
+    ],
 };
 const SEED_WALKS = [];
 const SEED_TRACKS = [];
@@ -93,6 +96,7 @@ function selectWalk(id, autoplay = true) {
     if (!w) return;
     state.walkId = id;
     save(STORE.state, state);
+    document.getElementById('video-placeholder').style.display = 'none';
     if (walkPlayer && playersReady.walk) {
         walkPlayer.loadVideoById({ videoId: w.videoId });
         walkPlayer.setVolume(state.cityVol);
