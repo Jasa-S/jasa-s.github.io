@@ -63,6 +63,14 @@
             position: relative;
             aspect-ratio: 16 / 9;
         }
+        .video-box .placeholder {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.35);
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 1rem;
+        }
         #yt-walk { width: 100%; height: 100%; border: 0; display: block; }
 
         /* Cinema view */
@@ -437,13 +445,14 @@
 
         <div class="now-playing">
             <div class="video-box">
+                <div id="video-placeholder" class="placeholder">Pick a walk to begin</div>
                 <div id="yt-walk"></div>
             </div>
 
             <div class="controls-card">
                 <div class="now-meta">
-                    <div id="now-walk" class="now-walk-name"></div>
-                    <div id="now-track" class="now-track-name"></div>
+                    <div id="now-walk" class="now-walk-name now-empty">No walk selected</div>
+                    <div id="now-track" class="now-track-name now-empty">No track selected</div>
                 </div>
 
                 <div class="play-row">
