@@ -154,6 +154,25 @@
         .save-btn:hover:not(:disabled) { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
         .save-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+        .music-controls {
+            display: flex; align-items: center; gap: 0.4rem;
+            margin-top: -0.25rem;
+        }
+        .mc-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            width: 2rem; height: 2rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-family: inherit;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .mc-btn:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .view-cinema .music-controls { margin-top: 0; }
+
         .vol-row {
             display: grid;
             grid-template-columns: 1rem auto 1fr auto;
@@ -469,6 +488,15 @@
                     <span class="vol-text">Music</span>
                     <input id="music-vol" type="range" min="0" max="100" value="70">
                     <span id="music-vol-val" class="vol-val">70</span>
+                </div>
+
+                <div id="music-controls" class="music-controls" style="display:none;">
+                    <button id="mode-btn" class="mc-btn" aria-label="Playback mode" title="Shuffle">
+                        <i class="fa-solid fa-shuffle"></i>
+                    </button>
+                    <button id="skip-btn" class="mc-btn" aria-label="Next track" title="Next track">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
                 </div>
 
                 <div class="vol-row">

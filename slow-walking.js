@@ -1,4 +1,4 @@
-/* Stroll — pair a walking video with a music track on YouTube. */
+/* Slow Walking — pair a walking video with a music track or playlist on YouTube. */
 
 const STORE = {
     walks: 'slow-walking.walks',
@@ -14,8 +14,23 @@ const SOURCES = {
         { label: 'Giveon', url: 'https://www.youtube.com/@Giveon/videos' },
     ],
 };
-const SEED_WALKS = [];
-const SEED_TRACKS = [];
+const SEED_WALKS = [
+    {
+        id: 'w_seed_seoul_night',
+        name: 'Seoul Night Drive Downtown',
+        videoId: 'SRpMapyw6Aw',
+        tags: ['seoul', 'night'],
+    },
+];
+const SEED_TRACKS = [
+    {
+        id: 't_seed_smithereens',
+        name: 'SMITHEREENS',
+        videoId: 'NgsWGfUlwJI',
+        playlistId: 'PLzjD-HnzMfXLBCR6jPEE3_gDfQ_XEk7o2',
+        tags: ['playlist'],
+    },
+];
 
 /* ── Persistent state helpers ── */
 function load(key, fallback) {
@@ -31,16 +46,26 @@ function save(key, value) {
 let walks  = load(STORE.walks, SEED_WALKS);
 let tracks = load(STORE.tracks, SEED_TRACKS);
 let pairs  = load(STORE.pairs, []);
-const DEFAULT_STATE = { walkId: null, trackId: null, walkFilter: 'all', trackFilter: 'all', musicVol: 70, cityVol: 15 };
+const DEFAULT_STATE = {
+    walkId: null, trackId: null,
+    walkFilter: 'all', trackFilter: 'all',
+    musicVol: 70, cityVol: 15,
+    musicMode: 'shuffle', // shuffle | sequential | repeat-one
+};
 let state  = Object.assign({}, DEFAULT_STATE, load(STORE.state, {}));
 
-/* ── YouTube ID parsing ── */
-function parseYouTubeId(input) {
+/* ── YouTube URL parsing ── */
+function parseYouTubeRef(input) {
     if (!input) return null;
     const trimmed = input.trim();
-    if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
-    const m = trimmed.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
-    return m ? m[1] : null;
+    if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return { videoId: trimmed, playlistId: null };
+    let videoId = null, playlistId = null;
+    const v = trimmed.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+    if (v) videoId = v[1];
+    const l = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+    if (l) playlistId = l[1];
+    if (!videoId && !playlistId) return null;
+    return { videoId, playlistId };
 }
 
 /* ── YouTube IFrame players ── */
@@ -84,10 +109,45 @@ function tryRestoreSelection() {
 
 function handlePlayerStateChange(e) {
     refreshPlayButton();
-    if (e.data === YT.PlayerState.ENDED) {
-        e.target.seekTo(0);
-        e.target.playVideo();
+    if (e.data === YT.PlayerState.PLAYING && e.target === musicPlayer) {
+        applyMusicMode();
     }
+    if (e.data === YT.PlayerState.ENDED) {
+        if (e.target === musicPlayer) {
+            const t = currentTrack();
+            const isPlaylist = t && t.playlistId;
+            if (!isPlaylist || state.musicMode === 'repeat-one') {
+                e.target.seekTo(0);
+                e.target.playVideo();
+            }
+            // else YouTube handles looping/shuffle via setLoop/setShuffle
+        } else {
+            e.target.seekTo(0);
+            e.target.playVideo();
+        }
+    }
+}
+
+function currentTrack() {
+    return tracks.find(t => t.id === state.trackId) || null;
+}
+
+function applyMusicMode() {
+    if (!musicPlayer || !playersReady.music) return;
+    const t = currentTrack();
+    if (!t || !t.playlistId) return;
+    try {
+        if (state.musicMode === 'shuffle') {
+            musicPlayer.setShuffle(true);
+            musicPlayer.setLoop(true);
+        } else if (state.musicMode === 'sequential') {
+            musicPlayer.setShuffle(false);
+            musicPlayer.setLoop(true);
+        } else if (state.musicMode === 'repeat-one') {
+            musicPlayer.setShuffle(false);
+            musicPlayer.setLoop(false);
+        }
+    } catch {}
 }
 
 /* ── Selection ── */
@@ -116,7 +176,12 @@ function selectTrack(id, autoplay = true) {
     state.trackId = id;
     save(STORE.state, state);
     if (musicPlayer && playersReady.music) {
-        musicPlayer.loadVideoById({ videoId: t.videoId });
+        if (t.playlistId) {
+            musicPlayer.loadPlaylist({ list: t.playlistId, listType: 'playlist', index: 0 });
+            setTimeout(applyMusicMode, 800);
+        } else {
+            musicPlayer.loadVideoById({ videoId: t.videoId });
+        }
         musicPlayer.setVolume(state.musicVol);
         if (!autoplay) musicPlayer.pauseVideo();
     }
@@ -125,6 +190,7 @@ function selectTrack(id, autoplay = true) {
     renderList('track');
     refreshPlayButton();
     refreshSaveButton();
+    updateMusicControls();
 }
 
 /* ── Playback ── */
@@ -283,10 +349,20 @@ function commitAdd() {
     const url  = document.getElementById('modal-url').value;
     const name = document.getElementById('modal-name').value.trim();
     const tags = document.getElementById('modal-tags').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-    const videoId = parseYouTubeId(url);
-    if (!videoId) { alert('Could not parse a YouTube ID from that URL.'); return; }
+    const ref = parseYouTubeRef(url);
+    if (!ref) { alert('Could not parse a YouTube video or playlist ID from that URL.'); return; }
     if (!name) { alert('Please give it a name.'); return; }
-    const item = { id: `${addKind === 'walk' ? 'w' : 't'}_${Date.now()}`, name, videoId, tags };
+    if (addKind === 'walk' && !ref.videoId) { alert('Walks need a video URL (not just a playlist).'); return; }
+    const item = {
+        id: `${addKind === 'walk' ? 'w' : 't'}_${Date.now()}`,
+        name,
+        videoId: ref.videoId,
+        tags,
+    };
+    if (addKind === 'track' && ref.playlistId) {
+        item.playlistId = ref.playlistId;
+        if (!item.tags.includes('playlist')) item.tags.push('playlist');
+    }
     if (addKind === 'walk') {
         walks.push(item); save(STORE.walks, walks);
         renderFilters('walk'); renderList('walk');
@@ -354,6 +430,48 @@ function applyView(cinema) {
     try { localStorage.setItem('slow-walking.view', cinema ? 'cinema' : 'split'); } catch {}
 }
 
+/* ── Music mode (shuffle / sequential / repeat-one) ── */
+const MODE_ORDER = ['shuffle', 'sequential', 'repeat-one'];
+const MODE_META = {
+    'shuffle':     { icon: 'fa-shuffle',       label: 'Shuffle' },
+    'sequential':  { icon: 'fa-repeat',        label: 'Loop list' },
+    'repeat-one':  { icon: 'fa-arrow-rotate-right', label: 'Repeat one' },
+};
+
+function updateMusicControls() {
+    const t = currentTrack();
+    const isPlaylist = !!(t && t.playlistId);
+    const wrap = document.getElementById('music-controls');
+    if (wrap) wrap.style.display = isPlaylist ? '' : 'none';
+    const modeBtn = document.getElementById('mode-btn');
+    if (modeBtn) {
+        const meta = MODE_META[state.musicMode] || MODE_META.shuffle;
+        modeBtn.querySelector('i').className = 'fa-solid ' + meta.icon;
+        modeBtn.title = meta.label;
+        modeBtn.setAttribute('aria-label', meta.label);
+    }
+}
+
+function cycleMusicMode() {
+    const i = MODE_ORDER.indexOf(state.musicMode);
+    state.musicMode = MODE_ORDER[(i + 1) % MODE_ORDER.length];
+    save(STORE.state, state);
+    updateMusicControls();
+    applyMusicMode();
+}
+
+function skipTrack() {
+    if (!musicPlayer || !playersReady.music) return;
+    const t = currentTrack();
+    if (!t) return;
+    if (t.playlistId) {
+        try { musicPlayer.nextVideo(); } catch {}
+    } else {
+        musicPlayer.seekTo(0);
+        musicPlayer.playVideo();
+    }
+}
+
 /* ── Wire it up ── */
 document.addEventListener('DOMContentLoaded', () => {
     const savedView = localStorage.getItem('slow-walking.view');
@@ -368,6 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('play-btn').addEventListener('click', togglePlay);
     document.getElementById('save-btn').addEventListener('click', savePair);
+    document.getElementById('mode-btn').addEventListener('click', cycleMusicMode);
+    document.getElementById('skip-btn').addEventListener('click', skipTrack);
 
     document.querySelectorAll('[data-add]').forEach(b => {
         b.addEventListener('click', () => openAddModal(b.dataset.add));
@@ -385,4 +505,5 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFilters('walk'); renderList('walk');
     renderFilters('track'); renderList('track');
     renderPairs();
+    updateMusicControls();
 });
