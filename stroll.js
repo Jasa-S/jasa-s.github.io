@@ -80,10 +80,7 @@ function tryRestoreSelection() {
 }
 
 function handlePlayerStateChange(e) {
-    /* Keep play button label in sync. */
     refreshPlayButton();
-
-    /* Loop the video if it has ended */
     if (e.data === YT.PlayerState.ENDED) {
         e.target.seekTo(0);
         e.target.playVideo();
@@ -96,7 +93,6 @@ function selectWalk(id, autoplay = true) {
     if (!w) return;
     state.walkId = id;
     save(STORE.state, state);
-    document.getElementById('video-placeholder').style.display = 'none';
     if (walkPlayer && playersReady.walk) {
         walkPlayer.loadVideoById({ videoId: w.videoId });
         walkPlayer.setVolume(state.cityVol);
@@ -345,8 +341,23 @@ function savePair() {
     renderPairs();
 }
 
+/* ── View toggle ── */
+function applyView(cinema) {
+    document.body.classList.toggle('view-cinema', cinema);
+    const icon = document.getElementById('view-icon');
+    if (icon) icon.className = cinema ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+    try { localStorage.setItem('stroll.view', cinema ? 'cinema' : 'split'); } catch {}
+}
+
 /* ── Wire it up ── */
 document.addEventListener('DOMContentLoaded', () => {
+    const savedView = localStorage.getItem('stroll.view');
+    applyView(savedView === 'cinema');
+
+    document.getElementById('view-toggle').addEventListener('click', () => {
+        applyView(!document.body.classList.contains('view-cinema'));
+    });
+
     bindVolume('music-vol', 'music-vol-val', 'music');
     bindVolume('city-vol',  'city-vol-val',  'city');
 
