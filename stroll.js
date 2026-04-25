@@ -339,8 +339,23 @@ function savePair() {
     renderPairs();
 }
 
+/* ── View toggle ── */
+function applyView(cinema) {
+    document.body.classList.toggle('view-cinema', cinema);
+    const icon = document.getElementById('view-icon');
+    if (icon) icon.className = cinema ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
+    try { localStorage.setItem('stroll.view', cinema ? 'cinema' : 'split'); } catch {}
+}
+
 /* ── Wire it up ── */
 document.addEventListener('DOMContentLoaded', () => {
+    const savedView = localStorage.getItem('stroll.view');
+    applyView(savedView === 'cinema');
+
+    document.getElementById('view-toggle').addEventListener('click', () => {
+        applyView(!document.body.classList.contains('view-cinema'));
+    });
+
     bindVolume('music-vol', 'music-vol-val', 'music');
     bindVolume('city-vol',  'city-vol-val',  'city');
 
