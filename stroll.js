@@ -87,6 +87,12 @@ function tryRestoreSelection() {
 function handlePlayerStateChange(e) {
     /* Keep play button label in sync. */
     refreshPlayButton();
+
+    /* Loop the video if it has ended */
+    if (e.data === YT.PlayerState.ENDED) {
+        e.target.seekTo(0);
+        e.target.playVideo();
+    }
 }
 
 /* ── Selection ── */
