@@ -96,7 +96,8 @@ function selectWalk(id, autoplay = true) {
     if (!w) return;
     state.walkId = id;
     save(STORE.state, state);
-    document.getElementById('video-placeholder').style.display = 'none';
+    const placeholder = document.getElementById('video-placeholder');
+    if (placeholder) placeholder.remove();
     if (walkPlayer && playersReady.walk) {
         walkPlayer.loadVideoById({ videoId: w.videoId });
         walkPlayer.setVolume(state.cityVol);
