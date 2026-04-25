@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
-    <title>Stroll &mdash; Seoul / Tokyo</title>
+    <title>Stroll</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,20 +42,6 @@
             letter-spacing: -0.025em; margin: 0;
             display: flex; align-items: center; gap: 0.6rem;
         }
-        .stroll-sub {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin: 0.4rem 0 0;
-        }
-        .back-link {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            color: var(--text-muted); text-decoration: none;
-            font-size: 0.75rem; text-transform: uppercase;
-            letter-spacing: var(--ls-mid);
-            margin-bottom: 1.25rem;
-            transition: color 0.2s;
-        }
-        .back-link:hover { color: var(--cosmic-purple); }
 
         /* Now Playing */
         .now-playing {
@@ -416,15 +402,10 @@
     </div>
 
     <div class="wrap">
-        <a href="index.html" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> Back
-        </a>
-
         <header class="stroll-header">
             <h1 class="stroll-title">
-                <span class="icon-globe">&#127759;</span>Stroll
+                &#127747; Stroll
             </h1>
-            <p class="stroll-sub">Pair a walk with a sound. Seoul, Tokyo, on foot.</p>
         </header>
 
         <!-- Now playing -->
@@ -479,10 +460,7 @@
         <div class="decks">
             <div class="deck">
                 <div class="deck-head">
-                    <div>
-                        <h2 class="deck-title"><i class="fa-solid fa-person-walking" style="margin-right:0.4rem;"></i>Walks</h2>
-                        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.2rem;">from Seoul Walker</div>
-                    </div>
+                    <h2 class="deck-title"><i class="fa-solid fa-person-walking" style="margin-right:0.4rem;"></i>Walks</h2>
                     <button class="add-btn" data-add="walk"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
                 <div id="walk-filters" class="filter-row"></div>
@@ -491,10 +469,7 @@
 
             <div class="deck">
                 <div class="deck-head">
-                    <div>
-                        <h2 class="deck-title"><i class="fa-solid fa-music" style="margin-right:0.4rem;"></i>Music</h2>
-                        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.2rem;">Joji &middot; Giveon</div>
-                    </div>
+                    <h2 class="deck-title"><i class="fa-solid fa-music" style="margin-right:0.4rem;"></i>Music</h2>
                     <button class="add-btn" data-add="track"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
                 <div id="track-filters" class="filter-row"></div>
@@ -513,10 +488,10 @@
             <label for="modal-url">YouTube URL or video ID</label>
             <input id="modal-url" type="text" placeholder="https://www.youtube.com/watch?v=...">
             <label for="modal-name">Name</label>
-            <input id="modal-name" type="text" placeholder="e.g. Shimokitazawa, rainy Sunday">
+            <input id="modal-name" type="text" placeholder="e.g. Hongdae, rainy Sunday">
             <label for="modal-tags">Tags (comma-separated)</label>
-            <input id="modal-tags" type="text" placeholder="tokyo, rain, evening">
-            <p class="modal-hint">Walks: tag with the neighbourhood (<code>hongdae</code>, <code>gangnam</code>) and a vibe (<code>night</code>, <code>rain</code>). Music: tag with the artist (<code>joji</code>, <code>giveon</code>) so filters group naturally.</p>
+            <input id="modal-tags" type="text" placeholder="hongdae, night, rain">
+            <p class="modal-hint">Tag walks by neighbourhood (<code>hongdae</code>, <code>gangnam</code>) and vibe (<code>night</code>, <code>rain</code>). Tag music by artist or mood so filters group naturally.</p>
             <div class="modal-actions">
                 <button id="modal-cancel" class="btn-ghost">Cancel</button>
                 <button id="modal-save" class="btn-primary">Add</button>

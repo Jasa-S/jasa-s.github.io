@@ -7,14 +7,9 @@ const STORE = {
     state: 'stroll.state',
 };
 
-/* Curation sources — restrict library to these only.
-   Walks: Seoul Walker. Music: Joji & Giveon. */
 const SOURCES = {
     walk:  [{ label: 'Seoul Walker', url: 'https://www.youtube.com/@SeoulWalker/videos' }],
-    track: [
-        { label: 'Joji',   url: 'https://www.youtube.com/@JojiOfficial/videos' },
-        { label: 'Giveon', url: 'https://www.youtube.com/@Giveon/videos' },
-    ],
+    track: [],
 };
 const SEED_WALKS = [];
 const SEED_TRACKS = [];
