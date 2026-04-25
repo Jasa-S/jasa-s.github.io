@@ -1,10 +1,10 @@
 /* Stroll — pair a walking video with a music track on YouTube. */
 
 const STORE = {
-    walks: 'stroll.walks',
-    tracks: 'stroll.tracks',
-    pairs: 'stroll.pairs',
-    state: 'stroll.state',
+    walks: 'slow-walking.walks',
+    tracks: 'slow-walking.tracks',
+    pairs: 'slow-walking.pairs',
+    state: 'slow-walking.state',
 };
 
 const SOURCES = {
@@ -351,12 +351,12 @@ function applyView(cinema) {
     document.body.classList.toggle('view-cinema', cinema);
     const icon = document.getElementById('view-icon');
     if (icon) icon.className = cinema ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
-    try { localStorage.setItem('stroll.view', cinema ? 'cinema' : 'split'); } catch {}
+    try { localStorage.setItem('slow-walking.view', cinema ? 'cinema' : 'split'); } catch {}
 }
 
 /* ── Wire it up ── */
 document.addEventListener('DOMContentLoaded', () => {
-    const savedView = localStorage.getItem('stroll.view');
+    const savedView = localStorage.getItem('slow-walking.view');
     applyView(savedView === 'cinema');
 
     document.getElementById('view-toggle').addEventListener('click', () => {
