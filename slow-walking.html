@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
-    <title>Walk and Listen</title>
+    <title>Slow Walking</title>
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Slow Walking">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,11 +39,88 @@
             align-items: center;
             z-index: 500;
         }
-        .top-bar .top-btn { padding: 0.35rem; min-width: unset; }
+        .top-bar .top-btn { padding: 0.35rem; min-width: unset; position: relative; }
         @media (hover: hover) and (pointer: fine) {
-            #view-toggle:hover { color: var(--cosmic-purple); }
+            #view-toggle:hover, #surprise-btn:hover, #sleep-btn:hover, #settings-btn:hover { color: var(--cosmic-purple); }
             #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
+            #surprise-btn:hover { transform: rotate(15deg) scale(1.15); }
         }
+        .sleep-active { color: var(--cosmic-purple) !important; }
+        .countdown-badge {
+            position: absolute;
+            top: -2px; right: -2px;
+            background: var(--cosmic-purple);
+            color: #fff;
+            font-size: 0.55rem;
+            border-radius: 999px;
+            padding: 1px 4px;
+            line-height: 1;
+            min-width: 1.1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Dropdown menu (settings) */
+        .menu {
+            position: absolute;
+            top: calc(100% + 0.4rem);
+            right: 0;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.35rem;
+            display: none;
+            flex-direction: column;
+            min-width: 11rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            z-index: 600;
+        }
+        .menu.show { display: flex; }
+        .menu button {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.78rem;
+            text-align: left;
+            padding: 0.5rem 0.65rem;
+            border-radius: 0.35rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+        .menu button:hover { background: var(--card-hover); color: var(--cosmic-purple); }
+        .menu button i { font-size: 0.7rem; width: 0.9rem; text-align: center; color: var(--text-muted); }
+        .menu button:hover i { color: var(--cosmic-purple); }
+
+        /* Sleep timer popover */
+        .sleep-popover {
+            position: absolute;
+            top: calc(100% + 0.4rem);
+            right: 0;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.55rem;
+            display: none;
+            gap: 0.3rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            z-index: 600;
+        }
+        .sleep-popover.show { display: flex; }
+        .sleep-popover button {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            padding: 0.25rem 0.55rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .sleep-popover button:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .sleep-popover button.cancel { border-color: transparent; color: var(--text-muted); }
 
         .slow-walking-header { margin-bottom: 1.75rem; }
         .slow-walking-title {
@@ -98,12 +181,38 @@
         .view-cinema .vol-val { display: none; }
         .view-cinema .vol-row { gap: 0.4rem; }
         .view-cinema input[type="range"] { width: 72px; }
-        .music-hidden {
+        /* Music mini-player (visible so YouTube ads can be skipped) */
+        .music-mini {
+            position: fixed;
+            bottom: 0.85rem;
+            right: 0.85rem;
+            width: 220px; height: 124px;
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+            z-index: 400;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .music-mini.collapsed { transform: translateY(calc(100% - 1.5rem)); opacity: 0.55; }
+        .music-mini:hover { opacity: 1; }
+        .music-mini-tab {
             position: absolute;
-            width: 200px; height: 200px;
-            opacity: 0; pointer-events: none;
-            left: -9999px;
-            top: -9999px;
+            top: 0; left: 0; right: 0;
+            height: 1.5rem;
+            background: rgba(0,0,0,0.55);
+            color: rgba(255,255,255,0.6);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 0.55rem;
+            font-size: 0.65rem;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .music-mini-tab:hover { color: #fff; }
+        .music-mini-tab i { font-size: 0.6rem; }
+        @media (max-width: 520px) {
+            .music-mini { width: 168px; height: 96px; bottom: 0.55rem; right: 0.55rem; }
         }
         #yt-music { width: 100%; height: 100%; border: 0; display: block; }
 
@@ -210,6 +319,35 @@
             border: none;
         }
 
+        /* Mood preset row */
+        .moods {
+            display: flex; flex-wrap: wrap; gap: 0.4rem;
+            margin-bottom: 1.25rem;
+            align-items: center;
+        }
+        .moods-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: var(--ls-wide);
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-right: 0.35rem;
+        }
+        .mood-pill {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            padding: 0.3rem 0.75rem;
+            font-size: 0.72rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .mood-pill:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .mood-pill i { font-size: 0.65rem; }
+
         /* Decks */
         .decks {
             display: grid;
@@ -217,6 +355,20 @@
             gap: 1.25rem;
         }
         @media (max-width: 760px) { .decks { grid-template-columns: 1fr; } }
+
+        .deck-search {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 0.4rem;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.78rem;
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 0.55rem;
+        }
+        .deck-search:focus { border-color: var(--cosmic-purple); }
 
         .deck {
             background: var(--card);
@@ -319,14 +471,16 @@
             margin-top: 0.15rem;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .item-del {
+        .item-del, .item-edit {
             background: none; border: none; color: var(--text-muted);
             font-size: 0.7rem; cursor: pointer;
             opacity: 0; transition: opacity 0.15s, color 0.15s;
             padding: 0.25rem;
         }
-        .item:hover .item-del { opacity: 0.7; }
+        .item:hover .item-del,
+        .item:hover .item-edit { opacity: 0.7; }
         .item-del:hover { color: #dc2626; opacity: 1; }
+        .item-edit:hover { color: var(--cosmic-purple); opacity: 1; }
 
         /* Pairings */
         .pairings {
@@ -402,7 +556,7 @@
             margin-bottom: 0.35rem;
             margin-top: 0.85rem;
         }
-        .modal input {
+        .modal input, .modal textarea {
             width: 100%;
             background: var(--card);
             border: 1px solid var(--border);
@@ -412,8 +566,21 @@
             font-size: 0.875rem;
             font-family: inherit;
             outline: none;
+            resize: vertical;
         }
-        .modal input:focus { border-color: var(--cosmic-purple); }
+        .modal input:focus, .modal textarea:focus { border-color: var(--cosmic-purple); }
+        .modal input:disabled { opacity: 0.55; cursor: not-allowed; }
+        .modal-toggle {
+            display: flex; gap: 0.5rem;
+            margin-top: 0.35rem;
+            font-size: 0.7rem;
+        }
+        .modal-toggle button {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; padding: 0.2rem 0; font-family: inherit;
+            font-size: 0.7rem; text-decoration: underline;
+        }
+        .modal-toggle button:hover { color: var(--cosmic-purple); }
         .modal-actions {
             display: flex; gap: 0.5rem;
             justify-content: flex-end;
@@ -447,6 +614,30 @@
 </head>
 <body>
     <div class="top-bar">
+        <button id="surprise-btn" class="top-btn" aria-label="Surprise me" title="Surprise me">
+            <i class="fa-solid fa-dice"></i>
+        </button>
+        <button id="sleep-btn" class="top-btn" aria-label="Sleep timer" title="Sleep timer">
+            <i class="fa-solid fa-moon"></i>
+            <span id="sleep-countdown" class="countdown-badge" style="display:none;"></span>
+            <div id="sleep-popover" class="sleep-popover">
+                <button data-sleep="5">5m</button>
+                <button data-sleep="15">15m</button>
+                <button data-sleep="30">30m</button>
+                <button data-sleep="60">60m</button>
+                <button data-sleep="0" class="cancel">Off</button>
+            </div>
+        </button>
+        <button id="settings-btn" class="top-btn" aria-label="Library menu" title="Library">
+            <i class="fa-solid fa-gear"></i>
+            <div id="settings-menu" class="menu">
+                <button data-action="export"><i class="fa-solid fa-download"></i> Export library</button>
+                <button data-action="import"><i class="fa-solid fa-upload"></i> Import library</button>
+                <button data-action="bulk-walk"><i class="fa-solid fa-person-walking"></i> Bulk add walks</button>
+                <button data-action="bulk-track"><i class="fa-solid fa-music"></i> Bulk add tracks</button>
+                <button data-action="copy-link"><i class="fa-solid fa-link"></i> Copy session link</button>
+            </div>
+        </button>
         <button id="view-toggle" class="top-btn" aria-label="Toggle cinema view">
             <i id="view-icon" class="fa-solid fa-expand"></i>
         </button>
@@ -454,11 +645,12 @@
             <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
     </div>
+    <input id="import-file" type="file" accept="application/json,.json" style="display:none;">
 
     <div class="wrap">
         <header class="slow-walking-header">
             <h1 class="slow-walking-title">
-                &#127747; Stroll
+                &#127747; Slow Walking
             </h1>
             <p class="stroll-sub">Alpha Build</p>
         </header>
@@ -516,12 +708,15 @@
             <div id="pair-list" class="pair-list"></div>
         </section>
 
+        <div id="moods" class="moods"></div>
+
         <div class="decks">
             <div class="deck">
                 <div class="deck-head">
                     <h2 class="deck-title"><i class="fa-solid fa-person-walking" style="margin-right:0.4rem;"></i>Walks</h2>
                     <button class="add-btn" data-add="walk"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
+                <input id="walk-search" class="deck-search" type="search" placeholder="Search walks…">
                 <div id="walk-filters" class="filter-row"></div>
                 <div id="walk-list" class="deck-list"></div>
             </div>
@@ -531,24 +726,35 @@
                     <h2 class="deck-title"><i class="fa-solid fa-music" style="margin-right:0.4rem;"></i>Music</h2>
                     <button class="add-btn" data-add="track"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
+                <input id="track-search" class="deck-search" type="search" placeholder="Search tracks…">
                 <div id="track-filters" class="filter-row"></div>
                 <div id="track-list" class="deck-list"></div>
             </div>
         </div>
     </div>
 
-    <div class="music-hidden"><div id="yt-music"></div></div>
+    <div id="music-mini" class="music-mini">
+        <div class="music-mini-tab" id="music-mini-tab">
+            <span><i class="fa-solid fa-music"></i> Music</span>
+            <i id="music-mini-chevron" class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div id="yt-music"></div>
+    </div>
 
     <div id="modal-bg" class="modal-bg">
         <div class="modal">
             <h3 id="modal-title">Add</h3>
-            <label for="modal-url">YouTube URL or video ID</label>
+            <label id="modal-url-label" for="modal-url">YouTube URL or video ID</label>
             <input id="modal-url" type="text" placeholder="https://www.youtube.com/watch?v=...">
-            <label for="modal-name">Name</label>
+            <textarea id="modal-url-bulk" rows="6" placeholder="Paste one YouTube URL per line…" style="display:none;"></textarea>
+            <div id="modal-toggle-row" class="modal-toggle">
+                <button id="modal-toggle-bulk" type="button">Bulk add (paste many)</button>
+            </div>
+            <label id="modal-name-label" for="modal-name">Name</label>
             <input id="modal-name" type="text" placeholder="e.g. Hongdae, rainy Sunday">
             <label for="modal-tags">Tags (comma-separated)</label>
             <input id="modal-tags" type="text" placeholder="hongdae, night, rain">
-            <p class="modal-hint">Tag walks by neighbourhood (<code>hongdae</code>, <code>gangnam</code>) and vibe (<code>night</code>, <code>rain</code>). Tag music by artist or mood so filters group naturally.</p>
+            <p id="modal-hint" class="modal-hint">Tag walks by neighbourhood (<code>hongdae</code>, <code>gangnam</code>) and vibe (<code>night</code>, <code>rain</code>). Tag music by artist or mood so filters group naturally.</p>
             <div class="modal-actions">
                 <button id="modal-cancel" class="btn-ghost">Cancel</button>
                 <button id="modal-save" class="btn-primary">Add</button>
@@ -557,6 +763,7 @@
     </div>
 
     <script src="theme.js"></script>
+    <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); }); }</script>
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="slow-walking.js"></script>
 </body>

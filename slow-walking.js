@@ -49,6 +49,7 @@ let pairs  = load(STORE.pairs, []);
 const DEFAULT_STATE = {
     walkId: null, trackId: null,
     walkFilter: 'all', trackFilter: 'all',
+    walkSearch: '', trackSearch: '',
     musicVol: 70, cityVol: 15,
     musicMode: 'shuffle', // shuffle | sequential | repeat-one
 };
@@ -87,8 +88,8 @@ window.onYouTubeIframeAPIReady = function () {
         },
     });
     musicPlayer = new YT.Player('yt-music', {
-        width: '200', height: '200',
-        playerVars: { autoplay: 0, controls: 0, playsinline: 1 },
+        width: '100%', height: '100%',
+        playerVars: { autoplay: 0, controls: 1, rel: 0, modestbranding: 1, playsinline: 1 },
         events: {
             onReady: () => {
                 playersReady.music = true;
@@ -109,10 +110,23 @@ function tryRestoreSelection() {
 
 function handlePlayerStateChange(e) {
     refreshPlayButton();
-    if (e.data === YT.PlayerState.PLAYING && e.target === musicPlayer) {
-        applyMusicMode();
+    if (e.data === YT.PlayerState.PLAYING) {
+        if (e.target === musicPlayer) applyMusicMode();
+        acquireWakeLock();
+        if (e.target === musicPlayer) startTitlePolling();
+        updateMediaSession();
+    }
+    if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+        if (!isAnythingPlaying()) {
+            releaseWakeLock();
+            stopTitlePolling();
+            restoreTabTitle();
+        }
     }
     if (e.data === YT.PlayerState.ENDED) {
+        const dur = (e.target.getDuration && e.target.getDuration()) || 0;
+        const ct  = (e.target.getCurrentTime && e.target.getCurrentTime()) || 0;
+        if (dur <= 0 || ct < dur - 1.5) return;
         if (e.target === musicPlayer) {
             const t = currentTrack();
             const isPlaylist = t && t.playlistId;
@@ -120,7 +134,6 @@ function handlePlayerStateChange(e) {
                 e.target.seekTo(0);
                 e.target.playVideo();
             }
-            // else YouTube handles looping/shuffle via setLoop/setShuffle
         } else {
             e.target.seekTo(0);
             e.target.playVideo();
@@ -128,8 +141,17 @@ function handlePlayerStateChange(e) {
     }
 }
 
+function isAnythingPlaying() {
+    const wp = walkPlayer  && playersReady.walk  && walkPlayer.getPlayerState  && walkPlayer.getPlayerState()  === YT.PlayerState.PLAYING;
+    const mp = musicPlayer && playersReady.music && musicPlayer.getPlayerState && musicPlayer.getPlayerState() === YT.PlayerState.PLAYING;
+    return wp || mp;
+}
+
 function currentTrack() {
     return tracks.find(t => t.id === state.trackId) || null;
+}
+function currentWalk() {
+    return walks.find(w => w.id === state.walkId) || null;
 }
 
 function applyMusicMode() {
@@ -150,6 +172,95 @@ function applyMusicMode() {
     } catch {}
 }
 
+/* ── Wake Lock ── */
+let wakeLock = null;
+async function acquireWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    if (wakeLock) return;
+    try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch {}
+}
+async function releaseWakeLock() {
+    try { if (wakeLock) await wakeLock.release(); } catch {}
+    wakeLock = null;
+}
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && isAnythingPlaying()) acquireWakeLock();
+});
+
+/* ── Media Session + tab title + current-track polling ── */
+const ORIGINAL_TITLE = 'Slow Walking';
+let titlePollId = null;
+let lastPolledTitle = '';
+
+function setupMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+        navigator.mediaSession.setActionHandler('play',  togglePlay);
+        navigator.mediaSession.setActionHandler('pause', togglePlay);
+        navigator.mediaSession.setActionHandler('nexttrack', skipTrack);
+    } catch {}
+}
+
+function updateMediaSession(forcedTitle) {
+    if (!('mediaSession' in navigator) || !window.MediaMetadata) return;
+    const t = currentTrack();
+    const w = currentWalk();
+    if (!t) return;
+    const title = forcedTitle || lastPolledTitle || t.name;
+    const artwork = t.videoId ? [{ src: thumbUrl(t.videoId), sizes: '320x180', type: 'image/jpeg' }] : [];
+    try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title,
+            artist: t.name,
+            album: w ? w.name : 'Slow Walking',
+            artwork,
+        });
+    } catch {}
+}
+
+function startTitlePolling() {
+    stopTitlePolling();
+    pollMusicTitle();
+    titlePollId = setInterval(pollMusicTitle, 2500);
+}
+function stopTitlePolling() {
+    if (titlePollId) { clearInterval(titlePollId); titlePollId = null; }
+}
+function pollMusicTitle() {
+    if (!musicPlayer || !playersReady.music) return;
+    let data = null;
+    try { data = musicPlayer.getVideoData && musicPlayer.getVideoData(); } catch {}
+    if (!data || !data.title) return;
+    if (data.title === lastPolledTitle) return;
+    lastPolledTitle = data.title;
+    const t = currentTrack();
+    if (t && t.playlistId) updateNowTrackDisplay(data.title, true);
+    updateTabTitle(data.title);
+    updateMediaSession(data.title);
+}
+function updateNowTrackDisplay(title, isPlaylistTrack) {
+    const el = document.getElementById('now-track');
+    if (!el) return;
+    const t = currentTrack();
+    if (!t) return;
+    const icon = '<i class="fa-solid fa-music"></i>';
+    if (isPlaylistTrack) {
+        el.innerHTML = icon + escapeHtml(title) + ' <span style="opacity:0.55;">· ' + escapeHtml(t.name) + '</span>';
+    } else {
+        el.innerHTML = icon + escapeHtml(title);
+    }
+    el.classList.remove('now-empty');
+}
+function updateTabTitle(songName) {
+    document.title = songName ? ('♫ ' + songName + ' · ' + ORIGINAL_TITLE) : ORIGINAL_TITLE;
+}
+function restoreTabTitle() {
+    document.title = ORIGINAL_TITLE;
+}
+
 /* ── Selection ── */
 function selectWalk(id, autoplay = true) {
     const w = walks.find(x => x.id === id);
@@ -168,29 +279,47 @@ function selectWalk(id, autoplay = true) {
     renderList('walk');
     refreshPlayButton();
     refreshSaveButton();
+    encodeHash();
+    updateMediaSession();
 }
 
 function selectTrack(id, autoplay = true) {
     const t = tracks.find(x => x.id === id);
     if (!t) return;
+    const prevId = state.trackId;
     state.trackId = id;
     save(STORE.state, state);
-    if (musicPlayer && playersReady.music) {
+    lastPolledTitle = '';
+    const wasPlaying = musicPlayer && playersReady.music && musicPlayer.getPlayerState
+        && musicPlayer.getPlayerState() === YT.PlayerState.PLAYING && prevId && prevId !== id;
+
+    function loadIt() {
+        if (!musicPlayer || !playersReady.music) return;
         if (t.playlistId) {
             musicPlayer.loadPlaylist({ list: t.playlistId, listType: 'playlist', index: 0 });
             setTimeout(applyMusicMode, 800);
         } else {
             musicPlayer.loadVideoById({ videoId: t.videoId });
         }
-        musicPlayer.setVolume(state.musicVol);
         if (!autoplay) musicPlayer.pauseVideo();
+        setTimeout(() => fadeMusic(0, state.musicVol, 600), 250);
     }
+
+    if (wasPlaying) {
+        fadeMusic(state.musicVol, 0, 400, loadIt);
+    } else {
+        if (musicPlayer && playersReady.music) musicPlayer.setVolume(state.musicVol);
+        loadIt();
+    }
+
     document.getElementById('now-track').innerHTML = '<i class="fa-solid fa-music"></i>' + escapeHtml(t.name);
     document.getElementById('now-track').classList.remove('now-empty');
     renderList('track');
     refreshPlayButton();
     refreshSaveButton();
     updateMusicControls();
+    encodeHash();
+    updateMediaSession();
 }
 
 /* ── Playback ── */
@@ -277,10 +406,13 @@ function renderFilters(kind) {
 function renderList(kind) {
     const items = kind === 'walk' ? walks : tracks;
     const filterKey = kind === 'walk' ? 'walkFilter' : 'trackFilter';
+    const searchKey = kind === 'walk' ? 'walkSearch' : 'trackSearch';
     const filter = state[filterKey];
+    const search = (state[searchKey] || '').trim().toLowerCase();
     const activeId = kind === 'walk' ? state.walkId : state.trackId;
     const container = document.getElementById(kind === 'walk' ? 'walk-list' : 'track-list');
-    const filtered = filter === 'all' ? items : items.filter(i => (i.tags || []).includes(filter));
+    let filtered = filter === 'all' ? items : items.filter(i => (i.tags || []).includes(filter));
+    if (search) filtered = filtered.filter(i => (i.name || '').toLowerCase().includes(search));
     if (filtered.length === 0) {
         const sources = SOURCES[kind] || [];
         const links = sources.map(s =>
@@ -288,7 +420,7 @@ function renderList(kind) {
         ).join(' &middot; ');
         const hint = items.length === 0
             ? `Library empty. Browse ${links} &mdash; copy a video URL, then hit <strong>+ Add</strong>.`
-            : `No matches for this filter.`;
+            : (search ? `No matches for "${escapeHtml(search)}".` : `No matches for this filter.`);
         container.innerHTML = `<div style="color:var(--text-muted);font-size:0.8125rem;padding:0.65rem 0.5rem;line-height:1.5;">${hint}</div>`;
         return;
     }
@@ -299,12 +431,13 @@ function renderList(kind) {
                 <div class="item-name">${escapeHtml(item.name)}</div>
                 <div class="item-tags">${(item.tags || []).map(escapeHtml).join(' · ')}</div>
             </div>
+            <button class="item-edit" data-edit="${escapeHtml(item.id)}" aria-label="Edit"><i class="fa-solid fa-pen"></i></button>
             <button class="item-del" data-del="${escapeHtml(item.id)}" aria-label="Delete"><i class="fa-solid fa-xmark"></i></button>
         </div>
     `).join('');
     container.querySelectorAll('.item').forEach(el => {
         el.addEventListener('click', e => {
-            if (e.target.closest('[data-del]')) return;
+            if (e.target.closest('[data-del]') || e.target.closest('[data-edit]')) return;
             kind === 'walk' ? selectWalk(el.dataset.id) : selectTrack(el.dataset.id);
         });
     });
@@ -313,6 +446,28 @@ function renderList(kind) {
             e.stopPropagation();
             removeItem(kind, b.dataset.del);
         });
+    });
+    container.querySelectorAll('[data-edit]').forEach(b => {
+        b.addEventListener('click', e => {
+            e.stopPropagation();
+            openEditModal(kind, b.dataset.edit);
+        });
+    });
+}
+
+function bindSearch(inputId, kind) {
+    const el = document.getElementById(inputId);
+    if (!el) return;
+    const key = kind === 'walk' ? 'walkSearch' : 'trackSearch';
+    el.value = state[key] || '';
+    let debounce;
+    el.addEventListener('input', () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            state[key] = el.value;
+            save(STORE.state, state);
+            renderList(kind);
+        }, 120);
     });
 }
 
@@ -330,20 +485,107 @@ function removeItem(kind, id) {
     renderFilters(kind); renderList(kind); renderPairs();
 }
 
-/* ── Add modal ── */
-let addKind = null;
+/* ── Add / Edit / Bulk modal ── */
+let modalMode = null;     // 'add' | 'edit' | 'bulk'
+let modalKind = null;     // 'walk' | 'track'
+let editId = null;
+
+function setModalUiMode(mode) {
+    const single = document.getElementById('modal-url');
+    const bulk   = document.getElementById('modal-url-bulk');
+    const nameLabel = document.getElementById('modal-name-label');
+    const nameInput = document.getElementById('modal-name');
+    const toggleRow = document.getElementById('modal-toggle-row');
+    const toggleBtn = document.getElementById('modal-toggle-bulk');
+    const urlLabel  = document.getElementById('modal-url-label');
+    if (mode === 'bulk') {
+        single.style.display = 'none';
+        bulk.style.display = '';
+        nameLabel.style.display = 'none';
+        nameInput.style.display = 'none';
+        urlLabel.textContent = 'Paste YouTube URLs';
+        toggleBtn.textContent = 'Single add';
+    } else {
+        single.style.display = '';
+        bulk.style.display = 'none';
+        nameLabel.style.display = '';
+        nameInput.style.display = '';
+        urlLabel.textContent = 'YouTube URL or video ID';
+        toggleBtn.textContent = 'Bulk add (paste many)';
+    }
+    if (mode === 'edit') {
+        toggleRow.style.display = 'none';
+    } else {
+        toggleRow.style.display = '';
+    }
+}
+
 function openAddModal(kind) {
-    addKind = kind;
+    modalMode = 'add';
+    modalKind = kind;
+    editId = null;
     document.getElementById('modal-title').textContent = kind === 'walk' ? 'Add a walk' : 'Add a track';
     document.getElementById('modal-url').value = '';
+    document.getElementById('modal-url').disabled = false;
+    document.getElementById('modal-url-bulk').value = '';
     document.getElementById('modal-name').value = '';
     document.getElementById('modal-tags').value = kind === 'walk' ? 'seoul' : 'joji';
+    document.getElementById('modal-save').textContent = 'Add';
+    setModalUiMode('add');
     document.getElementById('modal-bg').classList.add('show');
     setTimeout(() => document.getElementById('modal-url').focus(), 50);
 }
+function openEditModal(kind, id) {
+    const list = kind === 'walk' ? walks : tracks;
+    const item = list.find(x => x.id === id);
+    if (!item) return;
+    modalMode = 'edit';
+    modalKind = kind;
+    editId = id;
+    document.getElementById('modal-title').textContent = kind === 'walk' ? 'Edit walk' : 'Edit track';
+    const urlField = document.getElementById('modal-url');
+    urlField.value = item.playlistId
+        ? `https://www.youtube.com/playlist?list=${item.playlistId}`
+        : (item.videoId ? `https://www.youtube.com/watch?v=${item.videoId}` : '');
+    urlField.disabled = true;
+    document.getElementById('modal-name').value = item.name;
+    document.getElementById('modal-tags').value = (item.tags || []).join(', ');
+    document.getElementById('modal-save').textContent = 'Save';
+    setModalUiMode('edit');
+    document.getElementById('modal-bg').classList.add('show');
+    setTimeout(() => document.getElementById('modal-name').focus(), 50);
+}
+function openBulkModal(kind) {
+    modalMode = 'bulk';
+    modalKind = kind;
+    editId = null;
+    document.getElementById('modal-title').textContent = kind === 'walk' ? 'Bulk add walks' : 'Bulk add tracks';
+    document.getElementById('modal-url-bulk').value = '';
+    document.getElementById('modal-tags').value = kind === 'walk' ? 'seoul' : '';
+    document.getElementById('modal-save').textContent = 'Add all';
+    setModalUiMode('bulk');
+    document.getElementById('modal-bg').classList.add('show');
+    setTimeout(() => document.getElementById('modal-url-bulk').focus(), 50);
+}
 function closeAddModal() {
     document.getElementById('modal-bg').classList.remove('show');
-    addKind = null;
+    document.getElementById('modal-url').disabled = false;
+    modalMode = null; modalKind = null; editId = null;
+}
+function setupModalToggle() {
+    const btn = document.getElementById('modal-toggle-bulk');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        if (!modalKind) return;
+        if (modalMode === 'bulk') openAddModal(modalKind);
+        else openBulkModal(modalKind);
+    });
+}
+
+function commitModal() {
+    if (modalMode === 'edit') return commitEdit();
+    if (modalMode === 'bulk') return commitBulk();
+    return commitAdd();
 }
 function commitAdd() {
     const url  = document.getElementById('modal-url').value;
@@ -352,25 +594,75 @@ function commitAdd() {
     const ref = parseYouTubeRef(url);
     if (!ref) { alert('Could not parse a YouTube video or playlist ID from that URL.'); return; }
     if (!name) { alert('Please give it a name.'); return; }
-    if (addKind === 'walk' && !ref.videoId) { alert('Walks need a video URL (not just a playlist).'); return; }
+    if (modalKind === 'walk' && !ref.videoId) { alert('Walks need a video URL (not just a playlist).'); return; }
     const item = {
-        id: `${addKind === 'walk' ? 'w' : 't'}_${Date.now()}`,
+        id: `${modalKind === 'walk' ? 'w' : 't'}_${Date.now()}`,
         name,
         videoId: ref.videoId,
         tags,
     };
-    if (addKind === 'track' && ref.playlistId) {
+    if (modalKind === 'track' && ref.playlistId) {
         item.playlistId = ref.playlistId;
         if (!item.tags.includes('playlist')) item.tags.push('playlist');
     }
-    if (addKind === 'walk') {
+    if (modalKind === 'walk') {
         walks.push(item); save(STORE.walks, walks);
         renderFilters('walk'); renderList('walk');
     } else {
         tracks.push(item); save(STORE.tracks, tracks);
         renderFilters('track'); renderList('track');
     }
+    renderMoods();
     closeAddModal();
+}
+function commitEdit() {
+    if (!editId || !modalKind) return;
+    const list = modalKind === 'walk' ? walks : tracks;
+    const item = list.find(x => x.id === editId);
+    if (!item) { closeAddModal(); return; }
+    const name = document.getElementById('modal-name').value.trim();
+    const tags = document.getElementById('modal-tags').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    if (!name) { alert('Please give it a name.'); return; }
+    item.name = name;
+    item.tags = tags;
+    save(modalKind === 'walk' ? STORE.walks : STORE.tracks, list);
+    if (modalKind === 'walk' && state.walkId === editId) {
+        document.getElementById('now-walk').textContent = name;
+    }
+    if (modalKind === 'track' && state.trackId === editId) {
+        document.getElementById('now-track').innerHTML = '<i class="fa-solid fa-music"></i>' + escapeHtml(name);
+    }
+    renderFilters(modalKind); renderList(modalKind); renderPairs(); renderMoods();
+    closeAddModal();
+}
+function commitBulk() {
+    const text = document.getElementById('modal-url-bulk').value;
+    const tags = document.getElementById('modal-tags').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    const lines = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (lines.length === 0) { alert('Paste at least one URL.'); return; }
+    let added = 0, skipped = 0;
+    for (const line of lines) {
+        const ref = parseYouTubeRef(line);
+        if (!ref) { skipped++; continue; }
+        if (modalKind === 'walk' && !ref.videoId) { skipped++; continue; }
+        const baseName = (modalKind === 'walk' ? 'Walk ' : 'Track ') + (ref.videoId || ref.playlistId).slice(0, 6);
+        const item = {
+            id: `${modalKind === 'walk' ? 'w' : 't'}_${Date.now()}_${added}`,
+            name: baseName,
+            videoId: ref.videoId,
+            tags: tags.slice(),
+        };
+        if (modalKind === 'track' && ref.playlistId) {
+            item.playlistId = ref.playlistId;
+            if (!item.tags.includes('playlist')) item.tags.push('playlist');
+        }
+        if (modalKind === 'walk') walks.push(item); else tracks.push(item);
+        added++;
+    }
+    save(STORE.walks, walks); save(STORE.tracks, tracks);
+    renderFilters(modalKind); renderList(modalKind); renderMoods();
+    closeAddModal();
+    if (skipped) alert(`Added ${added}, skipped ${skipped} (couldn't parse).`);
 }
 
 /* ── Pairings ── */
@@ -472,6 +764,264 @@ function skipTrack() {
     }
 }
 
+/* ── Mini-player ── */
+function setupMiniPlayer() {
+    const tab = document.getElementById('music-mini-tab');
+    const mini = document.getElementById('music-mini');
+    const chev = document.getElementById('music-mini-chevron');
+    if (!tab || !mini) return;
+    tab.addEventListener('click', () => {
+        const collapsed = mini.classList.toggle('collapsed');
+        if (chev) chev.className = collapsed ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+    });
+}
+
+/* ── Surprise me ── */
+function doSurprise() {
+    const wPool = state.walkFilter === 'all' ? walks : walks.filter(w => (w.tags || []).includes(state.walkFilter));
+    const tPool = state.trackFilter === 'all' ? tracks : tracks.filter(t => (t.tags || []).includes(state.trackFilter));
+    if (wPool.length === 0 && tPool.length === 0) return;
+    if (wPool.length) selectWalk(wPool[Math.floor(Math.random() * wPool.length)].id);
+    if (tPool.length) selectTrack(tPool[Math.floor(Math.random() * tPool.length)].id);
+}
+
+/* ── Mood presets ── */
+const MOODS = [
+    { name: 'Late night',   icon: 'fa-moon',          walkTag: 'night',    trackTag: 'all' },
+    { name: 'City lights',  icon: 'fa-city',          walkTag: 'seoul',    trackTag: 'playlist' },
+    { name: 'Rainy stroll', icon: 'fa-cloud-rain',    walkTag: 'rain',     trackTag: 'all' },
+    { name: 'Reset',        icon: 'fa-rotate-left',   walkTag: 'all',      trackTag: 'all' },
+];
+function moodApplicable(m) {
+    if (m.walkTag === 'all' && m.trackTag === 'all') return true;
+    const walkTags  = new Set(); walks.forEach(w => (w.tags || []).forEach(t => walkTags.add(t)));
+    const trackTags = new Set(); tracks.forEach(t => (t.tags || []).forEach(t => trackTags.add(t)));
+    if (m.walkTag !== 'all'  && !walkTags.has(m.walkTag)) return false;
+    if (m.trackTag !== 'all' && !trackTags.has(m.trackTag)) return false;
+    return true;
+}
+function renderMoods() {
+    const wrap = document.getElementById('moods');
+    if (!wrap) return;
+    const usable = MOODS.filter(moodApplicable);
+    if (usable.length <= 1) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML = '<span class="moods-label">Moods</span>' + usable.map((m, i) =>
+        `<button class="mood-pill" data-mood="${i}"><i class="fa-solid ${m.icon}"></i>${escapeHtml(m.name)}</button>`
+    ).join('');
+    wrap.querySelectorAll('[data-mood]').forEach(b => {
+        b.addEventListener('click', () => {
+            const m = usable[parseInt(b.dataset.mood, 10)];
+            if (!m) return;
+            state.walkFilter  = m.walkTag;
+            state.trackFilter = m.trackTag;
+            save(STORE.state, state);
+            renderFilters('walk'); renderList('walk');
+            renderFilters('track'); renderList('track');
+        });
+    });
+}
+
+/* ── Sleep timer ── */
+let sleepTimerId = null;
+let sleepEndAt = 0;
+let sleepTickId = null;
+function setSleepTimer(minutes) {
+    cancelSleepTimer();
+    if (!minutes) return;
+    sleepEndAt = Date.now() + minutes * 60 * 1000;
+    sleepTimerId = setTimeout(() => {
+        if (walkPlayer)  try { walkPlayer.pauseVideo(); } catch {}
+        if (musicPlayer) try { musicPlayer.pauseVideo(); } catch {}
+        cancelSleepTimer();
+    }, minutes * 60 * 1000);
+    document.getElementById('sleep-btn').classList.add('sleep-active');
+    sleepTickId = setInterval(updateSleepBadge, 1000);
+    updateSleepBadge();
+}
+function cancelSleepTimer() {
+    if (sleepTimerId) { clearTimeout(sleepTimerId); sleepTimerId = null; }
+    if (sleepTickId)  { clearInterval(sleepTickId);  sleepTickId  = null; }
+    sleepEndAt = 0;
+    const btn = document.getElementById('sleep-btn');
+    if (btn) btn.classList.remove('sleep-active');
+    const badge = document.getElementById('sleep-countdown');
+    if (badge) badge.style.display = 'none';
+}
+function updateSleepBadge() {
+    const badge = document.getElementById('sleep-countdown');
+    if (!badge) return;
+    const remaining = Math.max(0, sleepEndAt - Date.now());
+    if (remaining <= 0) { badge.style.display = 'none'; return; }
+    const mins = Math.ceil(remaining / 60000);
+    badge.textContent = mins + 'm';
+    badge.style.display = '';
+}
+
+/* ── Crossfade ── */
+function fadeMusic(from, to, ms, after) {
+    if (!musicPlayer || !playersReady.music) { if (after) after(); return; }
+    const start = performance.now();
+    function tick(now) {
+        const p = Math.min(1, (now - start) / ms);
+        const v = Math.round(from + (to - from) * p);
+        try { musicPlayer.setVolume(v); } catch {}
+        if (p < 1) requestAnimationFrame(tick);
+        else if (after) after();
+    }
+    requestAnimationFrame(tick);
+}
+
+/* ── URL-hash sharing ── */
+function encodeHash() {
+    if (!state.walkId && !state.trackId) return;
+    const parts = [];
+    if (state.walkId)  parts.push('w=' + encodeURIComponent(state.walkId));
+    if (state.trackId) parts.push('t=' + encodeURIComponent(state.trackId));
+    parts.push('mv=' + state.musicVol);
+    parts.push('cv=' + state.cityVol);
+    parts.push('mode=' + state.musicMode);
+    const next = '#' + parts.join('&');
+    if (location.hash !== next) {
+        try { history.replaceState(null, '', next); } catch { location.hash = next; }
+    }
+}
+function restoreFromHash() {
+    if (!location.hash) return;
+    const params = new URLSearchParams(location.hash.slice(1));
+    const w = params.get('w'), t = params.get('t');
+    const mv = parseInt(params.get('mv'), 10), cv = parseInt(params.get('cv'), 10);
+    const mode = params.get('mode');
+    if (Number.isFinite(mv)) {
+        state.musicVol = mv;
+        const slider = document.getElementById('music-vol'); const val = document.getElementById('music-vol-val');
+        if (slider) slider.value = mv; if (val) val.textContent = mv;
+    }
+    if (Number.isFinite(cv)) {
+        state.cityVol = cv;
+        const slider = document.getElementById('city-vol'); const val = document.getElementById('city-vol-val');
+        if (slider) slider.value = cv; if (val) val.textContent = cv;
+    }
+    if (mode && MODE_ORDER.includes(mode)) state.musicMode = mode;
+    save(STORE.state, state);
+    if (w && walks.find(x => x.id === w))  state.walkId  = w;
+    if (t && tracks.find(x => x.id === t)) state.trackId = t;
+    save(STORE.state, state);
+    updateMusicControls();
+    if (playersReady.walk && playersReady.music) tryRestoreSelection();
+}
+function copySessionLink() {
+    encodeHash();
+    const link = location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(() => {
+            flashMessage('Link copied');
+        }).catch(() => prompt('Copy this link:', link));
+    } else {
+        prompt('Copy this link:', link);
+    }
+}
+function flashMessage(text) {
+    let el = document.getElementById('flash-msg');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'flash-msg';
+        el.style.cssText = 'position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:var(--text-main);color:var(--bg);padding:0.5rem 1rem;border-radius:999px;font-size:0.78rem;z-index:1500;opacity:0;transition:opacity 0.2s;';
+        document.body.appendChild(el);
+    }
+    el.textContent = text;
+    el.style.opacity = '1';
+    clearTimeout(flashMessage._t);
+    flashMessage._t = setTimeout(() => { el.style.opacity = '0'; }, 1600);
+}
+
+/* ── Export / Import ── */
+function exportLibrary() {
+    const payload = { version: 1, exportedAt: new Date().toISOString(), walks, tracks, pairs };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `slow-walking-library-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 0);
+}
+function importLibraryFromFile(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+        try {
+            const data = JSON.parse(reader.result);
+            if (!data || (!Array.isArray(data.walks) && !Array.isArray(data.tracks))) throw new Error('bad format');
+            const existingW = new Set(walks.map(w => w.id));
+            const existingT = new Set(tracks.map(t => t.id));
+            const existingP = new Set(pairs.map(p => p.id));
+            (data.walks  || []).forEach(w => { if (w && w.id && w.videoId && !existingW.has(w.id)) walks.push(w); });
+            (data.tracks || []).forEach(t => { if (t && t.id && (t.videoId || t.playlistId) && !existingT.has(t.id)) tracks.push(t); });
+            (data.pairs  || []).forEach(p => { if (p && p.id && !existingP.has(p.id)) pairs.push(p); });
+            save(STORE.walks, walks); save(STORE.tracks, tracks); save(STORE.pairs, pairs);
+            renderFilters('walk');  renderList('walk');
+            renderFilters('track'); renderList('track');
+            renderPairs(); renderMoods();
+            flashMessage('Library imported');
+        } catch (e) {
+            alert('Import failed: ' + e.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+/* ── Top-bar wiring ── */
+function setupTopBar() {
+    document.getElementById('surprise-btn').addEventListener('click', doSurprise);
+
+    const sleepBtn = document.getElementById('sleep-btn');
+    const sleepPop = document.getElementById('sleep-popover');
+    sleepBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        sleepPop.classList.toggle('show');
+        document.getElementById('settings-menu').classList.remove('show');
+    });
+    sleepPop.querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', e => {
+            e.stopPropagation();
+            const mins = parseInt(b.dataset.sleep, 10);
+            if (mins > 0) setSleepTimer(mins);
+            else cancelSleepTimer();
+            sleepPop.classList.remove('show');
+        });
+    });
+
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsMenu = document.getElementById('settings-menu');
+    settingsBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        settingsMenu.classList.toggle('show');
+        sleepPop.classList.remove('show');
+    });
+    settingsMenu.querySelectorAll('[data-action]').forEach(b => {
+        b.addEventListener('click', e => {
+            e.stopPropagation();
+            const action = b.dataset.action;
+            settingsMenu.classList.remove('show');
+            if (action === 'export') exportLibrary();
+            else if (action === 'import') document.getElementById('import-file').click();
+            else if (action === 'bulk-walk')  openBulkModal('walk');
+            else if (action === 'bulk-track') openBulkModal('track');
+            else if (action === 'copy-link') copySessionLink();
+        });
+    });
+
+    document.getElementById('import-file').addEventListener('change', e => {
+        const file = e.target.files && e.target.files[0];
+        if (file) importLibraryFromFile(file);
+        e.target.value = '';
+    });
+
+    document.addEventListener('click', () => {
+        sleepPop.classList.remove('show');
+        settingsMenu.classList.remove('show');
+    });
+}
+
 /* ── Wire it up ── */
 document.addEventListener('DOMContentLoaded', () => {
     const savedView = localStorage.getItem('slow-walking.view');
@@ -493,7 +1043,7 @@ document.addEventListener('DOMContentLoaded', () => {
         b.addEventListener('click', () => openAddModal(b.dataset.add));
     });
     document.getElementById('modal-cancel').addEventListener('click', closeAddModal);
-    document.getElementById('modal-save').addEventListener('click', commitAdd);
+    document.getElementById('modal-save').addEventListener('click', commitModal);
     document.getElementById('modal-bg').addEventListener('click', e => {
         if (e.target.id === 'modal-bg') closeAddModal();
     });
@@ -505,5 +1055,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFilters('walk'); renderList('walk');
     renderFilters('track'); renderList('track');
     renderPairs();
+    renderMoods();
     updateMusicControls();
+    setupMediaSession();
+    setupMiniPlayer();
+    setupTopBar();
+    setupModalToggle();
+    bindSearch('walk-search', 'walk');
+    bindSearch('track-search', 'track');
+    restoreFromHash();
 });
