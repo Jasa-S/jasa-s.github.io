@@ -781,16 +781,21 @@ function skipTrack() {
     }
 }
 
-/* ── Mini-player ── */
+/* ── Mini-player (video is hidden by default; toggle shows it for ads) ── */
 function setupMiniPlayer() {
     const tab = document.getElementById('music-mini-tab');
     const mini = document.getElementById('music-mini');
-    const chev = document.getElementById('music-mini-chevron');
-    if (!tab || !mini) return;
-    tab.addEventListener('click', () => {
-        const collapsed = mini.classList.toggle('collapsed');
-        if (chev) chev.className = collapsed ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
-    });
+    const videoBtn = document.getElementById('video-btn');
+    if (!mini) return;
+    const setVisible = (visible) => {
+        mini.classList.toggle('show-video', visible);
+        if (videoBtn) {
+            videoBtn.querySelector('i').className = visible ? 'fa-solid fa-eye-slash' : 'fa-regular fa-eye';
+            videoBtn.title = visible ? 'Hide music video' : 'Show video (e.g. to skip an ad)';
+        }
+    };
+    if (videoBtn) videoBtn.addEventListener('click', () => setVisible(!mini.classList.contains('show-video')));
+    if (tab) tab.addEventListener('click', () => setVisible(false));
 }
 
 /* ── Channel-as-deck ── */
