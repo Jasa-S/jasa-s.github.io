@@ -448,7 +448,7 @@
             transition: background 0.15s;
             border: 1px solid transparent;
         }
-        .item:hover { background: var(--card-hover); }
+        @media (hover: hover) and (pointer: fine) { .item:hover { background: var(--card-hover); } }
         .item.active {
             background: var(--card-hover);
             border-color: var(--cosmic-purple);
@@ -484,10 +484,16 @@
             opacity: 0; transition: opacity 0.15s, color 0.15s;
             padding: 0.25rem;
         }
-        .item:hover .item-del,
-        .item:hover .item-edit { opacity: 0.7; }
-        .item-del:hover { color: #dc2626; opacity: 1; }
-        .item-edit:hover { color: var(--cosmic-purple); opacity: 1; }
+        @media (hover: hover) and (pointer: fine) {
+            .item:hover .item-del,
+            .item:hover .item-edit { opacity: 0.7; }
+            .item-del:hover { color: #dc2626; opacity: 1; }
+            .item-edit:hover { color: var(--cosmic-purple); opacity: 1; }
+        }
+        /* On touch: always show edit/delete so they're reachable without hover */
+        @media (hover: none) {
+            .item-del, .item-edit { opacity: 0.5; }
+        }
 
         /* Pairings */
         .pairings {
@@ -511,7 +517,12 @@
             transition: border-color 0.2s, transform 0.2s;
             position: relative;
         }
-        .pair-card:hover { border-color: var(--cosmic-purple); transform: translateY(-2px); }
+        @media (hover: hover) and (pointer: fine) {
+            .pair-card:hover { border-color: var(--cosmic-purple); transform: translateY(-2px); }
+            .pair-card:hover .pair-del { opacity: 0.6; }
+            .pair-del:hover { color: #dc2626; opacity: 1; }
+        }
+        @media (hover: none) { .pair-del { opacity: 0.5; } }
         .pair-name { font-size: 0.8rem; font-weight: 600; }
         .pair-detail {
             font-size: 0.7rem; color: var(--text-muted);
@@ -524,8 +535,6 @@
             cursor: pointer; opacity: 0; transition: opacity 0.15s;
             font-size: 0.7rem; padding: 0.2rem;
         }
-        .pair-card:hover .pair-del { opacity: 0.6; }
-        .pair-del:hover { color: #dc2626; opacity: 1; }
         .pair-empty {
             font-size: 0.8125rem;
             color: var(--text-muted);
@@ -626,7 +635,7 @@
         </button>
         <div class="top-btn-wrap">
             <button id="sleep-btn" class="top-btn" aria-label="Sleep timer" title="Sleep timer">
-                <i class="fa-solid fa-moon"></i>
+                <i class="fa-solid fa-hourglass-half"></i>
                 <span id="sleep-countdown" class="countdown-badge" style="display:none;"></span>
             </button>
             <div id="sleep-popover" class="sleep-popover">
