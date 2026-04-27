@@ -39,7 +39,8 @@
             align-items: center;
             z-index: 500;
         }
-        .top-bar .top-btn { padding: 0.35rem; min-width: unset; position: relative; }
+        .top-bar .top-btn { padding: 0.35rem; min-width: unset; position: relative; background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; }
+        .top-btn-wrap { position: relative; display: inline-flex; }
         @media (hover: hover) and (pointer: fine) {
             #view-toggle:hover, #surprise-btn:hover, #sleep-btn:hover, #settings-btn:hover { color: var(--cosmic-purple); }
             #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
@@ -194,7 +195,9 @@
             box-shadow: 0 6px 18px rgba(0,0,0,0.35);
             z-index: 400;
             transition: opacity 0.2s, transform 0.2s;
+            display: none;
         }
+        .music-mini.has-track { display: block; }
         .music-mini.collapsed { transform: translateY(calc(100% - 1.5rem)); opacity: 0.55; }
         .music-mini:hover { opacity: 1; }
         .music-mini-tab {
@@ -617,9 +620,11 @@
         <button id="surprise-btn" class="top-btn" aria-label="Surprise me" title="Surprise me">
             <i class="fa-solid fa-dice"></i>
         </button>
-        <button id="sleep-btn" class="top-btn" aria-label="Sleep timer" title="Sleep timer">
-            <i class="fa-solid fa-moon"></i>
-            <span id="sleep-countdown" class="countdown-badge" style="display:none;"></span>
+        <div class="top-btn-wrap">
+            <button id="sleep-btn" class="top-btn" aria-label="Sleep timer" title="Sleep timer">
+                <i class="fa-solid fa-moon"></i>
+                <span id="sleep-countdown" class="countdown-badge" style="display:none;"></span>
+            </button>
             <div id="sleep-popover" class="sleep-popover">
                 <button data-sleep="5">5m</button>
                 <button data-sleep="15">15m</button>
@@ -627,9 +632,11 @@
                 <button data-sleep="60">60m</button>
                 <button data-sleep="0" class="cancel">Off</button>
             </div>
-        </button>
-        <button id="settings-btn" class="top-btn" aria-label="Library menu" title="Library">
-            <i class="fa-solid fa-gear"></i>
+        </div>
+        <div class="top-btn-wrap">
+            <button id="settings-btn" class="top-btn" aria-label="Library menu" title="Library">
+                <i class="fa-solid fa-gear"></i>
+            </button>
             <div id="settings-menu" class="menu">
                 <button data-action="export"><i class="fa-solid fa-download"></i> Export library</button>
                 <button data-action="import"><i class="fa-solid fa-upload"></i> Import library</button>
@@ -637,7 +644,7 @@
                 <button data-action="bulk-track"><i class="fa-solid fa-music"></i> Bulk add tracks</button>
                 <button data-action="copy-link"><i class="fa-solid fa-link"></i> Copy session link</button>
             </div>
-        </button>
+        </div>
         <button id="view-toggle" class="top-btn" aria-label="Toggle cinema view">
             <i id="view-icon" class="fa-solid fa-expand"></i>
         </button>

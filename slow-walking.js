@@ -314,6 +314,8 @@ function selectTrack(id, autoplay = true) {
 
     document.getElementById('now-track').innerHTML = '<i class="fa-solid fa-music"></i>' + escapeHtml(t.name);
     document.getElementById('now-track').classList.remove('now-empty');
+    const mini = document.getElementById('music-mini');
+    if (mini) mini.classList.add('has-track');
     renderList('track');
     refreshPlayButton();
     refreshSaveButton();
