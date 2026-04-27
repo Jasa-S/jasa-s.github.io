@@ -5,6 +5,9 @@ const STORE = {
     tracks: 'slow-walking.tracks',
     pairs: 'slow-walking.pairs',
     state: 'slow-walking.state',
+    apiKey: 'slow-walking.apiKey',
+    walkChannels: 'slow-walking.walkChannels',
+    trackChannels: 'slow-walking.trackChannels',
 };
 
 const SOURCES = {
@@ -46,6 +49,8 @@ function save(key, value) {
 let walks  = load(STORE.walks, SEED_WALKS);
 let tracks = load(STORE.tracks, SEED_TRACKS);
 let pairs  = load(STORE.pairs, []);
+let walkChannels  = load(STORE.walkChannels, []);
+let trackChannels = load(STORE.trackChannels, []);
 const DEFAULT_STATE = {
     walkId: null, trackId: null,
     walkFilter: 'all', trackFilter: 'all',
@@ -59,14 +64,21 @@ let state  = Object.assign({}, DEFAULT_STATE, load(STORE.state, {}));
 function parseYouTubeRef(input) {
     if (!input) return null;
     const trimmed = input.trim();
-    if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return { videoId: trimmed, playlistId: null };
-    let videoId = null, playlistId = null;
+    if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return { videoId: trimmed, playlistId: null, channel: null };
+    let videoId = null, playlistId = null, channel = null;
     const v = trimmed.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
     if (v) videoId = v[1];
     const l = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
     if (l) playlistId = l[1];
-    if (!videoId && !playlistId) return null;
-    return { videoId, playlistId };
+    const handle = trimmed.match(/youtube\.com\/@([a-zA-Z0-9._-]+)/);
+    const cid    = trimmed.match(/youtube\.com\/channel\/(UC[a-zA-Z0-9_-]+)/);
+    const cust   = trimmed.match(/youtube\.com\/c\/([a-zA-Z0-9._-]+)/);
+    if (handle) channel = { handle: handle[1] };
+    else if (cid)  channel = { id: cid[1] };
+    else if (cust) channel = { handle: cust[1] };
+    else if (/^@[a-zA-Z0-9._-]+$/.test(trimmed)) channel = { handle: trimmed.slice(1) };
+    if (!videoId && !playlistId && !channel) return null;
+    return { videoId, playlistId, channel };
 }
 
 /* ── YouTube IFrame players ── */
@@ -535,7 +547,10 @@ function openAddModal(kind) {
     document.getElementById('modal-save').textContent = 'Add';
     setModalUiMode('add');
     document.getElementById('modal-bg').classList.add('show');
-    setTimeout(() => document.getElementById('modal-url').focus(), 50);
+    setTimeout(() => {
+        document.getElementById('modal-url').focus();
+        trySmartPasteIntoModal();
+    }, 50);
 }
 function openEditModal(kind, id) {
     const list = kind === 'walk' ? walks : tracks;
@@ -778,6 +793,638 @@ function setupMiniPlayer() {
     });
 }
 
+/* ── Channel-as-deck ── */
+let browseMode = { walk: null, track: null }; // { channelId, name, uploadsPlaylistId, items, nextPageToken }
+
+function renderChannelChips() {
+    ['walk', 'track'].forEach(kind => {
+        const container = document.getElementById(kind === 'walk' ? 'walk-channels' : 'track-channels');
+        if (!container) return;
+        const list = kind === 'walk' ? walkChannels : trackChannels;
+        if (list.length === 0) { container.innerHTML = ''; return; }
+        const active = browseMode[kind] && browseMode[kind].channelId;
+        container.innerHTML = list.map(c => `
+            <button class="channel-chip ${c.channelId === active ? 'active' : ''}" data-cid="${escapeHtml(c.channelId)}">
+                <i class="fa-solid fa-tower-broadcast"></i>${escapeHtml(c.name)}
+            </button>
+        `).join('');
+        container.querySelectorAll('.channel-chip').forEach(b => {
+            b.addEventListener('click', () => enterBrowseMode(kind, b.dataset.cid));
+        });
+    });
+}
+
+async function enterBrowseMode(kind, channelId) {
+    if (browseMode[kind] && browseMode[kind].channelId === channelId) {
+        exitBrowseMode(kind);
+        return;
+    }
+    if (!getApiKey()) {
+        const proceed = confirm('Browsing channel uploads needs a YouTube API key. Set one now?');
+        if (proceed) promptApiKey();
+        return;
+    }
+    const list = kind === 'walk' ? walkChannels : trackChannels;
+    const ch = list.find(c => c.channelId === channelId);
+    if (!ch) return;
+    browseMode[kind] = { channelId, name: ch.name, uploadsPlaylistId: ch.uploadsPlaylistId, items: [], nextPageToken: null };
+    const banner = document.getElementById(kind === 'walk' ? 'walk-banner' : 'track-banner');
+    banner.style.display = '';
+    banner.innerHTML = `Browsing <strong>${escapeHtml(ch.name)}</strong> <button data-exit="${kind}">Back to library</button>`;
+    banner.querySelector('[data-exit]').addEventListener('click', () => exitBrowseMode(kind));
+    const listEl = document.getElementById(kind === 'walk' ? 'walk-list' : 'track-list');
+    listEl.innerHTML = `<div style="color:var(--text-muted);font-size:0.8125rem;padding:0.65rem 0.5rem;">Loading uploads&hellip;</div>`;
+    document.getElementById(kind === 'walk' ? 'walk-filters' : 'track-filters').style.display = 'none';
+    renderChannelChips();
+    try {
+        const { items, nextPageToken } = await ytChannelUploads(ch.uploadsPlaylistId);
+        browseMode[kind].items = items;
+        browseMode[kind].nextPageToken = nextPageToken;
+        renderBrowseList(kind);
+    } catch (e) {
+        listEl.innerHTML = `<div style="color:var(--text-muted);font-size:0.8125rem;padding:0.65rem 0.5rem;">${escapeHtml(e.message)}</div>`;
+    }
+}
+
+function exitBrowseMode(kind) {
+    browseMode[kind] = null;
+    document.getElementById(kind === 'walk' ? 'walk-banner' : 'track-banner').style.display = 'none';
+    document.getElementById(kind === 'walk' ? 'walk-filters' : 'track-filters').style.display = '';
+    renderChannelChips();
+    renderList(kind);
+}
+
+function renderBrowseList(kind) {
+    const bm = browseMode[kind];
+    if (!bm) return;
+    const listEl = document.getElementById(kind === 'walk' ? 'walk-list' : 'track-list');
+    if (bm.items.length === 0) {
+        listEl.innerHTML = `<div style="color:var(--text-muted);font-size:0.8125rem;padding:0.65rem 0.5rem;">No uploads found.</div>`;
+        return;
+    }
+    const cards = bm.items.map((it, idx) => {
+        const sn = it.snippet || {};
+        const vid = (sn.resourceId && sn.resourceId.videoId) || '';
+        const thumb = vid ? `https://i.ytimg.com/vi/${vid}/mqdefault.jpg` : '';
+        const alreadySaved = (kind === 'walk' ? walks : tracks).some(x => x.videoId === vid);
+        return `
+            <div class="item" data-browse-idx="${idx}">
+                <div class="item-thumb" style="background-image:url('${thumb}')"></div>
+                <div class="item-meta">
+                    <div class="item-name">${escapeHtml(sn.title || '')}</div>
+                    <div class="item-tags">${escapeHtml(bm.name)}</div>
+                </div>
+                <button class="item-edit" data-pin="${idx}" title="${alreadySaved ? 'Already saved' : 'Save to library'}" ${alreadySaved ? 'disabled' : ''}>
+                    <i class="fa-solid ${alreadySaved ? 'fa-check' : 'fa-thumbtack'}"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+    const more = bm.nextPageToken
+        ? `<div class="discover-loadmore"><button id="${kind}-more">Load more</button></div>` : '';
+    listEl.innerHTML = cards + more;
+    listEl.querySelectorAll('[data-browse-idx]').forEach(el => {
+        el.addEventListener('click', e => {
+            if (e.target.closest('[data-pin]')) return;
+            playBrowseItem(kind, parseInt(el.dataset.browseIdx, 10));
+        });
+    });
+    listEl.querySelectorAll('[data-pin]').forEach(b => {
+        b.addEventListener('click', e => {
+            e.stopPropagation();
+            pinBrowseItem(kind, parseInt(b.dataset.pin, 10));
+        });
+    });
+    const moreBtn = document.getElementById(kind + '-more');
+    if (moreBtn) moreBtn.addEventListener('click', () => loadMoreBrowse(kind));
+}
+
+async function loadMoreBrowse(kind) {
+    const bm = browseMode[kind];
+    if (!bm || !bm.nextPageToken) return;
+    try {
+        const { items, nextPageToken } = await ytChannelUploads(bm.uploadsPlaylistId, bm.nextPageToken);
+        bm.items = [...bm.items, ...items];
+        bm.nextPageToken = nextPageToken;
+        renderBrowseList(kind);
+    } catch (e) { alert(e.message); }
+}
+
+function playBrowseItem(kind, idx) {
+    const bm = browseMode[kind];
+    if (!bm) return;
+    const it = bm.items[idx];
+    if (!it) return;
+    const sn = it.snippet || {};
+    const vid = sn.resourceId && sn.resourceId.videoId;
+    if (!vid) return;
+    const list = kind === 'walk' ? walks : tracks;
+    let existing = list.find(x => x.videoId === vid);
+    if (!existing) {
+        existing = {
+            id: `${kind === 'walk' ? 'w' : 't'}_${Date.now()}`,
+            name: sn.title || 'Untitled',
+            videoId: vid,
+            tags: [],
+        };
+        list.push(existing);
+        save(kind === 'walk' ? STORE.walks : STORE.tracks, list);
+    }
+    if (kind === 'walk') selectWalk(existing.id); else selectTrack(existing.id);
+}
+
+function pinBrowseItem(kind, idx) {
+    const bm = browseMode[kind];
+    if (!bm) return;
+    const it = bm.items[idx];
+    if (!it) return;
+    const sn = it.snippet || {};
+    const vid = sn.resourceId && sn.resourceId.videoId;
+    if (!vid) return;
+    const list = kind === 'walk' ? walks : tracks;
+    if (list.some(x => x.videoId === vid)) { flashMessage('Already saved'); return; }
+    const item = {
+        id: `${kind === 'walk' ? 'w' : 't'}_${Date.now()}`,
+        name: sn.title || 'Untitled',
+        videoId: vid,
+        tags: [],
+    };
+    list.push(item);
+    save(kind === 'walk' ? STORE.walks : STORE.tracks, list);
+    renderBrowseList(kind);
+    flashMessage('Saved to library');
+}
+
+/* ── Discover modal ── */
+let discoverState = {
+    type: 'video',
+    query: '',
+    results: [],
+    nextPageToken: null,
+    activeChannel: null, // { channelId, title, uploadsPlaylistId }
+    channelNextPageToken: null,
+};
+
+function openDiscover() {
+    if (!getApiKey()) {
+        const proceed = confirm('Discover needs a free YouTube API key. Set one now?');
+        if (proceed) promptApiKey();
+        return;
+    }
+    document.getElementById('discover-bg').classList.add('show');
+    setTimeout(() => document.getElementById('discover-input').focus(), 50);
+    renderChannelBookmarks();
+}
+function closeDiscover() {
+    document.getElementById('discover-bg').classList.remove('show');
+}
+
+function switchDiscoverTab(tab) {
+    document.querySelectorAll('.discover-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.getElementById('tab-search').style.display   = tab === 'search'   ? '' : 'none';
+    document.getElementById('tab-channels').style.display = tab === 'channels' ? '' : 'none';
+}
+
+let discoverDebounce;
+function bindDiscover() {
+    document.getElementById('discover-btn').addEventListener('click', openDiscover);
+    document.getElementById('discover-close').addEventListener('click', closeDiscover);
+    document.getElementById('discover-bg').addEventListener('click', e => {
+        if (e.target.id === 'discover-bg') closeDiscover();
+    });
+    document.querySelectorAll('.discover-tab').forEach(b => {
+        b.addEventListener('click', () => switchDiscoverTab(b.dataset.tab));
+    });
+    const input = document.getElementById('discover-input');
+    const typeSelect = document.getElementById('discover-type');
+    input.addEventListener('input', () => {
+        clearTimeout(discoverDebounce);
+        discoverDebounce = setTimeout(() => runDiscoverSearch(input.value, typeSelect.value), 350);
+    });
+    typeSelect.addEventListener('change', () => runDiscoverSearch(input.value, typeSelect.value));
+
+    document.getElementById('channel-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addChannelBookmark(e.target.value, 'walk');
+    });
+    document.getElementById('channel-add-walk').addEventListener('click', () => {
+        addChannelBookmark(document.getElementById('channel-input').value, 'walk');
+    });
+    document.getElementById('channel-add-track').addEventListener('click', () => {
+        addChannelBookmark(document.getElementById('channel-input').value, 'track');
+    });
+}
+
+async function runDiscoverSearch(query, type, append = false) {
+    discoverState.query = query;
+    discoverState.type = type;
+    const container = document.getElementById('discover-results');
+    if (!query) { container.innerHTML = '<div class="discover-empty">Type a query to search YouTube.</div>'; return; }
+    if (!append) container.innerHTML = '<div class="discover-empty">Searching&hellip;</div>';
+    try {
+        const { items, nextPageToken } = await ytSearch(query, type, append ? discoverState.nextPageToken : '');
+        const merged = append ? [...discoverState.results, ...items] : items;
+        discoverState.results = merged;
+        discoverState.nextPageToken = nextPageToken;
+        let durations = {};
+        if (type === 'video') {
+            const ids = items.map(it => it.id.videoId).filter(Boolean);
+            try { durations = await ytVideoDurations(ids); } catch {}
+        }
+        renderDiscoverResults(durations);
+    } catch (e) {
+        container.innerHTML = `<div class="discover-empty">${escapeHtml(e.message)}</div>`;
+    }
+}
+
+function renderDiscoverResults(durationMap) {
+    const container = document.getElementById('discover-results');
+    if (discoverState.results.length === 0) {
+        container.innerHTML = '<div class="discover-empty">No matches.</div>';
+        return;
+    }
+    const dm = durationMap || {};
+    const cards = discoverState.results.map((it, idx) => {
+        const isVideo = it.id && it.id.videoId;
+        const isPlaylist = it.id && it.id.playlistId;
+        const isChannel = it.id && it.id.channelId;
+        const sn = it.snippet || {};
+        const thumb = (sn.thumbnails && (sn.thumbnails.medium || sn.thumbnails.default || {}).url) || '';
+        const subtitle = isChannel ? 'Channel' : (sn.channelTitle || '');
+        const duration = isVideo ? (dm[it.id.videoId] || '') : (isPlaylist ? 'Playlist' : '');
+        let actions = '';
+        if (isVideo) {
+            actions = `
+                <button data-act="add-walk" data-idx="${idx}">+ Walks</button>
+                <button data-act="add-track" data-idx="${idx}">+ Music</button>
+                <button data-act="play" data-idx="${idx}" title="Play preview"><i class="fa-solid fa-play"></i></button>
+            `;
+        } else if (isPlaylist) {
+            actions = `<button data-act="add-track" data-idx="${idx}">+ Music</button>`;
+        } else if (isChannel) {
+            actions = `
+                <button data-act="ch-walk"  data-idx="${idx}">+ Walks ch.</button>
+                <button data-act="ch-track" data-idx="${idx}">+ Music ch.</button>
+                <button data-act="ch-open"  data-idx="${idx}">Open</button>
+            `;
+        }
+        const durBadge = duration ? `<span class="discover-duration">${escapeHtml(duration)}</span>` : '';
+        return `
+            <div class="discover-card">
+                <div class="discover-thumb" style="background-image:url('${escapeHtml(thumb)}')">${durBadge}</div>
+                <div class="discover-meta">
+                    <div class="discover-name">${escapeHtml(sn.title || '')}</div>
+                    <div class="discover-sub">${escapeHtml(subtitle)}</div>
+                </div>
+                <div class="discover-actions">${actions}</div>
+            </div>
+        `;
+    }).join('');
+    const more = discoverState.nextPageToken
+        ? `<div class="discover-loadmore"><button id="discover-more">Load more</button></div>` : '';
+    container.innerHTML = cards + more;
+    container.querySelectorAll('.discover-actions button').forEach(b => {
+        b.addEventListener('click', () => handleDiscoverAction(b.dataset.act, parseInt(b.dataset.idx, 10)));
+    });
+    const moreBtn = document.getElementById('discover-more');
+    if (moreBtn) moreBtn.addEventListener('click', () => runDiscoverSearch(discoverState.query, discoverState.type, true));
+}
+
+function handleDiscoverAction(act, idx) {
+    const it = discoverState.results[idx];
+    if (!it) return;
+    const sn = it.snippet || {};
+    if (act === 'add-walk' || act === 'add-track') {
+        const kind = act === 'add-walk' ? 'walk' : 'track';
+        const videoId = (it.id && it.id.videoId) || null;
+        const playlistId = (it.id && it.id.playlistId) || null;
+        const item = {
+            id: `${kind === 'walk' ? 'w' : 't'}_${Date.now()}`,
+            name: sn.title || 'Untitled',
+            videoId, tags: [],
+        };
+        if (kind === 'track' && playlistId) { item.playlistId = playlistId; item.tags.push('playlist'); }
+        if (kind === 'walk') { walks.push(item); save(STORE.walks, walks); renderFilters('walk'); renderList('walk'); selectWalk(item.id); }
+        else { tracks.push(item); save(STORE.tracks, tracks); renderFilters('track'); renderList('track'); selectTrack(item.id); }
+        renderMoods();
+        flashMessage(`Added "${sn.title}"`);
+    } else if (act === 'play') {
+        const videoId = it.id && it.id.videoId;
+        if (!videoId) return;
+        const item = { id: `tmp_${Date.now()}`, name: sn.title || 'Untitled', videoId, tags: [] };
+        walks.push(item); save(STORE.walks, walks);
+        renderFilters('walk'); renderList('walk');
+        selectWalk(item.id);
+        closeDiscover();
+    } else if (act === 'ch-walk' || act === 'ch-track') {
+        addChannelByItem(it, act === 'ch-walk' ? 'walk' : 'track');
+    } else if (act === 'ch-open') {
+        openChannelInDiscover((it.id || {}).channelId, sn.title);
+    }
+}
+
+async function addChannelByItem(it, kind) {
+    const cid = (it.id && it.id.channelId) || (it.snippet && it.snippet.channelId);
+    if (!cid) return;
+    try {
+        const res = await ytResolveChannel(cid);
+        addChannelEntry(kind, res);
+    } catch (e) { alert('Could not add channel: ' + e.message); }
+}
+
+async function addChannelBookmark(input, kind) {
+    if (!input.trim()) return;
+    try {
+        const res = await ytResolveChannel(input.trim());
+        addChannelEntry(kind, res);
+        document.getElementById('channel-input').value = '';
+    } catch (e) { alert('Could not add channel: ' + e.message); }
+}
+
+function addChannelEntry(kind, res) {
+    const list = kind === 'walk' ? walkChannels : trackChannels;
+    if (list.find(c => c.channelId === res.channelId)) {
+        flashMessage('Already bookmarked');
+        return;
+    }
+    list.push({
+        id: `c_${Date.now()}`,
+        name: res.title,
+        channelId: res.channelId,
+        uploadsPlaylistId: res.uploadsPlaylistId,
+        thumbnail: res.thumbnail,
+    });
+    save(kind === 'walk' ? STORE.walkChannels : STORE.trackChannels, list);
+    renderChannelBookmarks();
+    renderChannelChips();
+    flashMessage(`Bookmarked ${res.title}`);
+}
+
+function renderChannelBookmarks() {
+    const container = document.getElementById('channel-bookmarks');
+    if (!container) return;
+    const all = [
+        ...walkChannels.map(c  => ({ ...c, kind: 'walk' })),
+        ...trackChannels.map(c => ({ ...c, kind: 'track' })),
+    ];
+    if (all.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = all.map(c => `
+        <div class="discover-card">
+            <div class="discover-thumb" style="background-image:url('${escapeHtml(c.thumbnail || '')}')"></div>
+            <div class="discover-meta">
+                <div class="discover-name">${escapeHtml(c.name)}</div>
+                <div class="discover-sub">${c.kind === 'walk' ? 'Walks channel' : 'Music channel'}</div>
+            </div>
+            <div class="discover-actions">
+                <button data-act="open" data-cid="${escapeHtml(c.channelId)}">Browse</button>
+                <button data-act="remove" data-kind="${c.kind}" data-cid="${escapeHtml(c.channelId)}">Remove</button>
+            </div>
+        </div>
+    `).join('');
+    container.querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', () => {
+            if (b.dataset.act === 'open') {
+                const ch = all.find(x => x.channelId === b.dataset.cid);
+                if (ch) openChannelInDiscover(ch.channelId, ch.name, ch.uploadsPlaylistId);
+            } else {
+                removeChannelBookmark(b.dataset.kind, b.dataset.cid);
+            }
+        });
+    });
+}
+function removeChannelBookmark(kind, channelId) {
+    if (kind === 'walk')  walkChannels  = walkChannels.filter(c  => c.channelId !== channelId);
+    if (kind === 'track') trackChannels = trackChannels.filter(c => c.channelId !== channelId);
+    save(STORE.walkChannels, walkChannels);
+    save(STORE.trackChannels, trackChannels);
+    renderChannelBookmarks();
+    renderChannelChips();
+}
+
+async function openChannelInDiscover(channelId, title, uploadsPlaylistId) {
+    switchDiscoverTab('search');
+    document.getElementById('discover-input').value = '';
+    const container = document.getElementById('discover-results');
+    container.innerHTML = `<div class="discover-empty">Loading uploads from ${escapeHtml(title || 'channel')}&hellip;</div>`;
+    try {
+        let upl = uploadsPlaylistId;
+        if (!upl) {
+            const res = await ytResolveChannel(channelId);
+            upl = res.uploadsPlaylistId;
+        }
+        const { items, nextPageToken } = await ytChannelUploads(upl);
+        discoverState.activeChannel = { channelId, title, uploadsPlaylistId: upl };
+        discoverState.channelNextPageToken = nextPageToken;
+        const mapped = items.map(it => ({
+            id: { videoId: it.snippet.resourceId && it.snippet.resourceId.videoId },
+            snippet: it.snippet,
+        }));
+        discoverState.results = mapped;
+        discoverState.nextPageToken = null;
+        const ids = mapped.map(m => m.id.videoId).filter(Boolean);
+        let durations = {};
+        try { durations = await ytVideoDurations(ids); } catch {}
+        renderDiscoverResults(durations);
+    } catch (e) {
+        container.innerHTML = `<div class="discover-empty">${escapeHtml(e.message)}</div>`;
+    }
+}
+
+
+const YT_API = 'https://www.googleapis.com/youtube/v3';
+const ytCache = new Map();
+async function ytApi(path, params) {
+    const key = getApiKey();
+    if (!key) throw new Error('No API key');
+    const cacheKey = path + ':' + JSON.stringify(params);
+    if (ytCache.has(cacheKey)) return ytCache.get(cacheKey);
+    const url = `${YT_API}/${path}?` + new URLSearchParams({ ...params, key }).toString();
+    const r = await fetch(url);
+    if (!r.ok) {
+        const body = await r.text().catch(() => '');
+        throw new Error(`YouTube API ${r.status}: ${body.slice(0, 200)}`);
+    }
+    const json = await r.json();
+    ytCache.set(cacheKey, json);
+    return json;
+}
+
+async function ytSearch(query, type = 'video', pageToken = '') {
+    if (!query) return { items: [], nextPageToken: null };
+    const params = { part: 'snippet', maxResults: 20, q: query, type };
+    if (pageToken) params.pageToken = pageToken;
+    const data = await ytApi('search', params);
+    return { items: data.items || [], nextPageToken: data.nextPageToken || null };
+}
+
+async function ytVideoDurations(ids) {
+    if (!ids.length) return {};
+    const data = await ytApi('videos', { part: 'contentDetails', id: ids.join(',') });
+    const map = {};
+    (data.items || []).forEach(it => { map[it.id] = parseISODuration(it.contentDetails.duration); });
+    return map;
+}
+
+function parseISODuration(iso) {
+    if (!iso) return '';
+    const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!m) return '';
+    const h = parseInt(m[1] || '0', 10);
+    const min = parseInt(m[2] || '0', 10);
+    const s = parseInt(m[3] || '0', 10);
+    if (h) return `${h}:${String(min).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    return `${min}:${String(s).padStart(2, '0')}`;
+}
+
+async function ytResolveChannel(input) {
+    const ref = parseYouTubeRef(input) || {};
+    let ch = ref.channel;
+    if (!ch) {
+        if (/^UC[a-zA-Z0-9_-]+$/.test(input.trim())) ch = { id: input.trim() };
+        else if (/^@/.test(input.trim())) ch = { handle: input.trim().slice(1) };
+        else if (/^[a-zA-Z0-9._-]+$/.test(input.trim())) ch = { handle: input.trim() };
+    }
+    if (!ch) throw new Error('Could not parse channel');
+    const params = { part: 'snippet,contentDetails' };
+    if (ch.id) params.id = ch.id;
+    else params.forHandle = '@' + ch.handle;
+    const data = await ytApi('channels', params);
+    const item = (data.items || [])[0];
+    if (!item) throw new Error('Channel not found');
+    return {
+        channelId: item.id,
+        title: item.snippet.title,
+        thumbnail: (item.snippet.thumbnails && (item.snippet.thumbnails.default || {}).url) || '',
+        uploadsPlaylistId: item.contentDetails.relatedPlaylists.uploads,
+    };
+}
+
+async function ytChannelUploads(uploadsPlaylistId, pageToken = '') {
+    const params = { part: 'snippet', maxResults: 20, playlistId: uploadsPlaylistId };
+    if (pageToken) params.pageToken = pageToken;
+    const data = await ytApi('playlistItems', params);
+    return { items: data.items || [], nextPageToken: data.nextPageToken || null };
+}
+
+/* ── YouTube API key ── */
+function getApiKey() { return load(STORE.apiKey, ''); }
+function promptApiKey() {
+    const current = getApiKey();
+    const next = prompt(
+        'Paste your YouTube Data API v3 key.\n\n' +
+        'Get one free at console.cloud.google.com → Credentials.\n' +
+        'Restrict it to your domain via HTTP referrer.\n\n' +
+        'Leave empty and press OK to remove it.',
+        current
+    );
+    if (next === null) return;
+    save(STORE.apiKey, next.trim());
+    updateDiscoverButton();
+    flashMessage(next.trim() ? 'API key saved' : 'API key cleared');
+}
+function updateDiscoverButton() {
+    const btn = document.getElementById('discover-btn');
+    if (!btn) return;
+    btn.classList.toggle('has-key', !!getApiKey());
+}
+
+/* ── Share Target / drag-drop / smart paste ── */
+function handleShareTarget() {
+    const params = new URLSearchParams(location.search);
+    const candidate = params.get('shared_url') || params.get('shared_text') || params.get('url') || params.get('text');
+    if (!candidate) return;
+    const urlMatch = candidate.match(/https?:\/\/[^\s]+/);
+    const url = urlMatch ? urlMatch[0] : candidate;
+    const ref = parseYouTubeRef(url);
+    if (!ref) return;
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch {}
+    const kind = ref.playlistId ? 'track' : 'walk';
+    openAddModalPrefilled(kind, url, params.get('shared_title') || params.get('title') || '');
+}
+
+function setupDragDrop() {
+    let dragCount = 0;
+    document.addEventListener('dragenter', e => {
+        if (!e.dataTransfer) return;
+        if (![...e.dataTransfer.types].some(t => t === 'text/plain' || t === 'text/uri-list')) return;
+        dragCount++;
+        document.body.classList.add('dragging');
+    });
+    document.addEventListener('dragleave', () => {
+        dragCount = Math.max(0, dragCount - 1);
+        if (dragCount === 0) document.body.classList.remove('dragging');
+    });
+    document.addEventListener('dragover', e => { e.preventDefault(); });
+    document.addEventListener('drop', e => {
+        e.preventDefault();
+        dragCount = 0;
+        document.body.classList.remove('dragging');
+        const dt = e.dataTransfer;
+        if (!dt) return;
+        const text = dt.getData('text/uri-list') || dt.getData('text/plain') || '';
+        const ref = parseYouTubeRef(text);
+        if (!ref) return;
+        const kind = ref.playlistId ? 'track' : 'walk';
+        openAddModalPrefilled(kind, text.trim(), '');
+    });
+}
+
+function setupGlobalPaste() {
+    if (window.matchMedia && window.matchMedia('(hover: none)').matches) return;
+    document.addEventListener('paste', e => {
+        const tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        const text = e.clipboardData && e.clipboardData.getData('text');
+        if (!text) return;
+        const ref = parseYouTubeRef(text);
+        if (!ref) return;
+        const kind = ref.playlistId ? 'track' : 'walk';
+        openAddModalPrefilled(kind, text.trim(), '');
+    });
+}
+
+function openAddModalPrefilled(kind, url, name) {
+    openAddModal(kind);
+    const urlField = document.getElementById('modal-url');
+    if (urlField) urlField.value = url || '';
+    if (name) {
+        const nameField = document.getElementById('modal-name');
+        if (nameField) nameField.value = name;
+    }
+    fetchOEmbedTitle(url);
+}
+
+async function fetchOEmbedTitle(url) {
+    if (!url) return;
+    const ref = parseYouTubeRef(url);
+    if (!ref || (!ref.videoId && !ref.playlistId)) return;
+    const nameField = document.getElementById('modal-name');
+    if (!nameField || nameField.value.trim()) return;
+    try {
+        const r = await fetch('https://noembed.com/embed?url=' + encodeURIComponent(url));
+        if (!r.ok) return;
+        const data = await r.json();
+        if (data && data.title && !nameField.value.trim()) nameField.value = data.title;
+    } catch {}
+}
+
+async function trySmartPasteIntoModal() {
+    if (!navigator.clipboard || !navigator.clipboard.readText) return;
+    try {
+        const text = await navigator.clipboard.readText();
+        if (!text) return;
+        const ref = parseYouTubeRef(text);
+        if (!ref) return;
+        const urlField = document.getElementById('modal-url');
+        const nameField = document.getElementById('modal-name');
+        if (!urlField || urlField.value.trim()) return;
+        urlField.value = text.trim();
+        if (nameField && !nameField.value.trim()) fetchOEmbedTitle(text.trim());
+    } catch {}
+}
+
 /* ── Surprise me ── */
 function doSurprise() {
     const wPool = state.walkFilter === 'all' ? walks : walks.filter(w => (w.tags || []).includes(state.walkFilter));
@@ -1009,6 +1656,7 @@ function setupTopBar() {
             else if (action === 'bulk-walk')  openBulkModal('walk');
             else if (action === 'bulk-track') openBulkModal('track');
             else if (action === 'copy-link') copySessionLink();
+            else if (action === 'api-key')   promptApiKey();
         });
     });
 
@@ -1046,6 +1694,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('modal-cancel').addEventListener('click', closeAddModal);
     document.getElementById('modal-save').addEventListener('click', commitModal);
+
+    let urlDebounce;
+    document.getElementById('modal-url').addEventListener('input', e => {
+        clearTimeout(urlDebounce);
+        urlDebounce = setTimeout(() => fetchOEmbedTitle(e.target.value.trim()), 400);
+    });
     document.getElementById('modal-bg').addEventListener('click', e => {
         if (e.target.id === 'modal-bg') closeAddModal();
     });
@@ -1066,4 +1720,10 @@ document.addEventListener('DOMContentLoaded', () => {
     bindSearch('walk-search', 'walk');
     bindSearch('track-search', 'track');
     restoreFromHash();
+    handleShareTarget();
+    setupDragDrop();
+    setupGlobalPaste();
+    bindDiscover();
+    updateDiscoverButton();
+    renderChannelChips();
 });

@@ -11,5 +11,15 @@
   "icons": [
     { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
-  ]
+  ],
+  "share_target": {
+    "action": "/slow-walking.html",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "url":   "shared_url",
+      "text":  "shared_text",
+      "title": "shared_title"
+    }
+  }
 }
