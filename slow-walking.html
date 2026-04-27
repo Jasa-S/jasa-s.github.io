@@ -31,6 +31,18 @@
         }
         .wrap { max-width: 72rem; margin: 0 auto; }
 
+        body.dragging::after {
+            content: 'Drop a YouTube link';
+            position: fixed; inset: 0;
+            background: rgba(124,58,237,0.08);
+            border: 3px dashed var(--cosmic-purple);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--cosmic-purple);
+            font-size: 1.2rem; font-weight: 600;
+            pointer-events: none;
+            z-index: 1200;
+        }
+
         .top-bar {
             position: absolute;
             top: 0.75rem;
@@ -542,6 +554,166 @@
             padding: 0.5rem 0;
         }
 
+        /* Discover panel */
+        #discover-btn.has-key i { color: var(--cosmic-purple); }
+        .discover-panel {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 1rem;
+            width: 100%;
+            max-width: 56rem;
+            max-height: 88vh;
+            display: flex; flex-direction: column;
+            gap: 0.8rem;
+        }
+        .discover-head {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 0.75rem;
+        }
+        .discover-tabs { display: flex; gap: 0.4rem; }
+        .discover-tab {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.78rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .discover-tab.active {
+            background: var(--text-main);
+            color: var(--bg);
+            border-color: var(--text-main);
+        }
+        .discover-controls {
+            display: flex; gap: 0.5rem; align-items: center;
+        }
+        .discover-controls input,
+        .discover-controls select {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 0.4rem;
+            padding: 0.5rem 0.65rem;
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+        }
+        .discover-controls select { flex: 0 0 auto; }
+        .discover-controls input:focus { border-color: var(--cosmic-purple); }
+        .discover-results, .discover-bookmarks {
+            display: flex; flex-direction: column; gap: 0.4rem;
+            overflow-y: auto;
+            min-height: 6rem;
+            max-height: 60vh;
+        }
+        .discover-bookmarks { max-height: none; min-height: 0; }
+        .discover-bookmarks:not(:empty) { padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); margin-bottom: 0.25rem; }
+        .discover-card {
+            display: flex; align-items: center; gap: 0.7rem;
+            padding: 0.55rem;
+            border-radius: 0.5rem;
+            border: 1px solid transparent;
+        }
+        .discover-card:hover { border-color: var(--border); background: var(--card-hover); }
+        .discover-thumb {
+            width: 96px; height: 54px;
+            background: #000 center/cover no-repeat;
+            border-radius: 0.3rem;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .discover-duration {
+            position: absolute; bottom: 2px; right: 2px;
+            background: rgba(0,0,0,0.75);
+            color: #fff; font-size: 0.6rem;
+            padding: 1px 4px; border-radius: 3px;
+        }
+        .discover-meta { flex: 1; min-width: 0; }
+        .discover-name {
+            font-size: 0.85rem; font-weight: 500; line-height: 1.3;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .discover-sub {
+            font-size: 0.7rem; color: var(--text-muted);
+            margin-top: 0.2rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .discover-actions {
+            display: flex; gap: 0.3rem;
+            flex-shrink: 0;
+        }
+        .discover-actions button {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            padding: 0.3rem 0.65rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .discover-actions button:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .discover-empty {
+            color: var(--text-muted); font-size: 0.8125rem;
+            padding: 1rem 0.5rem; text-align: center; line-height: 1.5;
+        }
+        .discover-loadmore {
+            text-align: center; padding: 0.5rem;
+        }
+        .discover-loadmore button {
+            background: none; border: 1px solid var(--border);
+            color: var(--text-muted); border-radius: 999px;
+            padding: 0.4rem 1rem; font-size: 0.75rem; cursor: pointer;
+            font-family: inherit;
+        }
+        .discover-loadmore button:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        @media (max-width: 600px) {
+            .discover-thumb { width: 72px; height: 40px; }
+            .discover-card { gap: 0.5rem; padding: 0.45rem; }
+        }
+
+        /* Channel chips */
+        .channel-chips {
+            display: flex; gap: 0.35rem; flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+        .channel-chip {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            padding: 0.25rem 0.7rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex; align-items: center; gap: 0.35rem;
+        }
+        .channel-chip:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .channel-chip.active {
+            background: var(--cosmic-purple);
+            color: #fff;
+            border-color: var(--cosmic-purple);
+        }
+        .channel-chip i { font-size: 0.6rem; }
+        .browse-banner {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.45rem 0.6rem;
+            background: var(--card-hover);
+            border: 1px solid var(--border);
+            border-radius: 0.4rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+        }
+        .browse-banner button {
+            background: none; border: none; color: var(--cosmic-purple);
+            cursor: pointer; font-family: inherit; font-size: 0.75rem;
+        }
+
         /* Add modal */
         .modal-bg {
             position: fixed; inset: 0;
@@ -630,6 +802,9 @@
 </head>
 <body>
     <div class="top-bar">
+        <button id="discover-btn" class="top-btn" aria-label="Discover on YouTube" title="Discover on YouTube">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
         <button id="surprise-btn" class="top-btn" aria-label="Surprise me" title="Surprise me">
             <i class="fa-solid fa-dice"></i>
         </button>
@@ -656,6 +831,7 @@
                 <button data-action="bulk-walk"><i class="fa-solid fa-person-walking"></i> Bulk add walks</button>
                 <button data-action="bulk-track"><i class="fa-solid fa-music"></i> Bulk add tracks</button>
                 <button data-action="copy-link"><i class="fa-solid fa-link"></i> Copy session link</button>
+                <button data-action="api-key"><i class="fa-solid fa-key"></i> YouTube API key&hellip;</button>
             </div>
         </div>
         <button id="view-toggle" class="top-btn" aria-label="Toggle cinema view">
@@ -736,6 +912,8 @@
                     <button class="add-btn" data-add="walk"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
                 <input id="walk-search" class="deck-search" type="search" placeholder="Search walks…">
+                <div id="walk-channels" class="channel-chips"></div>
+                <div id="walk-banner" class="browse-banner" style="display:none;"></div>
                 <div id="walk-filters" class="filter-row"></div>
                 <div id="walk-list" class="deck-list"></div>
             </div>
@@ -746,6 +924,8 @@
                     <button class="add-btn" data-add="track"><i class="fa-solid fa-plus"></i> Add</button>
                 </div>
                 <input id="track-search" class="deck-search" type="search" placeholder="Search tracks…">
+                <div id="track-channels" class="channel-chips"></div>
+                <div id="track-banner" class="browse-banner" style="display:none;"></div>
                 <div id="track-filters" class="filter-row"></div>
                 <div id="track-list" class="deck-list"></div>
             </div>
@@ -777,6 +957,40 @@
             <div class="modal-actions">
                 <button id="modal-cancel" class="btn-ghost">Cancel</button>
                 <button id="modal-save" class="btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="discover-bg" class="modal-bg">
+        <div class="discover-panel">
+            <div class="discover-head">
+                <div class="discover-tabs">
+                    <button class="discover-tab active" data-tab="search">Search</button>
+                    <button class="discover-tab" data-tab="channels">Channels</button>
+                </div>
+                <button id="discover-close" class="btn-ghost" style="padding:0.35rem 0.7rem;">Close</button>
+            </div>
+
+            <div id="tab-search" class="discover-tab-body">
+                <div class="discover-controls">
+                    <input id="discover-input" type="search" placeholder="Search YouTube&hellip;">
+                    <select id="discover-type">
+                        <option value="video">Videos</option>
+                        <option value="playlist">Playlists</option>
+                        <option value="channel">Channels</option>
+                    </select>
+                </div>
+                <div id="discover-results" class="discover-results"></div>
+            </div>
+
+            <div id="tab-channels" class="discover-tab-body" style="display:none;">
+                <div class="discover-controls">
+                    <input id="channel-input" type="text" placeholder="Paste a channel URL or @handle&hellip;">
+                    <button id="channel-add-walk" class="btn-ghost" style="padding:0.45rem 0.7rem;">+ Walks</button>
+                    <button id="channel-add-track" class="btn-ghost" style="padding:0.45rem 0.7rem;">+ Music</button>
+                </div>
+                <div id="channel-bookmarks" class="discover-bookmarks"></div>
+                <div id="channel-uploads" class="discover-results"></div>
             </div>
         </div>
     </div>
