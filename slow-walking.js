@@ -88,6 +88,18 @@ let walkPlayer = null;
 let musicPlayer = null;
 let playersReady = { walk: false, music: false };
 
+// iOS only allows one audible <video> at a time. To play walk + music
+// simultaneously we keep the walk video muted so the music carries audio.
+const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.platform) ||
+    (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+
+function silenceWalkOnIOS() {
+    if (!isIOS || !walkPlayer || !playersReady.walk) return;
+    try { walkPlayer.mute(); } catch {}
+    try { walkPlayer.setVolume(0); } catch {}
+}
+
 window.onYouTubeIframeAPIReady = function () {
     walkPlayer = new YT.Player('yt-walk', {
         width: '100%', height: '100%',
@@ -96,6 +108,7 @@ window.onYouTubeIframeAPIReady = function () {
             onReady: () => {
                 playersReady.walk = true;
                 walkPlayer.setVolume(state.cityVol);
+                silenceWalkOnIOS();
                 tryRestoreSelection();
             },
             onStateChange: handlePlayerStateChange,
@@ -286,6 +299,7 @@ function selectWalk(id, autoplay = true) {
     if (walkPlayer && playersReady.walk) {
         walkPlayer.loadVideoById({ videoId: w.videoId });
         walkPlayer.setVolume(state.cityVol);
+        silenceWalkOnIOS();
         if (!autoplay) walkPlayer.pauseVideo();
     }
     document.getElementById('now-walk').textContent = w.name;
@@ -325,6 +339,7 @@ function selectTrack(id, autoplay = true) {
         if (musicPlayer && playersReady.music) musicPlayer.setVolume(state.musicVol);
         loadIt();
     }
+    silenceWalkOnIOS();
 
     document.getElementById('now-track').innerHTML = '<i class="fa-solid fa-music"></i>' + escapeHtml(t.name);
     document.getElementById('now-track').classList.remove('now-empty');
@@ -382,7 +397,10 @@ function bindVolume(sliderId, valueId, kind) {
             if (musicPlayer && playersReady.music) musicPlayer.setVolume(val);
         } else {
             state.cityVol = val;
-            if (walkPlayer && playersReady.walk) walkPlayer.setVolume(val);
+            if (walkPlayer && playersReady.walk) {
+                walkPlayer.setVolume(val);
+                silenceWalkOnIOS();
+            }
         }
         save(STORE.state, state);
     });
@@ -1705,6 +1723,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bindVolume('music-vol', 'music-vol-val', 'music');
     bindVolume('city-vol',  'city-vol-val',  'city');
+    if (isIOS) {
+        const citySlider = document.getElementById('city-vol');
+        const cityVal    = document.getElementById('city-vol-val');
+        if (citySlider) {
+            citySlider.disabled = true;
+            citySlider.value = 0;
+            citySlider.title = 'iOS only allows one audible video at a time — the walk plays silently.';
+        }
+        if (cityVal) cityVal.textContent = '–';
+        state.cityVol = 0;
+    }
 
     document.getElementById('play-btn').addEventListener('click', togglePlay);
     document.getElementById('save-btn').addEventListener('click', savePair);
