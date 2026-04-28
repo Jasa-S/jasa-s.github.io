@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link rel="stylesheet" href="shared.css">
     <style>
+        * { box-sizing: border-box; }
         body {
             background-color: var(--bg); color: var(--text-main);
             font-family: 'Inter', sans-serif;
@@ -50,19 +51,20 @@
             grid-template-columns: 1fr;
         }
         @media (min-width: 560px) {
-            .add-grid { grid-template-columns: 2fr 1.4fr auto auto auto; align-items: center; }
+            .add-grid { grid-template-columns: 1fr 1fr auto auto auto; align-items: center; }
         }
         .add-input {
             background: var(--bg); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 999px;
-            padding: 0.55rem 0.95rem; font-size: 0.9rem;
+            padding: 0 0.95rem; font-size: 0.9rem;
+            height: 2.4rem; line-height: 1;
             font-family: inherit; outline: none;
             transition: border-color 0.2s;
             min-width: 0;
         }
         .add-input:focus { border-color: var(--cosmic-purple); }
         body.dark .add-input::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
-        .add-emoji { width: 3.4rem; text-align: center; }
+        .add-emoji { width: 3.4rem; text-align: center; padding: 0; }
         .add-color {
             width: 2.4rem; height: 2.4rem;
             padding: 0; border: 1px solid var(--border);
@@ -82,15 +84,15 @@
         .btn {
             background: var(--card); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 999px;
-            padding: 0.5rem 0.95rem; font-size: 0.8rem;
+            padding: 0 0.95rem; font-size: 0.8rem;
+            height: 2.4rem; line-height: 1;
             font-family: inherit; cursor: pointer;
             transition: background 0.2s, border-color 0.2s, color 0.2s;
             display: inline-flex; align-items: center; gap: 0.4rem;
-            line-height: 1; white-space: nowrap;
+            white-space: nowrap;
         }
         .btn:hover { background: var(--card-hover); border-color: rgba(125,125,125,0.3); }
         .btn i { font-size: 0.75rem; }
-        .add-card .btn { padding: 0.55rem 1.1rem; }
 
         /* Milestone card */
         .m-card {
