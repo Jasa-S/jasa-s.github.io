@@ -78,6 +78,20 @@
         }
         body.dark .add-error { color: #fca5a5; }
 
+        /* Button (mirrors oro.html .btn) */
+        .btn {
+            background: var(--card); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0.5rem 0.95rem; font-size: 0.8rem;
+            font-family: inherit; cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            line-height: 1; white-space: nowrap;
+        }
+        .btn:hover { background: var(--card-hover); border-color: rgba(125,125,125,0.3); }
+        .btn i { font-size: 0.75rem; }
+        .add-card .btn { padding: 0.55rem 1.1rem; }
+
         /* Milestone card */
         .m-card {
             background: var(--card);
