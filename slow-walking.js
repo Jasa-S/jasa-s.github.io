@@ -66,17 +66,19 @@ function parseYouTubeRef(input) {
     const trimmed = input.trim();
     if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return { videoId: trimmed, playlistId: null, channel: null };
     let videoId = null, playlistId = null, channel = null;
-    const v = trimmed.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+    const v = trimmed.match(/(?:v=|\/embed\/|youtu\.be\/|\/shorts\/|\/live\/)([a-zA-Z0-9_-]{11})/);
     if (v) videoId = v[1];
     const l = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
     if (l) playlistId = l[1];
-    const handle = trimmed.match(/youtube\.com\/@([a-zA-Z0-9._-]+)/);
-    const cid    = trimmed.match(/youtube\.com\/channel\/(UC[a-zA-Z0-9_-]+)/);
-    const cust   = trimmed.match(/youtube\.com\/c\/([a-zA-Z0-9._-]+)/);
-    if (handle) channel = { handle: handle[1] };
-    else if (cid)  channel = { id: cid[1] };
-    else if (cust) channel = { handle: cust[1] };
-    else if (/^@[a-zA-Z0-9._-]+$/.test(trimmed)) channel = { handle: trimmed.slice(1) };
+    const handle = trimmed.match(/youtube\.com\/@([^\/?#&\s]+)/i);
+    const cid    = trimmed.match(/youtube\.com\/channel\/(UC[a-zA-Z0-9_-]+)/i);
+    const cust   = trimmed.match(/youtube\.com\/c\/([^\/?#&\s]+)/i);
+    const userU  = trimmed.match(/youtube\.com\/user\/([^\/?#&\s]+)/i);
+    if (handle)      channel = { handle: decodeURIComponent(handle[1]) };
+    else if (cid)    channel = { id: cid[1] };
+    else if (cust)   channel = { handle: decodeURIComponent(cust[1]) };
+    else if (userU)  channel = { username: decodeURIComponent(userU[1]) };
+    else if (/^@[^\s\/?#&]+$/.test(trimmed)) channel = { handle: trimmed.slice(1) };
     if (!videoId && !playlistId && !channel) return null;
     return { videoId, playlistId, channel };
 }
@@ -1284,19 +1286,34 @@ function parseISODuration(iso) {
 }
 
 async function ytResolveChannel(input) {
-    const ref = parseYouTubeRef(input) || {};
+    const trimmed = (input || '').trim();
+    if (!trimmed) throw new Error('Empty input');
+    const ref = parseYouTubeRef(trimmed) || {};
     let ch = ref.channel;
     if (!ch) {
-        if (/^UC[a-zA-Z0-9_-]+$/.test(input.trim())) ch = { id: input.trim() };
-        else if (/^@/.test(input.trim())) ch = { handle: input.trim().slice(1) };
-        else if (/^[a-zA-Z0-9._-]+$/.test(input.trim())) ch = { handle: input.trim() };
+        if (/^UC[a-zA-Z0-9_-]{20,}$/.test(trimmed)) ch = { id: trimmed };
+        else if (/^@/.test(trimmed)) ch = { handle: trimmed.slice(1) };
     }
-    if (!ch) throw new Error('Could not parse channel');
-    const params = { part: 'snippet,contentDetails' };
-    if (ch.id) params.id = ch.id;
-    else params.forHandle = '@' + ch.handle;
-    const data = await ytApi('channels', params);
-    const item = (data.items || [])[0];
+    if (!ch && ref.videoId && !ref.channel) {
+        throw new Error('That looks like a video URL — paste the channel URL or @handle');
+    }
+    const tryFetch = async (params) => {
+        const data = await ytApi('channels', { part: 'snippet,contentDetails', ...params });
+        return (data.items || [])[0];
+    };
+    let item = null;
+    if (ch && ch.id) item = await tryFetch({ id: ch.id });
+    else if (ch && ch.handle) {
+        item = await tryFetch({ forHandle: '@' + ch.handle });
+        if (!item) item = await tryFetch({ forHandle: ch.handle });
+    }
+    else if (ch && ch.username) item = await tryFetch({ forUsername: ch.username });
+    if (!item) {
+        const query = ch && (ch.handle || ch.username) ? (ch.handle || ch.username) : trimmed;
+        const search = await ytApi('search', { part: 'snippet', maxResults: 1, type: 'channel', q: query });
+        const hit = (search.items || [])[0];
+        if (hit && hit.id && hit.id.channelId) item = await tryFetch({ id: hit.id.channelId });
+    }
     if (!item) throw new Error('Channel not found');
     return {
         channelId: item.id,
