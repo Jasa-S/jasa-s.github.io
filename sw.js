@@ -1,10 +1,13 @@
-/* Slow Walking — service worker. Stale-while-revalidate so updates roll
-   out on the next reload instead of being pinned forever to the first
-   cached version. */
-const CACHE = 'slow-walking-v3';
+/* Site-wide service worker. Stale-while-revalidate so updates roll out on
+   the next reload instead of being pinned forever to the first cached
+   version. Shared by Slow Walking and CUSP. */
+const CACHE = 'site-v4';
 const SHELL = [
     '/slow-walking.html',
     '/slow-walking.js',
+    '/cusp.html',
+    '/cusp.js',
+    '/cusp.webmanifest',
     '/theme.js',
     '/shared.css',
     '/favicon.svg',
