@@ -428,6 +428,104 @@
             transition: color 0.2s, border-color 0.2s;
         }
         .add-btn:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .deck-head-actions { display: flex; align-items: center; gap: 0.35rem; }
+        .deck-tool {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            width: 1.7rem; height: 1.7rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.7rem;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .deck-tool:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .deck-tool.active {
+            background: var(--cosmic-purple); color: #fff; border-color: var(--cosmic-purple);
+        }
+
+        .bulk-bar {
+            display: none;
+            position: sticky; bottom: 0;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.7rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            align-items: center; justify-content: space-between;
+            font-size: 0.78rem;
+            gap: 0.5rem;
+        }
+        .bulk-bar.show { display: flex; }
+        .bulk-bar .bulk-count { color: var(--text-muted); }
+        .bulk-bar button {
+            background: none; border: 1px solid var(--border);
+            color: var(--text-muted); border-radius: 999px;
+            padding: 0.3rem 0.7rem; font-size: 0.72rem; cursor: pointer; font-family: inherit;
+        }
+        .bulk-bar button.danger:hover { color: #ff6b6b; border-color: #ff6b6b; }
+        .bulk-bar button:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+
+        .item-check {
+            width: 1rem; height: 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            margin-right: 0.4rem;
+            flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: transparent;
+            font-size: 0.6rem;
+        }
+        .item.selected .item-check {
+            background: var(--cosmic-purple); border-color: var(--cosmic-purple); color: #fff;
+        }
+        .item-move {
+            background: none; border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            width: 1.6rem; height: 1.6rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.65rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .item-move:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
+        .item-move:disabled { opacity: 0.3; cursor: not-allowed; }
+        .item.dragging { opacity: 0.4; }
+        .item.drop-above { box-shadow: inset 0 2px 0 0 var(--cosmic-purple); }
+        .item.drop-below { box-shadow: inset 0 -2px 0 0 var(--cosmic-purple); }
+        .item-del.confirming, .pair-del.confirming { color: #ff6b6b; border-color: #ff6b6b; }
+
+        .tag-row {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.55rem 0.6rem;
+            border: 1px solid transparent;
+            border-radius: 0.45rem;
+        }
+        .tag-row:hover { background: var(--card-hover); border-color: var(--border); }
+        .tag-row input.tag-name {
+            background: transparent; border: 1px solid transparent;
+            color: var(--text-main);
+            font-size: 0.85rem; font-family: inherit;
+            padding: 0.25rem 0.4rem; border-radius: 0.3rem;
+            flex: 1; min-width: 0;
+            outline: none;
+        }
+        .tag-row input.tag-name:focus { border-color: var(--cosmic-purple); background: var(--card); }
+        .tag-row .tag-count {
+            font-size: 0.7rem; color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .tag-row .tag-del {
+            background: none; border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 999px;
+            padding: 0.25rem 0.6rem; font-size: 0.7rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .tag-row .tag-del:hover { color: #ff6b6b; border-color: #ff6b6b; }
+        .tag-row .tag-del.confirming { color: #ff6b6b; border-color: #ff6b6b; }
 
         .filter-row {
             display: flex; flex-wrap: wrap; gap: 0.35rem;
@@ -543,7 +641,31 @@
             .pair-del:hover { color: #dc2626; opacity: 1; }
         }
         @media (hover: none) { .pair-del { opacity: 0.5; } }
-        .pair-name { font-size: 0.8rem; font-weight: 600; }
+        .pair-name {
+            font-size: 0.8rem; font-weight: 600;
+            outline: none;
+            padding: 0.05rem 0.25rem;
+            margin: -0.05rem -0.25rem;
+            border-radius: 0.25rem;
+        }
+        .pair-name[contenteditable="true"] {
+            background: var(--card-hover);
+            box-shadow: inset 0 0 0 1px var(--cosmic-purple);
+        }
+        .pair-rename {
+            position: absolute; top: 0.3rem; right: 1.65rem;
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; opacity: 0; transition: opacity 0.15s;
+            font-size: 0.65rem; padding: 0.2rem;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .pair-card:hover .pair-rename { opacity: 0.6; }
+            .pair-rename:hover { color: var(--cosmic-purple); opacity: 1; }
+        }
+        @media (hover: none) { .pair-rename { opacity: 0.5; } }
+        .pair-card.dragging { opacity: 0.4; }
+        .pair-card.drop-before { box-shadow: inset 2px 0 0 0 var(--cosmic-purple); }
+        .pair-card.drop-after  { box-shadow: inset -2px 0 0 0 var(--cosmic-purple); }
         .pair-detail {
             font-size: 0.7rem; color: var(--text-muted);
             margin-top: 0.2rem;
@@ -840,6 +962,7 @@
                 <button data-action="bulk-track"><i class="fa-solid fa-music"></i> Bulk add tracks</button>
                 <button data-action="copy-link"><i class="fa-solid fa-link"></i> Copy session link</button>
                 <button data-action="api-key"><i class="fa-solid fa-key"></i> YouTube API key&hellip;</button>
+                <button data-action="manage-tags"><i class="fa-solid fa-tags"></i> Manage tags</button>
             </div>
         </div>
         <button id="view-toggle" class="top-btn" aria-label="Toggle cinema view">
@@ -920,25 +1043,47 @@
             <div class="deck">
                 <div class="deck-head">
                     <h2 class="deck-title"><i class="fa-solid fa-person-walking" style="margin-right:0.4rem;"></i>Walks</h2>
-                    <button class="add-btn" data-add="walk"><i class="fa-solid fa-plus"></i> Add</button>
+                    <div class="deck-head-actions">
+                        <button class="deck-tool" data-mode-toggle="walk" data-target="sort" aria-label="Reorder walks" title="Reorder"><i class="fa-solid fa-sort"></i></button>
+                        <button class="deck-tool" data-mode-toggle="walk" data-target="select" aria-label="Select walks" title="Select"><i class="fa-regular fa-square-check"></i></button>
+                        <button class="add-btn" data-add="walk"><i class="fa-solid fa-plus"></i> Add</button>
+                    </div>
                 </div>
                 <input id="walk-search" class="deck-search" type="search" placeholder="Search walks…">
                 <div id="walk-channels" class="channel-chips"></div>
                 <div id="walk-banner" class="browse-banner" style="display:none;"></div>
                 <div id="walk-filters" class="filter-row"></div>
                 <div id="walk-list" class="deck-list"></div>
+                <div id="walk-bulk" class="bulk-bar">
+                    <span class="bulk-count">0 selected</span>
+                    <span>
+                        <button data-bulk="walk" data-action="cancel">Cancel</button>
+                        <button class="danger" data-bulk="walk" data-action="delete">Delete</button>
+                    </span>
+                </div>
             </div>
 
             <div class="deck">
                 <div class="deck-head">
                     <h2 class="deck-title"><i class="fa-solid fa-music" style="margin-right:0.4rem;"></i>Music</h2>
-                    <button class="add-btn" data-add="track"><i class="fa-solid fa-plus"></i> Add</button>
+                    <div class="deck-head-actions">
+                        <button class="deck-tool" data-mode-toggle="track" data-target="sort" aria-label="Reorder tracks" title="Reorder"><i class="fa-solid fa-sort"></i></button>
+                        <button class="deck-tool" data-mode-toggle="track" data-target="select" aria-label="Select tracks" title="Select"><i class="fa-regular fa-square-check"></i></button>
+                        <button class="add-btn" data-add="track"><i class="fa-solid fa-plus"></i> Add</button>
+                    </div>
                 </div>
                 <input id="track-search" class="deck-search" type="search" placeholder="Search tracks…">
                 <div id="track-channels" class="channel-chips"></div>
                 <div id="track-banner" class="browse-banner" style="display:none;"></div>
                 <div id="track-filters" class="filter-row"></div>
                 <div id="track-list" class="deck-list"></div>
+                <div id="track-bulk" class="bulk-bar">
+                    <span class="bulk-count">0 selected</span>
+                    <span>
+                        <button data-bulk="track" data-action="cancel">Cancel</button>
+                        <button class="danger" data-bulk="track" data-action="delete">Delete</button>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -969,6 +1114,16 @@
                 <button id="modal-cancel" class="btn-ghost">Cancel</button>
                 <button id="modal-save" class="btn-primary">Add</button>
             </div>
+        </div>
+    </div>
+
+    <div id="tags-bg" class="modal-bg">
+        <div class="discover-panel">
+            <div class="discover-head">
+                <div class="discover-tabs"><span style="color:var(--text-muted);font-size:0.78rem;">Manage tags</span></div>
+                <button id="tags-close" class="btn-ghost" style="padding:0.35rem 0.7rem;">Close</button>
+            </div>
+            <div id="tags-list" class="discover-results" style="max-height:60vh;"></div>
         </div>
     </div>
 

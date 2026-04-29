@@ -437,12 +437,39 @@ function renderFilters(kind) {
     });
 }
 
+let listMode = { walk: 'normal', track: 'normal' }; // 'normal' | 'sort' | 'select'
+let selected = { walk: new Set(), track: new Set() };
+let pendingDelete = { kind: null, id: null, timeout: null };
+
+function setListMode(kind, mode) {
+    listMode[kind] = mode;
+    if (mode !== 'select') selected[kind].clear();
+    document.querySelectorAll(`[data-mode-toggle="${kind}"]`).forEach(b => {
+        b.classList.toggle('active', b.dataset.target === mode);
+    });
+    const search = document.getElementById(kind === 'walk' ? 'walk-search' : 'track-search');
+    if (search) search.disabled = mode === 'sort';
+    const filters = document.getElementById(kind === 'walk' ? 'walk-filters' : 'track-filters');
+    if (filters) filters.style.display = mode === 'sort' ? 'none' : '';
+    renderList(kind);
+    updateBulkBar(kind);
+}
+
+function updateBulkBar(kind) {
+    const bar = document.getElementById(kind === 'walk' ? 'walk-bulk' : 'track-bulk');
+    if (!bar) return;
+    bar.classList.toggle('show', listMode[kind] === 'select');
+    const count = selected[kind].size;
+    bar.querySelector('.bulk-count').textContent = `${count} selected`;
+}
+
 function renderList(kind) {
     const items = kind === 'walk' ? walks : tracks;
     const filterKey = kind === 'walk' ? 'walkFilter' : 'trackFilter';
     const searchKey = kind === 'walk' ? 'walkSearch' : 'trackSearch';
-    const filter = state[filterKey];
-    const search = (state[searchKey] || '').trim().toLowerCase();
+    const mode = listMode[kind];
+    const filter = mode === 'sort' ? 'all' : state[filterKey];
+    const search = mode === 'sort' ? '' : (state[searchKey] || '').trim().toLowerCase();
     const activeId = kind === 'walk' ? state.walkId : state.trackId;
     const container = document.getElementById(kind === 'walk' ? 'walk-list' : 'track-list');
     let filtered = filter === 'all' ? items : items.filter(i => (i.tags || []).includes(filter));
@@ -458,27 +485,66 @@ function renderList(kind) {
         container.innerHTML = `<div style="color:var(--text-muted);font-size:0.8125rem;padding:0.65rem 0.5rem;line-height:1.5;">${hint}</div>`;
         return;
     }
-    container.innerHTML = filtered.map(item => `
-        <div class="item ${item.id === activeId ? 'active' : ''}" data-id="${escapeHtml(item.id)}">
-            <div class="item-thumb" style="background-image:url('${thumbUrl(item.videoId)}')"></div>
-            <div class="item-meta">
-                <div class="item-name">${escapeHtml(item.name)}</div>
-                <div class="item-tags">${(item.tags || []).map(escapeHtml).join(' · ')}</div>
+    container.innerHTML = filtered.map((item, idx) => {
+        const isFirst = idx === 0;
+        const isLast  = idx === filtered.length - 1;
+        const checked = selected[kind].has(item.id);
+        let actions = '';
+        if (mode === 'sort') {
+            actions = `
+                <button class="item-move" data-move-up="${escapeHtml(item.id)}" aria-label="Move up" ${isFirst ? 'disabled' : ''}><i class="fa-solid fa-chevron-up"></i></button>
+                <button class="item-move" data-move-down="${escapeHtml(item.id)}" aria-label="Move down" ${isLast ? 'disabled' : ''}><i class="fa-solid fa-chevron-down"></i></button>
+            `;
+        } else if (mode === 'select') {
+            actions = '';
+        } else {
+            actions = `
+                <button class="item-edit" data-edit="${escapeHtml(item.id)}" aria-label="Edit"><i class="fa-solid fa-pen"></i></button>
+                <button class="item-del" data-del="${escapeHtml(item.id)}" aria-label="Delete"><i class="fa-solid fa-xmark"></i></button>
+            `;
+        }
+        const checkbox = mode === 'select'
+            ? `<span class="item-check"><i class="fa-solid fa-check"></i></span>` : '';
+        const draggable = mode === 'sort' ? 'draggable="true"' : '';
+        const cls = [
+            'item',
+            (mode !== 'select' && item.id === activeId) ? 'active' : '',
+            (mode === 'select' && checked) ? 'selected' : '',
+        ].filter(Boolean).join(' ');
+        return `
+            <div class="${cls}" data-id="${escapeHtml(item.id)}" ${draggable}>
+                ${checkbox}
+                <div class="item-thumb" style="background-image:url('${thumbUrl(item.videoId)}')"></div>
+                <div class="item-meta">
+                    <div class="item-name">${escapeHtml(item.name)}</div>
+                    <div class="item-tags">${(item.tags || []).map(escapeHtml).join(' · ')}</div>
+                </div>
+                ${actions}
             </div>
-            <button class="item-edit" data-edit="${escapeHtml(item.id)}" aria-label="Edit"><i class="fa-solid fa-pen"></i></button>
-            <button class="item-del" data-del="${escapeHtml(item.id)}" aria-label="Delete"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+    bindItemEvents(kind);
+}
+
+function bindItemEvents(kind) {
+    const container = document.getElementById(kind === 'walk' ? 'walk-list' : 'track-list');
+    const mode = listMode[kind];
     container.querySelectorAll('.item').forEach(el => {
         el.addEventListener('click', e => {
+            if (mode === 'sort') return;
+            if (mode === 'select') {
+                toggleSelected(kind, el.dataset.id);
+                return;
+            }
             if (e.target.closest('[data-del]') || e.target.closest('[data-edit]')) return;
             kind === 'walk' ? selectWalk(el.dataset.id) : selectTrack(el.dataset.id);
         });
+        if (mode === 'sort') wireDrag(el, kind);
     });
     container.querySelectorAll('[data-del]').forEach(b => {
         b.addEventListener('click', e => {
             e.stopPropagation();
-            removeItem(kind, b.dataset.del);
+            requestDelete(kind, b.dataset.del, b);
         });
     });
     container.querySelectorAll('[data-edit]').forEach(b => {
@@ -487,6 +553,116 @@ function renderList(kind) {
             openEditModal(kind, b.dataset.edit);
         });
     });
+    container.querySelectorAll('[data-move-up]').forEach(b => {
+        b.addEventListener('click', e => { e.stopPropagation(); moveItem(kind, b.dataset.moveUp, -1); });
+    });
+    container.querySelectorAll('[data-move-down]').forEach(b => {
+        b.addEventListener('click', e => { e.stopPropagation(); moveItem(kind, b.dataset.moveDown, +1); });
+    });
+}
+
+function toggleSelected(kind, id) {
+    if (selected[kind].has(id)) selected[kind].delete(id);
+    else selected[kind].add(id);
+    renderList(kind);
+    updateBulkBar(kind);
+}
+
+function moveItem(kind, id, dir) {
+    const arr = kind === 'walk' ? walks : tracks;
+    const i = arr.findIndex(x => x.id === id);
+    if (i < 0) return;
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    save(kind === 'walk' ? STORE.walks : STORE.tracks, arr);
+    renderList(kind);
+}
+
+function wireDrag(el, kind) {
+    el.addEventListener('dragstart', e => {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', el.dataset.id);
+        el.classList.add('dragging');
+        document.body.classList.add('internal-drag');
+    });
+    el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        document.body.classList.remove('internal-drag');
+        document.querySelectorAll('.item.drop-above, .item.drop-below').forEach(x => {
+            x.classList.remove('drop-above', 'drop-below');
+        });
+    });
+    el.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const rect = el.getBoundingClientRect();
+        const above = (e.clientY - rect.top) < rect.height / 2;
+        el.classList.toggle('drop-above', above);
+        el.classList.toggle('drop-below', !above);
+    });
+    el.addEventListener('dragleave', () => {
+        el.classList.remove('drop-above', 'drop-below');
+    });
+    el.addEventListener('drop', e => {
+        e.preventDefault();
+        const draggedId = e.dataTransfer.getData('text/plain');
+        if (!draggedId || draggedId === el.dataset.id) return;
+        const rect = el.getBoundingClientRect();
+        const above = (e.clientY - rect.top) < rect.height / 2;
+        reorderTo(kind, draggedId, el.dataset.id, above);
+    });
+}
+
+function reorderTo(kind, draggedId, targetId, above) {
+    const arr = kind === 'walk' ? walks : tracks;
+    const from = arr.findIndex(x => x.id === draggedId);
+    if (from < 0) return;
+    const [item] = arr.splice(from, 1);
+    let to = arr.findIndex(x => x.id === targetId);
+    if (to < 0) { arr.splice(from, 0, item); return; }
+    if (!above) to += 1;
+    arr.splice(to, 0, item);
+    save(kind === 'walk' ? STORE.walks : STORE.tracks, arr);
+    renderList(kind);
+}
+
+function bulkDelete(kind) {
+    const ids = Array.from(selected[kind]);
+    if (!ids.length) return;
+    if (kind === 'walk') {
+        walks = walks.filter(w => !ids.includes(w.id));
+        save(STORE.walks, walks);
+        if (ids.includes(state.walkId)) state.walkId = null;
+    } else {
+        tracks = tracks.filter(t => !ids.includes(t.id));
+        save(STORE.tracks, tracks);
+        if (ids.includes(state.trackId)) state.trackId = null;
+    }
+    pairs = pairs.filter(p => walks.find(w => w.id === p.walkId) && tracks.find(t => t.id === p.trackId));
+    save(STORE.pairs, pairs);
+    save(STORE.state, state);
+    selected[kind].clear();
+    setListMode(kind, 'normal');
+    renderFilters(kind); renderPairs(); renderMoods();
+    flashMessage(`Deleted ${ids.length} ${kind === 'walk' ? 'walk' : 'track'}${ids.length === 1 ? '' : 's'}`);
+}
+
+function requestDelete(kind, id, btn) {
+    if (pendingDelete.timeout) clearTimeout(pendingDelete.timeout);
+    if (pendingDelete.kind === kind && pendingDelete.id === id) {
+        pendingDelete = { kind: null, id: null, timeout: null };
+        removeItem(kind, id);
+        return;
+    }
+    pendingDelete = { kind, id };
+    btn.classList.add('confirming');
+    btn.title = 'Click again to delete';
+    pendingDelete.timeout = setTimeout(() => {
+        btn.classList.remove('confirming');
+        btn.title = 'Delete';
+        pendingDelete = { kind: null, id: null, timeout: null };
+    }, 2000);
 }
 
 function bindSearch(inputId, kind) {
@@ -703,6 +879,8 @@ function commitBulk() {
 }
 
 /* ── Pairings ── */
+let pendingPairDelete = { id: null, timeout: null };
+
 function renderPairs() {
     const container = document.getElementById('pair-list');
     if (pairs.length === 0) {
@@ -714,29 +892,137 @@ function renderPairs() {
         const t = tracks.find(x => x.id === p.trackId);
         if (!w || !t) return '';
         return `
-            <div class="pair-card" data-pair="${escapeHtml(p.id)}">
-                <button class="pair-del" data-pair-del="${escapeHtml(p.id)}" aria-label="Delete"><i class="fa-solid fa-xmark"></i></button>
-                <div class="pair-name">${escapeHtml(p.name)}</div>
+            <div class="pair-card" data-pair="${escapeHtml(p.id)}" draggable="true">
+                <button class="pair-del" data-pair-del="${escapeHtml(p.id)}" aria-label="Delete" title="Delete"><i class="fa-solid fa-xmark"></i></button>
+                <button class="pair-rename" data-pair-rename="${escapeHtml(p.id)}" aria-label="Rename" title="Rename"><i class="fa-solid fa-pen"></i></button>
+                <div class="pair-name" data-pair-name="${escapeHtml(p.id)}">${escapeHtml(p.name)}</div>
                 <div class="pair-detail">${escapeHtml(w.name)} · ${escapeHtml(t.name)}</div>
             </div>
         `;
     }).join('');
     container.querySelectorAll('.pair-card').forEach(el => {
         el.addEventListener('click', e => {
-            if (e.target.closest('[data-pair-del]')) return;
+            if (e.target.closest('[data-pair-del]') || e.target.closest('[data-pair-rename]')) return;
+            if (e.target.closest('[data-pair-name][contenteditable="true"]')) return;
             const p = pairs.find(x => x.id === el.dataset.pair);
             if (!p) return;
             selectWalk(p.walkId);
             selectTrack(p.trackId);
         });
+        wirePairDrag(el);
     });
     container.querySelectorAll('[data-pair-del]').forEach(b => {
         b.addEventListener('click', e => {
             e.stopPropagation();
-            pairs = pairs.filter(p => p.id !== b.dataset.pairDel);
-            save(STORE.pairs, pairs);
-            renderPairs();
+            requestPairDelete(b.dataset.pairDel, b);
         });
+    });
+    container.querySelectorAll('[data-pair-rename]').forEach(b => {
+        b.addEventListener('click', e => {
+            e.stopPropagation();
+            beginPairRename(b.dataset.pairRename);
+        });
+    });
+}
+
+function beginPairRename(id) {
+    const el = document.querySelector(`[data-pair-name="${CSS.escape(id)}"]`);
+    if (!el) return;
+    el.contentEditable = 'true';
+    el.focus();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    const original = el.textContent;
+    const finish = (commit) => {
+        el.contentEditable = 'false';
+        el.removeEventListener('blur', onBlur);
+        el.removeEventListener('keydown', onKey);
+        const next = el.textContent.trim();
+        if (commit && next && next !== original) {
+            const p = pairs.find(x => x.id === id);
+            if (p) {
+                p.name = next;
+                save(STORE.pairs, pairs);
+                flashMessage('Renamed pairing');
+            }
+        } else {
+            el.textContent = original;
+        }
+    };
+    const onBlur = () => finish(true);
+    const onKey  = (e) => {
+        if (e.key === 'Enter')  { e.preventDefault(); el.blur(); }
+        if (e.key === 'Escape') { e.preventDefault(); el.textContent = original; el.blur(); }
+    };
+    el.addEventListener('blur', onBlur);
+    el.addEventListener('keydown', onKey);
+}
+
+function requestPairDelete(id, btn) {
+    if (pendingPairDelete.timeout) clearTimeout(pendingPairDelete.timeout);
+    if (pendingPairDelete.id === id) {
+        pendingPairDelete = { id: null, timeout: null };
+        pairs = pairs.filter(p => p.id !== id);
+        save(STORE.pairs, pairs);
+        renderPairs();
+        return;
+    }
+    pendingPairDelete.id = id;
+    btn.classList.add('confirming');
+    btn.title = 'Click again to delete';
+    pendingPairDelete.timeout = setTimeout(() => {
+        btn.classList.remove('confirming');
+        btn.title = 'Delete';
+        pendingPairDelete = { id: null, timeout: null };
+    }, 2000);
+}
+
+function wirePairDrag(el) {
+    el.addEventListener('dragstart', e => {
+        if (e.target && e.target.getAttribute && e.target.getAttribute('contenteditable') === 'true') {
+            e.preventDefault();
+            return;
+        }
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', el.dataset.pair);
+        el.classList.add('dragging');
+        document.body.classList.add('internal-drag');
+    });
+    el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        document.body.classList.remove('internal-drag');
+        document.querySelectorAll('.pair-card.drop-before, .pair-card.drop-after').forEach(x => {
+            x.classList.remove('drop-before', 'drop-after');
+        });
+    });
+    el.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const rect = el.getBoundingClientRect();
+        const before = (e.clientX - rect.left) < rect.width / 2;
+        el.classList.toggle('drop-before', before);
+        el.classList.toggle('drop-after', !before);
+    });
+    el.addEventListener('dragleave', () => {
+        el.classList.remove('drop-before', 'drop-after');
+    });
+    el.addEventListener('drop', e => {
+        e.preventDefault();
+        const draggedId = e.dataTransfer.getData('text/plain');
+        if (!draggedId || draggedId === el.dataset.pair) return;
+        const rect = el.getBoundingClientRect();
+        const before = (e.clientX - rect.left) < rect.width / 2;
+        const from = pairs.findIndex(p => p.id === draggedId);
+        if (from < 0) return;
+        const [moved] = pairs.splice(from, 1);
+        let to = pairs.findIndex(p => p.id === el.dataset.pair);
+        if (to < 0) { pairs.splice(from, 0, moved); return; }
+        if (!before) to += 1;
+        pairs.splice(to, 0, moved);
+        save(STORE.pairs, pairs);
+        renderPairs();
     });
 }
 function savePair() {
@@ -1016,6 +1302,10 @@ function bindDiscover() {
     document.getElementById('discover-close').addEventListener('click', closeDiscover);
     document.getElementById('discover-bg').addEventListener('click', e => {
         if (e.target.id === 'discover-bg') closeDiscover();
+    });
+    document.getElementById('tags-close').addEventListener('click', closeTagsModal);
+    document.getElementById('tags-bg').addEventListener('click', e => {
+        if (e.target.id === 'tags-bg') closeTagsModal();
     });
     document.querySelectorAll('.discover-tab').forEach(b => {
         b.addEventListener('click', () => switchDiscoverTab(b.dataset.tab));
@@ -1348,6 +1638,121 @@ async function ytChannelUploads(uploadsPlaylistId, pageToken = '') {
     return { items: data.items || [], nextPageToken: data.nextPageToken || null };
 }
 
+/* ── Tag manager ── */
+let pendingTagDelete = { tag: null, timeout: null };
+
+function openTagsModal() {
+    document.getElementById('tags-bg').classList.add('show');
+    renderTagsList();
+}
+function closeTagsModal() {
+    document.getElementById('tags-bg').classList.remove('show');
+}
+
+function renderTagsList() {
+    const counts = {};
+    walks.forEach(w => (w.tags || []).forEach(t => {
+        counts[t] = counts[t] || { walks: 0, tracks: 0 };
+        counts[t].walks++;
+    }));
+    tracks.forEach(tr => (tr.tags || []).forEach(t => {
+        counts[t] = counts[t] || { walks: 0, tracks: 0 };
+        counts[t].tracks++;
+    }));
+    const tags = Object.keys(counts).sort((a, b) => a.localeCompare(b));
+    const container = document.getElementById('tags-list');
+    if (!tags.length) {
+        container.innerHTML = '<div class="discover-empty">No tags in your library yet.</div>';
+        return;
+    }
+    container.innerHTML = tags.map(t => {
+        const c = counts[t];
+        const sub = [];
+        if (c.walks)  sub.push(`${c.walks} walk${c.walks === 1 ? '' : 's'}`);
+        if (c.tracks) sub.push(`${c.tracks} track${c.tracks === 1 ? '' : 's'}`);
+        return `
+            <div class="tag-row" data-tag="${escapeHtml(t)}">
+                <input type="text" class="tag-name" value="${escapeHtml(t)}" data-orig="${escapeHtml(t)}">
+                <span class="tag-count">${sub.join(' · ')}</span>
+                <button class="tag-del" data-tag-del="${escapeHtml(t)}">Delete</button>
+            </div>
+        `;
+    }).join('');
+    container.querySelectorAll('input.tag-name').forEach(inp => {
+        const commit = () => {
+            const oldName = inp.dataset.orig;
+            const newName = inp.value.trim();
+            if (!newName || newName === oldName) { inp.value = oldName; return; }
+            renameTag(oldName, newName);
+        };
+        inp.addEventListener('blur', commit);
+        inp.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+            if (e.key === 'Escape') { inp.value = inp.dataset.orig; inp.blur(); }
+        });
+    });
+    container.querySelectorAll('[data-tag-del]').forEach(b => {
+        b.addEventListener('click', () => requestTagDelete(b.dataset.tagDel, b));
+    });
+}
+
+function renameTag(oldName, newName) {
+    let touched = 0;
+    const replace = (it) => {
+        if (!it.tags || !it.tags.includes(oldName)) return;
+        it.tags = [...new Set(it.tags.map(t => t === oldName ? newName : t))];
+        touched++;
+    };
+    walks.forEach(replace);
+    tracks.forEach(replace);
+    save(STORE.walks, walks);
+    save(STORE.tracks, tracks);
+    if (state.walkFilter  === oldName) { state.walkFilter  = newName; }
+    if (state.trackFilter === oldName) { state.trackFilter = newName; }
+    save(STORE.state, state);
+    renderFilters('walk'); renderFilters('track');
+    renderList('walk');    renderList('track');
+    renderMoods();
+    renderTagsList();
+    flashMessage(`Renamed “${oldName}” → “${newName}” (${touched} item${touched === 1 ? '' : 's'})`);
+}
+
+function requestTagDelete(tag, btn) {
+    if (pendingTagDelete.timeout) clearTimeout(pendingTagDelete.timeout);
+    if (pendingTagDelete.tag === tag) {
+        pendingTagDelete = { tag: null, timeout: null };
+        deleteTag(tag);
+        return;
+    }
+    pendingTagDelete.tag = tag;
+    btn.classList.add('confirming');
+    btn.textContent = 'Confirm?';
+    pendingTagDelete.timeout = setTimeout(() => {
+        btn.classList.remove('confirming');
+        btn.textContent = 'Delete';
+        pendingTagDelete = { tag: null, timeout: null };
+    }, 2000);
+}
+
+function deleteTag(tag) {
+    const strip = (it) => {
+        if (!it.tags) return;
+        it.tags = it.tags.filter(t => t !== tag);
+    };
+    walks.forEach(strip);
+    tracks.forEach(strip);
+    save(STORE.walks, walks);
+    save(STORE.tracks, tracks);
+    if (state.walkFilter  === tag) state.walkFilter  = 'all';
+    if (state.trackFilter === tag) state.trackFilter = 'all';
+    save(STORE.state, state);
+    renderFilters('walk'); renderFilters('track');
+    renderList('walk');    renderList('track');
+    renderMoods();
+    renderTagsList();
+    flashMessage(`Removed tag “${tag}”`);
+}
+
 /* ── YouTube API key ── */
 function getApiKey() { return load(STORE.apiKey, ''); }
 function promptApiKey() {
@@ -1388,6 +1793,7 @@ function setupDragDrop() {
     let dragCount = 0;
     document.addEventListener('dragenter', e => {
         if (!e.dataTransfer) return;
+        if (document.body.classList.contains('internal-drag')) return;
         if (![...e.dataTransfer.types].some(t => t === 'text/plain' || t === 'text/uri-list')) return;
         dragCount++;
         document.body.classList.add('dragging');
@@ -1697,6 +2103,7 @@ function setupTopBar() {
             else if (action === 'bulk-track') openBulkModal('track');
             else if (action === 'copy-link') copySessionLink();
             else if (action === 'api-key')   promptApiKey();
+            else if (action === 'manage-tags') openTagsModal();
         });
     });
 
@@ -1742,6 +2149,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('[data-add]').forEach(b => {
         b.addEventListener('click', () => openAddModal(b.dataset.add));
+    });
+
+    document.querySelectorAll('[data-mode-toggle]').forEach(b => {
+        b.addEventListener('click', () => {
+            const kind = b.dataset.modeToggle;
+            const target = b.dataset.target;
+            setListMode(kind, listMode[kind] === target ? 'normal' : target);
+        });
+    });
+    document.querySelectorAll('[data-bulk]').forEach(b => {
+        b.addEventListener('click', () => {
+            const kind = b.dataset.bulk;
+            if (b.dataset.action === 'delete') bulkDelete(kind);
+            else setListMode(kind, 'normal');
+        });
     });
     document.getElementById('modal-cancel').addEventListener('click', closeAddModal);
     document.getElementById('modal-save').addEventListener('click', commitModal);
