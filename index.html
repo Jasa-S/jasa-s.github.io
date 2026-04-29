@@ -30,8 +30,7 @@
 
         @media (hover: hover) and (pointer: fine) {
             #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
-            #rocket-btn:hover   { color: var(--cosmic-purple); transform: translateY(-2px) scale(1.15); }
-            .email-link:hover   { color: var(--cosmic-purple); }
+.email-link:hover   { color: var(--cosmic-purple); }
         }
 
         .top-bar {
@@ -168,10 +167,7 @@
 <body>
 
     <div class="top-bar">
-        <button id="rocket-btn" class="top-btn" aria-label="Open space view">
-            <i class="fa-solid fa-rocket"></i>
-        </button>
-        <button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
+<button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
     </div>
@@ -309,11 +305,7 @@
 
     <script src="theme.js"></script>
     <script>
-        document.getElementById('rocket-btn').addEventListener('click', function() {
-            window.location = 'space.html';
-        });
-
-        (function fetchSPX() {
+(function fetchSPX() {
             var ticker  = document.getElementById('sp500-ticker');
             var today   = new Date().toISOString().slice(0, 10);
             var cacheKey = 'sp500_' + today;
