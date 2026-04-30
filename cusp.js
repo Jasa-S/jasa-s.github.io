@@ -734,6 +734,141 @@
         render();
     }
 
+    function downloadBlob(filename, mime, text) {
+        var blob = new Blob([text], { type: mime });
+        var url  = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 500);
+    }
+
+    function isoStamp(d) {
+        return d.getFullYear()
+            + (d.getMonth() + 1 < 10 ? '0' : '') + (d.getMonth() + 1)
+            + (d.getDate() < 10 ? '0' : '')      + d.getDate();
+    }
+
+    function exportJson() {
+        var stamp = isoStamp(new Date());
+        var json  = JSON.stringify({ version: 2, milestones: state }, null, 2);
+        downloadBlob('cusp-milestones-' + stamp + '.json', 'application/json', json);
+    }
+
+    function importJson(file) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var raw, parsed;
+            try { raw = String(reader.result || ''); parsed = JSON.parse(raw); }
+            catch (e) { flashError('Could not read that file.'); return; }
+            var arr = Array.isArray(parsed) ? parsed
+                    : (parsed && Array.isArray(parsed.milestones) ? parsed.milestones : null);
+            if (!arr) { flashError('That JSON does not look like a CUSP export.'); return; }
+            var valid = arr.filter(isValidMilestone).map(applyDefaults);
+            if (!valid.length) { flashError('No valid milestones found in that file.'); return; }
+
+            var existing = new Set(state.map(function (m) { return m.id; }));
+            var toAdd = valid.filter(function (m) { return !existing.has(m.id); });
+            var skipped = valid.length - toAdd.length;
+            var msg = 'Import ' + toAdd.length + ' milestone' + (toAdd.length === 1 ? '' : 's')
+                + (skipped ? ' (' + skipped + ' duplicate id' + (skipped === 1 ? '' : 's') + ' skipped)' : '')
+                + '?';
+            if (!confirm(msg)) return;
+            state = state.concat(toAdd);
+            save();
+            render();
+            scanMissedNotifs();
+        };
+        reader.onerror = function () { flashError('Could not read that file.'); };
+        reader.readAsText(file);
+    }
+
+    function icalEscape(s) {
+        return String(s)
+            .replace(/\\/g, '\\\\')
+            .replace(/\n/g, '\\n')
+            .replace(/,/g, '\\,')
+            .replace(/;/g, '\\;');
+    }
+
+    function icalStamp(ms) {
+        var d = new Date(ms);
+        var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+        return d.getUTCFullYear()
+            + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate())
+            + 'T' + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z';
+    }
+
+    function exportIcal() {
+        if (!state.length) { flashError('No milestones to export.'); return; }
+        var nowStamp = icalStamp(Date.now());
+        var lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//CUSP//Milestones//EN',
+            'CALSCALE:GREGORIAN'
+        ];
+        state.forEach(function (m) {
+            var summary = (m.emoji ? m.emoji + ' ' : '') + m.title;
+            var desc    = 'CUSP milestone';
+            lines.push('BEGIN:VEVENT');
+            lines.push('UID:' + m.id + '@cusp.jasa-s.github.io');
+            lines.push('DTSTAMP:' + nowStamp);
+            lines.push('DTSTART:' + icalStamp(m.targetMs));
+            lines.push('DTEND:'   + icalStamp(m.targetMs + 60 * 60 * 1000));
+            lines.push('SUMMARY:' + icalEscape(summary));
+            lines.push('DESCRIPTION:' + icalEscape(desc));
+            lines.push('END:VEVENT');
+        });
+        lines.push('END:VCALENDAR');
+        var stamp = isoStamp(new Date());
+        downloadBlob('cusp-milestones-' + stamp + '.ics', 'text/calendar', lines.join('\r\n'));
+    }
+
+    function wireMenu() {
+        var btn   = document.getElementById('menu-btn');
+        var panel = document.getElementById('menu-panel');
+        var fileIn = document.getElementById('import-file-input');
+        if (!btn || !panel) return;
+
+        function open() {
+            panel.hidden = false;
+            requestAnimationFrame(function () { panel.classList.add('show'); });
+            btn.setAttribute('aria-expanded', 'true');
+        }
+        function close() {
+            panel.classList.remove('show');
+            btn.setAttribute('aria-expanded', 'false');
+            setTimeout(function () { panel.hidden = true; }, 160);
+        }
+        function toggle() { panel.hidden ? open() : close(); }
+
+        btn.addEventListener('click', function (ev) { ev.stopPropagation(); toggle(); });
+        document.addEventListener('click', function (ev) {
+            if (panel.hidden) return;
+            if (panel.contains(ev.target) || btn.contains(ev.target)) return;
+            close();
+        });
+        document.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Escape' && !panel.hidden) close();
+        });
+
+        document.getElementById('menu-export-json').addEventListener('click', function () { close(); exportJson(); });
+        document.getElementById('menu-export-ical').addEventListener('click', function () { close(); exportIcal(); });
+        document.getElementById('menu-import-json').addEventListener('click', function () {
+            close();
+            if (fileIn) fileIn.click();
+        });
+        if (fileIn) {
+            fileIn.addEventListener('change', function () {
+                if (fileIn.files && fileIn.files[0]) importJson(fileIn.files[0]);
+                fileIn.value = '';
+            });
+        }
+    }
+
     function wireKeyboard() {
         document.addEventListener('keydown', function (ev) {
             var tag = (ev.target && ev.target.tagName) || '';
@@ -764,6 +899,7 @@
     load();
     wireForm();
     wireKeyboard();
+    wireMenu();
     var resetBtn = document.getElementById('sort-reset');
     if (resetBtn) resetBtn.addEventListener('click', resetSortToDate);
     render();

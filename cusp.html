@@ -267,6 +267,38 @@
         .sort-reset i { font-size: 0.7rem; }
         .sort-reset:hover { color: var(--cosmic-purple); border-color: rgba(124,58,237,0.4); }
 
+        /* Overflow menu panel */
+        #menu-panel {
+            position: fixed; top: 3rem; right: 1rem;
+            min-width: 12rem; z-index: 600;
+            background: var(--card); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 0.6rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            padding: 0.3rem; display: flex; flex-direction: column;
+            opacity: 0; transform: translateY(-4px);
+            transition: opacity 0.15s, transform 0.15s;
+            pointer-events: none;
+        }
+        #menu-panel.show {
+            opacity: 1; transform: translateY(0);
+            pointer-events: auto;
+        }
+        body.dark #menu-panel { box-shadow: 0 8px 24px rgba(0,0,0,0.55); }
+        #menu-panel button {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-main); font-family: inherit;
+            font-size: 0.85rem; text-align: left;
+            padding: 0.55rem 0.75rem; border-radius: 0.35rem;
+            display: flex; align-items: center; gap: 0.6rem;
+            line-height: 1.2;
+        }
+        #menu-panel button:hover { background: var(--card-hover); }
+        #menu-panel button i {
+            color: var(--text-muted); font-size: 0.85rem;
+            width: 1rem; text-align: center;
+        }
+        #menu-panel button:hover i { color: var(--cosmic-purple); }
+
         /* Toast for undo */
         #toast {
             position: fixed; left: 50%; bottom: 1.25rem;
@@ -319,10 +351,27 @@
 </head>
 <body>
     <div id="top-bar-direct">
+        <button class="top-btn" id="menu-btn" aria-label="More actions"
+            aria-haspopup="menu" aria-expanded="false">
+            <i class="fa-solid fa-ellipsis"></i>
+        </button>
         <button class="top-btn" id="theme-toggle" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
     </div>
+
+    <div id="menu-panel" role="menu" aria-labelledby="menu-btn" hidden>
+        <button type="button" role="menuitem" id="menu-export-json">
+            <i class="fa-solid fa-file-arrow-down"></i><span>Export JSON</span>
+        </button>
+        <button type="button" role="menuitem" id="menu-import-json">
+            <i class="fa-solid fa-file-arrow-up"></i><span>Import JSON</span>
+        </button>
+        <button type="button" role="menuitem" id="menu-export-ical">
+            <i class="fa-solid fa-calendar-plus"></i><span>Export iCal (.ics)</span>
+        </button>
+    </div>
+    <input type="file" id="import-file-input" accept=".json,application/json" hidden>
 
     <div id="page">
         <header>
