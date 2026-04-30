@@ -42,33 +42,7 @@
             -webkit-touch-callout: none;
         }
 
-        #space-close {
-            position: absolute;
-            top: 1.1rem; left: 1.5rem;
-            z-index: 200;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.65rem;
-            font-weight: 400;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            padding: 0.25rem 0.4rem;
-            transition: color 0.2s;
-            outline: none;
-        }
-        #space-close:focus-visible {
-            outline: 2px solid var(--cosmic-purple);
-            outline-offset: 3px;
-            border-radius: 4px;
-        }
-        @media (hover:hover) and (pointer:fine) {
-            #space-close:hover { color: var(--cosmic-purple); }
-        }
-
-        #start-overlay {
+#start-overlay {
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
@@ -200,7 +174,6 @@
             }
             .nasa-label { font-size: 0.5rem;  margin-bottom: 0.15rem; }
             .nasa-value  { font-size: 0.55rem; line-height: 1.45; }
-            #space-close { top: 0.5rem; left: 0.75rem; }
         }
     </style>
     <script type="importmap">
@@ -211,8 +184,6 @@
     </script>
 </head>
 <body>
-
-<button id="space-close">&#8592;&ensp;Return</button>
 
 <div id="start-overlay">
     <button id="start-btn">Initiate</button>
@@ -255,8 +226,6 @@ import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
-
-document.getElementById('space-close').addEventListener('click', () => { window.location = 'index.html'; });
 
 const isMobile = window.isMobile;
 
@@ -508,7 +477,7 @@ window.addEventListener('keyup', e => {
     if(e.code === 'Space') thrusting = false;
 }, { passive: true });
 window.addEventListener('pointerdown', e => {
-    if(started && e.target && e.target.id !== 'start-btn' && e.target.id !== 'space-close') thrusting = true;
+    if(started && e.target && e.target.id !== 'start-btn') thrusting = true;
 });
 window.addEventListener('pointerup',      () => thrusting = false);
 window.addEventListener('pointercancel',  () => thrusting = false);
