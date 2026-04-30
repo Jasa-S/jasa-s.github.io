@@ -5,21 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
-    <meta name="description" content="Links to projects by Jasaman Saini: BlUE photo gallery, ORO golden hour planner, TIME milestone countdowns, and SPACE star field.">
-    <meta property="og:title" content="Jasaman Saini — Links">
-    <meta property="og:description" content="Hub linking to BlUE, ORO, TIME, SPACE and the about page.">
+    <meta name="description" content="Projects by Jasaman Saini: BlUE photo gallery, ORO golden hour planner, TIME milestone countdowns, SPACE star field, and Slow Walking.">
+    <meta property="og:title" content="Projects — Jasaman Saini">
+    <meta property="og:description" content="Project hub: BlUE, ORO, TIME, SPACE, Slow Walking, and about.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://jasa-s.github.io/links.html">
-    <meta property="og:image" content="https://jasa-s.github.io/blue-images/profileImage.png">
     <meta name="twitter:card" content="summary">
     <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
-    <title>Links</title>
+    <title>Projects</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="/blue-images/profileImage.png?v=2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Helvetica+Neue:wght@700;900&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link rel="stylesheet" href="shared.css">
     <style>
@@ -50,28 +49,22 @@
         .top-bar .top-btn { padding: 0.35rem; min-width: unset; }
 
         .site-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
+            position: absolute;
+            top: 0.85rem;
+            left: 1.25rem;
+            z-index: 500;
         }
-        .profile-img {
-            width: 88px; height: 88px;
-            border-radius: 50%; object-fit: cover;
-            border: 1px solid var(--border);
-            margin: 0 auto 1rem;
-            display: block;
-        }
-        body.dark .profile-img { border-color: rgba(255,255,255,0.15); }
         .header-h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            letter-spacing: -0.025em;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
             margin: 0;
+            color: var(--text-main);
+            line-height: 1;
         }
-        .header-subtitle {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin: 0.5rem 0 0;
-        }
+        .header-h1 .quote { color: var(--text-muted); font-weight: 700; }
 
         .nav-link { text-decoration: none; display: block; color: inherit; }
 
@@ -128,14 +121,7 @@
     </div>
 
     <header class="site-header">
-        <img
-            src="/blue-images/profileImage.png"
-            width="88" height="88"
-            loading="lazy" decoding="async"
-            alt="Jasaman Saini" class="profile-img"
-        >
-        <h1 class="header-h1">Jasaman Saini</h1>
-        <p class="header-subtitle">Frankfurt</p>
+        <h1 class="header-h1"><span class="quote">&ldquo;</span>PROJECTS<span class="quote">&rdquo;</span></h1>
     </header>
 
     <main class="links-stack">
@@ -180,6 +166,15 @@
                 <div class="card-text">
                     <h2 class="card-title"><span class="icon-globe">&#128640;</span>SPACE</h2>
                     <p class="card-sub">Interactive star field</p>
+                </div>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+        </a>
+        <a href="slow-walking.html" class="nav-link" aria-label="Open Slow Walking">
+            <div class="photo-card">
+                <div class="card-text">
+                    <h2 class="card-title"><span class="icon-globe">&#127747;</span>Slow Walking</h2>
+                    <p class="card-sub">Walks &amp; music pairings</p>
                 </div>
                 <i class="fa-solid fa-arrow-right arrow-icon"></i>
             </div>
