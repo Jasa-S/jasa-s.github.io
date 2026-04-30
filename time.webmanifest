@@ -2,7 +2,7 @@
   "name": "TIME",
   "short_name": "TIME",
   "description": "Countdowns to the milestones that matter.",
-  "start_url": "/cusp.html",
+  "start_url": "/time.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",

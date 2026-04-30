@@ -1,13 +1,13 @@
 /* Site-wide service worker. Stale-while-revalidate so updates roll out on
    the next reload instead of being pinned forever to the first cached
-   version. Shared by Slow Walking and CUSP. */
-const CACHE = 'site-v4';
+   version. Shared by Slow Walking and TIME. */
+const CACHE = 'site-v5';
 const SHELL = [
     '/slow-walking.html',
     '/slow-walking.js',
-    '/cusp.html',
-    '/cusp.js',
-    '/cusp.webmanifest',
+    '/time.html',
+    '/time.js',
+    '/time.webmanifest',
     '/theme.js',
     '/shared.css',
     '/favicon.svg',
