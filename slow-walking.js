@@ -20,9 +20,9 @@ const SOURCES = {
 const SEED_WALKS = [
     {
         id: 'w_seed_seoul_night',
-        name: 'Seoul Night Drive Downtown',
+        name: 'Snowy Morning Walk in Gyeongbokgung Palace',
         videoId: 'e3pEdcNRFs0',
-        tags: ['seoul', 'night'],
+        tags: ['seoul', 'snow'],
     },
 ];
 const SEED_TRACKS = [
