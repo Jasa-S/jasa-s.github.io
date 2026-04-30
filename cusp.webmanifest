@@ -1,6 +1,6 @@
 {
-  "name": "CUSP",
-  "short_name": "CUSP",
+  "name": "TIME",
+  "short_name": "TIME",
   "description": "Countdowns to the milestones that matter.",
   "start_url": "/cusp.html",
   "scope": "/",

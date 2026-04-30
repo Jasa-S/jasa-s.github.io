@@ -53,7 +53,7 @@
             }
             state = [];
         } catch (e) {
-            console.warn('CUSP: could not parse storage, resetting.', e);
+            console.warn('TIME: could not parse storage, resetting.', e);
             state = [];
         }
     }
@@ -78,7 +78,7 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             } catch (e) {
-                console.warn('CUSP: could not save to storage.', e);
+                console.warn('TIME: could not save to storage.', e);
             }
         }, 200);
     }
@@ -328,8 +328,8 @@
         var bellTitle = isReached
             ? 'Notifications (reached)'
             : (m.notify && m.notify.enabled
-                ? 'Reminders on (fire while CUSP is open)'
-                : 'Turn on reminders (fire while CUSP is open)');
+                ? 'Reminders on (fire while TIME is open)'
+                : 'Turn on reminders (fire while TIME is open)');
 
         var pinHtml = isReached ? '' : (
             '<button class="icon-btn js-pin ' + (m.pinned ? 'active' : '') + '"'
@@ -838,7 +838,7 @@
         var url = location.origin + location.pathname + '#m=' + encoded;
         copyToClipboard(url).then(function (ok) {
             showToast(ok ? 'Share link copied' : 'Could not copy — link in console', null, null);
-            if (!ok) console.log('CUSP share link:', url);
+            if (!ok) console.log('TIME share link:', url);
         });
     }
 
@@ -934,7 +934,7 @@
     function exportJson() {
         var stamp = isoStamp(new Date());
         var json  = JSON.stringify({ version: 2, milestones: state }, null, 2);
-        downloadBlob('cusp-milestones-' + stamp + '.json', 'application/json', json);
+        downloadBlob('time-milestones-' + stamp + '.json', 'application/json', json);
     }
 
     function importJson(file) {
@@ -945,7 +945,7 @@
             catch (e) { flashError('Could not read that file.'); return; }
             var arr = Array.isArray(parsed) ? parsed
                     : (parsed && Array.isArray(parsed.milestones) ? parsed.milestones : null);
-            if (!arr) { flashError('That JSON does not look like a CUSP export.'); return; }
+            if (!arr) { flashError('That JSON does not look like a TIME export.'); return; }
             var valid = arr.filter(isValidMilestone).map(applyDefaults);
             if (!valid.length) { flashError('No valid milestones found in that file.'); return; }
 
@@ -987,12 +987,12 @@
         var lines = [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//CUSP//Milestones//EN',
+            'PRODID:-//TIME//Milestones//EN',
             'CALSCALE:GREGORIAN'
         ];
         state.forEach(function (m) {
             var summary = (m.emoji ? m.emoji + ' ' : '') + m.title;
-            var desc    = 'CUSP milestone';
+            var desc    = 'TIME milestone';
             lines.push('BEGIN:VEVENT');
             lines.push('UID:' + m.id + '@cusp.jasa-s.github.io');
             lines.push('DTSTAMP:' + nowStamp);
@@ -1004,7 +1004,7 @@
         });
         lines.push('END:VCALENDAR');
         var stamp = isoStamp(new Date());
-        downloadBlob('cusp-milestones-' + stamp + '.ics', 'text/calendar', lines.join('\r\n'));
+        downloadBlob('time-milestones-' + stamp + '.ics', 'text/calendar', lines.join('\r\n'));
     }
 
     function wireMenu() {
