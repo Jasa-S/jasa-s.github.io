@@ -41,16 +41,17 @@
             margin-bottom: 1.75rem; flex-wrap: wrap;
         }
         .search-input {
-            flex: 1 1 12rem; min-width: 0;
+            flex: 1 1 11rem; min-width: 0;
             background: var(--card); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 999px;
-            padding: 0.55rem 1rem; font-size: 0.9rem;
+            padding: 0 1rem; font-size: 0.9rem;
+            height: 2.4rem; line-height: 1;
             font-family: inherit; outline: none;
             transition: border-color 0.2s;
         }
         .search-input:focus { border-color: var(--cosmic-purple); }
         .date-input {
-            flex: 0 1 10rem;
+            flex: 0 1 8.5rem;
             font-variant-numeric: tabular-nums;
         }
         /* Calendar icon inherits current text color so it works in both themes */
@@ -63,13 +64,19 @@
         .btn {
             background: var(--card); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 999px;
-            padding: 0.5rem 0.95rem; font-size: 0.8rem;
+            padding: 0 0.95rem; font-size: 0.8rem;
+            height: 2.4rem; line-height: 1;
             font-family: inherit; cursor: pointer;
             transition: background 0.2s, border-color 0.2s, color 0.2s;
             display: inline-flex; align-items: center; gap: 0.4rem;
+            white-space: nowrap;
         }
         .btn:hover { background: var(--card-hover); border-color: rgba(125,125,125,0.3); }
         .btn i { font-size: 0.75rem; }
+        @media (max-width: 480px) {
+            #geo-btn .geo-label { display: none; }
+            #geo-btn { padding: 0 0.7rem; }
+        }
 
         /* Summary card */
         .sun-card {
@@ -318,8 +325,8 @@
             <button type="submit" class="btn" id="search-btn">
                 <i class="fa-solid fa-magnifying-glass"></i>Search
             </button>
-            <button type="button" class="btn" id="geo-btn" aria-label="Use my location">
-                <i class="fa-solid fa-location-crosshairs"></i>My location
+            <button type="button" class="btn" id="geo-btn" aria-label="Use my location" title="Use my location">
+                <i class="fa-solid fa-location-crosshairs"></i><span class="geo-label">My location</span>
             </button>
         </form>
 
