@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
+    <title>Links</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="/blue-images/profileImage.png?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            max-width: 32rem;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 0;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 0.75rem;
+            right: 1.25rem;
+            display: flex;
+            align-items: center;
+            z-index: 500;
+        }
+        .top-bar .top-btn { padding: 0.35rem; min-width: unset; }
+
+        .site-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .profile-img {
+            width: 88px; height: 88px;
+            border-radius: 50%; object-fit: cover;
+            border: 1px solid var(--border);
+            margin: 0 auto 1rem;
+            display: block;
+        }
+        body.dark .profile-img { border-color: rgba(255,255,255,0.15); }
+        .header-h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            margin: 0;
+        }
+        .header-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0.5rem 0 0;
+        }
+
+        .photo-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 1.25rem;
+            transition: background 0.2s, transform 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            a:hover .photo-card {
+                background: var(--card-hover);
+                border-color: rgba(125,125,125,0.3);
+                transform: translateY(-2px);
+            }
+        }
+
+        .card-title {
+            font-size: 1.25rem; font-weight: 600;
+            letter-spacing: -0.025em; margin: 0;
+            display: flex; align-items: center;
+        }
+        .arrow-icon { color: var(--text-muted); transition: transform 0.2s; font-size: 0.85rem; }
+        a:hover .arrow-icon { transform: translateX(3px); }
+
+        .links-stack { display: flex; flex-direction: column; gap: 0.75rem; }
+
+        footer {
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
+            text-align: center;
+            color: var(--text-muted); font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: var(--ls-wide);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <header class="site-header">
+        <img
+            src="/blue-images/profileImage.png"
+            width="88" height="88"
+            loading="lazy" decoding="async"
+            alt="Jasaman Saini" class="profile-img"
+        >
+        <h1 class="header-h1">Jasaman Saini</h1>
+        <p class="header-subtitle">Frankfurt</p>
+    </header>
+
+    <main class="links-stack">
+        <a href="index.html" style="text-decoration:none;display:block;">
+            <div class="photo-card">
+                <h2 class="card-title"><span class="icon-globe">&#128100;</span>About</h2>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+        </a>
+        <a href="blue.html" style="text-decoration:none;display:block;">
+            <div class="photo-card">
+                <h2 class="card-title"><span class="icon-globe">&#127757;</span>BlUE</h2>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+        </a>
+        <a href="oro.html" style="text-decoration:none;display:block;">
+            <div class="photo-card">
+                <h2 class="card-title"><span class="icon-globe">&#127774;</span>ORO</h2>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+        </a>
+        <a href="time.html" style="text-decoration:none;display:block;">
+            <div class="photo-card">
+                <h2 class="card-title"><span class="icon-globe">&#8987;</span>TIME</h2>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+        </a>
+        <a href="space.html" style="text-decoration:none;display:block;">
+            <div class="photo-card">
+                <h2 class="card-title"><span class="icon-globe">&#128640;</span>SPACE</h2>
+                <i class="fa-solid fa-arrow-right arrow-icon"></i>
+            </div>
+        </a>
+    </main>
+
+    <footer>
+        <p style="margin:0;">&copy; <span id="copy-year"></span> Jasaman Saini</p>
+    </footer>
+
+    <script src="theme.js"></script>
+
+</body>
+</html>
