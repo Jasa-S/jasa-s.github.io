@@ -57,7 +57,7 @@
         }
         .header-h1 {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 1rem;
+            font-size: 1.75rem;
             font-weight: 900;
             letter-spacing: 0.02em;
             text-transform: uppercase;
@@ -66,6 +66,9 @@
             line-height: 1;
         }
         .header-h1 .quote { color: var(--text-muted); font-weight: 700; }
+        @media (max-width: 480px) {
+            .header-h1 { font-size: 1.4rem; }
+        }
 
         .nav-link { text-decoration: none; display: block; color: inherit; }
 
