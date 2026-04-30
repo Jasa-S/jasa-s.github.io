@@ -241,12 +241,79 @@
         footer a { text-decoration: none; }
         footer a:hover { color: var(--cosmic-purple); }
 
+        /* Pin active state: angled thumbtack */
+        .icon-btn.js-pin.active i { transform: rotate(-30deg); }
+        .icon-btn.js-pin.active { color: var(--cosmic-purple); }
+        .m-card.pinned { box-shadow: 0 0 0 1px rgba(124,58,237,0.18); }
+
+        /* Drag & drop visuals */
+        .m-card[draggable="true"] { cursor: grab; }
+        .m-card[draggable="true"]:active { cursor: grabbing; }
+        .m-card.dragging { opacity: 0.4; }
+        .m-card.drop-before { box-shadow: 0 -2px 0 0 var(--cosmic-purple); }
+        .m-card.drop-after  { box-shadow: 0  2px 0 0 var(--cosmic-purple); }
+
+        /* Sort-reset pill in the heading */
+        .sort-reset {
+            margin-left: auto;
+            background: var(--card); color: var(--text-muted);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0.2rem 0.65rem; font-size: 0.65rem;
+            font-family: inherit; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            text-transform: uppercase; letter-spacing: var(--ls-mid);
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .sort-reset i { font-size: 0.7rem; }
+        .sort-reset:hover { color: var(--cosmic-purple); border-color: rgba(124,58,237,0.4); }
+
+        /* Toast for undo */
+        #toast {
+            position: fixed; left: 50%; bottom: 1.25rem;
+            transform: translateX(-50%) translateY(1rem);
+            background: var(--card); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0.55rem 0.85rem 0.55rem 1.1rem;
+            display: flex; align-items: center; gap: 0.85rem;
+            font-size: 0.85rem; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 1000; max-width: calc(100vw - 2rem);
+        }
+        #toast.show {
+            opacity: 1; transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        body.dark #toast { box-shadow: 0 8px 24px rgba(0,0,0,0.55); }
+        .toast-action {
+            background: none; border: none;
+            color: var(--cosmic-purple); cursor: pointer;
+            font-family: inherit; font-size: 0.85rem;
+            font-weight: 600; padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+        }
+        .toast-action:hover { background: rgba(124,58,237,0.12); }
+
+        /* Keyboard hint chip */
+        .empty kbd {
+            display: inline-block;
+            padding: 0.05rem 0.4rem;
+            font-family: inherit; font-size: 0.75rem;
+            background: var(--card); color: var(--text-muted);
+            border: 1px solid var(--border); border-radius: 0.35rem;
+            line-height: 1;
+        }
+
         @media (max-width: 520px) {
             #page { padding: 2.5rem 1rem 0; }
             header h1 { font-size: 1.5rem; }
             .m-count .num { font-size: 1.25rem; }
             .add-emoji { width: 100%; }
             .add-color { width: 100%; height: 2.4rem; }
+            .icon-btn { min-width: 2.4rem; min-height: 2.4rem; padding: 0.55rem; font-size: 0.9rem; }
+            .m-actions { gap: 0.25rem; }
+            .sort-reset span { display: none; }
+            .sort-reset { padding: 0.3rem 0.5rem; }
         }
     </style>
 </head>
@@ -285,6 +352,11 @@
             <h2 class="cusp-heading">
                 <span>Upcoming</span>
                 <span class="count-pill" id="upcoming-count">0</span>
+                <button type="button" id="sort-reset" class="sort-reset" hidden
+                    title="Reset to date order">
+                    <i class="fa-solid fa-arrow-down-1-9"></i>
+                    <span>Reset to date order</span>
+                </button>
             </h2>
             <div id="upcoming-list"></div>
         </section>
@@ -305,8 +377,10 @@
         <div id="empty-state" class="empty" hidden>
             <i class="fa-solid fa-hourglass-half"></i>
             <p>No milestones yet.</p>
-            <p class="hint">Add one above to start a countdown.</p>
+            <p class="hint">Add one above to start a countdown — or press <kbd>n</kbd>.</p>
         </div>
+
+        <div id="toast" role="status" aria-live="polite"></div>
 
         <footer>
             <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
