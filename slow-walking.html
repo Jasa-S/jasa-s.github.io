@@ -146,6 +146,17 @@
             margin: 0.4rem 0 0; letter-spacing: var(--ls-mid);
             text-transform: lowercase;
         }
+        footer {
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
+            display: flex; justify-content: space-between;
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+        }
+        footer a { text-decoration: none; color: inherit; }
+        footer a:hover { color: var(--cosmic-purple); }
+
         @media (max-width: 520px) {
             .slow-walking-title { font-size: 1.4rem; }
             body { padding: 2.75rem 1rem 4rem; }
@@ -1084,6 +1095,11 @@
                 </div>
             </div>
         </div>
+
+        <footer>
+            <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
+            <a href="index.html">Homepage</a>
+        </footer>
     </div>
 
     <div id="music-mini" class="music-mini">
