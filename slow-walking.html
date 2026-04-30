@@ -351,35 +351,6 @@
             border: none;
         }
 
-        /* Mood preset row */
-        .moods {
-            display: flex; flex-wrap: wrap; gap: 0.4rem;
-            margin-bottom: 1.25rem;
-            align-items: center;
-        }
-        .moods-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: var(--ls-wide);
-            color: var(--text-muted);
-            font-weight: 700;
-            margin-right: 0.35rem;
-        }
-        .mood-pill {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            border-radius: 999px;
-            padding: 0.3rem 0.75rem;
-            font-size: 0.72rem;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.15s;
-            display: inline-flex; align-items: center; gap: 0.4rem;
-        }
-        .mood-pill:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
-        .mood-pill i { font-size: 0.65rem; }
-
         /* Decks */
         .decks {
             display: grid;
@@ -984,7 +955,7 @@
             <h1 class="slow-walking-title">
                 &#128694; Slow Walking
             </h1>
-            <p class="slow-walking-sub">Background walks &amp; music to play while you study or work.</p>
+            <p class="slow-walking-sub">Background walks &amp; music for studying.</p>
         </header>
 
         <div class="now-playing">
@@ -1042,8 +1013,6 @@
             </div>
             <div id="pair-list" class="pair-list"></div>
         </section>
-
-        <div id="moods" class="moods"></div>
 
         <div class="decks">
             <div class="deck">

@@ -644,7 +644,7 @@ function bulkDelete(kind) {
     save(STORE.state, state);
     selected[kind].clear();
     setListMode(kind, 'normal');
-    renderFilters(kind); renderPairs(); renderMoods();
+    renderFilters(kind); renderPairs();
     flashMessage(`Deleted ${ids.length} ${kind === 'walk' ? 'walk' : 'track'}${ids.length === 1 ? '' : 's'}`);
 }
 
@@ -825,7 +825,6 @@ function commitAdd() {
         tracks.push(item); save(STORE.tracks, tracks);
         renderFilters('track'); renderList('track');
     }
-    renderMoods();
     closeAddModal();
 }
 function commitEdit() {
@@ -845,7 +844,7 @@ function commitEdit() {
     if (modalKind === 'track' && state.trackId === editId) {
         document.getElementById('now-track').innerHTML = '<i class="fa-solid fa-music"></i>' + escapeHtml(name);
     }
-    renderFilters(modalKind); renderList(modalKind); renderPairs(); renderMoods();
+    renderFilters(modalKind); renderList(modalKind); renderPairs();
     closeAddModal();
 }
 function commitBulk() {
@@ -873,7 +872,7 @@ function commitBulk() {
         added++;
     }
     save(STORE.walks, walks); save(STORE.tracks, tracks);
-    renderFilters(modalKind); renderList(modalKind); renderMoods();
+    renderFilters(modalKind); renderList(modalKind);
     closeAddModal();
     if (skipped) alert(`Added ${added}, skipped ${skipped} (couldn't parse).`);
 }
@@ -1420,7 +1419,6 @@ function handleDiscoverAction(act, idx) {
         if (kind === 'track' && playlistId) { item.playlistId = playlistId; item.tags.push('playlist'); }
         if (kind === 'walk') { walks.push(item); save(STORE.walks, walks); renderFilters('walk'); renderList('walk'); selectWalk(item.id); }
         else { tracks.push(item); save(STORE.tracks, tracks); renderFilters('track'); renderList('track'); selectTrack(item.id); }
-        renderMoods();
         flashMessage(`Added "${sn.title}"`);
     } else if (act === 'play') {
         const videoId = it.id && it.id.videoId;
@@ -1712,7 +1710,6 @@ function renameTag(oldName, newName) {
     save(STORE.state, state);
     renderFilters('walk'); renderFilters('track');
     renderList('walk');    renderList('track');
-    renderMoods();
     renderTagsList();
     flashMessage(`Renamed “${oldName}” → “${newName}” (${touched} item${touched === 1 ? '' : 's'})`);
 }
@@ -1748,7 +1745,6 @@ function deleteTag(tag) {
     save(STORE.state, state);
     renderFilters('walk'); renderFilters('track');
     renderList('walk');    renderList('track');
-    renderMoods();
     renderTagsList();
     flashMessage(`Removed tag “${tag}”`);
 }
@@ -1878,42 +1874,6 @@ function doSurprise() {
     if (wPool.length === 0 && tPool.length === 0) return;
     if (wPool.length) selectWalk(wPool[Math.floor(Math.random() * wPool.length)].id);
     if (tPool.length) selectTrack(tPool[Math.floor(Math.random() * tPool.length)].id);
-}
-
-/* ── Mood presets ── */
-const MOODS = [
-    { name: 'Late night',   icon: 'fa-moon',          walkTag: 'night',    trackTag: 'all' },
-    { name: 'City lights',  icon: 'fa-city',          walkTag: 'seoul',    trackTag: 'playlist' },
-    { name: 'Rainy stroll', icon: 'fa-cloud-rain',    walkTag: 'rain',     trackTag: 'all' },
-    { name: 'Reset',        icon: 'fa-rotate-left',   walkTag: 'all',      trackTag: 'all' },
-];
-function moodApplicable(m) {
-    if (m.walkTag === 'all' && m.trackTag === 'all') return true;
-    const walkTags  = new Set(); walks.forEach(w => (w.tags || []).forEach(t => walkTags.add(t)));
-    const trackTags = new Set(); tracks.forEach(t => (t.tags || []).forEach(t => trackTags.add(t)));
-    if (m.walkTag !== 'all'  && !walkTags.has(m.walkTag)) return false;
-    if (m.trackTag !== 'all' && !trackTags.has(m.trackTag)) return false;
-    return true;
-}
-function renderMoods() {
-    const wrap = document.getElementById('moods');
-    if (!wrap) return;
-    const usable = MOODS.filter(moodApplicable);
-    if (usable.length <= 1) { wrap.innerHTML = ''; return; }
-    wrap.innerHTML = '<span class="moods-label">Moods</span>' + usable.map((m, i) =>
-        `<button class="mood-pill" data-mood="${i}"><i class="fa-solid ${m.icon}"></i>${escapeHtml(m.name)}</button>`
-    ).join('');
-    wrap.querySelectorAll('[data-mood]').forEach(b => {
-        b.addEventListener('click', () => {
-            const m = usable[parseInt(b.dataset.mood, 10)];
-            if (!m) return;
-            state.walkFilter  = m.walkTag;
-            state.trackFilter = m.trackTag;
-            save(STORE.state, state);
-            renderFilters('walk'); renderList('walk');
-            renderFilters('track'); renderList('track');
-        });
-    });
 }
 
 /* ── Sleep timer ── */
@@ -2055,7 +2015,7 @@ function importLibraryFromFile(file) {
             save(STORE.walks, walks); save(STORE.tracks, tracks); save(STORE.pairs, pairs);
             renderFilters('walk');  renderList('walk');
             renderFilters('track'); renderList('track');
-            renderPairs(); renderMoods();
+            renderPairs();
             flashMessage('Library imported');
         } catch (e) {
             alert('Import failed: ' + e.message);
@@ -2184,7 +2144,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFilters('walk'); renderList('walk');
     renderFilters('track'); renderList('track');
     renderPairs();
-    renderMoods();
     updateMusicControls();
     setupMediaSession();
     setupMiniPlayer();
