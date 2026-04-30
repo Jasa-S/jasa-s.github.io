@@ -178,31 +178,37 @@
         }
         #yt-walk { width: 100%; height: 100%; border: 0; display: block; }
 
-        /* Cinema view */
-        .view-cinema .now-playing { grid-template-columns: 1fr; }
-        .view-cinema .controls-card {
-            flex-direction: row;
-            align-items: center;
-            padding: 0.65rem 1rem;
-            gap: 1.25rem;
+        /* Cinema view — desktop only; the compact one-row layout doesn't
+           survive on phones, so the rules and the toggle are gated. */
+        @media (min-width: 761px) {
+            .view-cinema .now-playing { grid-template-columns: 1fr; }
+            .view-cinema .controls-card {
+                flex-direction: row;
+                align-items: center;
+                padding: 0.65rem 1rem;
+                gap: 1.25rem;
+            }
+            .view-cinema .now-meta {
+                flex: 1;
+                min-height: unset;
+                flex-direction: row;
+                align-items: center;
+                gap: 0.35rem;
+                overflow: hidden;
+            }
+            .view-cinema .now-walk-name {
+                font-size: 0.82rem;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            .view-cinema .now-track-name::before { content: '·'; margin-right: 0.35rem; }
+            .view-cinema .vol-text,
+            .view-cinema .vol-val { display: none; }
+            .view-cinema .vol-row { gap: 0.4rem; }
+            .view-cinema input[type="range"] { width: 72px; }
         }
-        .view-cinema .now-meta {
-            flex: 1;
-            min-height: unset;
-            flex-direction: row;
-            align-items: center;
-            gap: 0.35rem;
-            overflow: hidden;
+        @media (max-width: 760px) {
+            #view-toggle { display: none; }
         }
-        .view-cinema .now-walk-name {
-            font-size: 0.82rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .view-cinema .now-track-name::before { content: '·'; margin-right: 0.35rem; }
-        .view-cinema .vol-text,
-        .view-cinema .vol-val { display: none; }
-        .view-cinema .vol-row { gap: 0.4rem; }
-        .view-cinema input[type="range"] { width: 72px; }
         /* Music mini-player — hidden by default, the iframe lives at 1×1
            in the corner so YouTube keeps playing audio. Toggle "Show video"
            in the music controls when you need to see an ad. */
@@ -321,7 +327,9 @@
             transition: color 0.2s, border-color 0.2s;
         }
         .mc-btn:hover { color: var(--cosmic-purple); border-color: var(--cosmic-purple); }
-        .view-cinema .music-controls { margin-top: 0; }
+        @media (min-width: 761px) {
+            .view-cinema .music-controls { margin-top: 0; }
+        }
 
         .vol-row {
             display: grid;
