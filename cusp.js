@@ -94,13 +94,37 @@
             color: data.color || '#7C3AED',
             pinned: false,
             order:  maxOrder + 1,
-            recur:  null,
+            recur:  data.recur || null,
             notify: { enabled: false, offsetsDays: DEFAULT_OFFSETS_DAYS.slice(), firedKeys: [] }
         };
         state.push(m);
         save();
         render();
         return m;
+    }
+
+    function nextOccurrence(targetMs, recur) {
+        if (!recur || !recur.period) return null;
+        var d = new Date(targetMs);
+        var period = recur.period;
+        var now = Date.now();
+        var safety = 0;
+        while (d.getTime() <= now && safety++ < 5000) {
+            if (period === 'daily')   d.setDate(d.getDate() + 1);
+            else if (period === 'weekly')  d.setDate(d.getDate() + 7);
+            else if (period === 'monthly') d.setMonth(d.getMonth() + 1);
+            else if (period === 'yearly')  d.setFullYear(d.getFullYear() + 1);
+            else return null;
+        }
+        return d.getTime();
+    }
+
+    function rollRecurring(m) {
+        var next = nextOccurrence(m.targetMs, m.recur);
+        if (!next) return false;
+        m.targetMs = next;
+        if (m.notify) m.notify.firedKeys = [];
+        return true;
     }
 
     function setManualSort(v) {
@@ -320,6 +344,20 @@
             + '<i class="fa-solid ' + bellIcon + '"></i></button>'
         );
 
+        var shareHtml = isReached ? '' : (
+            '<button class="icon-btn js-share" aria-label="Share" title="Copy share link">'
+            + '<i class="fa-solid fa-link"></i></button>'
+        );
+
+        var recurLabel = m.recur && m.recur.period
+            ? m.recur.period.charAt(0).toUpperCase() + m.recur.period.slice(1)
+            : '';
+        var leftMeta = isReached
+            ? 'Reached'
+            : (m.recur && m.recur.period
+                ? '<span class="m-recur-badge"><i class="fa-solid fa-arrows-rotate"></i>' + esc(recurLabel) + '</span>'
+                : 'Started ' + esc(new Date(m.createdMs).toLocaleDateString()));
+
         card.innerHTML =
             '<div class="m-head">'
               + '<div class="m-title-wrap">'
@@ -329,6 +367,7 @@
               + '<div class="m-actions">'
                 + pinHtml
                 + bellHtml
+                + shareHtml
                 + '<button class="icon-btn js-edit" aria-label="Edit" title="Edit"><i class="fa-solid fa-pen"></i></button>'
                 + '<button class="icon-btn js-delete" aria-label="Delete" title="Delete"><i class="fa-solid fa-trash"></i></button>'
               + '</div>'
@@ -338,7 +377,7 @@
             + '<div class="m-bar"><div class="m-bar-fill js-bar" style="background:' + esc(m.color || '#7C3AED') + ';"></div></div>'
             + '<div class="m-meta">'
               + '<span class="js-pct">0%</span>'
-              + '<span>' + (isReached ? 'Reached' : 'Started ' + esc(new Date(m.createdMs).toLocaleDateString())) + '</span>'
+              + '<span>' + leftMeta + '</span>'
             + '</div>'
             + buildEditFormHtml(m);
 
@@ -347,11 +386,22 @@
     }
 
     function buildEditFormHtml(m) {
+        var rec = (m.recur && m.recur.period) || '';
+        function opt(v, label) {
+            return '<option value="' + v + '"' + (rec === v ? ' selected' : '') + '>' + label + '</option>';
+        }
         return '<form class="edit-form js-edit-form' + (openEditId === m.id ? ' open' : '') + '">'
             + '<input type="text" class="add-input js-edit-title" value="' + esc(m.title) + '" maxlength="80" aria-label="Title">'
             + '<input type="datetime-local" class="add-input js-edit-when" value="' + esc(toLocalDatetimeInput(m.targetMs)) + '" aria-label="Target">'
             + '<input type="text" class="add-input add-emoji js-edit-emoji" value="' + esc(m.emoji || '') + '" maxlength="4" placeholder="🎯" aria-label="Emoji">'
             + '<input type="color" class="add-color js-edit-color" value="' + esc(m.color || '#7C3AED') + '" aria-label="Color">'
+            + '<select class="add-input add-recur js-edit-recur" aria-label="Repeat">'
+              + opt('', 'No repeat')
+              + opt('daily',   '↻ Daily')
+              + opt('weekly',  '↻ Weekly')
+              + opt('monthly', '↻ Monthly')
+              + opt('yearly',  '↻ Yearly')
+            + '</select>'
             + '<button type="submit" class="btn"><i class="fa-solid fa-check"></i>Save</button>'
             + '<button type="button" class="btn js-edit-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>'
             + '</form>';
@@ -363,6 +413,9 @@
 
         var pin = card.querySelector('.js-pin');
         if (pin) pin.addEventListener('click', function () { togglePin(m.id); });
+
+        var share = card.querySelector('.js-share');
+        if (share) share.addEventListener('click', function () { shareMilestone(m.id); });
 
         card.querySelector('.js-delete').addEventListener('click', function () {
             startSoftDelete(m.id);
@@ -380,12 +433,14 @@
             var whenS = form.querySelector('.js-edit-when').value;
             var emoji = form.querySelector('.js-edit-emoji').value.trim();
             var color = form.querySelector('.js-edit-color').value;
+            var rec   = form.querySelector('.js-edit-recur').value;
             if (!title) return;
             var t = whenS ? new Date(whenS).getTime() : NaN;
             if (!isFinite(t)) return;
             openEditId = null;
             saveEditInPlace(m.id, card, isReached, {
-                title: title, targetMs: t, emoji: emoji, color: color
+                title: title, targetMs: t, emoji: emoji, color: color,
+                recur: rec ? { period: rec, interval: 1 } : null
             });
         });
         form.querySelector('.js-edit-cancel').addEventListener('click', function () {
@@ -402,15 +457,19 @@
         var cur = state[idx];
         var crossesPartition = wasReached !== (patch.targetMs <= Date.now());
         var rescheduleNeeded = patch.targetMs !== cur.targetMs;
+        var prevRecur = cur.recur && cur.recur.period ? cur.recur.period : '';
+        var nextRecur = patch.recur && patch.recur.period ? patch.recur.period : '';
+        var recurChanged = prevRecur !== nextRecur;
 
         cur.title    = patch.title;
         cur.targetMs = patch.targetMs;
         cur.emoji    = patch.emoji;
         cur.color    = patch.color;
+        cur.recur    = patch.recur;
         if (rescheduleNeeded) cur.notify.firedKeys = [];
         save();
 
-        if (crossesPartition) { render(); return; }
+        if (crossesPartition || recurChanged) { render(); return; }
 
         // partial DOM update — no flicker
         card.style.borderLeftColor = patch.color || '#7C3AED';
@@ -535,12 +594,22 @@
         if (!force && document.hidden) return;
         var now = Date.now();
         var anyJustReached = false;
+        var anyRolled = false;
 
         cardRefs.forEach(function (refs, id) {
             var m = state.find(function (x) { return x.id === id; });
             if (!m) return;
             var remain = m.targetMs - now;
             if (remain <= 0) {
+                if (m.recur && m.recur.period) {
+                    // fire on-target notif then roll forward
+                    if (m.notify && m.notify.enabled && m.notify.firedKeys.indexOf('0') < 0) {
+                        fireNotif(m, 0);
+                        m.notify.firedKeys.push('0');
+                    }
+                    if (rollRecurring(m)) anyRolled = true;
+                    return;
+                }
                 renderCount(refs, null);
                 refs.barEl.style.width = '100%';
                 refs.pctEl.textContent = '100%';
@@ -554,6 +623,7 @@
             refs.pctEl.textContent = Math.floor(p) + '%';
         });
 
+        if (anyRolled) { save(); render(); return; }
         if (anyJustReached) {
             scanMissedNotifs();
             setTimeout(render, 50);
@@ -584,6 +654,7 @@
         var when  = document.getElementById('add-when');
         var emoji = document.getElementById('add-emoji');
         var color = document.getElementById('add-color');
+        var recur = document.getElementById('add-recur');
         var err   = document.getElementById('add-error');
 
         var d = new Date(Date.now() + 60 * 60 * 1000);
@@ -598,17 +669,20 @@
             if (!when.value) { flashError('Pick a target date and time.'); when.focus(); return; }
             var ms = new Date(when.value).getTime();
             if (!isFinite(ms)) { flashError('That date does not look valid.'); return; }
+            var rec = recur && recur.value ? { period: recur.value, interval: 1 } : null;
             addMilestone({
                 title: t,
                 targetMs: ms,
                 emoji: emoji.value.trim(),
-                color: color.value || '#7C3AED'
+                color: color.value || '#7C3AED',
+                recur: rec
             });
-            if (ms < Date.now()) {
+            if (ms < Date.now() && !rec) {
                 flashError('Heads up: that date is in the past — it will appear in Reached.');
             }
             title.value = '';
             emoji.value = '';
+            if (recur) recur.value = '';
             var d2 = new Date(Date.now() + 60 * 60 * 1000);
             d2.setSeconds(0, 0);
             when.value = toLocalDatetimeInput(d2.getTime());
@@ -732,6 +806,112 @@
     function resetSortToDate() {
         setManualSort(false);
         render();
+    }
+
+    function b64urlEncode(str) {
+        var b64;
+        try {
+            b64 = btoa(unescape(encodeURIComponent(str)));
+        } catch (e) {
+            b64 = btoa(str);
+        }
+        return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function b64urlDecode(s) {
+        var b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4) b64 += '=';
+        try { return decodeURIComponent(escape(atob(b64))); }
+        catch (e) { return atob(b64); }
+    }
+
+    function shareMilestone(id) {
+        var m = state.find(function (x) { return x.id === id; });
+        if (!m) return;
+        var payload = {
+            title: m.title,
+            targetMs: m.targetMs,
+            emoji: m.emoji || '',
+            color: m.color || '#7C3AED',
+            recur: m.recur || null
+        };
+        var encoded = b64urlEncode(JSON.stringify(payload));
+        var url = location.origin + location.pathname + '#m=' + encoded;
+        copyToClipboard(url).then(function (ok) {
+            showToast(ok ? 'Share link copied' : 'Could not copy — link in console', null, null);
+            if (!ok) console.log('CUSP share link:', url);
+        });
+    }
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return fallbackCopy(text); });
+        }
+        return Promise.resolve(fallbackCopy(text));
+    }
+    function fallbackCopy(text) {
+        try {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            var ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            return !!ok;
+        } catch (e) { return false; }
+    }
+
+    function readSharePayloadFromHash() {
+        var h = (location.hash || '').replace(/^#/, '');
+        var match = h.match(/(?:^|&)m=([^&]+)/);
+        if (!match) return null;
+        try {
+            var parsed = JSON.parse(b64urlDecode(match[1]));
+            if (!parsed || typeof parsed.title !== 'string' || typeof parsed.targetMs !== 'number') return null;
+            return parsed;
+        } catch (e) { return null; }
+    }
+
+    function showSharePreview() {
+        var p = readSharePayloadFromHash();
+        var box = document.getElementById('share-preview');
+        if (!p || !box) { if (box) box.hidden = true; return; }
+
+        var emojiHtml = p.emoji ? esc(p.emoji) + ' ' : '';
+        var recurHtml = p.recur && p.recur.period
+            ? ' · <span class="m-recur-badge"><i class="fa-solid fa-arrows-rotate"></i>'
+              + esc(p.recur.period.charAt(0).toUpperCase() + p.recur.period.slice(1)) + '</span>'
+            : '';
+        box.innerHTML =
+            '<span class="sp-label"><i class="fa-solid fa-link"></i> Shared milestone</span>'
+          + '<h3 class="sp-title">' + emojiHtml + esc(p.title) + '</h3>'
+          + '<div class="sp-target">' + esc(formatTarget(p.targetMs)) + recurHtml + '</div>'
+          + '<div class="sp-actions">'
+            + '<button type="button" class="btn" id="sp-add"><i class="fa-solid fa-plus"></i>Add to my list</button>'
+            + '<button type="button" class="btn" id="sp-dismiss"><i class="fa-solid fa-xmark"></i>Dismiss</button>'
+          + '</div>';
+        box.hidden = false;
+        box.style.borderLeftColor = p.color || '#7C3AED';
+
+        document.getElementById('sp-add').addEventListener('click', function () {
+            addMilestone({
+                title: p.title,
+                targetMs: p.targetMs,
+                emoji: p.emoji || '',
+                color: p.color || '#7C3AED',
+                recur: p.recur || null
+            });
+            dismissSharePreview();
+            showToast('Added “' + p.title + '”', null, null);
+        });
+        document.getElementById('sp-dismiss').addEventListener('click', dismissSharePreview);
+    }
+
+    function dismissSharePreview() {
+        var box = document.getElementById('share-preview');
+        if (box) { box.hidden = true; box.innerHTML = ''; }
+        if (location.hash) {
+            try { history.replaceState(null, '', location.pathname + location.search); }
+            catch (e) { location.hash = ''; }
+        }
     }
 
     function downloadBlob(filename, mime, text) {
@@ -903,6 +1083,7 @@
     var resetBtn = document.getElementById('sort-reset');
     if (resetBtn) resetBtn.addEventListener('click', resetSortToDate);
     render();
+    showSharePreview();
     scanMissedNotifs();
     requestAnimationFrame(loop);
 })();
