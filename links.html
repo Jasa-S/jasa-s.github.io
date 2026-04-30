@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <meta name="description" content="Links to projects by Jasaman Saini: BlUE photo gallery, ORO golden hour planner, TIME milestone countdowns, and SPACE star field.">
+    <meta property="og:title" content="Jasaman Saini — Links">
+    <meta property="og:description" content="Hub linking to BlUE, ORO, TIME, SPACE and the about page.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://jasa-s.github.io/links.html">
+    <meta property="og:image" content="https://jasa-s.github.io/blue-images/profileImage.png">
+    <meta name="twitter:card" content="summary">
     <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
     <title>Links</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -66,6 +73,8 @@
             margin: 0.5rem 0 0;
         }
 
+        .nav-link { text-decoration: none; display: block; color: inherit; }
+
         .photo-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -75,22 +84,28 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 1rem;
         }
         @media (hover: hover) and (pointer: fine) {
-            a:hover .photo-card {
+            .nav-link:hover .photo-card {
                 background: var(--card-hover);
                 border-color: rgba(125,125,125,0.3);
                 transform: translateY(-2px);
             }
         }
 
+        .card-text { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
         .card-title {
             font-size: 1.25rem; font-weight: 600;
             letter-spacing: -0.025em; margin: 0;
             display: flex; align-items: center;
         }
-        .arrow-icon { color: var(--text-muted); transition: transform 0.2s; font-size: 0.85rem; }
-        a:hover .arrow-icon { transform: translateX(3px); }
+        .card-sub {
+            font-size: 0.8125rem; color: var(--text-muted);
+            margin: 0; padding-left: 2rem;
+        }
+        .arrow-icon { color: var(--text-muted); transition: transform 0.2s; font-size: 0.85rem; flex-shrink: 0; }
+        .nav-link:hover .arrow-icon { transform: translateX(3px); }
 
         .links-stack { display: flex; flex-direction: column; gap: 0.75rem; }
 
@@ -124,33 +139,48 @@
     </header>
 
     <main class="links-stack">
-        <a href="index.html" style="text-decoration:none;display:block;">
+        <a href="index.html" class="nav-link" aria-label="Open About — resume and background">
             <div class="photo-card">
-                <h2 class="card-title"><span class="icon-globe">&#128100;</span>About</h2>
+                <div class="card-text">
+                    <h2 class="card-title"><span class="icon-globe">&#128100;</span>About</h2>
+                    <p class="card-sub">Resume &amp; background</p>
+                </div>
                 <i class="fa-solid fa-arrow-right arrow-icon"></i>
             </div>
         </a>
-        <a href="blue.html" style="text-decoration:none;display:block;">
+        <a href="blue.html" class="nav-link" aria-label="Open BlUE photo gallery">
             <div class="photo-card">
-                <h2 class="card-title"><span class="icon-globe">&#127757;</span>BlUE</h2>
+                <div class="card-text">
+                    <h2 class="card-title"><span class="icon-globe">&#127757;</span>BlUE</h2>
+                    <p class="card-sub">Photo gallery</p>
+                </div>
                 <i class="fa-solid fa-arrow-right arrow-icon"></i>
             </div>
         </a>
-        <a href="oro.html" style="text-decoration:none;display:block;">
+        <a href="oro.html" class="nav-link" aria-label="Open ORO golden hour planner">
             <div class="photo-card">
-                <h2 class="card-title"><span class="icon-globe">&#127774;</span>ORO</h2>
+                <div class="card-text">
+                    <h2 class="card-title"><span class="icon-globe">&#127774;</span>ORO</h2>
+                    <p class="card-sub">Golden hour planner</p>
+                </div>
                 <i class="fa-solid fa-arrow-right arrow-icon"></i>
             </div>
         </a>
-        <a href="time.html" style="text-decoration:none;display:block;">
+        <a href="time.html" class="nav-link" aria-label="Open TIME milestone countdowns">
             <div class="photo-card">
-                <h2 class="card-title"><span class="icon-globe">&#8987;</span>TIME</h2>
+                <div class="card-text">
+                    <h2 class="card-title"><span class="icon-globe">&#8987;</span>TIME</h2>
+                    <p class="card-sub">Milestones &amp; countdowns</p>
+                </div>
                 <i class="fa-solid fa-arrow-right arrow-icon"></i>
             </div>
         </a>
-        <a href="space.html" style="text-decoration:none;display:block;">
+        <a href="space.html" class="nav-link" aria-label="Open SPACE interactive star field">
             <div class="photo-card">
-                <h2 class="card-title"><span class="icon-globe">&#128640;</span>SPACE</h2>
+                <div class="card-text">
+                    <h2 class="card-title"><span class="icon-globe">&#128640;</span>SPACE</h2>
+                    <p class="card-sub">Interactive star field</p>
+                </div>
                 <i class="fa-solid fa-arrow-right arrow-icon"></i>
             </div>
         </a>
