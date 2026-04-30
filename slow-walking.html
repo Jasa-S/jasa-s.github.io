@@ -567,14 +567,20 @@
         .item-name {
             font-size: 0.825rem;
             font-weight: 500;
-            line-height: 1.25;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden; overflow-wrap: anywhere;
         }
         .item-tags {
             font-size: 0.7rem;
             color: var(--text-muted);
             margin-top: 0.15rem;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            white-space: normal; overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 1; line-clamp: 1;
+            -webkit-box-orient: vertical;
         }
         .item-del, .item-edit {
             background: none; border: none; color: var(--text-muted);
