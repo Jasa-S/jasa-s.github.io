@@ -5,6 +5,7 @@
     var STORAGE_KEY_V1 = 'cusp.milestones.v1';
     var MANUAL_SORT_KEY = 'cusp.manualSort.v1';
     var PERM_KEY    = 'cusp.notifPermAsked.v1';
+    var SEED_KEY    = 'cusp.seeded.v1';
     var DEFAULT_OFFSETS_DAYS = [30, 7, 1, 0];
     var DAY_MS = 86400000;
     var MAX_TIMEOUT = 2147483000;
@@ -51,6 +52,16 @@
                 try { localStorage.removeItem(STORAGE_KEY_V1); } catch (e) {}
                 return;
             }
+            // First visit: seed a single example milestone so the page isn't
+            // empty. Tracked via SEED_KEY so deleting it never re-seeds.
+            var seeded = false;
+            try { seeded = localStorage.getItem(SEED_KEY) === '1'; } catch (e) {}
+            if (!seeded) {
+                state = [makeSeedMilestone()];
+                try { localStorage.setItem(SEED_KEY, '1'); } catch (e) {}
+                save();
+                return;
+            }
             state = [];
         } catch (e) {
             console.warn('TIME: could not parse storage, resetting.', e);
@@ -63,6 +74,24 @@
         if (m.order === undefined)  m.order  = 0;
         if (m.recur === undefined)  m.recur  = null;
         return m;
+    }
+
+    function makeSeedMilestone() {
+        // Trip to Seoul: started 01.11.2025, ends end-of-day 17.09.2026.
+        var startMs = new Date(2025, 10, 1, 0, 0).getTime();
+        var endMs   = new Date(2026, 8, 17, 23, 59).getTime();
+        return {
+            id: uid(),
+            title: 'Seoul',
+            targetMs: endMs,
+            createdMs: startMs,
+            emoji: '🇰🇷',
+            color: '#EC4899',
+            pinned: false,
+            order: 1,
+            recur: null,
+            notify: { enabled: false, offsetsDays: DEFAULT_OFFSETS_DAYS.slice(), firedKeys: [] }
+        };
     }
 
     function isValidMilestone(m) {
@@ -393,7 +422,7 @@
         return '<form class="edit-form js-edit-form' + (openEditId === m.id ? ' open' : '') + '">'
             + '<input type="text" class="add-input js-edit-title" value="' + esc(m.title) + '" maxlength="80" aria-label="Title">'
             + '<input type="datetime-local" class="add-input js-edit-when" value="' + esc(toLocalDatetimeInput(m.targetMs)) + '" aria-label="Target">'
-            + '<input type="text" class="add-input add-emoji js-edit-emoji" value="' + esc(m.emoji || '') + '" maxlength="4" placeholder="🎯" aria-label="Emoji">'
+            + '<input type="text" class="add-input add-emoji js-edit-emoji" value="' + esc(m.emoji || '') + '" maxlength="8" placeholder="🎯" aria-label="Emoji" title="Optional emoji">'
             + '<input type="color" class="add-color js-edit-color" value="' + esc(m.color || '#7C3AED') + '" aria-label="Color">'
             + '<select class="add-input add-recur js-edit-recur" aria-label="Repeat">'
               + opt('', 'No repeat')

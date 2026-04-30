@@ -72,16 +72,43 @@
         }
         .add-input:focus { border-color: var(--cosmic-purple); }
         body.dark .add-input::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; }
-        .add-emoji { width: 3.4rem; text-align: center; padding: 0; }
-        .add-color {
+        .add-emoji {
+            width: 3.4rem; text-align: center; padding: 0;
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji',
+                'Noto Color Emoji', 'Segoe UI Symbol', sans-serif;
+            font-size: 1rem;
+        }
+        .add-color-wrap {
+            position: relative;
+            display: inline-flex; align-items: center; justify-content: center;
             width: 2.4rem; height: 2.4rem;
+        }
+        .add-color-wrap::after {
+            content: 'color';
+            position: absolute; left: 50%; top: calc(100% + 0.2rem);
+            transform: translateX(-50%);
+            font-size: 0.55rem; letter-spacing: var(--ls-mid);
+            text-transform: uppercase; color: var(--text-muted);
+            pointer-events: none; white-space: nowrap;
+        }
+        @media (min-width: 560px) {
+            .add-color-wrap::after { display: none; }
+        }
+        .add-color {
+            width: 1.8rem; height: 1.8rem;
             padding: 0; border: 1px solid var(--border);
             border-radius: 999px; background: transparent;
             cursor: pointer; overflow: hidden;
         }
+        .add-color:hover { border-color: rgba(125,125,125,0.45); }
         .add-color::-webkit-color-swatch-wrapper { padding: 0; }
         .add-color::-webkit-color-swatch { border: none; border-radius: 999px; }
         .add-color::-moz-color-swatch { border: none; border-radius: 999px; }
+        .add-hint {
+            font-size: 0.65rem; color: var(--text-muted);
+            margin: 0.65rem 0 0; letter-spacing: var(--ls-mid);
+            text-transform: uppercase;
+        }
         .add-error {
             color: #dc2626; font-size: 0.75rem; margin: 0.4rem 0 0;
             min-height: 0.95rem;
@@ -426,14 +453,24 @@
             <div class="add-grid">
                 <input type="text" class="add-input" id="add-title"
                     placeholder="Milestone (e.g. Trip to Tokyo)"
+                    title="What you're counting down to"
                     aria-label="Milestone title" maxlength="80">
                 <input type="datetime-local" class="add-input" id="add-when"
+                    title="Target date and time"
                     aria-label="Target date and time">
                 <input type="text" class="add-input add-emoji" id="add-emoji"
-                    placeholder="🎯" aria-label="Emoji" maxlength="4">
-                <input type="color" class="add-color" id="add-color"
-                    value="#7C3AED" aria-label="Accent color">
-                <select class="add-input add-recur" id="add-recur" aria-label="Repeat">
+                    placeholder="🎯"
+                    title="Optional emoji (e.g. 🇰🇷, ✈️, 🎂)"
+                    aria-label="Emoji" maxlength="8">
+                <span class="add-color-wrap">
+                    <input type="color" class="add-color" id="add-color"
+                        value="#7C3AED"
+                        title="Accent color for the card and progress bar"
+                        aria-label="Accent color">
+                </span>
+                <select class="add-input add-recur" id="add-recur"
+                    title="Repeat after the target is reached"
+                    aria-label="Repeat">
                     <option value="">No repeat</option>
                     <option value="daily">↻ Daily</option>
                     <option value="weekly">↻ Weekly</option>
@@ -444,6 +481,7 @@
                     <i class="fa-solid fa-plus"></i>Add
                 </button>
             </div>
+            <p class="add-hint">title &middot; target date &middot; emoji &middot; color &middot; repeat</p>
             <p class="add-error" id="add-error" aria-live="polite"></p>
         </form>
 

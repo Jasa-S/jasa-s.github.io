@@ -21,7 +21,7 @@ const SEED_WALKS = [
     {
         id: 'w_seed_seoul_night',
         name: 'Seoul Night Drive Downtown',
-        videoId: 'SRpMapyw6Aw',
+        videoId: 'e3pEdcNRFs0',
         tags: ['seoul', 'night'],
     },
 ];
