@@ -30,7 +30,7 @@
 
         @media (hover: hover) and (pointer: fine) {
             #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
-.email-link:hover   { color: var(--cosmic-purple); }
+            .email-link:hover   { color: var(--cosmic-purple); }
         }
 
         .top-bar {
@@ -167,7 +167,7 @@
 <body>
 
     <div class="top-bar">
-<button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
+        <button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
     </div>
@@ -305,7 +305,7 @@
 
     <script src="theme.js"></script>
     <script>
-(function fetchSPX() {
+        (function fetchSPX() {
             var ticker  = document.getElementById('sp500-ticker');
             var today   = new Date().toISOString().slice(0, 10);
             var cacheKey = 'sp500_' + today;
