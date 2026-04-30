@@ -78,24 +78,8 @@
                 'Noto Color Emoji', 'Segoe UI Symbol', sans-serif;
             font-size: 1rem;
         }
-        .add-color-wrap {
-            position: relative;
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 2.4rem; height: 2.4rem;
-        }
-        .add-color-wrap::after {
-            content: 'color';
-            position: absolute; left: 50%; top: calc(100% + 0.2rem);
-            transform: translateX(-50%);
-            font-size: 0.55rem; letter-spacing: var(--ls-mid);
-            text-transform: uppercase; color: var(--text-muted);
-            pointer-events: none; white-space: nowrap;
-        }
-        @media (min-width: 560px) {
-            .add-color-wrap::after { display: none; }
-        }
         .add-color {
-            width: 1.8rem; height: 1.8rem;
+            width: 2.4rem; height: 2.4rem;
             padding: 0; border: 1px solid var(--border);
             border-radius: 999px; background: transparent;
             cursor: pointer; overflow: hidden;
@@ -462,12 +446,10 @@
                     placeholder="🎯"
                     title="Optional emoji (e.g. 🇰🇷, ✈️, 🎂)"
                     aria-label="Emoji" maxlength="8">
-                <span class="add-color-wrap">
-                    <input type="color" class="add-color" id="add-color"
-                        value="#7C3AED"
-                        title="Accent color for the card and progress bar"
-                        aria-label="Accent color">
-                </span>
+                <input type="color" class="add-color" id="add-color"
+                    value="#7C3AED"
+                    title="Accent color for the card and progress bar"
+                    aria-label="Accent color">
                 <select class="add-input add-recur" id="add-recur"
                     title="Repeat after the target is reached"
                     aria-label="Repeat">
