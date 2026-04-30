@@ -48,13 +48,26 @@
             padding: 1rem 1.1rem;
             margin-bottom: 1.75rem;
         }
-        .add-grid {
-            display: grid; gap: 0.65rem;
-            grid-template-columns: 1fr;
+        .add-row {
+            display: flex; flex-wrap: wrap; gap: 0.75rem;
+            align-items: flex-end;
         }
-        @media (min-width: 560px) {
-            .add-grid { grid-template-columns: 1fr 1fr auto auto auto auto; align-items: center; }
+        .add-field {
+            display: flex; flex-direction: column;
+            gap: 0.3rem; min-width: 0;
         }
+        .add-field-label {
+            font-size: 0.6rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: var(--ls-wide);
+            color: var(--text-muted);
+            padding-left: 0.55rem;
+        }
+        .add-field-title { flex: 2 1 14rem; }
+        .add-field-when  { flex: 2 1 12rem; }
+        .add-field-emoji { flex: 0 0 auto; }
+        .add-field-color { flex: 0 0 auto; }
+        .add-field-recur { flex: 1 1 7rem; }
+        .add-field-submit { flex: 0 0 auto; align-self: flex-end; }
         .add-recur {
             padding: 0 2rem 0 0.95rem; -webkit-appearance: none; appearance: none;
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='%23999'/></svg>");
@@ -88,11 +101,6 @@
         .add-color::-webkit-color-swatch-wrapper { padding: 0; }
         .add-color::-webkit-color-swatch { border: none; border-radius: 999px; }
         .add-color::-moz-color-swatch { border: none; border-radius: 999px; }
-        .add-hint {
-            font-size: 0.65rem; color: var(--text-muted);
-            margin: 0.65rem 0 0; letter-spacing: var(--ls-mid);
-            text-transform: uppercase;
-        }
         .add-error {
             color: #dc2626; font-size: 0.75rem; margin: 0.4rem 0 0;
             min-height: 0.95rem;
@@ -394,8 +402,15 @@
             #page { padding: 2.5rem 1rem 0; }
             header h1 { font-size: 1.5rem; }
             .m-count .num { font-size: 1.25rem; }
-            .add-emoji { width: 100%; }
-            .add-color { width: 100%; height: 2.4rem; }
+            .add-field-title,
+            .add-field-when,
+            .add-field-recur { flex: 1 1 100%; }
+            .add-field-emoji,
+            .add-field-color { flex: 1 1 calc(50% - 0.375rem); }
+            .add-field-emoji .add-emoji { width: 100%; }
+            .add-field-color .add-color { width: 100%; height: 2.4rem; }
+            .add-field-submit { flex: 1 1 100%; }
+            .add-field-submit .btn { width: 100%; justify-content: center; }
             .icon-btn { min-width: 2.4rem; min-height: 2.4rem; padding: 0.55rem; font-size: 0.9rem; }
             .m-actions { gap: 0.25rem; }
             .sort-reset span { display: none; }
@@ -434,36 +449,42 @@
         </header>
 
         <form class="add-card" id="add-form" autocomplete="off">
-            <div class="add-grid">
-                <input type="text" class="add-input" id="add-title"
-                    placeholder="Milestone (e.g. Trip to Tokyo)"
-                    title="What you're counting down to"
-                    aria-label="Milestone title" maxlength="80">
-                <input type="datetime-local" class="add-input" id="add-when"
-                    title="Target date and time"
-                    aria-label="Target date and time">
-                <input type="text" class="add-input add-emoji" id="add-emoji"
-                    placeholder="🎯"
-                    title="Optional emoji (e.g. 🇰🇷, ✈️, 🎂)"
-                    aria-label="Emoji" maxlength="8">
-                <input type="color" class="add-color" id="add-color"
-                    value="#7C3AED"
-                    title="Accent color for the card and progress bar"
-                    aria-label="Accent color">
-                <select class="add-input add-recur" id="add-recur"
-                    title="Repeat after the target is reached"
-                    aria-label="Repeat">
-                    <option value="">No repeat</option>
-                    <option value="daily">↻ Daily</option>
-                    <option value="weekly">↻ Weekly</option>
-                    <option value="monthly">↻ Monthly</option>
-                    <option value="yearly">↻ Yearly</option>
-                </select>
-                <button type="submit" class="btn" id="add-btn">
-                    <i class="fa-solid fa-plus"></i>Add
-                </button>
+            <div class="add-row">
+                <label class="add-field add-field-title">
+                    <span class="add-field-label">Milestone</span>
+                    <input type="text" class="add-input" id="add-title"
+                        placeholder="e.g. Trip to Tokyo"
+                        maxlength="80">
+                </label>
+                <label class="add-field add-field-when">
+                    <span class="add-field-label">Target date</span>
+                    <input type="datetime-local" class="add-input" id="add-when">
+                </label>
+                <label class="add-field add-field-emoji">
+                    <span class="add-field-label">Emoji</span>
+                    <input type="text" class="add-input add-emoji" id="add-emoji"
+                        placeholder="🎯" maxlength="8">
+                </label>
+                <label class="add-field add-field-color">
+                    <span class="add-field-label">Color</span>
+                    <input type="color" class="add-color" id="add-color" value="#7C3AED">
+                </label>
+                <label class="add-field add-field-recur">
+                    <span class="add-field-label">Repeat</span>
+                    <select class="add-input add-recur" id="add-recur">
+                        <option value="">No repeat</option>
+                        <option value="daily">↻ Daily</option>
+                        <option value="weekly">↻ Weekly</option>
+                        <option value="monthly">↻ Monthly</option>
+                        <option value="yearly">↻ Yearly</option>
+                    </select>
+                </label>
+                <div class="add-field add-field-submit">
+                    <button type="submit" class="btn" id="add-btn">
+                        <i class="fa-solid fa-plus"></i>Add
+                    </button>
+                </div>
             </div>
-            <p class="add-hint">title &middot; target date &middot; emoji &middot; color &middot; repeat</p>
             <p class="add-error" id="add-error" aria-live="polite"></p>
         </form>
 
