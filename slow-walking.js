@@ -275,7 +275,7 @@ function updateNowTrackDisplay(title, isPlaylistTrack) {
     if (!t) return;
     const icon = '<i class="fa-solid fa-music"></i>';
     if (isPlaylistTrack) {
-        el.innerHTML = icon + escapeHtml(title) + ' <span style="opacity:0.55;">· ' + escapeHtml(t.name) + '</span>';
+        el.innerHTML = icon + escapeHtml(title) + ' <span class="now-track-source">· ' + escapeHtml(t.name) + '</span>';
     } else {
         el.innerHTML = icon + escapeHtml(title);
     }
