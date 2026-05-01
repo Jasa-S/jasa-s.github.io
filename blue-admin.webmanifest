@@ -1,0 +1,28 @@
+{
+  "name": "BlUE Admin",
+  "short_name": "BlUE Admin",
+  "description": "Publish photo posts to BlUE from your iPhone.",
+  "start_url": "/blue-admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/blue-images/profileImage.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ],
+  "share_target": {
+    "action": "/blue-admin.html",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text":  "text",
+      "url":   "url",
+      "files": [
+        { "name": "photos", "accept": ["image/*", "image/jpeg", "image/png", "image/heic", "image/heif"] }
+      ]
+    }
+  }
+}
