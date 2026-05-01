@@ -25,7 +25,7 @@
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
-        #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
+        #page { max-width: 48rem; margin: 0 auto; padding: 5.5rem 1.5rem 0; }
         header { margin-bottom: 1.75rem; }
         header h1 {
             font-size: 1.75rem; font-weight: 600;
@@ -330,9 +330,17 @@
         .sort-reset i { font-size: 0.7rem; }
         .sort-reset:hover { color: var(--cosmic-purple); border-color: rgba(124,58,237,0.4); }
 
+        /* Secondary action button (sits below the dark-mode toggle so the
+           top-right corner stays consistent across pages). */
+        #menu-btn-wrap {
+            position: absolute;
+            top: 3rem; right: 1.25rem;
+            z-index: 500;
+        }
+
         /* Overflow menu panel */
         #menu-panel {
-            position: fixed; top: 3rem; right: 1rem;
+            position: fixed; top: 5.25rem; right: 1rem;
             min-width: 12rem; z-index: 600;
             background: var(--card); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 0.6rem;
@@ -400,7 +408,7 @@
         }
 
         @media (max-width: 520px) {
-            #page { padding: 2.5rem 1rem 0; }
+            #page { padding: 5.25rem 1rem 0; }
             header h1 { font-size: 1.5rem; }
             .m-count .num { font-size: 1.25rem; }
             .add-field-title,
@@ -421,12 +429,15 @@
 </head>
 <body>
     <div id="top-bar-direct">
+        <button class="top-btn" id="theme-toggle" aria-label="Toggle dark mode">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <div id="menu-btn-wrap">
         <button class="top-btn" id="menu-btn" aria-label="More actions"
             aria-haspopup="menu" aria-expanded="false">
             <i class="fa-solid fa-ellipsis"></i>
-        </button>
-        <button class="top-btn" id="theme-toggle" aria-label="Toggle dark mode">
-            <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
     </div>
 
