@@ -110,10 +110,12 @@
             padding: 1.5rem 0;
             margin-top: 3rem;
             border-top: 1px solid var(--timeline);
-            text-align: center;
+            display: flex; justify-content: space-between; align-items: center;
             color: var(--text-muted); font-size: 0.65rem;
             text-transform: uppercase; letter-spacing: var(--ls-wide);
         }
+        footer a { text-decoration: none; color: inherit; }
+        footer a:hover { color: var(--cosmic-purple); }
     </style>
 </head>
 <body>
@@ -177,7 +179,8 @@
     </main>
 
     <footer>
-        <p style="margin:0;">&copy; <span id="copy-year"></span> Jasaman Saini</p>
+        <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
+        <a href="index.html">Homepage</a>
     </footer>
 
     <script src="theme.js"></script>
