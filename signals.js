@@ -60,6 +60,39 @@
         return 'low';
     }
 
+    function fmtDelta(d) {
+        if (d == null || !isFinite(d) || d === 0) return null;
+        return (d > 0 ? '+' : '−') + Math.abs(d);
+    }
+
+    function deltaClass(d) {
+        if (d == null || !isFinite(d) || d === 0) return '';
+        return d > 0 ? 'gain' : 'loss';
+    }
+
+    var DRIVER_LABELS = {
+        momentum: 'mom',
+        vol_adj: 'vol-adj',
+        trend: 'trend',
+        rs: 'RS',
+        macd: 'MACD',
+        rsi: 'RSI'
+    };
+
+    function topDrivers(contribs) {
+        if (!contribs) return [];
+        var entries = Object.keys(contribs).map(function (k) {
+            return { key: k, val: Number(contribs[k]) || 0 };
+        });
+        entries.sort(function (a, b) { return Math.abs(b.val) - Math.abs(a.val); });
+        return entries.slice(0, 4).filter(function (e) { return Math.abs(e.val) >= 0.05; });
+    }
+
+    function fmtDriverVal(v) {
+        var sign = v >= 0 ? '+' : '−';
+        return sign + Math.abs(v).toFixed(1);
+    }
+
     function rebase(values) {
         if (!values || !values.length) return [];
         var base = values[0] || 1;
@@ -134,18 +167,37 @@
             { values: rebasedTicker, stroke: 'var(--cosmic-purple)', width: 1.5 }
         ]);
 
+        var scoreChildren = [String(v.score)];
+        var deltaTxt = fmtDelta(v.score_delta_1d);
+        if (deltaTxt) {
+            scoreChildren.push(el('span', { class: 'delta ' + deltaClass(v.score_delta_1d), text: deltaTxt }));
+        }
+
         var rows = [
             el('div', null, [
                 el('div', { class: 'ticker', text: t }),
                 el('div', { class: 'name', text: v.name || '' })
             ]),
-            el('div', { class: 'score ' + scoreClass(v.score), text: String(v.score) }),
+            el('div', { class: 'score ' + scoreClass(v.score) }, scoreChildren),
             el('div', { class: 'pills' }, pills),
             el('div', { class: 'meta-row' }, [
                 el('div', { class: 'left' }, leftBits),
                 spark
             ])
         ];
+
+        var drivers = topDrivers(v.factor_contributions);
+        if (drivers.length) {
+            var driverNodes = [el('span', { class: 'key', text: 'Driver' })];
+            drivers.forEach(function (d, i) {
+                if (i > 0) driverNodes.push(el('span', { class: 'sep', text: '·' }));
+                driverNodes.push(el('span', {
+                    class: 'val ' + (d.val >= 0 ? 'gain' : 'loss'),
+                    text: (DRIVER_LABELS[d.key] || d.key) + ' ' + fmtDriverVal(d.val)
+                }));
+            });
+            rows.push(el('div', { class: 'drivers' }, driverNodes));
+        }
 
         if (v.holding_action === 'ADD' && v.suggested_add_eur != null) {
             rows.push(
@@ -161,6 +213,9 @@
 
     function tableRow(rank, t, v) {
         var trendOk = v.indicators && v.indicators.trend_ok;
+        var deltaTxt = fmtDelta(v.score_delta_1d);
+        var deltaCell = el('td', { class: 'num delta-cell ' + deltaClass(v.score_delta_1d) });
+        deltaCell.textContent = deltaTxt || '—';
         return el('tr', { 'data-sector': v.sector || '', 'data-score': String(v.score) }, [
             el('td', { class: 'num', text: String(rank) }),
             el('td', { class: 'ticker-cell' }, [
@@ -169,6 +224,7 @@
             ]),
             el('td', { class: 'sector', text: v.sector || '' }),
             el('td', { class: 'num score-cell ' + scoreClass(v.score), text: String(v.score) }),
+            deltaCell,
             el('td', { class: 'num', text: fmtNum(v.indicators && v.indicators.rsi14, 1) }),
             el('td', { class: 'num', text: fmtPct(v.indicators && v.indicators.mom_12_1, 1) }),
             el('td', { class: 'num', text: fmtPct(v.indicators && v.indicators.rs_6m, 1) }),
@@ -191,6 +247,81 @@
         banner.appendChild(el('i', { class: 'fa-solid ' + icon }));
         banner.appendChild(el('span', { class: 'label', text: label }));
         banner.appendChild(el('span', { class: 'desc', text: desc }));
+    }
+
+    function renderMovers(data) {
+        var section = document.getElementById('movers-section');
+        if (!section) return;
+        var entries = Object.keys(data.tickers || {}).map(function (t) {
+            var v = data.tickers[t];
+            return {
+                t: t,
+                score: v.score,
+                delta: v.score_delta_1d,
+                verdict: v.verdict,
+                action: v.holding_action,
+                prior_verdict: v.prior_verdict,
+                prior_action: v.prior_action,
+                is_holding: v.is_holding
+            };
+        });
+
+        var risers = entries
+            .filter(function (e) { return typeof e.delta === 'number' && e.delta > 0; })
+            .sort(function (a, b) { return b.delta - a.delta; })
+            .slice(0, 5);
+        var fallers = entries
+            .filter(function (e) { return typeof e.delta === 'number' && e.delta < 0; })
+            .sort(function (a, b) { return a.delta - b.delta; })
+            .slice(0, 5);
+        var changes = entries.filter(function (e) {
+            var verdictChanged = e.prior_verdict && e.verdict !== e.prior_verdict;
+            var actionChanged = e.is_holding && e.prior_action != null && e.action !== e.prior_action;
+            return verdictChanged || actionChanged;
+        }).slice(0, 5);
+
+        if (!risers.length && !fallers.length && !changes.length) {
+            section.hidden = true;
+            return;
+        }
+        section.hidden = false;
+
+        function fillCard(id, items, formatter) {
+            var card = document.getElementById(id);
+            if (!card) return;
+            var rows = card.querySelector('.rows');
+            rows.innerHTML = '';
+            if (!items.length) {
+                rows.appendChild(el('div', { class: 'empty', text: '—' }));
+                return;
+            }
+            items.forEach(function (e) { rows.appendChild(formatter(e)); });
+        }
+
+        fillCard('movers-risers', risers, function (e) {
+            return el('div', { class: 'row' }, [
+                el('span', { class: 'tk', text: e.t }),
+                el('span', { class: 'val gain', text: fmtDelta(e.delta) + ' → ' + e.score })
+            ]);
+        });
+        fillCard('movers-fallers', fallers, function (e) {
+            return el('div', { class: 'row' }, [
+                el('span', { class: 'tk', text: e.t }),
+                el('span', { class: 'val loss', text: fmtDelta(e.delta) + ' → ' + e.score })
+            ]);
+        });
+        fillCard('movers-changes', changes, function (e) {
+            var label;
+            if (e.is_holding && e.prior_action != null && e.action !== e.prior_action) {
+                label = (e.prior_action || '—') + ' → ' + (e.action || '—');
+            } else {
+                label = (e.prior_verdict || '—') + ' → ' + (e.verdict || '—');
+            }
+            return el('div', { class: 'row' }, [
+                el('span', { class: 'tk', text: e.t }),
+                el('span', { class: 'val', text: label })
+            ]);
+        });
     }
 
     function renderHeatmap(data) {
@@ -238,7 +369,7 @@
 
     function exportCsv() {
         if (!DATA || !DATA.tickers) return;
-        var rows = [['ticker', 'sector', 'score', 'verdict', 'is_holding', 'action', 'rsi14', 'mom_12_1', 'rs_6m', 'trend_ok']];
+        var rows = [['ticker', 'sector', 'score', 'score_delta_1d', 'verdict', 'is_holding', 'action', 'rsi14', 'mom_12_1', 'rs_6m', 'trend_ok']];
         Object.keys(DATA.tickers).forEach(function (t) {
             var v = DATA.tickers[t];
             var ind = v.indicators || {};
@@ -246,6 +377,7 @@
                 t,
                 v.sector || '',
                 v.score,
+                v.score_delta_1d != null ? v.score_delta_1d : '',
                 v.verdict,
                 v.is_holding ? 'true' : 'false',
                 v.holding_action || '',
@@ -325,6 +457,7 @@
             if (v) avoidBody.appendChild(tableRow(i + 1, t, v));
         });
 
+        renderMovers(data);
         renderHeatmap(data);
         populateSectorFilter(data);
 
@@ -334,7 +467,7 @@
     }
 
     function showEmpty(msg) {
-        var hidden = ['portfolio-section', 'buys-section', 'avoid-section', 'heatmap-section'];
+        var hidden = ['portfolio-section', 'buys-section', 'avoid-section', 'heatmap-section', 'movers-section'];
         hidden.forEach(function (id) {
             var n = document.getElementById(id);
             if (n) n.hidden = true;

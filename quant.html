@@ -76,6 +76,24 @@
 
         <div id="regime-banner" class="regime-banner" hidden></div>
 
+        <section id="movers-section" hidden>
+            <h2 class="section-heading"><span>Top Movers</span><div class="section-divider"></div></h2>
+            <div class="movers-grid">
+                <div class="movers-card glass" id="movers-risers">
+                    <div class="heading">Risers</div>
+                    <div class="rows"></div>
+                </div>
+                <div class="movers-card glass" id="movers-fallers">
+                    <div class="heading">Fallers</div>
+                    <div class="rows"></div>
+                </div>
+                <div class="movers-card glass" id="movers-changes">
+                    <div class="heading">State changes</div>
+                    <div class="rows"></div>
+                </div>
+            </div>
+        </section>
+
         <div id="empty-state" class="empty-state" hidden>
             <p>Signals haven't been generated yet.</p>
             <p class="muted">Run <code>python -m quant.src.main</code> locally, or trigger the <code>quant-signals</code> workflow on GitHub.</p>
@@ -109,6 +127,7 @@
                             <th>Ticker</th>
                             <th>Sector</th>
                             <th class="num">Score</th>
+                            <th class="num">&Delta;1d</th>
                             <th class="num">RSI</th>
                             <th class="num">Mom 12-1</th>
                             <th class="num">RS 6m</th>
@@ -137,6 +156,7 @@
                                 <th>Ticker</th>
                                 <th>Sector</th>
                                 <th class="num">Score</th>
+                                <th class="num">&Delta;1d</th>
                                 <th class="num">RSI</th>
                                 <th class="num">Mom 12-1</th>
                                 <th class="num">RS 6m</th>
