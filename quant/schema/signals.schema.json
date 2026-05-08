@@ -82,6 +82,27 @@
           "weight": { "type": ["number", "null"] },
           "suggested_add_eur": { "type": ["number", "null"] },
           "stop_loss_eur": { "type": ["number", "null"] },
+          "score_delta_1d": { "type": ["integer", "null"] },
+          "score_delta_5d": { "type": ["integer", "null"] },
+          "prior_verdict": {
+            "type": ["string", "null"],
+            "enum": ["BUY", "WATCH", "AVOID", null]
+          },
+          "prior_action": {
+            "type": ["string", "null"],
+            "enum": ["ADD", "HOLD", "TRIM", null]
+          },
+          "factor_contributions": {
+            "type": "object",
+            "properties": {
+              "momentum": { "type": "number" },
+              "vol_adj":  { "type": "number" },
+              "trend":    { "type": "number" },
+              "rs":       { "type": "number" },
+              "macd":     { "type": "number" },
+              "rsi":      { "type": "number" }
+            }
+          },
           "indicators": {
             "type": "object",
             "required": ["rsi14", "trend_ok"],

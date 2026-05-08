@@ -8,6 +8,7 @@ from pathlib import Path
 import numpy as np
 
 from . import data as datalib
+from . import history as historylib
 from . import score as scorelib
 from . import signal as signallib
 from . import sizing as sizinglib
@@ -103,6 +104,15 @@ def run(config_path: Path, out_path: Path, cache_dir: Path | None = None) -> dic
         spark_n = int(params.get("spark_days", 60))
         bench_spark = [round(float(x), 4) for x in bench_close.tail(spark_n).tolist() if np.isfinite(x)]
 
+    # Load prior daily snapshots for day-over-day deltas and verdict transitions.
+    hist_dir = out_path.parent / "history"
+    history_recent = historylib.load_recent(hist_dir, days=10)
+    today_iso = today.isoformat()
+    prior_1d = historylib.find_prior(history_recent, today_iso) or {}
+    prior_5d = historylib.find_n_days_ago(history_recent, today_iso, 5) or {}
+    prior_1d_t = prior_1d.get("tickers", {}) if prior_1d else {}
+    prior_5d_t = prior_5d.get("tickers", {}) if prior_5d else {}
+
     for t, f in z.items():
         score = scorelib.composite(f)
         e_iso = earnings_by_t.get(t)
@@ -171,6 +181,13 @@ def run(config_path: Path, out_path: Path, cache_dir: Path | None = None) -> dic
                     max_position_pct=float(risk.get("max_position_pct", 0.30)),
                 )
 
+        prev_1d = prior_1d_t.get(t) or {}
+        prev_5d = prior_5d_t.get(t) or {}
+        prev_score_1d = prev_1d.get("score")
+        prev_score_5d = prev_5d.get("score")
+        score_delta_1d = (score - prev_score_1d) if isinstance(prev_score_1d, int) else None
+        score_delta_5d = (score - prev_score_5d) if isinstance(prev_score_5d, int) else None
+
         tickers_out[t] = {
             "name": names_by_t.get(t, t),
             "sector": sectors_by_t.get(t, ""),
@@ -187,6 +204,11 @@ def run(config_path: Path, out_path: Path, cache_dir: Path | None = None) -> dic
             "weight": _round(weight, 4),
             "suggested_add_eur": _round(suggested_add_eur, 2),
             "stop_loss_eur": _round(stop_loss_eur, 4),
+            "score_delta_1d": score_delta_1d,
+            "score_delta_5d": score_delta_5d,
+            "prior_verdict": prev_1d.get("verdict"),
+            "prior_action": prev_1d.get("action"),
+            "factor_contributions": scorelib.factor_contributions(f),
             "indicators": {
                 "sma50": f.get("sma_fast"),
                 "sma200": f.get("sma_slow"),
@@ -265,6 +287,14 @@ def run(config_path: Path, out_path: Path, cache_dir: Path | None = None) -> dic
         "errors": errors,
     }
     write_json(payload, out_path)
+
+    # Persist a slim daily snapshot for tomorrow's deltas, then prune old files.
+    try:
+        historylib.write_snapshot(hist_dir, payload)
+        historylib.prune_old(hist_dir, keep_days=120)
+    except OSError as e:
+        errors.append({"stage": "history", "warn": str(e)})
+
     return payload
 
 
