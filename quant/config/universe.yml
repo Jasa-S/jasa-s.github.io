@@ -1,0 +1,64 @@
+# Single source of truth for the quant model.
+# Edit this file to change holdings or watchlist.
+#
+# cost_basis_eur and units are needed for the holdings to compute
+# drawdown vs basis and weight, which feed the ADD/HOLD/TRIM logic.
+# Approximate values are fine - update them as you trade.
+
+holdings:
+  - { ticker: GOOG, name: "Alphabet (C)", sector: "AI/Cloud", cost_basis_eur: 165.20, units: 5 }
+  - { ticker: NBIS, name: "Nebius (A)",   sector: "AI Infra", cost_basis_eur: 38.50,  units: 11 }
+  - { ticker: NVDA, name: "NVIDIA",       sector: "Semis",    cost_basis_eur: 110.00, units: 6 }
+  - { ticker: IREN, name: "IREN",         sector: "AI Infra", cost_basis_eur: 7.40,   units: 65 }
+  - { ticker: IONQ, name: "IonQ",         sector: "Quantum",  cost_basis_eur: 11.20,  units: 32 }
+
+watchlist:
+  - { ticker: AMD,   sector: "Semis" }
+  - { ticker: TSM,   sector: "Semis" }
+  - { ticker: ASML,  sector: "Semis" }
+  - { ticker: AVGO,  sector: "Semis" }
+  - { ticker: ARM,   sector: "Semis" }
+  - { ticker: MU,    sector: "Semis" }
+  - { ticker: MRVL,  sector: "Semis" }
+  - { ticker: SMCI,  sector: "AI Infra" }
+  - { ticker: DELL,  sector: "AI Infra" }
+  - { ticker: ANET,  sector: "AI Infra" }
+  - { ticker: VRT,   sector: "AI Power" }
+  - { ticker: CEG,   sector: "AI Power" }
+  - { ticker: ETN,   sector: "AI Power" }
+  - { ticker: GEV,   sector: "AI Power" }
+  - { ticker: MSFT,  sector: "AI/Cloud" }
+  - { ticker: AMZN,  sector: "AI/Cloud" }
+  - { ticker: META,  sector: "AI" }
+  - { ticker: PLTR,  sector: "AI" }
+  - { ticker: CRWD,  sector: "AI Sec" }
+  - { ticker: NET,   sector: "AI Edge" }
+  - { ticker: SNOW,  sector: "Data" }
+  - { ticker: DDOG,  sector: "Data" }
+  - { ticker: MDB,   sector: "Data" }
+  - { ticker: CRWV,  sector: "AI Cloud" }
+  - { ticker: APP,   sector: "AdTech" }
+  - { ticker: TSLA,  sector: "AI/Auto" }
+  - { ticker: RGTI,  sector: "Quantum" }
+  - { ticker: QBTS,  sector: "Quantum" }
+  - { ticker: WULF,  sector: "AI Infra" }
+  - { ticker: APLD,  sector: "AI Infra" }
+  - { ticker: CIFR,  sector: "AI Infra" }
+
+fx:
+  base: EUR
+  pair: "EURUSD=X"
+
+params:
+  lookback_days: 400
+  rsi_window: 14
+  sma_fast: 50
+  sma_slow: 200
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  atr_window: 14
+  momentum_skip_days: 21
+  momentum_lookback_days: 252
+  vol_window: 63
+  spark_days: 60
