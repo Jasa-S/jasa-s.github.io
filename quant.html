@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
+    <title>Quant Signals — Jasa</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="apple-touch-icon" sizes="180x180" href="/blue-images/profileImage.png?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="quant.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            max-width: 48rem;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 0;
+        }
+        section { margin-bottom: 3rem; }
+        @media (hover: hover) and (pointer: fine) {
+            #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
+            .bar-back:hover { color: var(--cosmic-purple); }
+            .bar-back:hover .back-arrow { transform: translateX(-2px); }
+        }
+        .site-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .header-h1 {
+            font-size: 1.75rem; font-weight: 600;
+            letter-spacing: -0.025em; margin: 0;
+        }
+        .header-subtitle {
+            font-size: 0.875rem; color: var(--text-muted);
+            margin: 0.5rem 0 0;
+        }
+        .header-meta {
+            display: flex; flex-wrap: wrap; gap: 1rem;
+            margin-top: 1rem; font-size: 0.8125rem; color: var(--text-muted);
+        }
+        footer {
+            padding: 1.5rem 0; margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--text-muted); font-size: 0.65rem;
+            text-transform: uppercase; letter-spacing: var(--ls-wide);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="/" class="bar-back" aria-label="Back to homepage">
+            <i class="fa-solid fa-arrow-left back-arrow"></i>
+        </a>
+        <button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <header>
+        <div class="site-header">
+            <div>
+                <h1 class="header-h1">Quant Signals</h1>
+                <p class="header-subtitle">Daily technical screen — not financial advice.</p>
+                <div class="header-meta">
+                    <span id="meta-updated"><i class="fa-regular fa-clock" style="margin-right:0.375rem;"></i>—</span>
+                    <span id="meta-fx"><i class="fa-solid fa-arrow-right-arrow-left" style="margin-right:0.375rem;"></i>—</span>
+                    <span id="meta-universe"><i class="fa-solid fa-list" style="margin-right:0.375rem;"></i>—</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="regime-banner" class="regime-banner" hidden></div>
+
+    <div id="empty-state" class="empty-state" hidden>
+        <p>Signals haven't been generated yet.</p>
+        <p class="muted">Run <code>python -m quant.src.main</code> locally, or trigger the <code>quant-signals</code> workflow on GitHub.</p>
+    </div>
+
+    <section id="pnl-section" hidden>
+        <h2 class="section-heading"><span>Portfolio</span><div class="section-divider"></div></h2>
+        <div class="glass pnl-card">
+            <div class="pnl-headline">
+                <div>
+                    <div class="pnl-label">Value</div>
+                    <div class="pnl-value" id="pnl-value">—</div>
+                </div>
+                <div>
+                    <div class="pnl-label">P&amp;L</div>
+                    <div class="pnl-pnl" id="pnl-pnl">—</div>
+                </div>
+            </div>
+            <div id="pnl-bars" class="pnl-bars"></div>
+            <div id="sector-warn" class="sector-warn" hidden></div>
+        </div>
+    </section>
+
+    <section id="portfolio-section">
+        <h2 class="section-heading"><span>Holdings</span><div class="section-divider"></div></h2>
+        <div id="portfolio-grid" class="q-grid"></div>
+    </section>
+
+    <section id="buys-section">
+        <h2 class="section-heading"><span>Top Buy Candidates</span><div class="section-divider"></div></h2>
+        <div class="q-controls">
+            <label class="q-control">
+                <span>Sector</span>
+                <select id="filter-sector"><option value="">All</option></select>
+            </label>
+            <label class="q-control">
+                <span>Min score</span>
+                <input id="filter-min-score" type="number" min="0" max="100" step="1" placeholder="0">
+            </label>
+            <button id="export-csv" class="q-export" type="button">
+                <i class="fa-solid fa-download"></i> CSV
+            </button>
+        </div>
+        <div class="q-table-wrap">
+            <table class="q-table" id="buys-table">
+                <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th>Ticker</th>
+                        <th>Sector</th>
+                        <th class="num">Score</th>
+                        <th class="num">RSI</th>
+                        <th class="num">Mom 12-1</th>
+                        <th class="num">RS 6m</th>
+                        <th class="num">Trend</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="heatmap-section">
+        <h2 class="section-heading"><span>Sector Heatmap</span><div class="section-divider"></div></h2>
+        <div id="heatmap" class="heatmap"></div>
+    </section>
+
+    <section id="avoid-section">
+        <h2 class="section-heading"><span>Weak / Avoid</span><div class="section-divider"></div></h2>
+        <details class="q-details">
+            <summary>Show bottom 10</summary>
+            <div class="q-table-wrap">
+                <table class="q-table" id="avoid-table">
+                    <thead>
+                        <tr>
+                            <th class="num">#</th>
+                            <th>Ticker</th>
+                            <th>Sector</th>
+                            <th class="num">Score</th>
+                            <th class="num">RSI</th>
+                            <th class="num">Mom 12-1</th>
+                            <th class="num">RS 6m</th>
+                            <th class="num">Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </details>
+    </section>
+
+    <section id="methodology-section">
+        <h2 class="section-heading"><span>Methodology</span><div class="section-divider"></div></h2>
+        <div class="glass methodology">
+            <p>
+                Composite blends cross-sectional z-scores of <strong>12-1 momentum</strong>,
+                <strong>volatility-adjusted return</strong>, <strong>relative strength vs SPY</strong>,
+                <strong>MACD histogram</strong>, and <strong>normalized RSI</strong>, plus a binary
+                <strong>trend filter</strong> (price &gt; SMA<sub>200</sub> AND SMA<sub>50</sub> &gt; SMA<sub>200</sub>).
+            </p>
+            <p class="muted">
+                Score = 50 + 12.5 · clip(R, -4, 4), where
+                R = 0.30·z<sub>M</sub> + 0.25·z<sub>S</sub> + 0.20·trend + 0.15·z<sub>RS</sub> + 0.05·z<sub>MACD</sub> + 0.05·z<sub>RSI</sub>.
+                Verdict: BUY ≥ 70, WATCH 40-69, AVOID &lt; 40. BUY downgrades to WATCH if the market regime is RISK_OFF
+                or earnings are within 3 trading days. A separate <strong>PULLBACK</strong> overlay flags
+                names in an uptrend pulling back to SMA<sub>50</sub> with RSI &lt; 35.
+            </p>
+            <p class="muted">
+                Holding actions: <strong>ADD</strong> (score ≥ 65, weight &lt; 30 %, trend on, regime on,
+                no imminent earnings); <strong>TRIM</strong> (score &lt; 40, or weight &gt; 35 % with score &lt; 60,
+                or RSI &gt; 80 with &gt; 40 % gain); <strong>HOLD</strong> otherwise. ADD sizing risks 1 % of
+                portfolio per trade with a 2-ATR stop, capped at 30 % of portfolio.
+            </p>
+            <p class="disclaimer">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Not financial advice. Past performance is not indicative of future returns.
+                This is a screener, not a backtest. Verify everything yourself.
+            </p>
+        </div>
+    </section>
+
+    <footer>
+        <span>© <span id="copy-year"></span> Jasaman Saini</span>
+        <span><a href="/" style="color:inherit;text-decoration:none;">Homepage</a></span>
+    </footer>
+
+    <script src="theme.js"></script>
+    <script src="quant.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+holdings:
+  - { ticker: GOOG, name: "Alphabet (C)", sector: "AI/Cloud", cost_basis_eur: 165.0, units: 5 }
+  - { ticker: NVDA, name: "NVIDIA",       sector: "Semis",    cost_basis_eur: 110.0, units: 6 }
+
+watchlist:
+  - { ticker: AMD,  sector: "Semis" }
+  - { ticker: MSFT, sector: "AI/Cloud" }
+  - { ticker: META, sector: "AI" }
+  - { ticker: AVGO, sector: "Semis" }
+
+fx:
+  base: EUR
+  pair: "EURUSD=X"
+
+benchmark: "SPY"
+
+risk:
+  per_trade: 0.01
+  stop_mult: 2.0
+  max_position_pct: 0.30
+  hard_stop_pct: 0.85
+  earnings_block_days: 3
+  sector_warn_pct: 0.40
+
+params:
+  lookback_days: 400
+  rsi_window: 14
+  sma_fast: 50
+  sma_slow: 200
+  macd_fast: 12
+  macd_slow: 26
+  macd_signal: 9
+  atr_window: 14
+  momentum_skip_days: 21
+  momentum_lookback_days: 252
+  vol_window: 63
+  spark_days: 60
+  rs_window: 126
+  donchian_window: 20
+  pullback_rsi_max: 35
