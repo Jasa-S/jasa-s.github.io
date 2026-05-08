@@ -114,58 +114,6 @@
 }
 .regime-banner .desc { color: var(--text-muted); font-size: 0.75rem; }
 
-/* P&L card */
-.pnl-card { padding: 1.25rem 1.5rem; }
-.pnl-headline {
-    display: flex; gap: 2.5rem; align-items: baseline;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-}
-.pnl-label {
-    font-size: 0.65rem; text-transform: uppercase;
-    letter-spacing: var(--ls-wide); color: var(--text-muted);
-    margin-bottom: 0.25rem; font-weight: 600;
-}
-.pnl-value {
-    font-size: 1.75rem; font-weight: 600;
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-}
-.pnl-pnl {
-    font-size: 1.5rem; font-weight: 600;
-    letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-}
-.pnl-bars { display: grid; gap: 0.4rem; }
-.pnl-bar-row {
-    display: grid;
-    grid-template-columns: 3.5rem 1fr auto;
-    gap: 0.6rem; align-items: center;
-    font-size: 0.75rem;
-}
-.pnl-bar-row .ticker { font-weight: 600; font-size: 0.8125rem; }
-.pnl-bar-row .bar {
-    height: 6px; border-radius: 3px; background: var(--card-hover);
-    position: relative; overflow: hidden;
-}
-.pnl-bar-row .bar .fill {
-    position: absolute; top: 0; bottom: 0;
-    border-radius: 3px;
-}
-.pnl-bar-row .bar .fill.gain { background: #16a34a; }
-.pnl-bar-row .bar .fill.loss { background: #dc2626; }
-.pnl-bar-row .pct {
-    font-variant-numeric: tabular-nums; font-size: 0.75rem;
-    min-width: 4rem; text-align: right;
-}
-.sector-warn {
-    margin-top: 1rem; padding: 0.6rem 0.8rem;
-    background: rgba(245,158,11,0.08);
-    border: 1px solid rgba(245,158,11,0.3);
-    border-radius: 0.5rem;
-    color: #d97706; font-size: 0.75rem;
-}
-
 /* Filters above the buy table */
 .q-controls {
     display: flex; flex-wrap: wrap; gap: 0.75rem;

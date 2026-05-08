@@ -67,7 +67,6 @@
     }
 
     function sparkline(seriesList) {
-        // seriesList: array of { values, stroke, opacity }
         var w = 120, h = 32, pad = 2;
         var svg = document.createElementNS(SVG_NS, 'svg');
         svg.setAttribute('class', 'spark');
@@ -120,14 +119,7 @@
             pills.push(el('span', { class: 'pill earnings', text: '⏰ ' + v.next_earnings_in_days + 'd' }));
         }
 
-        var pnlClass = v.drawdown_vs_basis != null && v.drawdown_vs_basis >= 0 ? 'gain' : 'loss';
         var leftBits = [];
-        if (v.drawdown_vs_basis != null) {
-            leftBits.push(el('span', { class: pnlClass, text: (v.drawdown_vs_basis >= 0 ? '+' : '') + fmtPct(v.drawdown_vs_basis) }));
-        }
-        if (v.weight != null) {
-            leftBits.push(el('span', { text: 'wt ' + fmtPct(v.weight, 0) }));
-        }
         if (v.price_eur != null) {
             leftBits.push(el('span', { text: fmtNum(v.price_eur) + ' €' }));
         }
@@ -199,55 +191,6 @@
         banner.appendChild(el('i', { class: 'fa-solid ' + icon }));
         banner.appendChild(el('span', { class: 'label', text: label }));
         banner.appendChild(el('span', { class: 'desc', text: desc }));
-    }
-
-    function renderPortfolio(data) {
-        var section = document.getElementById('pnl-section');
-        var p = data.portfolio;
-        if (!p || p.value_eur == null) { section.hidden = true; return; }
-        section.hidden = false;
-        document.getElementById('pnl-value').textContent = fmtEur(p.value_eur);
-        var pnlClass = (p.pnl_eur != null && p.pnl_eur >= 0) ? 'gain' : 'loss';
-        var pnlEl = document.getElementById('pnl-pnl');
-        pnlEl.className = 'pnl-pnl ' + pnlClass;
-        var sign = (p.pnl_eur != null && p.pnl_eur >= 0) ? '+' : '';
-        pnlEl.textContent = sign + fmtEur(p.pnl_eur) + '  (' + sign + fmtPct(p.pnl_pct) + ')';
-
-        var bars = document.getElementById('pnl-bars');
-        bars.innerHTML = '';
-        var holdings = (p.by_holding || []).slice();
-        var maxAbs = holdings.reduce(function (m, h) {
-            return Math.max(m, Math.abs(h.pnl_pct || 0));
-        }, 0.05);
-        holdings.forEach(function (h) {
-            var pct = h.pnl_pct || 0;
-            var fillCls = pct >= 0 ? 'gain' : 'loss';
-            var widthPct = Math.min(100, Math.abs(pct) / maxAbs * 100);
-            var barFill = el('div', { class: 'fill ' + fillCls });
-            barFill.style.width = (widthPct / 2) + '%';
-            barFill.style.left = (pct >= 0 ? 50 : 50 - widthPct / 2) + '%';
-            var bar = el('div', { class: 'bar' }, [barFill]);
-            bars.appendChild(el('div', { class: 'pnl-bar-row' }, [
-                el('span', { class: 'ticker', text: h.ticker }),
-                bar,
-                el('span', { class: 'pct ' + fillCls, text: (pct >= 0 ? '+' : '') + fmtPct(pct) })
-            ]));
-        });
-
-        var warn = document.getElementById('sector-warn');
-        var over = data.over_concentrated_sectors || [];
-        if (over.length === 0) { warn.hidden = true; }
-        else {
-            warn.hidden = false;
-            warn.innerHTML = '';
-            warn.appendChild(el('i', { class: 'fa-solid fa-triangle-exclamation', style: 'margin-right:0.4rem;' }));
-            warn.appendChild(document.createTextNode(
-                'Concentrated in: ' + over.map(function (s) {
-                    var pct = data.sector_concentration[s];
-                    return s + ' (' + fmtPct(pct, 0) + ')';
-                }).join(', ')
-            ));
-        }
     }
 
     function renderHeatmap(data) {
@@ -354,7 +297,6 @@
             '<i class="fa-solid fa-list" style="margin-right:0.375rem;"></i>' + data.universe_size + ' tickers';
 
         renderRegime(data);
-        renderPortfolio(data);
 
         var benchSpark = data.benchmark_spark || [];
         var pgrid = document.getElementById('portfolio-grid');
@@ -392,7 +334,7 @@
     }
 
     function showEmpty(msg) {
-        var hidden = ['portfolio-section', 'buys-section', 'avoid-section', 'heatmap-section', 'pnl-section'];
+        var hidden = ['portfolio-section', 'buys-section', 'avoid-section', 'heatmap-section'];
         hidden.forEach(function (id) {
             var n = document.getElementById(id);
             if (n) n.hidden = true;
