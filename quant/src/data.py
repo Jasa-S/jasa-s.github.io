@@ -31,6 +31,8 @@ class Universe:
     watchlist: list[WatchItem]
     fx_pair: str
     fx_base: str
+    benchmark: str
+    risk: dict
     params: dict
 
     @property
@@ -58,6 +60,8 @@ def load_universe(path: Path) -> Universe:
         watchlist=watchlist,
         fx_pair=fx.get("pair", "EURUSD=X"),
         fx_base=fx.get("base", "EUR"),
+        benchmark=raw.get("benchmark", "SPY"),
+        risk=raw.get("risk", {}) or {},
         params=raw.get("params", {}) or {},
     )
 
@@ -118,40 +122,127 @@ def fetch_history(
     """Fetch OHLC for tickers. Returns (frames_by_ticker, errors).
 
     Each frame has columns Open/High/Low/Close at minimum, indexed by date.
-    Failures don't crash the run - they surface in the errors list.
+    Failures don't crash the run - they surface in the errors list. Tickers
+    that fail yfinance fall back to Stooq, then to the parquet cache.
     """
     errors: list[dict] = []
     if not tickers:
         return {}, errors
 
-    raw = _yf_download(tickers, days)
     out: dict[str, pd.DataFrame] = {}
-    for t in tickers:
-        try:
-            if isinstance(raw.columns, pd.MultiIndex):
-                if t in raw.columns.levels[0]:
-                    df = raw[t].dropna(how="all")
+    yf_failed: list[str] = []
+    try:
+        raw = _yf_download(tickers, days)
+    except Exception as e:
+        # Whole-batch failure (often rate limit). Mark every ticker for fallback.
+        errors.append({"stage": "fetch", "warn": f"yfinance batch failed: {e}"})
+        yf_failed = list(tickers)
+        raw = None
+
+    if raw is not None:
+        for t in tickers:
+            try:
+                if isinstance(raw.columns, pd.MultiIndex):
+                    if t in raw.columns.levels[0]:
+                        df = raw[t].dropna(how="all")
+                    else:
+                        raise KeyError(f"ticker {t} missing from yfinance response")
                 else:
-                    raise KeyError(f"ticker {t} missing from yfinance response")
-            else:
-                df = raw.dropna(how="all")
-            df = df.rename(columns=str.title)
-            needed = {"Open", "High", "Low", "Close"}
-            if not needed.issubset(df.columns):
-                raise KeyError(f"missing OHLC for {t}: have {list(df.columns)}")
-            if len(df) < 50:
-                raise ValueError(f"too few rows for {t}: {len(df)}")
-            out[t] = df[["Open", "High", "Low", "Close"]].copy()
+                    df = raw.dropna(how="all")
+                df = df.rename(columns=str.title)
+                needed = {"Open", "High", "Low", "Close"}
+                if not needed.issubset(df.columns):
+                    raise KeyError(f"missing OHLC for {t}: have {list(df.columns)}")
+                if len(df) < 50:
+                    raise ValueError(f"too few rows for {t}: {len(df)}")
+                out[t] = df[["Open", "High", "Low", "Close"]].copy()
+                if cache_dir is not None:
+                    _write_cache(_cache_path(cache_dir, t), out[t])
+            except Exception as e:
+                yf_failed.append(t)
+                errors.append({"ticker": t, "stage": "yfinance", "warn": str(e)})
+
+    # Stooq fallback for anything yfinance couldn't handle.
+    for t in yf_failed:
+        df = _stooq_download(t, days)
+        if df is not None and len(df) >= 50:
+            out[t] = df
+            errors.append({"ticker": t, "stage": "stooq", "warn": "used stooq fallback"})
             if cache_dir is not None:
-                _write_cache(_cache_path(cache_dir, t), out[t])
-        except Exception as e:
-            cached = _read_cache(_cache_path(cache_dir, t)) if cache_dir else None
-            if cached is not None and len(cached) >= 50:
-                out[t] = cached
-                errors.append({"ticker": t, "stage": "fetch", "warn": f"using cache: {e}"})
-            else:
-                errors.append({"ticker": t, "stage": "fetch", "error": str(e)})
+                _write_cache(_cache_path(cache_dir, t), df)
+            continue
+        cached = _read_cache(_cache_path(cache_dir, t)) if cache_dir else None
+        if cached is not None and len(cached) >= 50:
+            out[t] = cached
+            errors.append({"ticker": t, "stage": "cache", "warn": "yfinance + stooq failed; using cache"})
+        else:
+            errors.append({"ticker": t, "stage": "fetch", "error": "yfinance + stooq + cache all failed"})
+
     return out, errors
+
+
+def _stooq_symbol(ticker: str) -> str:
+    """Map a US ticker to the Stooq symbol convention (lowercase, .us suffix, dot->dash)."""
+    t = ticker.lower().replace(".", "-")
+    if t.endswith("=x"):
+        return t  # FX pairs like eurusd=x
+    return f"{t}.us"
+
+
+def _stooq_download(ticker: str, days: int) -> pd.DataFrame | None:
+    """Best-effort daily OHLC pull from Stooq's CSV endpoint."""
+    end = datetime.now(timezone.utc).date()
+    start = end - timedelta(days=int(days * 1.6) + 30)
+    url = (
+        "https://stooq.com/q/d/l/"
+        f"?s={_stooq_symbol(ticker)}&i=d"
+        f"&d1={start.strftime('%Y%m%d')}&d2={end.strftime('%Y%m%d')}"
+    )
+    try:
+        df = pd.read_csv(url)
+        if df.empty or "Date" not in df.columns:
+            return None
+        df["Date"] = pd.to_datetime(df["Date"])
+        df = df.set_index("Date").sort_index()
+        df = df.rename(columns=str.title)
+        needed = {"Open", "High", "Low", "Close"}
+        if not needed.issubset(df.columns):
+            return None
+        return df[["Open", "High", "Low", "Close"]].copy()
+    except Exception:
+        return None
+
+
+def fetch_next_earnings(ticker: str) -> str | None:
+    """Best-effort next-earnings date. Returns ISO date string or None."""
+    try:
+        import yfinance as yf
+
+        cal = yf.Ticker(ticker).calendar
+        if cal is None:
+            return None
+        # Newer yfinance returns a dict; older returns a DataFrame.
+        if isinstance(cal, dict):
+            d = cal.get("Earnings Date")
+            if isinstance(d, list) and d:
+                d = d[0]
+            return _to_iso_date(d)
+        if hasattr(cal, "loc") and "Earnings Date" in cal.index:
+            return _to_iso_date(cal.loc["Earnings Date"][0])
+    except Exception:
+        return None
+    return None
+
+
+def _to_iso_date(d) -> str | None:
+    try:
+        if d is None:
+            return None
+        if hasattr(d, "date"):
+            return d.date().isoformat()
+        return pd.to_datetime(d).date().isoformat()
+    except Exception:
+        return None
 
 
 def fetch_fx(pair: str = "EURUSD=X", days: int = 400) -> pd.Series:

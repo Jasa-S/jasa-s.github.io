@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: quant-signals
@@ -38,6 +39,17 @@ jobs:
             --out quant/output/signals.json \
             --cache quant/cache
 
+      - name: Validate JSON schema
+        run: |
+          python -c "
+          import json, sys
+          from jsonschema import validate
+          schema = json.load(open('quant/schema/signals.schema.json'))
+          payload = json.load(open('quant/output/signals.json'))
+          validate(payload, schema)
+          print('schema OK')
+          "
+
       - name: Commit signals if changed
         run: |
           git config user.name  "quant-bot"
@@ -49,3 +61,31 @@ jobs:
             git commit -m "chore(quant): refresh signals $(date -u +%FT%TZ)"
             git push
           fi
+
+      - name: Open issue on data errors
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ ! -f quant/output/signals.json ]; then
+            echo "no signals.json produced; skipping issue check"
+            exit 0
+          fi
+          n=$(python -c "import json; print(len(json.load(open('quant/output/signals.json')).get('errors', [])))")
+          if [ "$n" -eq 0 ]; then
+            echo "no errors"
+            exit 0
+          fi
+          today=$(date -u +%F)
+          title="quant-signals: $n data errors on $today"
+          # Skip if an open issue already exists for today.
+          existing=$(gh issue list --state open --search "in:title \"quant-signals\" \"$today\"" --json number --jq 'length')
+          if [ "$existing" != "0" ]; then
+            echo "issue for today already open; skipping"
+            exit 0
+          fi
+          body=$(python -c "import json; print(json.dumps(json.load(open('quant/output/signals.json'))['errors'], indent=2))")
+          gh issue create \
+            --title "$title" \
+            --body "$(printf '## Errors from quant-signals run\n\n```json\n%s\n```\n' "$body")" \
+            --label "quant"

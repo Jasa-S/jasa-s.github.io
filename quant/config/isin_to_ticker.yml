@@ -1,0 +1,8 @@
+# Map Trade Republic ISINs to the US ticker used by yfinance/Stooq.
+# Used by quant/src/import_holdings.py. Add lines as you trade new names.
+
+US02079K1079: { ticker: GOOG, name: "Alphabet (C)",  sector: "AI/Cloud" }
+NL0014332678: { ticker: NBIS, name: "Nebius (A)",    sector: "AI Infra" }
+US67066G1040: { ticker: NVDA, name: "NVIDIA",        sector: "Semis" }
+AU0000262912: { ticker: IREN, name: "IREN",          sector: "AI Infra" }
+US46222L1089: { ticker: IONQ, name: "IonQ",          sector: "Quantum" }

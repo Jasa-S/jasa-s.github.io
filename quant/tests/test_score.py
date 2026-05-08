@@ -74,6 +74,57 @@ def test_classify_veto_downgrades_to_watch():
     assert signallib.classify(75, 35.0, False) == "WATCH"
 
 
+def test_classify_regime_off_downgrades_buy():
+    # BUY downgrades to WATCH when regime is off.
+    assert signallib.classify(80, 60.0, True, regime_on=False) == "WATCH"
+    # AVOID stays AVOID.
+    assert signallib.classify(20, 30.0, False, regime_on=False) == "AVOID"
+
+
+def test_classify_earnings_gate():
+    # BUY downgrades to WATCH if earnings within block window.
+    assert signallib.classify(80, 60.0, True, earnings_in_days=2) == "WATCH"
+    # No effect when earnings are far enough out.
+    assert signallib.classify(80, 60.0, True, earnings_in_days=10) == "BUY"
+    # Negative days (already happened) shouldn't trigger the gate.
+    assert signallib.classify(80, 60.0, True, earnings_in_days=-3) == "BUY"
+
+
+def test_holding_action_regime_off_blocks_add():
+    assert (
+        signallib.holding_action(
+            score=70, rsi=60.0, trend_ok=True, weight=0.10,
+            drawdown_vs_basis=0.05, regime_on=False,
+        )
+        == "HOLD"
+    )
+
+
+def test_holding_action_earnings_blocks_add():
+    assert (
+        signallib.holding_action(
+            score=70, rsi=60.0, trend_ok=True, weight=0.10,
+            drawdown_vs_basis=0.05, earnings_in_days=1,
+        )
+        == "HOLD"
+    )
+
+
+def test_pullback_buy_fires_on_dip_in_uptrend():
+    f = {"trend_ok": True, "rsi": 30.0, "near_sma_fast": True}
+    assert signallib.pullback_buy(f, {}) is True
+
+
+def test_pullback_buy_skips_weak_trend():
+    f = {"trend_ok": False, "rsi": 30.0, "near_sma_fast": True}
+    assert signallib.pullback_buy(f, {}) is False
+
+
+def test_pullback_buy_skips_when_not_oversold():
+    f = {"trend_ok": True, "rsi": 55.0, "near_sma_fast": True}
+    assert signallib.pullback_buy(f, {}) is False
+
+
 def test_holding_action_add():
     assert (
         signallib.holding_action(score=70, rsi=60.0, trend_ok=True, weight=0.10, drawdown_vs_basis=0.05)

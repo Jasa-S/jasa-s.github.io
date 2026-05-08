@@ -66,3 +66,30 @@ def realized_vol(s: pd.Series, n: int = 63) -> float:
     if len(rets) < n:
         return float("nan")
     return float(rets.std(ddof=1) * np.sqrt(252))
+
+
+def donchian_high(s: pd.Series, n: int = 20) -> float:
+    """Highest close over the last n days (excluding today)."""
+    if len(s) < n + 1:
+        return float("nan")
+    return float(s.iloc[-(n + 1):-1].max())
+
+
+def atr_stop(price: float, atr_value: float, mult: float = 2.0) -> float:
+    """Trailing stop = price - mult * ATR. Returns NaN if either input is bad."""
+    if not (np.isfinite(price) and np.isfinite(atr_value)):
+        return float("nan")
+    return float(price - mult * atr_value)
+
+
+def relative_strength(s: pd.Series, bench: pd.Series, n: int = 126) -> float:
+    """Excess return of s over bench over the last n trading days."""
+    if len(s) < n + 1 or len(bench) < n + 1:
+        return float("nan")
+    aligned = pd.concat([s, bench], axis=1, join="inner").dropna()
+    if len(aligned) < n + 1:
+        return float("nan")
+    a, b = aligned.iloc[:, 0], aligned.iloc[:, 1]
+    s_ret = a.iloc[-1] / a.iloc[-(n + 1)] - 1.0
+    b_ret = b.iloc[-1] / b.iloc[-(n + 1)] - 1.0
+    return float(s_ret - b_ret)

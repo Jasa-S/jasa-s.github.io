@@ -36,7 +36,7 @@
         }
         .site-header {
             display: flex; align-items: flex-start; justify-content: space-between;
-            gap: 1rem; margin-bottom: 3rem;
+            gap: 1rem; margin-bottom: 1.5rem;
         }
         .header-h1 {
             font-size: 1.75rem; font-weight: 600;
@@ -84,18 +84,51 @@
         </div>
     </header>
 
+    <div id="regime-banner" class="regime-banner" hidden></div>
+
     <div id="empty-state" class="empty-state" hidden>
         <p>Signals haven't been generated yet.</p>
         <p class="muted">Run <code>python -m quant.src.main</code> locally, or trigger the <code>quant-signals</code> workflow on GitHub.</p>
     </div>
 
+    <section id="pnl-section" hidden>
+        <h2 class="section-heading"><span>Portfolio</span><div class="section-divider"></div></h2>
+        <div class="glass pnl-card">
+            <div class="pnl-headline">
+                <div>
+                    <div class="pnl-label">Value</div>
+                    <div class="pnl-value" id="pnl-value">—</div>
+                </div>
+                <div>
+                    <div class="pnl-label">P&amp;L</div>
+                    <div class="pnl-pnl" id="pnl-pnl">—</div>
+                </div>
+            </div>
+            <div id="pnl-bars" class="pnl-bars"></div>
+            <div id="sector-warn" class="sector-warn" hidden></div>
+        </div>
+    </section>
+
     <section id="portfolio-section">
-        <h2 class="section-heading"><span>Your Portfolio</span><div class="section-divider"></div></h2>
+        <h2 class="section-heading"><span>Holdings</span><div class="section-divider"></div></h2>
         <div id="portfolio-grid" class="q-grid"></div>
     </section>
 
     <section id="buys-section">
         <h2 class="section-heading"><span>Top Buy Candidates</span><div class="section-divider"></div></h2>
+        <div class="q-controls">
+            <label class="q-control">
+                <span>Sector</span>
+                <select id="filter-sector"><option value="">All</option></select>
+            </label>
+            <label class="q-control">
+                <span>Min score</span>
+                <input id="filter-min-score" type="number" min="0" max="100" step="1" placeholder="0">
+            </label>
+            <button id="export-csv" class="q-export" type="button">
+                <i class="fa-solid fa-download"></i> CSV
+            </button>
+        </div>
         <div class="q-table-wrap">
             <table class="q-table" id="buys-table">
                 <thead>
@@ -106,12 +139,18 @@
                         <th class="num">Score</th>
                         <th class="num">RSI</th>
                         <th class="num">Mom 12-1</th>
+                        <th class="num">RS 6m</th>
                         <th class="num">Trend</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
+    </section>
+
+    <section id="heatmap-section">
+        <h2 class="section-heading"><span>Sector Heatmap</span><div class="section-divider"></div></h2>
+        <div id="heatmap" class="heatmap"></div>
     </section>
 
     <section id="avoid-section">
@@ -128,6 +167,7 @@
                             <th class="num">Score</th>
                             <th class="num">RSI</th>
                             <th class="num">Mom 12-1</th>
+                            <th class="num">RS 6m</th>
                             <th class="num">Trend</th>
                         </tr>
                     </thead>
@@ -141,20 +181,23 @@
         <h2 class="section-heading"><span>Methodology</span><div class="section-divider"></div></h2>
         <div class="glass methodology">
             <p>
-                Composite score blends cross-sectional z-scores of <strong>12-1 momentum</strong>,
-                <strong>volatility-adjusted return</strong>, <strong>MACD histogram</strong>, and
-                <strong>normalized RSI</strong>, plus a binary <strong>trend filter</strong>
-                (price &gt; SMA<sub>200</sub> and SMA<sub>50</sub> &gt; SMA<sub>200</sub>).
+                Composite blends cross-sectional z-scores of <strong>12-1 momentum</strong>,
+                <strong>volatility-adjusted return</strong>, <strong>relative strength vs SPY</strong>,
+                <strong>MACD histogram</strong>, and <strong>normalized RSI</strong>, plus a binary
+                <strong>trend filter</strong> (price &gt; SMA<sub>200</sub> AND SMA<sub>50</sub> &gt; SMA<sub>200</sub>).
             </p>
             <p class="muted">
                 Score = 50 + 12.5 · clip(R, -4, 4), where
-                R = 0.35 · z<sub>M</sub> + 0.30 · z<sub>S</sub> + 0.20 · trend + 0.10 · z<sub>MACD</sub> + 0.05 · z<sub>RSI</sub>.
-                Verdict: BUY ≥ 70, WATCH 40-69, AVOID &lt; 40 (downgraded if downtrend &amp; RSI &lt; 40).
+                R = 0.30·z<sub>M</sub> + 0.25·z<sub>S</sub> + 0.20·trend + 0.15·z<sub>RS</sub> + 0.05·z<sub>MACD</sub> + 0.05·z<sub>RSI</sub>.
+                Verdict: BUY ≥ 70, WATCH 40-69, AVOID &lt; 40. BUY downgrades to WATCH if the market regime is RISK_OFF
+                or earnings are within 3 trading days. A separate <strong>PULLBACK</strong> overlay flags
+                names in an uptrend pulling back to SMA<sub>50</sub> with RSI &lt; 35.
             </p>
             <p class="muted">
-                For current holdings, the model also outputs an action: <strong>ADD</strong>,
-                <strong>HOLD</strong>, or <strong>TRIM</strong>, factoring score, position weight,
-                and drawdown vs cost basis.
+                Holding actions: <strong>ADD</strong> (score ≥ 65, weight &lt; 30 %, trend on, regime on,
+                no imminent earnings); <strong>TRIM</strong> (score &lt; 40, or weight &gt; 35 % with score &lt; 60,
+                or RSI &gt; 80 with &gt; 40 % gain); <strong>HOLD</strong> otherwise. ADD sizing risks 1 % of
+                portfolio per trade with a 2-ATR stop, capped at 30 % of portfolio.
             </p>
             <p class="disclaimer">
                 <i class="fa-solid fa-triangle-exclamation"></i>

@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QuantSignals",
+  "type": "object",
+  "required": [
+    "model_version",
+    "generated_at",
+    "universe_size",
+    "regime",
+    "tickers",
+    "ranked_buys",
+    "ranked_avoid",
+    "holdings_summary",
+    "errors"
+  ],
+  "properties": {
+    "model_version": { "type": "integer", "minimum": 1 },
+    "generated_at": { "type": "string" },
+    "fx_eur_usd": { "type": ["number", "null"] },
+    "universe_size": { "type": "integer", "minimum": 0 },
+    "benchmark": { "type": "string" },
+    "regime": { "type": "string", "enum": ["RISK_ON", "RISK_OFF"] },
+    "regime_score": { "type": ["integer", "null"] },
+    "benchmark_spark": {
+      "type": "array",
+      "items": { "type": "number" }
+    },
+    "params": { "type": "object" },
+    "portfolio": {
+      "type": "object",
+      "required": ["value_eur", "cost_eur", "pnl_eur", "by_holding"],
+      "properties": {
+        "value_eur": { "type": ["number", "null"] },
+        "cost_eur": { "type": ["number", "null"] },
+        "pnl_eur": { "type": ["number", "null"] },
+        "pnl_pct": { "type": ["number", "null"] },
+        "by_holding": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ticker", "value_eur", "cost_eur", "pnl_eur"],
+            "properties": {
+              "ticker": { "type": "string" },
+              "value_eur": { "type": ["number", "null"] },
+              "cost_eur": { "type": ["number", "null"] },
+              "pnl_eur": { "type": ["number", "null"] },
+              "pnl_pct": { "type": ["number", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "sector_concentration": {
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "over_concentrated_sectors": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "tickers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["score", "verdict", "is_holding", "indicators", "spark"],
+        "properties": {
+          "name": { "type": "string" },
+          "sector": { "type": "string" },
+          "price_usd": { "type": ["number", "null"] },
+          "price_eur": { "type": ["number", "null"] },
+          "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "verdict": { "type": "string", "enum": ["BUY", "WATCH", "AVOID"] },
+          "is_holding": { "type": "boolean" },
+          "is_pullback": { "type": "boolean" },
+          "next_earnings": { "type": ["string", "null"] },
+          "next_earnings_in_days": { "type": ["integer", "null"] },
+          "holding_action": {
+            "type": ["string", "null"],
+            "enum": ["ADD", "HOLD", "TRIM", null]
+          },
+          "drawdown_vs_basis": { "type": ["number", "null"] },
+          "weight": { "type": ["number", "null"] },
+          "suggested_add_eur": { "type": ["number", "null"] },
+          "stop_loss_eur": { "type": ["number", "null"] },
+          "indicators": {
+            "type": "object",
+            "required": ["rsi14", "trend_ok"],
+            "properties": {
+              "sma50": { "type": ["number", "null"] },
+              "sma200": { "type": ["number", "null"] },
+              "rsi14": { "type": ["number", "null"] },
+              "macd_hist": { "type": ["number", "null"] },
+              "mom_12_1": { "type": ["number", "null"] },
+              "rs_6m": { "type": ["number", "null"] },
+              "atr14": { "type": ["number", "null"] },
+              "vol_63d_ann": { "type": ["number", "null"] },
+              "donchian_high_20": { "type": ["number", "null"] },
+              "breakout_20d": { "type": "boolean" },
+              "near_sma_fast": { "type": "boolean" },
+              "trend_ok": { "type": "boolean" }
+            }
+          },
+          "spark": {
+            "type": "array",
+            "items": { "type": "number" }
+          }
+        }
+      }
+    },
+    "ranked_buys": { "type": "array", "items": { "type": "string" } },
+    "ranked_avoid": { "type": "array", "items": { "type": "string" } },
+    "holdings_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ticker", "score", "action"],
+        "properties": {
+          "ticker": { "type": "string" },
+          "score": { "type": "integer" },
+          "action": { "type": "string", "enum": ["ADD", "HOLD", "TRIM"] }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": { "type": "object" }
+    }
+  }
+}

@@ -49,6 +49,16 @@ fx:
   base: EUR
   pair: "EURUSD=X"
 
+benchmark: "SPY"
+
+risk:
+  per_trade: 0.01        # fraction of portfolio risked per ADD
+  stop_mult: 2.0         # ATR multiplier for stops
+  max_position_pct: 0.30 # cap on any single position
+  hard_stop_pct: 0.85    # catastrophic floor: stop at 85% of cost basis at worst
+  earnings_block_days: 3 # block BUY/ADD if earnings within N trading days
+  sector_warn_pct: 0.40  # warn on dashboard if any sector exceeds this
+
 params:
   lookback_days: 400
   rsi_window: 14
@@ -62,3 +72,6 @@ params:
   momentum_lookback_days: 252
   vol_window: 63
   spark_days: 60
+  rs_window: 126
+  donchian_window: 20
+  pullback_rsi_max: 35
