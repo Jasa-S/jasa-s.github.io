@@ -52,6 +52,10 @@ jobs:
 
       - name: Commit signals if changed
         run: |
+          if [ ! -f quant/output/signals.json ]; then
+            echo "signals.json was not produced; skipping commit"
+            exit 0
+          fi
           git config user.name  "quant-bot"
           git config user.email "quant-bot@users.noreply.github.com"
           git add quant/output/signals.json
@@ -64,6 +68,7 @@ jobs:
 
       - name: Open issue on data errors
         if: always()
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -79,7 +84,7 @@ jobs:
           today=$(date -u +%F)
           title="quant-signals: $n data errors on $today"
           # Skip if an open issue already exists for today.
-          existing=$(gh issue list --state open --search "in:title \"quant-signals\" \"$today\"" --json number --jq 'length')
+          existing=$(gh issue list --state open --search "in:title \"quant-signals\" \"$today\"" --json number --jq 'length' || echo 0)
           if [ "$existing" != "0" ]; then
             echo "issue for today already open; skipping"
             exit 0
@@ -88,4 +93,4 @@ jobs:
           gh issue create \
             --title "$title" \
             --body "$(printf '## Errors from quant-signals run\n\n```json\n%s\n```\n' "$body")" \
-            --label "quant"
+            || echo "issue creation failed; continuing"
