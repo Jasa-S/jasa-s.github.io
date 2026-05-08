@@ -153,10 +153,10 @@
             <h2 class="section-heading"><span>Methodology</span><div class="section-divider"></div></h2>
             <div class="glass methodology">
                 <p>
-                    Composite blends cross-sectional z-scores of <strong>12-1 momentum</strong>,
-                    <strong>volatility-adjusted return</strong>, <strong>relative strength vs SPY</strong>,
-                    <strong>MACD histogram</strong>, and <strong>normalized RSI</strong>, plus a binary
-                    <strong>trend filter</strong> (price &gt; SMA<sub>200</sub> AND SMA<sub>50</sub> &gt; SMA<sub>200</sub>).
+                    Composite blends cross-sectional z-scores of <strong>12-1 momentum</strong> (z<sub>M</sub>),
+                    <strong>volatility-adjusted return</strong> (z<sub>S</sub>), <strong>relative strength vs SPY</strong> (z<sub>RS</sub>),
+                    <strong>MACD histogram</strong> (z<sub>MACD</sub>), and <strong>normalized RSI</strong> (z<sub>RSI</sub>),
+                    plus a binary <strong>trend filter</strong> (price &gt; SMA<sub>200</sub> AND SMA<sub>50</sub> &gt; SMA<sub>200</sub>).
                 </p>
                 <p class="muted">
                     Score = 50 + 12.5 &middot; clip(R, -4, 4), where
@@ -166,10 +166,9 @@
                     names in an uptrend pulling back to SMA<sub>50</sub> with RSI &lt; 35.
                 </p>
                 <p class="muted">
-                    Holding actions: <strong>ADD</strong> (score &ge; 65, weight &lt; 30 %, trend on, regime on,
-                    no imminent earnings); <strong>TRIM</strong> (score &lt; 40, or weight &gt; 35 % with score &lt; 60,
-                    or RSI &gt; 80 with &gt; 40 % gain); <strong>HOLD</strong> otherwise. ADD sizing risks 1 % of
-                    portfolio per trade with a 2-ATR stop, capped at 30 % of portfolio.
+                    Holding actions: <strong>ADD</strong> (score &ge; 65, trend on, regime on, no imminent earnings);
+                    <strong>TRIM</strong> (score &lt; 40, RSI &gt; 80 with a large gain, or position oversized);
+                    <strong>HOLD</strong> otherwise. ADD sizing risks 1 % of capital per trade using a 2-ATR stop.
                 </p>
                 <p class="disclaimer">
                     <i class="fa-solid fa-triangle-exclamation"></i>
