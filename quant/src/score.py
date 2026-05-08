@@ -140,6 +140,25 @@ def composite(features: dict) -> int:
     return int(round(50.0 + 12.5 * raw))
 
 
+def factor_contributions(features: dict) -> dict:
+    """Per-factor contribution to the score, in score-points (×12.5).
+
+    Pre-clip; the six values sum to (composite - 50) up to the [-4, 4]
+    clip step in `composite()`. Useful for "what drove today's score".
+    """
+    trend = 1.0 if features.get("trend_ok") else 0.0
+    trend_centered = (trend - 0.5) * 2.0
+    raw = {
+        "momentum": WEIGHTS["z_mom_12_1"] * _f(features.get("z_mom_12_1")),
+        "vol_adj":  WEIGHTS["z_vol_adj_ret"] * _f(features.get("z_vol_adj_ret")),
+        "trend":    WEIGHTS["trend_centered"] * trend_centered,
+        "rs":       WEIGHTS["z_rs_6m"] * _f(features.get("z_rs_6m")),
+        "macd":     WEIGHTS["z_macd_pos"] * _f(features.get("z_macd_pos")),
+        "rsi":      WEIGHTS["z_rsi_norm"] * _f(features.get("z_rsi_norm")),
+    }
+    return {k: round(v * 12.5, 2) for k, v in raw.items()}
+
+
 def _isfinite(v) -> bool:
     try:
         return v is not None and np.isfinite(float(v))
