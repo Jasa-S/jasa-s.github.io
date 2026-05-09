@@ -43,15 +43,6 @@
             z-index: 1200;
         }
 
-        .top-bar {
-            position: absolute;
-            top: 0.75rem;
-            right: 1.25rem;
-            display: flex;
-            align-items: center;
-            z-index: 500;
-        }
-        .top-bar .top-btn { position: relative; }
         .top-btn-wrap { position: relative; display: inline-flex; }
         @media (hover: hover) and (pointer: fine) {
             #view-toggle:hover, #surprise-btn:hover, #sleep-btn:hover, #settings-btn:hover { color: var(--cosmic-purple); }
@@ -951,7 +942,7 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
+    <div id="top-bar-direct">
         <button id="discover-btn" class="top-btn" aria-label="Discover on YouTube" title="Discover on YouTube">
             <i class="fa-solid fa-magnifying-glass"></i>
         </button>
