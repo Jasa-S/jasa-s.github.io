@@ -10,6 +10,7 @@ import numpy as np
 from . import data as datalib
 from . import history as historylib
 from . import score as scorelib
+from . import sentiment as sentilib
 from . import signal as signallib
 from . import sizing as sizinglib
 from .report import write_json
@@ -225,6 +226,15 @@ def run(config_path: Path, out_path: Path, cache_dir: Path | None = None) -> dic
             },
             "spark": f.get("spark", []),
         }
+
+    # Sentiment overlay (display-only): analyst consensus + VADER news tone.
+    sentiment_cache = (cache_dir / "sentiment") if cache_dir else None
+    for t in tickers_out:
+        try:
+            tickers_out[t]["sentiment"] = sentilib.cached_sentiment(t, sentiment_cache)
+        except Exception as e:
+            errors.append({"ticker": t, "stage": "sentiment", "warn": str(e)})
+            tickers_out[t]["sentiment"] = {"analyst": None, "news": None}
 
     ranked = sorted(tickers_out.items(), key=lambda kv: kv[1]["score"], reverse=True)
     ranked_buys = [t for t, v in ranked if v["verdict"] in ("BUY", "WATCH")][:10]

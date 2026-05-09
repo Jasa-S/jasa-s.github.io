@@ -51,18 +51,21 @@
 .q-card .meta-row .left { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .q-card .spark { width: 120px; height: 32px; flex-shrink: 0; }
 .q-card .add-line,
-.q-card .drivers {
+.q-card .drivers,
+.q-card .target-line {
     grid-column: 1 / 3;
     font-size: 0.75rem; color: var(--text-muted);
 }
 .q-card .add-line .key,
-.q-card .drivers .key {
+.q-card .drivers .key,
+.q-card .target-line .key {
     text-transform: uppercase;
     letter-spacing: var(--ls-mid);
     font-size: 0.65rem;
     margin-right: 0.4rem;
 }
 .q-card .add-line .val { color: var(--text-main); }
+.q-card .target-line .val { font-variant-numeric: tabular-nums; }
 .q-card .drivers .val { font-variant-numeric: tabular-nums; margin: 0 0.15rem; }
 .q-card .drivers .sep { color: var(--text-muted); margin: 0 0.15rem; opacity: 0.6; }
 .q-card .score .delta {
@@ -105,6 +108,12 @@
 .pill.pullback { color: #f59e0b; border-color: rgba(245,158,11,0.45); }
 .pill.earnings { color: #f59e0b; border-color: rgba(245,158,11,0.45); }
 .pill.breakout { color: var(--cosmic-purple); border-color: rgba(124,58,237,0.35); }
+.pill.analyst-buy   { color: #16a34a; border-color: rgba(22,163,74,0.35); }
+.pill.analyst-hold  { color: var(--text-muted); }
+.pill.analyst-sell  { color: #dc2626; border-color: rgba(220,38,38,0.35); }
+.pill.news-pos      { color: #16a34a; border-color: rgba(22,163,74,0.35); }
+.pill.news-neutral  { color: var(--text-muted); }
+.pill.news-neg      { color: #dc2626; border-color: rgba(220,38,38,0.35); }
 
 .gain { color: #16a34a; }
 .loss { color: #dc2626; }
@@ -148,6 +157,12 @@
 .q-table .delta-cell { font-variant-numeric: tabular-nums; font-size: 0.8125rem; }
 .q-table .delta-cell.gain { color: #16a34a; }
 .q-table .delta-cell.loss { color: #dc2626; }
+
+/* Analyst sentiment cell in tables */
+.q-table .sent-cell { font-weight: 600; font-variant-numeric: tabular-nums; }
+.q-table .sent-cell.buy  { color: #16a34a; }
+.q-table .sent-cell.hold { color: var(--text-muted); }
+.q-table .sent-cell.sell { color: #dc2626; }
 
 /* Regime banner */
 .regime-banner {

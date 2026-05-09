@@ -132,6 +132,7 @@
                             <th class="num">Mom 12-1</th>
                             <th class="num">RS 6m</th>
                             <th class="num">Trend</th>
+                            <th class="num">Sent.</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -161,6 +162,7 @@
                                 <th class="num">Mom 12-1</th>
                                 <th class="num">RS 6m</th>
                                 <th class="num">Trend</th>
+                                <th class="num">Sent.</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -189,6 +191,12 @@
                     Holding actions: <strong>ADD</strong> (score &ge; 65, trend on, regime on, no imminent earnings);
                     <strong>TRIM</strong> (score &lt; 40, RSI &gt; 80 with a large gain, or position oversized);
                     <strong>HOLD</strong> otherwise. ADD sizing risks 1 % of capital per trade using a 2-ATR stop.
+                </p>
+                <p class="muted">
+                    <strong>Sentiment overlay (display only):</strong> analyst consensus from Yahoo Finance
+                    (B/H/S key plus consensus price target) and a 7-day news headline tone scored with the
+                    VADER lexicon. Surfaced as pills and the <em>Sent.</em> column but
+                    <strong>does not affect</strong> the composite score or verdict &mdash; context, not gospel.
                 </p>
                 <p class="disclaimer">
                     <i class="fa-solid fa-triangle-exclamation"></i>

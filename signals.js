@@ -93,6 +93,32 @@
         return sign + Math.abs(v).toFixed(1);
     }
 
+    var ANALYST_LABEL = {
+        strongBuy: 'STRONG BUY', buy: 'BUY', hold: 'HOLD',
+        sell: 'SELL', strongSell: 'STRONG SELL'
+    };
+    function analystClass(key) {
+        if (key === 'strongBuy' || key === 'buy') return 'analyst-buy';
+        if (key === 'strongSell' || key === 'sell') return 'analyst-sell';
+        return 'analyst-hold';
+    }
+    function analystLetter(key) {
+        if (key === 'strongBuy' || key === 'buy') return 'B';
+        if (key === 'strongSell' || key === 'sell') return 'S';
+        if (key === 'hold') return 'H';
+        return '—';
+    }
+    function newsClass(label) {
+        if (label === 'POS') return 'news-pos';
+        if (label === 'NEG') return 'news-neg';
+        return 'news-neutral';
+    }
+    function newsArrow(label) {
+        if (label === 'POS') return '+';
+        if (label === 'NEG') return '−';
+        return '~';
+    }
+
     function rebase(values) {
         if (!values || !values.length) return [];
         var base = values[0] || 1;
@@ -151,6 +177,22 @@
         if (v.next_earnings_in_days != null && v.next_earnings_in_days >= 0 && v.next_earnings_in_days <= 7) {
             pills.push(el('span', { class: 'pill earnings', text: '⏰ ' + v.next_earnings_in_days + 'd' }));
         }
+        var sent = v.sentiment || {};
+        if (sent.analyst && sent.analyst.key) {
+            pills.push(el('span', {
+                class: 'pill ' + analystClass(sent.analyst.key),
+                text: ANALYST_LABEL[sent.analyst.key] || sent.analyst.key,
+                title: 'Analyst consensus (' + (sent.analyst.n_analysts || 0) + ' analysts)'
+            }));
+        }
+        if (sent.news && sent.news.label) {
+            pills.push(el('span', {
+                class: 'pill ' + newsClass(sent.news.label),
+                text: 'NEWS ' + newsArrow(sent.news.label),
+                title: '7d compound ' + (sent.news.compound != null ? sent.news.compound.toFixed(2) : '—')
+                    + ' · ' + (sent.news.n_headlines || 0) + ' headlines'
+            }));
+        }
 
         var leftBits = [];
         if (v.price_eur != null) {
@@ -199,6 +241,17 @@
             rows.push(el('div', { class: 'drivers' }, driverNodes));
         }
 
+        if (sent.analyst && sent.analyst.target_upside_pct != null) {
+            var up = sent.analyst.target_upside_pct;
+            rows.push(el('div', { class: 'target-line' }, [
+                el('span', { class: 'key', text: 'Analyst target' }),
+                el('span', {
+                    class: 'val ' + (up >= 0 ? 'gain' : 'loss'),
+                    text: (up >= 0 ? '+' : '−') + Math.abs(up * 100).toFixed(0) + ' % vs spot'
+                })
+            ]));
+        }
+
         if (v.holding_action === 'ADD' && v.suggested_add_eur != null) {
             rows.push(
                 el('div', { class: 'add-line' }, [
@@ -216,6 +269,29 @@
         var deltaTxt = fmtDelta(v.score_delta_1d);
         var deltaCell = el('td', { class: 'num delta-cell ' + deltaClass(v.score_delta_1d) });
         deltaCell.textContent = deltaTxt || '—';
+
+        var analyst = v.sentiment && v.sentiment.analyst;
+        var news = v.sentiment && v.sentiment.news;
+        var sentLetter = analyst && analyst.key ? analystLetter(analyst.key) : '—';
+        var sentClass = analyst && analyst.key
+            ? (analyst.key === 'strongBuy' || analyst.key === 'buy' ? 'buy'
+                : analyst.key === 'strongSell' || analyst.key === 'sell' ? 'sell' : 'hold')
+            : '';
+        var sentTitle = [];
+        if (analyst && analyst.key) {
+            sentTitle.push('Analyst: ' + (ANALYST_LABEL[analyst.key] || analyst.key)
+                + ' (' + (analyst.n_analysts || 0) + ')');
+        }
+        if (news && news.label) {
+            sentTitle.push('News: ' + news.label
+                + ' ' + (news.compound != null ? news.compound.toFixed(2) : ''));
+        }
+        var sentCell = el('td', {
+            class: 'num sent-cell ' + sentClass,
+            title: sentTitle.join(' · ') || ''
+        });
+        sentCell.textContent = sentLetter;
+
         return el('tr', { 'data-sector': v.sector || '', 'data-score': String(v.score) }, [
             el('td', { class: 'num', text: String(rank) }),
             el('td', { class: 'ticker-cell' }, [
@@ -228,7 +304,8 @@
             el('td', { class: 'num', text: fmtNum(v.indicators && v.indicators.rsi14, 1) }),
             el('td', { class: 'num', text: fmtPct(v.indicators && v.indicators.mom_12_1, 1) }),
             el('td', { class: 'num', text: fmtPct(v.indicators && v.indicators.rs_6m, 1) }),
-            el('td', { class: 'num', text: trendOk ? '✓' : '✗' })
+            el('td', { class: 'num', text: trendOk ? '✓' : '✗' }),
+            sentCell
         ]);
     }
 
@@ -369,10 +446,13 @@
 
     function exportCsv() {
         if (!DATA || !DATA.tickers) return;
-        var rows = [['ticker', 'sector', 'score', 'score_delta_1d', 'verdict', 'is_holding', 'action', 'rsi14', 'mom_12_1', 'rs_6m', 'trend_ok']];
+        var rows = [['ticker', 'sector', 'score', 'score_delta_1d', 'verdict', 'is_holding', 'action', 'rsi14', 'mom_12_1', 'rs_6m', 'trend_ok', 'analyst_key', 'target_upside_pct', 'news_label', 'news_compound']];
         Object.keys(DATA.tickers).forEach(function (t) {
             var v = DATA.tickers[t];
             var ind = v.indicators || {};
+            var s = v.sentiment || {};
+            var a = s.analyst || {};
+            var n = s.news || {};
             rows.push([
                 t,
                 v.sector || '',
@@ -384,7 +464,11 @@
                 ind.rsi14 != null ? ind.rsi14 : '',
                 ind.mom_12_1 != null ? ind.mom_12_1 : '',
                 ind.rs_6m != null ? ind.rs_6m : '',
-                ind.trend_ok ? 'true' : 'false'
+                ind.trend_ok ? 'true' : 'false',
+                a.key || '',
+                a.target_upside_pct != null ? a.target_upside_pct : '',
+                n.label || '',
+                n.compound != null ? n.compound : ''
             ]);
         });
         var csv = rows.map(function (r) {
