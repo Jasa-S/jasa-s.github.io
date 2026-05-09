@@ -184,10 +184,10 @@
         return svg;
     }
 
-    function holdingCard(t, v, benchSpark) {
+    function signalPills(v, includeAction) {
         var pills = [];
         pills.push(el('span', { class: 'pill ' + v.verdict.toLowerCase(), text: v.verdict }));
-        if (v.holding_action) {
+        if (includeAction && v.holding_action) {
             pills.push(el('span', { class: 'pill ' + v.holding_action.toLowerCase(), text: v.holding_action }));
         }
         if (v.is_pullback) {
@@ -215,7 +215,38 @@
                     + ' · ' + (sent.news.n_headlines || 0) + ' headlines'
             }));
         }
+        return pills;
+    }
 
+    function driverLine(v) {
+        var drivers = topDrivers(v.factor_contributions);
+        if (!drivers.length) return null;
+        var driverNodes = [el('span', { class: 'key', text: 'Driver' })];
+        drivers.forEach(function (d, i) {
+            if (i > 0) driverNodes.push(el('span', { class: 'sep', text: '·' }));
+            driverNodes.push(el('span', {
+                class: 'val ' + (d.val >= 0 ? 'gain' : 'loss'),
+                text: (DRIVER_LABELS[d.key] || d.key) + ' ' + fmtDriverVal(d.val)
+            }));
+        });
+        return el('div', { class: 'drivers' }, driverNodes);
+    }
+
+    function analystTargetLine(v) {
+        var sent = v.sentiment || {};
+        if (!sent.analyst || sent.analyst.target_upside_pct == null) return null;
+        var up = sent.analyst.target_upside_pct;
+        return el('div', { class: 'target-line' }, [
+            el('span', { class: 'key', text: 'Analyst target' }),
+            el('span', {
+                class: 'val ' + (up >= 0 ? 'gain' : 'loss'),
+                text: (up >= 0 ? '+' : '−') + Math.abs(up * 100).toFixed(0) + ' % vs spot'
+            })
+        ]);
+    }
+
+    function holdingCard(t, v, benchSpark) {
+        var pills = signalPills(v, true);
         var leftBits = [];
         if (v.price_eur != null) {
             leftBits.push(el('span', { text: fmtNum(v.price_eur) + ' €' }));
@@ -250,29 +281,11 @@
             ])
         ];
 
-        var drivers = topDrivers(v.factor_contributions);
-        if (drivers.length) {
-            var driverNodes = [el('span', { class: 'key', text: 'Driver' })];
-            drivers.forEach(function (d, i) {
-                if (i > 0) driverNodes.push(el('span', { class: 'sep', text: '·' }));
-                driverNodes.push(el('span', {
-                    class: 'val ' + (d.val >= 0 ? 'gain' : 'loss'),
-                    text: (DRIVER_LABELS[d.key] || d.key) + ' ' + fmtDriverVal(d.val)
-                }));
-            });
-            rows.push(el('div', { class: 'drivers' }, driverNodes));
-        }
+        var drivers = driverLine(v);
+        if (drivers) rows.push(drivers);
 
-        if (sent.analyst && sent.analyst.target_upside_pct != null) {
-            var up = sent.analyst.target_upside_pct;
-            rows.push(el('div', { class: 'target-line' }, [
-                el('span', { class: 'key', text: 'Analyst target' }),
-                el('span', {
-                    class: 'val ' + (up >= 0 ? 'gain' : 'loss'),
-                    text: (up >= 0 ? '+' : '−') + Math.abs(up * 100).toFixed(0) + ' % vs spot'
-                })
-            ]));
-        }
+        var target = analystTargetLine(v);
+        if (target) rows.push(target);
 
         if (v.holding_action === 'ADD' && v.suggested_add_eur != null) {
             rows.push(
@@ -292,27 +305,11 @@
         var deltaCell = el('td', { class: 'num delta-cell ' + deltaClass(v.score_delta_1d) });
         deltaCell.textContent = deltaTxt || '—';
 
-        var analyst = v.sentiment && v.sentiment.analyst;
-        var news = v.sentiment && v.sentiment.news;
-        var sentLetter = analyst && analyst.key ? analystLetter(analyst.key) : '—';
-        var sentClass = analyst && analyst.key
-            ? (analyst.key === 'strongBuy' || analyst.key === 'buy' ? 'buy'
-                : analyst.key === 'strongSell' || analyst.key === 'sell' ? 'sell' : 'hold')
-            : '';
-        var sentTitle = [];
-        if (analyst && analyst.key) {
-            sentTitle.push('Analyst: ' + (ANALYST_LABEL[analyst.key] || analyst.key)
-                + ' (' + (analyst.n_analysts || 0) + ')');
-        }
-        if (news && news.label) {
-            sentTitle.push('News: ' + news.label
-                + ' ' + (news.compound != null ? news.compound.toFixed(2) : ''));
-        }
-        var sentCell = el('td', {
-            class: 'num sent-cell ' + sentClass,
-            title: sentTitle.join(' · ') || ''
-        });
-        sentCell.textContent = sentLetter;
+        var contextBits = [el('div', { class: 'pills' }, signalPills(v, false))];
+        var target = analystTargetLine(v);
+        if (target) contextBits.push(target);
+        var drivers = driverLine(v);
+        if (drivers) contextBits.push(drivers);
 
         return el('tr', { 'data-sector': v.sector || '', 'data-score': String(v.score) }, [
             el('td', { class: 'num', text: String(rank) }),
@@ -327,7 +324,7 @@
             el('td', { class: 'num', text: fmtPct(v.indicators && v.indicators.mom_12_1, 1) }),
             el('td', { class: 'num', text: fmtPct(v.indicators && v.indicators.rs_6m, 1) }),
             el('td', { class: 'num', text: trendOk ? '✓' : '✗' }),
-            sentCell
+            el('td', { class: 'context-cell' }, contextBits)
         ]);
     }
 
