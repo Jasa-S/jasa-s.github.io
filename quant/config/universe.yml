@@ -20,13 +20,16 @@ watchlist:
   - { ticker: ARM,   sector: "Semis" }
   - { ticker: MU,    sector: "Semis" }
   - { ticker: MRVL,  sector: "Semis" }
+  - { ticker: AXTI,  sector: "Semis" }
   - { ticker: SMCI,  sector: "AI Infra" }
   - { ticker: DELL,  sector: "AI Infra" }
   - { ticker: ANET,  sector: "AI Infra" }
+  - { ticker: AAOI,  sector: "AI Infra" }
   - { ticker: VRT,   sector: "AI Power" }
   - { ticker: CEG,   sector: "AI Power" }
   - { ticker: ETN,   sector: "AI Power" }
   - { ticker: GEV,   sector: "AI Power" }
+  - { ticker: SMR,   sector: "AI Power" }
   - { ticker: MSFT,  sector: "AI/Cloud" }
   - { ticker: AMZN,  sector: "AI/Cloud" }
   - { ticker: META,  sector: "AI" }
@@ -44,6 +47,8 @@ watchlist:
   - { ticker: WULF,  sector: "AI Infra" }
   - { ticker: APLD,  sector: "AI Infra" }
   - { ticker: CIFR,  sector: "AI Infra" }
+  - { ticker: MP,    sector: "Materials" }
+  - { ticker: RKLB,  sector: "Space" }
 
 fx:
   base: EUR
