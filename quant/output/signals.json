@@ -64,21 +64,21 @@
   ],
   "errors": [],
   "fx_eur_usd": 1.179,
-  "generated_at": "2026-05-09T09:31:41Z",
+  "generated_at": "2026-05-09T09:36:28Z",
   "holdings_summary": [
     {
-      "action": "ADD",
-      "score": 67,
+      "action": "HOLD",
+      "score": 56,
       "ticker": "NBIS"
     },
     {
-      "action": "HOLD",
-      "score": 64,
+      "action": "TRIM",
+      "score": 56,
       "ticker": "IREN"
     },
     {
       "action": "TRIM",
-      "score": 55,
+      "score": 53,
       "ticker": "GOOG"
     },
     {
@@ -88,7 +88,7 @@
     },
     {
       "action": "HOLD",
-      "score": 41,
+      "score": 44,
       "ticker": "IONQ"
     }
   ],
@@ -161,13 +161,10 @@
     "pnl_pct": 2.3256,
     "value_eur": 9141.63
   },
-  "ranked_avoid": [
-    "SMCI",
-    "MSFT",
-    "META",
-    "SNOW"
-  ],
+  "ranked_avoid": [],
   "ranked_buys": [
+    "AXTI",
+    "AAOI",
     "MU",
     "WULF",
     "CIFR",
@@ -175,9 +172,7 @@
     "IREN",
     "VRT",
     "APLD",
-    "GEV",
-    "AMD",
-    "GOOG"
+    "RKLB"
   ],
   "regime": "RISK_ON",
   "regime_score": 52,
@@ -188,15 +183,135 @@
     "Semis": 0.1198
   },
   "tickers": {
+    "AAOI": {
+      "drawdown_vs_basis": null,
+      "factor_contributions": {
+        "macd": -1.31,
+        "momentum": 4.18,
+        "rs": 3.09,
+        "rsi": -0.69,
+        "trend": 2.5,
+        "vol_adj": 2.75
+      },
+      "holding_action": null,
+      "indicators": {
+        "atr14": 19.2949,
+        "breakout_20d": false,
+        "donchian_high_20": 183.51,
+        "macd_hist": -2.096,
+        "mom_12_1": 10.87,
+        "near_sma_fast": false,
+        "rs_6m": 3.6319,
+        "rsi14": 50.85,
+        "sma200": 54.8536,
+        "sma50": 125.362,
+        "trend_ok": true,
+        "vol_63d_ann": 1.6476
+      },
+      "is_holding": false,
+      "is_pullback": false,
+      "name": "AAOI",
+      "next_earnings": null,
+      "next_earnings_in_days": null,
+      "price_eur": 126.3309,
+      "price_usd": 148.94,
+      "prior_action": null,
+      "prior_verdict": null,
+      "score": 61,
+      "score_delta_1d": null,
+      "score_delta_5d": null,
+      "sector": "AI Infra",
+      "sentiment": {
+        "analyst": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "key": "buy",
+          "n_analysts": 5,
+          "score": 1,
+          "target_upside_pct": 0.0158
+        },
+        "news": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "compound": -0.0439,
+          "label": "NEUTRAL",
+          "n_headlines": 10
+        }
+      },
+      "spark": [
+        43.99,
+        44.46,
+        43.91,
+        43.44,
+        46.98,
+        51.68,
+        53.96,
+        56.27,
+        58.12,
+        53.69,
+        84.23,
+        102.51,
+        95.34,
+        99.71,
+        101.14,
+        95.58,
+        110.62,
+        120.49,
+        127.01,
+        106.19,
+        96.81,
+        94.07,
+        86.33,
+        92.63,
+        101.92,
+        87.54,
+        95.76,
+        113.9,
+        114.41,
+        97.42,
+        98.21,
+        85.19,
+        84.59,
+        86.35,
+        103.91,
+        107.45,
+        117.64,
+        132.7,
+        133.3,
+        150.6,
+        153.19,
+        146.39,
+        142.55,
+        157.32,
+        159.42,
+        163.47,
+        150.57,
+        149.42,
+        137.73,
+        162.17,
+        145.78,
+        137.26,
+        152.83,
+        164.36,
+        183.51,
+        172.98,
+        180.57,
+        178.54,
+        157.55,
+        148.94
+      ],
+      "stop_loss_eur": null,
+      "suggested_add_eur": null,
+      "verdict": "WATCH",
+      "weight": null
+    },
     "AMD": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": 0.38,
-        "rs": 2.23,
-        "rsi": 0.65,
+        "macd": 0.51,
+        "momentum": -0.57,
+        "rs": 0.22,
+        "rsi": 0.66,
         "trend": 2.5,
-        "vol_adj": 0.45
+        "vol_adj": -0.23
       },
       "holding_action": null,
       "indicators": {
@@ -222,8 +337,8 @@
       "price_usd": 455.19,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 57,
-      "score_delta_1d": 0,
+      "score": 53,
+      "score_delta_1d": -4,
       "score_delta_5d": null,
       "sector": "Semis",
       "sentiment": {
@@ -312,11 +427,11 @@
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": -0.34,
-        "momentum": -2.67,
-        "rs": -0.37,
-        "rsi": 0.65,
+        "momentum": -1.35,
+        "rs": -0.45,
+        "rsi": 0.66,
         "trend": 2.5,
-        "vol_adj": -1.78
+        "vol_adj": -1.33
       },
       "holding_action": null,
       "indicators": {
@@ -342,8 +457,8 @@
       "price_usd": 272.68,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 48,
-      "score_delta_1d": 0,
+      "score": 50,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "AI/Cloud",
       "sentiment": {
@@ -431,12 +546,12 @@
     "ANET": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -1.32,
-        "momentum": -1.02,
-        "rs": -0.67,
-        "rsi": -1.55,
+        "macd": -1.31,
+        "momentum": -0.93,
+        "rs": -0.53,
+        "rsi": -1.57,
         "trend": 2.5,
-        "vol_adj": -0.68
+        "vol_adj": -0.79
       },
       "holding_action": null,
       "indicators": {
@@ -551,12 +666,12 @@
     "APLD": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": 4.53,
-        "rs": 0.23,
-        "rsi": 0.38,
+        "macd": 0.51,
+        "momentum": 0.5,
+        "rs": -0.3,
+        "rsi": 0.39,
         "trend": 2.5,
-        "vol_adj": 2.56
+        "vol_adj": 0.81
       },
       "holding_action": null,
       "indicators": {
@@ -582,8 +697,8 @@
       "price_usd": 41.25,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 61,
-      "score_delta_1d": 0,
+      "score": 54,
+      "score_delta_1d": -7,
       "score_delta_5d": null,
       "sector": "AI Infra",
       "sentiment": {
@@ -672,11 +787,11 @@
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": 0.03,
-        "momentum": -2.06,
-        "rs": -1.62,
+        "momentum": -1.2,
+        "rs": -0.77,
         "rsi": -0.51,
         "trend": -2.5,
-        "vol_adj": -2.42
+        "vol_adj": -1.65
       },
       "holding_action": null,
       "indicators": {
@@ -702,8 +817,8 @@
       "price_usd": 468.55,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 41,
-      "score_delta_1d": 0,
+      "score": 43,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "AdTech",
       "sentiment": {
@@ -792,11 +907,11 @@
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": -0.4,
-        "momentum": -1.94,
-        "rs": 0.55,
+        "momentum": -1.17,
+        "rs": -0.22,
         "rsi": -0.05,
         "trend": 2.5,
-        "vol_adj": -2.19
+        "vol_adj": -1.54
       },
       "holding_action": null,
       "indicators": {
@@ -822,8 +937,8 @@
       "price_usd": 213.27,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 48,
-      "score_delta_1d": 0,
+      "score": 49,
+      "score_delta_1d": 1,
       "score_delta_5d": null,
       "sector": "Semis",
       "sentiment": {
@@ -911,12 +1026,12 @@
     "ASML": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.35,
-        "momentum": -0.55,
-        "rs": 1.3,
-        "rsi": 0.24,
+        "macd": 0.34,
+        "momentum": -0.81,
+        "rs": -0.02,
+        "rsi": 0.25,
         "trend": 2.5,
-        "vol_adj": 0.89
+        "vol_adj": -0.01
       },
       "holding_action": null,
       "indicators": {
@@ -942,8 +1057,8 @@
       "price_usd": 1592.02,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 55,
-      "score_delta_1d": 0,
+      "score": 52,
+      "score_delta_1d": -3,
       "score_delta_5d": null,
       "sector": "Semis",
       "sentiment": {
@@ -1031,12 +1146,12 @@
     "AVGO": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.68,
-        "momentum": -0.65,
-        "rs": 0.06,
-        "rsi": 0.36,
+        "macd": -0.67,
+        "momentum": -0.84,
+        "rs": -0.34,
+        "rsi": 0.37,
         "trend": 2.5,
-        "vol_adj": 1.43
+        "vol_adj": 0.25
       },
       "holding_action": null,
       "indicators": {
@@ -1062,8 +1177,8 @@
       "price_usd": 430.0,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 53,
-      "score_delta_1d": 0,
+      "score": 51,
+      "score_delta_1d": -2,
       "score_delta_5d": null,
       "sector": "Semis",
       "sentiment": {
@@ -1148,15 +1263,135 @@
       "verdict": "WATCH",
       "weight": null
     },
+    "AXTI": {
+      "drawdown_vs_basis": null,
+      "factor_contributions": {
+        "macd": 0.51,
+        "momentum": 22.49,
+        "rs": 10.95,
+        "rsi": 0.66,
+        "trend": 2.5,
+        "vol_adj": 17.1
+      },
+      "holding_action": null,
+      "indicators": {
+        "atr14": 11.7902,
+        "breakout_20d": true,
+        "donchian_high_20": 108.42,
+        "macd_hist": 3.0922,
+        "mom_12_1": 45.7556,
+        "near_sma_fast": false,
+        "rs_6m": 11.692,
+        "rsi14": 73.17,
+        "sma200": 24.1779,
+        "sma50": 63.887,
+        "trend_ok": true,
+        "vol_63d_ann": 1.7808
+      },
+      "is_holding": false,
+      "is_pullback": false,
+      "name": "AXTI",
+      "next_earnings": null,
+      "next_earnings_in_days": null,
+      "price_eur": 98.6966,
+      "price_usd": 116.36,
+      "prior_action": null,
+      "prior_verdict": null,
+      "score": 100,
+      "score_delta_1d": null,
+      "score_delta_5d": null,
+      "sector": "Semis",
+      "sentiment": {
+        "analyst": {
+          "as_of": "2026-05-09T09:36:25Z",
+          "key": "buy",
+          "n_analysts": 4,
+          "score": 1,
+          "target_upside_pct": -0.2459
+        },
+        "news": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "compound": 0.2741,
+          "label": "POS",
+          "n_headlines": 3
+        }
+      },
+      "spark": [
+        24.79,
+        24.24,
+        23.21,
+        23.54,
+        23.81,
+        29.68,
+        28.43,
+        35.08,
+        40.97,
+        37.12,
+        37.9,
+        46.32,
+        41.76,
+        39.13,
+        38.8,
+        32.37,
+        38.56,
+        44.3,
+        47.36,
+        46.73,
+        48.86,
+        48.39,
+        44.36,
+        48.76,
+        58.09,
+        54.24,
+        64.44,
+        68.44,
+        67.35,
+        58.51,
+        60.63,
+        52.73,
+        56.98,
+        47.14,
+        52.84,
+        41.99,
+        45.46,
+        53.18,
+        63.12,
+        64.18,
+        66.45,
+        67.3,
+        62.93,
+        81.78,
+        82.56,
+        78.76,
+        74.97,
+        86.94,
+        75.27,
+        76.16,
+        70.15,
+        68.71,
+        71.07,
+        79.22,
+        96.0,
+        106.0,
+        107.55,
+        104.83,
+        108.42,
+        116.36
+      ],
+      "stop_loss_eur": null,
+      "suggested_add_eur": null,
+      "verdict": "BUY",
+      "weight": null
+    },
     "CEG": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": -0.05,
-        "momentum": -2.19,
-        "rs": -1.32,
+        "momentum": -1.23,
+        "rs": -0.7,
         "rsi": -0.73,
         "trend": -2.5,
-        "vol_adj": -1.84
+        "vol_adj": -1.37
       },
       "holding_action": null,
       "indicators": {
@@ -1182,8 +1417,8 @@
       "price_usd": 303.63,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 41,
-      "score_delta_1d": 0,
+      "score": 43,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "AI Power",
       "sentiment": {
@@ -1271,12 +1506,12 @@
     "CIFR": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": 9.58,
-        "rs": -1.35,
-        "rsi": -0.0,
+        "macd": 0.51,
+        "momentum": 1.8,
+        "rs": -0.7,
+        "rsi": 0.0,
         "trend": 2.5,
-        "vol_adj": 6.25
+        "vol_adj": 2.64
       },
       "holding_action": null,
       "indicators": {
@@ -1302,8 +1537,8 @@
       "price_usd": 20.55,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 68,
-      "score_delta_1d": 0,
+      "score": 57,
+      "score_delta_1d": -11,
       "score_delta_5d": null,
       "sector": "AI Infra",
       "sentiment": {
@@ -1391,12 +1626,12 @@
     "CRWD": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -2.9,
-        "rs": -0.75,
-        "rsi": 0.65,
+        "macd": 0.51,
+        "momentum": -1.42,
+        "rs": -0.55,
+        "rsi": 0.66,
         "trend": -2.5,
-        "vol_adj": -2.96
+        "vol_adj": -1.92
       },
       "holding_action": null,
       "indicators": {
@@ -1422,8 +1657,8 @@
       "price_usd": 527.77,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 42,
-      "score_delta_1d": 0,
+      "score": 45,
+      "score_delta_1d": 3,
       "score_delta_5d": null,
       "sector": "AI Sec",
       "sentiment": {
@@ -1512,11 +1747,11 @@
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": -0.51,
-        "momentum": -1.62,
-        "rs": -0.72,
-        "rsi": -0.62,
+        "momentum": -1.09,
+        "rs": -0.54,
+        "rsi": -0.63,
         "trend": -2.5,
-        "vol_adj": -2.17
+        "vol_adj": -1.53
       },
       "holding_action": null,
       "indicators": {
@@ -1542,8 +1777,8 @@
       "price_usd": 114.15,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 42,
-      "score_delta_1d": 0,
+      "score": 43,
+      "score_delta_1d": 1,
       "score_delta_5d": null,
       "sector": "AI Cloud",
       "sentiment": {
@@ -1631,12 +1866,12 @@
     "DDOG": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -2.87,
-        "rs": 0.4,
-        "rsi": 0.65,
+        "macd": 0.51,
+        "momentum": -1.41,
+        "rs": -0.25,
+        "rsi": 0.66,
         "trend": -2.5,
-        "vol_adj": -3.11
+        "vol_adj": -2.0
       },
       "holding_action": null,
       "indicators": {
@@ -1662,8 +1897,8 @@
       "price_usd": 200.16,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 43,
-      "score_delta_1d": 0,
+      "score": 45,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "Data",
       "sentiment": {
@@ -1751,12 +1986,12 @@
     "DELL": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -0.36,
-        "rs": 2.03,
-        "rsi": 0.65,
+        "macd": 0.51,
+        "momentum": -0.76,
+        "rs": 0.16,
+        "rsi": 0.66,
         "trend": 2.5,
-        "vol_adj": -0.4
+        "vol_adj": -0.65
       },
       "holding_action": null,
       "indicators": {
@@ -1782,8 +2017,8 @@
       "price_usd": 260.46,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 55,
-      "score_delta_1d": 0,
+      "score": 52,
+      "score_delta_1d": -3,
       "score_delta_5d": null,
       "sector": "AI Infra",
       "sentiment": {
@@ -1871,12 +2106,12 @@
     "ETN": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -1.14,
-        "momentum": -2.11,
-        "rs": -0.53,
+        "macd": -1.13,
+        "momentum": -1.21,
+        "rs": -0.49,
         "rsi": -0.75,
         "trend": 2.5,
-        "vol_adj": -1.07
+        "vol_adj": -0.98
       },
       "holding_action": null,
       "indicators": {
@@ -1902,8 +2137,8 @@
       "price_usd": 401.51,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 47,
-      "score_delta_1d": 0,
+      "score": 48,
+      "score_delta_1d": 1,
       "score_delta_5d": null,
       "sector": "AI Power",
       "sentiment": {
@@ -1929,7 +2164,7 @@
         375.1105,
         371.1936,
         359.9299,
-        372.3666,
+        372.3667,
         371.3427,
         372.3965,
         373.7187,
@@ -1937,7 +2172,7 @@
         353.4779,
         352.3843,
         352.7124,
-        345.7137,
+        345.7136,
         351.7978,
         360.065,
         354.8095,
@@ -1991,12 +2226,12 @@
     "GEV": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -1.31,
-        "momentum": 1.54,
-        "rs": 2.55,
+        "macd": -1.3,
+        "momentum": -0.27,
+        "rs": 0.3,
         "rsi": -0.58,
         "trend": 2.5,
-        "vol_adj": 3.88
+        "vol_adj": 1.47
       },
       "holding_action": null,
       "indicators": {
@@ -2022,8 +2257,8 @@
       "price_usd": 1040.15,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 59,
-      "score_delta_1d": 0,
+      "score": 52,
+      "score_delta_1d": -7,
       "score_delta_5d": null,
       "sector": "AI Power",
       "sentiment": {
@@ -2111,12 +2346,12 @@
     "GOOG": {
       "drawdown_vs_basis": 1.0386,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -1.05,
-        "rs": 0.79,
-        "rsi": 0.65,
+        "macd": 0.51,
+        "momentum": -0.94,
+        "rs": -0.15,
+        "rsi": 0.66,
         "trend": 2.5,
-        "vol_adj": 1.7
+        "vol_adj": 0.39
       },
       "holding_action": "TRIM",
       "indicators": {
@@ -2142,8 +2377,8 @@
       "price_usd": 397.05,
       "prior_action": "TRIM",
       "prior_verdict": "WATCH",
-      "score": 55,
-      "score_delta_1d": 0,
+      "score": 53,
+      "score_delta_1d": -2,
       "score_delta_5d": null,
       "sector": "AI/Cloud",
       "sentiment": {
@@ -2231,12 +2466,12 @@
     "IONQ": {
       "drawdown_vs_basis": 2.7291,
       "factor_contributions": {
-        "macd": 0.2,
-        "momentum": -2.87,
-        "rs": -1.13,
-        "rsi": 0.14,
+        "macd": 0.19,
+        "momentum": -1.41,
+        "rs": -0.65,
+        "rsi": 0.15,
         "trend": -2.5,
-        "vol_adj": -3.17
+        "vol_adj": -2.02
       },
       "holding_action": "HOLD",
       "indicators": {
@@ -2262,8 +2497,8 @@
       "price_usd": 49.24,
       "prior_action": "HOLD",
       "prior_verdict": "WATCH",
-      "score": 41,
-      "score_delta_1d": 0,
+      "score": 44,
+      "score_delta_1d": 3,
       "score_delta_5d": null,
       "sector": "Quantum",
       "sentiment": {
@@ -2351,14 +2586,14 @@
     "IREN": {
       "drawdown_vs_basis": 6.0148,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": 7.47,
-        "rs": -1.46,
-        "rsi": 0.48,
+        "macd": 0.51,
+        "momentum": 1.25,
+        "rs": -0.73,
+        "rsi": 0.49,
         "trend": 2.5,
-        "vol_adj": 4.84
+        "vol_adj": 1.94
       },
-      "holding_action": "HOLD",
+      "holding_action": "TRIM",
       "indicators": {
         "atr14": 4.5804,
         "breakout_20d": true,
@@ -2382,8 +2617,8 @@
       "price_usd": 61.2,
       "prior_action": "HOLD",
       "prior_verdict": "WATCH",
-      "score": 64,
-      "score_delta_1d": 0,
+      "score": 56,
+      "score_delta_1d": -8,
       "score_delta_5d": null,
       "sector": "AI Infra",
       "sentiment": {
@@ -2471,12 +2706,12 @@
     "MDB": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -2.21,
-        "rs": -1.26,
-        "rsi": 0.45,
+        "macd": 0.51,
+        "momentum": -1.24,
+        "rs": -0.68,
+        "rsi": 0.47,
         "trend": -2.5,
-        "vol_adj": -2.46
+        "vol_adj": -1.67
       },
       "holding_action": null,
       "indicators": {
@@ -2502,8 +2737,8 @@
       "price_usd": 299.47,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 43,
-      "score_delta_1d": 0,
+      "score": 45,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "Data",
       "sentiment": {
@@ -2591,12 +2826,12 @@
     "META": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -1.32,
-        "momentum": -2.9,
-        "rs": -0.86,
-        "rsi": -1.28,
+        "macd": -1.31,
+        "momentum": -1.41,
+        "rs": -0.58,
+        "rsi": -1.3,
         "trend": -2.5,
-        "vol_adj": -2.72
+        "vol_adj": -1.8
       },
       "holding_action": null,
       "indicators": {
@@ -2622,8 +2857,8 @@
       "price_usd": 609.63,
       "prior_action": null,
       "prior_verdict": "AVOID",
-      "score": 38,
-      "score_delta_1d": 0,
+      "score": 41,
+      "score_delta_1d": 3,
       "score_delta_5d": null,
       "sector": "AI",
       "sentiment": {
@@ -2705,18 +2940,138 @@
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
-      "verdict": "AVOID",
+      "verdict": "WATCH",
+      "weight": null
+    },
+    "MP": {
+      "drawdown_vs_basis": null,
+      "factor_contributions": {
+        "macd": 0.15,
+        "momentum": -0.87,
+        "rs": -0.32,
+        "rsi": -0.25,
+        "trend": -2.5,
+        "vol_adj": -0.87
+      },
+      "holding_action": null,
+      "indicators": {
+        "atr14": 4.6161,
+        "breakout_20d": false,
+        "donchian_high_20": 72.65,
+        "macd_hist": 0.4071,
+        "mom_12_1": 1.2468,
+        "near_sma_fast": false,
+        "rs_6m": 0.1328,
+        "rsi14": 57.07,
+        "sma200": 63.1706,
+        "sma50": 58.9978,
+        "trend_ok": false,
+        "vol_63d_ann": 0.6972
+      },
+      "is_holding": false,
+      "is_pullback": false,
+      "name": "MP",
+      "next_earnings": null,
+      "next_earnings_in_days": null,
+      "price_eur": 57.1941,
+      "price_usd": 67.43,
+      "prior_action": null,
+      "prior_verdict": null,
+      "score": 45,
+      "score_delta_1d": null,
+      "score_delta_5d": null,
+      "sector": "Materials",
+      "sentiment": {
+        "analyst": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "key": "strongBuy",
+          "n_analysts": 13,
+          "score": 2,
+          "target_upside_pct": 0.1568
+        },
+        "news": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "compound": 0.2455,
+          "label": "POS",
+          "n_headlines": 10
+        }
+      },
+      "spark": [
+        57.3,
+        58.03,
+        56.95,
+        57.94,
+        58.56,
+        55.34,
+        55.7,
+        58.44,
+        58.66,
+        60.0,
+        58.87,
+        63.73,
+        61.4,
+        61.61,
+        58.48,
+        58.23,
+        60.3,
+        61.58,
+        62.25,
+        60.03,
+        57.21,
+        59.36,
+        59.3,
+        57.54,
+        53.1,
+        50.6,
+        53.28,
+        53.29,
+        53.74,
+        51.7,
+        51.8,
+        45.59,
+        48.26,
+        48.41,
+        49.73,
+        51.17,
+        49.49,
+        54.44,
+        53.9,
+        55.24,
+        56.8,
+        57.36,
+        59.52,
+        62.3,
+        60.99,
+        66.23,
+        65.76,
+        69.19,
+        63.32,
+        60.73,
+        64.92,
+        61.7,
+        61.3,
+        66.04,
+        66.63,
+        66.2,
+        68.06,
+        72.65,
+        69.13,
+        67.43
+      ],
+      "stop_loss_eur": null,
+      "suggested_add_eur": null,
+      "verdict": "WATCH",
       "weight": null
     },
     "MRVL": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": -0.85,
-        "momentum": -0.57,
-        "rs": 2.45,
-        "rsi": 0.57,
+        "momentum": -0.82,
+        "rs": 0.27,
+        "rsi": 0.59,
         "trend": 2.5,
-        "vol_adj": -0.37
+        "vol_adj": -0.64
       },
       "holding_action": null,
       "indicators": {
@@ -2742,8 +3097,8 @@
       "price_usd": 170.13,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 54,
-      "score_delta_1d": 0,
+      "score": 51,
+      "score_delta_1d": -3,
       "score_delta_5d": null,
       "sector": "Semis",
       "sentiment": {
@@ -2831,12 +3186,12 @@
     "MSFT": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.64,
-        "momentum": -3.24,
-        "rs": -1.38,
+        "macd": -0.63,
+        "momentum": -1.5,
+        "rs": -0.71,
         "rsi": -0.47,
         "trend": -2.5,
-        "vol_adj": -3.27
+        "vol_adj": -2.07
       },
       "holding_action": null,
       "indicators": {
@@ -2862,8 +3217,8 @@
       "price_usd": 415.12,
       "prior_action": null,
       "prior_verdict": "AVOID",
-      "score": 38,
-      "score_delta_1d": 0,
+      "score": 42,
+      "score_delta_1d": 4,
       "score_delta_5d": null,
       "sector": "AI/Cloud",
       "sentiment": {
@@ -2945,18 +3300,18 @@
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
-      "verdict": "AVOID",
+      "verdict": "WATCH",
       "weight": null
     },
     "MU": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": 7.22,
-        "rs": 7.42,
-        "rsi": 0.65,
+        "macd": 0.51,
+        "momentum": 1.19,
+        "rs": 1.55,
+        "rsi": 0.66,
         "trend": 2.5,
-        "vol_adj": 6.87
+        "vol_adj": 2.94
       },
       "holding_action": null,
       "indicators": {
@@ -2982,8 +3337,8 @@
       "price_usd": 746.81,
       "prior_action": null,
       "prior_verdict": "BUY",
-      "score": 75,
-      "score_delta_1d": 0,
+      "score": 59,
+      "score_delta_1d": -16,
       "score_delta_5d": null,
       "sector": "Semis",
       "sentiment": {
@@ -3065,20 +3420,20 @@
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
-      "verdict": "BUY",
+      "verdict": "WATCH",
       "weight": null
     },
     "NBIS": {
       "drawdown_vs_basis": 2.9006,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": 7.82,
-        "rs": 1.24,
-        "rsi": 0.12,
+        "macd": 0.51,
+        "momentum": 1.35,
+        "rs": -0.04,
+        "rsi": 0.13,
         "trend": 2.5,
-        "vol_adj": 4.71
+        "vol_adj": 1.88
       },
-      "holding_action": "ADD",
+      "holding_action": "HOLD",
       "indicators": {
         "atr14": 13.3238,
         "breakout_20d": false,
@@ -3102,8 +3457,8 @@
       "price_usd": 177.05,
       "prior_action": "ADD",
       "prior_verdict": "WATCH",
-      "score": 67,
-      "score_delta_1d": 0,
+      "score": 56,
+      "score_delta_1d": -11,
       "score_delta_5d": null,
       "sector": "AI Infra",
       "sentiment": {
@@ -3184,19 +3539,19 @@
         177.05
       ],
       "stop_loss_eur": 127.5713,
-      "suggested_add_eur": 607.38,
+      "suggested_add_eur": null,
       "verdict": "WATCH",
       "weight": 0.1807
     },
     "NET": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.48,
-        "momentum": -1.38,
-        "rs": -1.24,
-        "rsi": -1.15,
+        "macd": 0.47,
+        "momentum": -1.02,
+        "rs": -0.68,
+        "rsi": -1.16,
         "trend": -2.5,
-        "vol_adj": -1.88
+        "vol_adj": -1.39
       },
       "holding_action": null,
       "indicators": {
@@ -3222,8 +3577,8 @@
       "price_usd": 196.13,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 42,
-      "score_delta_1d": 0,
+      "score": 44,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "AI Edge",
       "sentiment": {
@@ -3312,11 +3667,11 @@
       "drawdown_vs_basis": 0.6594,
       "factor_contributions": {
         "macd": -0.31,
-        "momentum": -1.54,
-        "rs": -0.32,
-        "rsi": 0.36,
+        "momentum": -1.06,
+        "rs": -0.44,
+        "rsi": 0.37,
         "trend": 2.5,
-        "vol_adj": 0.16
+        "vol_adj": -0.37
       },
       "holding_action": "HOLD",
       "indicators": {
@@ -3432,11 +3787,11 @@
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": -0.69,
-        "momentum": -1.97,
-        "rs": -1.72,
-        "rsi": -1.04,
+        "momentum": -1.17,
+        "rs": -0.8,
+        "rsi": -1.05,
         "trend": -2.5,
-        "vol_adj": -1.56
+        "vol_adj": -1.23
       },
       "holding_action": null,
       "indicators": {
@@ -3462,8 +3817,8 @@
       "price_usd": 137.8,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 41,
-      "score_delta_1d": 0,
+      "score": 43,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "AI",
       "sentiment": {
@@ -3551,12 +3906,12 @@
     "QBTS": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -1.1,
-        "rs": -1.74,
-        "rsi": 0.1,
+        "macd": 0.51,
+        "momentum": -0.95,
+        "rs": -0.8,
+        "rsi": 0.11,
         "trend": -2.5,
-        "vol_adj": -1.67
+        "vol_adj": -1.28
       },
       "holding_action": null,
       "indicators": {
@@ -3582,8 +3937,8 @@
       "price_usd": 22.57,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 44,
-      "score_delta_1d": 0,
+      "score": 45,
+      "score_delta_1d": 1,
       "score_delta_5d": null,
       "sector": "Quantum",
       "sentiment": {
@@ -3671,12 +4026,12 @@
     "RGTI": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.34,
-        "momentum": -1.88,
-        "rs": -2.57,
+        "macd": 0.33,
+        "momentum": -1.15,
+        "rs": -1.02,
         "rsi": -0.18,
         "trend": -2.5,
-        "vol_adj": -2.15
+        "vol_adj": -1.52
       },
       "holding_action": null,
       "indicators": {
@@ -3702,8 +4057,8 @@
       "price_usd": 18.94,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 41,
-      "score_delta_1d": 0,
+      "score": 44,
+      "score_delta_1d": 3,
       "score_delta_5d": null,
       "sector": "Quantum",
       "sentiment": {
@@ -3788,15 +4143,135 @@
       "verdict": "WATCH",
       "weight": null
     },
+    "RKLB": {
+      "drawdown_vs_basis": null,
+      "factor_contributions": {
+        "macd": 0.51,
+        "momentum": -0.05,
+        "rs": 0.31,
+        "rsi": 0.57,
+        "trend": 2.5,
+        "vol_adj": -0.12
+      },
+      "holding_action": null,
+      "indicators": {
+        "atr14": 7.4185,
+        "breakout_20d": true,
+        "donchian_high_20": 90.04,
+        "macd_hist": 1.0771,
+        "mom_12_1": 2.8094,
+        "near_sma_fast": false,
+        "rs_6m": 0.7746,
+        "rsi14": 68.75,
+        "sma200": 63.0087,
+        "sma50": 73.9604,
+        "trend_ok": true,
+        "vol_63d_ann": 1.0081
+      },
+      "is_holding": false,
+      "is_pullback": false,
+      "name": "RKLB",
+      "next_earnings": null,
+      "next_earnings_in_days": null,
+      "price_eur": 89.4597,
+      "price_usd": 105.47,
+      "prior_action": null,
+      "prior_verdict": null,
+      "score": 54,
+      "score_delta_1d": null,
+      "score_delta_5d": null,
+      "sector": "Space",
+      "sentiment": {
+        "analyst": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "key": "buy",
+          "n_analysts": 15,
+          "score": 1,
+          "target_upside_pct": -0.1698
+        },
+        "news": {
+          "as_of": "2026-05-09T09:36:28Z",
+          "compound": 0.108,
+          "label": "NEUTRAL",
+          "n_headlines": 10
+        }
+      },
+      "spark": [
+        66.01,
+        67.44,
+        69.89,
+        74.42,
+        76.58,
+        70.86,
+        70.21,
+        69.97,
+        70.2,
+        72.65,
+        69.1,
+        70.97,
+        70.13,
+        71.91,
+        70.0,
+        70.11,
+        71.48,
+        68.93,
+        71.96,
+        68.37,
+        68.41,
+        71.31,
+        78.59,
+        69.48,
+        71.93,
+        67.23,
+        68.0,
+        66.07,
+        72.88,
+        65.94,
+        60.93,
+        57.38,
+        64.22,
+        65.52,
+        67.73,
+        67.67,
+        66.32,
+        69.08,
+        66.74,
+        68.05,
+        70.62,
+        72.22,
+        73.6,
+        82.93,
+        84.8,
+        89.46,
+        86.64,
+        90.04,
+        84.6,
+        79.68,
+        82.29,
+        78.59,
+        77.02,
+        82.51,
+        78.81,
+        80.31,
+        78.76,
+        84.65,
+        78.58,
+        105.47
+      ],
+      "stop_loss_eur": null,
+      "suggested_add_eur": null,
+      "verdict": "WATCH",
+      "weight": null
+    },
     "SMCI": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -3.95,
-        "rs": -1.31,
-        "rsi": 0.59,
+        "macd": 0.51,
+        "momentum": -1.68,
+        "rs": -0.69,
+        "rsi": 0.6,
         "trend": -2.5,
-        "vol_adj": -3.95
+        "vol_adj": -2.41
       },
       "holding_action": null,
       "indicators": {
@@ -3822,8 +4297,8 @@
       "price_usd": 35.37,
       "prior_action": null,
       "prior_verdict": "AVOID",
-      "score": 39,
-      "score_delta_1d": 0,
+      "score": 44,
+      "score_delta_1d": 5,
       "score_delta_5d": null,
       "sector": "AI Infra",
       "sentiment": {
@@ -3905,18 +4380,138 @@
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
-      "verdict": "AVOID",
+      "verdict": "WATCH",
+      "weight": null
+    },
+    "SMR": {
+      "drawdown_vs_basis": null,
+      "factor_contributions": {
+        "macd": 0.32,
+        "momentum": -1.71,
+        "rs": -1.19,
+        "rsi": -0.53,
+        "trend": -2.5,
+        "vol_adj": -2.49
+      },
+      "holding_action": null,
+      "indicators": {
+        "atr14": 1.1345,
+        "breakout_20d": false,
+        "donchian_high_20": 13.57,
+        "macd_hist": 0.099,
+        "mom_12_1": -0.3404,
+        "near_sma_fast": true,
+        "rs_6m": -0.7638,
+        "rsi14": 53.11,
+        "sma200": 24.8228,
+        "sma50": 11.6306,
+        "trend_ok": false,
+        "vol_63d_ann": 0.911
+      },
+      "is_holding": false,
+      "is_pullback": false,
+      "name": "SMR",
+      "next_earnings": null,
+      "next_earnings_in_days": null,
+      "price_eur": 10.6449,
+      "price_usd": 12.55,
+      "prior_action": null,
+      "prior_verdict": null,
+      "score": 42,
+      "score_delta_1d": null,
+      "score_delta_5d": null,
+      "sector": "AI Power",
+      "sentiment": {
+        "analyst": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "key": "hold",
+          "n_analysts": 14,
+          "score": 0,
+          "target_upside_pct": 0.3261
+        },
+        "news": {
+          "as_of": "2026-05-09T09:36:26Z",
+          "compound": 0.2121,
+          "label": "POS",
+          "n_headlines": 10
+        }
+      },
+      "spark": [
+        13.99,
+        14.31,
+        14.27,
+        14.2,
+        14.64,
+        13.44,
+        12.6,
+        13.43,
+        13.18,
+        13.33,
+        12.85,
+        13.05,
+        12.53,
+        12.54,
+        12.18,
+        11.67,
+        12.16,
+        12.03,
+        12.38,
+        11.76,
+        11.8,
+        11.97,
+        12.44,
+        12.03,
+        11.99,
+        11.44,
+        11.7,
+        11.43,
+        11.69,
+        10.99,
+        10.3,
+        10.25,
+        10.84,
+        10.26,
+        10.15,
+        10.17,
+        9.16,
+        9.86,
+        9.3,
+        9.21,
+        9.58,
+        10.25,
+        11.71,
+        11.41,
+        12.65,
+        12.79,
+        11.67,
+        13.57,
+        12.72,
+        11.96,
+        12.65,
+        11.82,
+        11.32,
+        12.46,
+        12.14,
+        12.18,
+        11.87,
+        13.52,
+        12.58,
+        12.55
+      ],
+      "stop_loss_eur": null,
+      "suggested_add_eur": null,
+      "verdict": "WATCH",
       "weight": null
     },
     "SNOW": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -3.33,
-        "rs": -2.32,
+        "macd": 0.51,
+        "momentum": -1.52,
+        "rs": -0.95,
         "rsi": -0.47,
         "trend": -2.5,
-        "vol_adj": -3.53
+        "vol_adj": -2.2
       },
       "holding_action": null,
       "indicators": {
@@ -3942,8 +4537,8 @@
       "price_usd": 152.45,
       "prior_action": null,
       "prior_verdict": "AVOID",
-      "score": 38,
-      "score_delta_1d": 0,
+      "score": 43,
+      "score_delta_1d": 5,
       "score_delta_5d": null,
       "sector": "Data",
       "sentiment": {
@@ -4025,18 +4620,18 @@
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
-      "verdict": "AVOID",
+      "verdict": "WATCH",
       "weight": null
     },
     "TSLA": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.52,
-        "momentum": -2.36,
-        "rs": -0.98,
-        "rsi": 0.64,
+        "macd": 0.51,
+        "momentum": -1.28,
+        "rs": -0.61,
+        "rsi": 0.65,
         "trend": -2.5,
-        "vol_adj": -1.62
+        "vol_adj": -1.26
       },
       "holding_action": null,
       "indicators": {
@@ -4062,8 +4657,8 @@
       "price_usd": 428.35,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 44,
-      "score_delta_1d": 0,
+      "score": 46,
+      "score_delta_1d": 2,
       "score_delta_5d": null,
       "sector": "AI/Auto",
       "sentiment": {
@@ -4151,12 +4746,12 @@
     "TSM": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.05,
-        "momentum": -0.22,
-        "rs": 0.84,
-        "rsi": 0.23,
+        "macd": -0.06,
+        "momentum": -0.72,
+        "rs": -0.14,
+        "rsi": 0.24,
         "trend": 2.5,
-        "vol_adj": 2.03
+        "vol_adj": 0.55
       },
       "holding_action": null,
       "indicators": {
@@ -4182,8 +4777,8 @@
       "price_usd": 411.68,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 55,
-      "score_delta_1d": 0,
+      "score": 52,
+      "score_delta_1d": -3,
       "score_delta_5d": null,
       "sector": "Semis",
       "sentiment": {
@@ -4272,11 +4867,11 @@
       "drawdown_vs_basis": null,
       "factor_contributions": {
         "macd": -0.1,
-        "momentum": 3.82,
-        "rs": 2.26,
-        "rsi": 0.16,
+        "momentum": 0.32,
+        "rs": 0.22,
+        "rsi": 0.17,
         "trend": 2.5,
-        "vol_adj": 4.07
+        "vol_adj": 1.56
       },
       "holding_action": null,
       "indicators": {
@@ -4302,8 +4897,8 @@
       "price_usd": 339.97,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 63,
-      "score_delta_1d": 0,
+      "score": 55,
+      "score_delta_1d": -8,
       "score_delta_5d": null,
       "sector": "AI Power",
       "sentiment": {
@@ -4391,12 +4986,12 @@
     "WULF": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.45,
-        "momentum": 9.15,
-        "rs": 1.27,
-        "rsi": 0.05,
+        "macd": 0.44,
+        "momentum": 1.69,
+        "rs": -0.03,
+        "rsi": 0.06,
         "trend": 2.5,
-        "vol_adj": 7.13
+        "vol_adj": 3.07
       },
       "holding_action": null,
       "indicators": {
@@ -4422,8 +5017,8 @@
       "price_usd": 23.39,
       "prior_action": null,
       "prior_verdict": "BUY",
-      "score": 71,
-      "score_delta_1d": 0,
+      "score": 58,
+      "score_delta_1d": -13,
       "score_delta_5d": null,
       "sector": "AI Infra",
       "sentiment": {
@@ -4505,9 +5100,9 @@
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
-      "verdict": "BUY",
+      "verdict": "WATCH",
       "weight": null
     }
   },
-  "universe_size": 36
+  "universe_size": 41
 }
