@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r quant/requirements.txt
 
+      - name: Restore sentiment cache
+        uses: actions/cache@v4
+        with:
+          path: quant/cache/sentiment
+          key: sentiment-${{ runner.os }}
+
       - name: Run tests
         run: pytest quant/tests -q
 

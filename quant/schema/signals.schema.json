@@ -103,6 +103,30 @@
               "rsi":      { "type": "number" }
             }
           },
+          "sentiment": {
+            "type": "object",
+            "properties": {
+              "analyst": {
+                "type": ["object", "null"],
+                "properties": {
+                  "key": { "type": "string", "enum": ["strongBuy", "buy", "hold", "sell", "strongSell"] },
+                  "score": { "type": "integer", "minimum": -2, "maximum": 2 },
+                  "target_upside_pct": { "type": ["number", "null"] },
+                  "n_analysts": { "type": "integer" },
+                  "as_of": { "type": "string" }
+                }
+              },
+              "news": {
+                "type": ["object", "null"],
+                "properties": {
+                  "compound": { "type": "number" },
+                  "label": { "type": "string", "enum": ["POS", "NEUTRAL", "NEG"] },
+                  "n_headlines": { "type": "integer" },
+                  "as_of": { "type": "string" }
+                }
+              }
+            }
+          },
           "indicators": {
             "type": "object",
             "required": ["rsi14", "trend_ok"],
