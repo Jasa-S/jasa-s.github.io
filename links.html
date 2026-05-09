@@ -30,31 +30,16 @@
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
             transition: background-color 0.3s ease, color 0.3s ease;
-            max-width: 32rem;
-            margin: 0 auto;
-            padding: 5.5rem 1.5rem 0;
+            margin: 0;
         }
 
         @media (hover: hover) and (pointer: fine) {
             #theme-toggle:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
         }
 
-        .top-bar {
-            position: absolute;
-            top: 0.75rem;
-            right: 1.25rem;
-            display: flex;
-            align-items: center;
-            z-index: 500;
-        }
-        .top-bar .top-btn { padding: 0.35rem; min-width: unset; }
+        #page { max-width: 32rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
 
-        .site-header {
-            position: absolute;
-            top: 3rem;
-            left: max(1.5rem, calc((100vw - 51rem) / 2 + 1.5rem));
-            z-index: 500;
-        }
+        .site-header { margin-bottom: 2rem; }
         .header-h1 {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             font-size: 1.75rem;
@@ -120,12 +105,13 @@
 </head>
 <body>
 
-    <div class="top-bar">
+    <div id="top-bar-direct">
         <button id="theme-toggle" class="top-btn" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
     </div>
 
+    <div id="page">
     <header class="site-header">
         <h1 class="header-h1"><span class="quote">&ldquo;</span>PROJECTS<span class="quote">&rdquo;</span></h1>
     </header>
@@ -190,6 +176,7 @@
     <footer>
         <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
     </footer>
+    </div>
 
     <script src="theme.js"></script>
 
