@@ -114,6 +114,14 @@
 .pill.news-pos      { color: #16a34a; border-color: rgba(22,163,74,0.35); }
 .pill.news-neutral  { color: var(--text-muted); }
 .pill.news-neg      { color: #dc2626; border-color: rgba(220,38,38,0.35); }
+/* Sentiment pills get a dashed border so they're distinguishable from
+   the technical/portfolio pills at a glance. */
+.pill.analyst-buy,
+.pill.analyst-hold,
+.pill.analyst-sell,
+.pill.news-pos,
+.pill.news-neutral,
+.pill.news-neg { border-style: dashed; }
 
 .gain { color: #16a34a; }
 .loss { color: #dc2626; }
@@ -310,3 +318,80 @@
 .empty-state p { margin: 0 0 0.4rem; }
 .empty-state p:last-child { margin-bottom: 0; }
 .empty-state .muted { font-size: 0.8125rem; }
+
+/* Legend modal */
+#legend-modal[hidden] { display: none; }
+#legend-modal {
+    position: fixed; inset: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+}
+#legend-modal .backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+}
+#legend-modal .panel {
+    position: relative;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    max-width: 38rem; width: 100%;
+    max-height: 85vh; overflow-y: auto;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+#legend-modal .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem;
+}
+#legend-modal .panel-header h2 {
+    margin: 0; font-size: 1.05rem; font-weight: 600;
+    letter-spacing: var(--ls-tight);
+}
+#legend-modal .close {
+    background: none; border: 0; color: var(--text-muted);
+    cursor: pointer; font-size: 1.4rem; line-height: 1;
+    padding: 0 0.25rem;
+}
+#legend-modal .close:hover { color: var(--text-main); }
+.legend-group { margin-bottom: 1.25rem; }
+.legend-group:last-of-type { margin-bottom: 0.75rem; }
+.legend-group h3 {
+    font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: var(--ls-mid);
+    color: var(--text-muted);
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+}
+.legend-group .legend-note {
+    font-size: 0.7rem; color: var(--text-muted);
+    margin: -0.25rem 0 0.5rem;
+}
+.legend-row {
+    display: grid;
+    grid-template-columns: minmax(7rem, auto) 1fr;
+    gap: 0.85rem;
+    align-items: center;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8125rem;
+}
+.legend-row:last-child { border-bottom: 0; }
+.legend-row .demo {
+    display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;
+}
+.legend-row .desc { color: var(--text-muted); line-height: 1.45; }
+.legend-footer {
+    margin: 0.5rem 0 0; padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem; color: var(--text-muted);
+}
+.legend-footer a { color: var(--cosmic-purple); text-decoration: none; }
+.legend-footer a:hover { text-decoration: underline; }
+@media (max-width: 600px) {
+    .legend-row {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+    }
+    #legend-modal .panel { padding: 1rem 1.1rem; }
+}

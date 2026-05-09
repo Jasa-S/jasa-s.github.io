@@ -1,3 +1,25 @@
+(function legendInit() {
+    var btn = document.getElementById('legend-toggle');
+    var modal = document.getElementById('legend-modal');
+    if (!btn || !modal) return;
+    var closeBtn = modal.querySelector('.close');
+    var backdrop = modal.querySelector('.backdrop');
+    function open() {
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+    }
+    function close() {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+    }
+    btn.addEventListener('click', open);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (backdrop) backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.hidden) close();
+    });
+})();
+
 (function () {
     'use strict';
 
