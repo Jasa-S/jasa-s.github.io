@@ -220,79 +220,76 @@
         <div class="backdrop"></div>
         <div class="panel" role="dialog" aria-labelledby="legend-title" aria-modal="true">
             <div class="panel-header">
-                <h2 id="legend-title">What do these labels mean?</h2>
+                <h2 id="legend-title">Legend</h2>
                 <button class="close" aria-label="Close legend">&times;</button>
             </div>
+            <p class="legend-intro">
+                Pills with a <strong>solid border</strong> come from price math or your portfolio config.
+                Pills with a <strong>dashed border</strong> are external sentiment &mdash; surfaced for context but
+                they don't affect the score or verdict.
+            </p>
 
             <div class="legend-group">
-                <h3>Technical &mdash; from price math</h3>
+                <h3>Technical</h3>
                 <div class="legend-row">
                     <div class="demo">
                         <span class="pill buy">BUY</span>
                         <span class="pill watch">WATCH</span>
                         <span class="pill avoid">AVOID</span>
                     </div>
-                    <div class="desc">Verdict from the composite score: BUY &ge; 70, WATCH 40&ndash;69, AVOID &lt; 40.</div>
-                </div>
-                <div class="legend-row">
-                    <div class="demo"><span class="score-cell high" style="font-weight:600">78</span> <span class="delta gain">+5</span></div>
-                    <div class="desc">Composite score (0&ndash;100, green/amber/red) and 1-day change vs yesterday's snapshot.</div>
-                </div>
-                <div class="legend-row">
-                    <div class="demo" style="font-size:0.75rem"><span class="gain">trend +2.5</span> &middot; <span class="gain">mom +2.3</span> &middot; <span class="loss">RSI &minus;0.4</span></div>
-                    <div class="desc">Top contributors (in score-points) breaking down today's score by factor.</div>
+                    <div class="desc">Composite-score verdict: BUY &ge; 70, WATCH 40&ndash;69, AVOID &lt; 40.</div>
                 </div>
                 <div class="legend-row">
                     <div class="demo">
                         <span class="pill pullback">PULLBACK</span>
                         <span class="pill breakout">BREAKOUT</span>
                     </div>
-                    <div class="desc">Pullback: uptrend pulling back to SMA<sub>50</sub> with RSI &lt; 35. Breakout: closed above the 20-day high.</div>
+                    <div class="desc">Uptrend dip to SMA<sub>50</sub> with RSI &lt; 35; close above the 20-day high.</div>
                 </div>
                 <div class="legend-row">
                     <div class="demo"><span class="pill earnings">&#9200; 3d</span></div>
-                    <div class="desc">Earnings within N trading days &mdash; BUY/ADD downgraded if N &le; 3.</div>
+                    <div class="desc">Earnings within N trading days &mdash; BUY / ADD downgraded if N &le; 3.</div>
                 </div>
                 <div class="legend-row">
-                    <div class="demo" style="font-size:0.75rem">RSI &middot; Mom 12-1 &middot; RS 6m &middot; Trend &check;/&cross;</div>
-                    <div class="desc">Table columns: 14-day RSI, 12-month minus last-month return, 6-month outperformance vs SPY, and the binary trend filter.</div>
+                    <div class="demo"><span class="pill regime-on">RISK ON</span></div>
+                    <div class="desc">Market regime banner from the SPY trend filter. RISK_OFF downgrades BUY to WATCH.</div>
                 </div>
                 <div class="legend-row">
-                    <div class="demo"><span class="pill" style="color:#16a34a;border-color:rgba(22,163,74,0.35)">RISK ON</span></div>
-                    <div class="desc">Market regime: SPY trend filter. RISK_OFF downgrades BUY signals to WATCH.</div>
+                    <div class="demo"><span class="score-chip high">78</span><span class="delta gain">+5</span></div>
+                    <div class="desc">Composite score (0&ndash;100, green / grey / red) and 1-day change vs yesterday.</div>
+                </div>
+                <div class="legend-row demo-none">
+                    <div class="desc"><strong>Driver line</strong> on holding cards: the four biggest factor contributions in score-points (e.g. <span class="gain">trend +2.5</span>).</div>
                 </div>
             </div>
 
             <div class="legend-group">
-                <h3>Portfolio &mdash; depends on your holdings</h3>
+                <h3>Portfolio</h3>
                 <div class="legend-row">
                     <div class="demo">
                         <span class="pill add">ADD</span>
                         <span class="pill hold">HOLD</span>
                         <span class="pill trim">TRIM</span>
                     </div>
-                    <div class="desc">Action for tracked holdings: ADD when score &ge; 65 + trend on + regime on; TRIM when weak / oversized / overheated; HOLD otherwise.</div>
+                    <div class="desc">Holding action: ADD when score &ge; 65 + trend on + regime on; TRIM if weak, oversized, or overheated; HOLD otherwise.</div>
                 </div>
-                <div class="legend-row">
-                    <div class="demo" style="font-size:0.75rem">Suggested add &middot; <span style="color:var(--text-main)">128,40 &euro;</span></div>
-                    <div class="desc">Position size for an ADD: 1 % of capital risked per trade with a 2-ATR stop, capped at 30 % of capital.</div>
+                <div class="legend-row demo-none">
+                    <div class="desc"><strong>Suggested add</strong>: position size for an ADD &mdash; 1 % of capital risked per trade with a 2-ATR stop, capped at 30 % of capital.</div>
                 </div>
-                <div class="legend-row">
-                    <div class="demo" style="font-size:0.75rem">stop 94,30 &euro;</div>
-                    <div class="desc">Trailing stop for the holding: max(price &minus; 2&middot;ATR, 85 % of cost basis).</div>
+                <div class="legend-row demo-none">
+                    <div class="desc"><strong>stop X &euro;</strong>: trailing stop on each holding card &mdash; max(price &minus; 2&middot;ATR, 85 % of cost basis).</div>
                 </div>
             </div>
 
             <div class="legend-group">
-                <h3>Sentiment &mdash; external, does not affect the score</h3>
-                <p class="legend-note">All sentiment chips have a <strong>dashed border</strong> so you can spot them at a glance.</p>
+                <h3>Sentiment <span class="legend-tag">dashed = does not affect score</span></h3>
                 <div class="legend-row">
                     <div class="demo">
                         <span class="pill analyst-buy">BUY</span>
                         <span class="pill analyst-hold">HOLD</span>
                         <span class="pill analyst-sell">SELL</span>
                     </div>
-                    <div class="desc">Analyst consensus from Yahoo Finance (needs &ge; 3 analysts to render).</div>
+                    <div class="desc">Analyst consensus from Yahoo Finance (rendered when &ge; 3 analysts cover the name).</div>
                 </div>
                 <div class="legend-row">
                     <div class="demo">
@@ -300,19 +297,22 @@
                         <span class="pill news-neutral">NEWS ~</span>
                         <span class="pill news-neg">NEWS &minus;</span>
                     </div>
-                    <div class="desc">Mean VADER tone of headlines from the last 7 days.</div>
+                    <div class="desc">Mean VADER tone of the last 7 days of headlines for the ticker.</div>
                 </div>
                 <div class="legend-row">
-                    <div class="demo" style="font-size:0.75rem">Analyst target &middot; <span class="gain">+18 % vs spot</span></div>
-                    <div class="desc">Consensus 12-month price target relative to today's price.</div>
+                    <div class="demo">
+                        <span class="sent-chip buy">B</span>
+                        <span class="sent-chip hold">H</span>
+                        <span class="sent-chip sell">S</span>
+                    </div>
+                    <div class="desc"><em>Analyst</em> column letter in the tables: B = buy / strong buy, H = hold, S = sell / strong sell. Hover for full label.</div>
                 </div>
-                <div class="legend-row">
-                    <div class="demo"><span class="sent-cell buy" style="font-weight:600">B</span> / <span class="sent-cell hold" style="font-weight:600">H</span> / <span class="sent-cell sell" style="font-weight:600">S</span></div>
-                    <div class="desc"><em>Analyst</em> column letter: B = buy/strong buy, H = hold, S = sell/strong sell. Hover for full label and news tone.</div>
+                <div class="legend-row demo-none">
+                    <div class="desc"><strong>Analyst target +X %</strong> on holding cards: consensus 12-month price target relative to today's spot.</div>
                 </div>
             </div>
 
-            <p class="legend-footer">For the score formula and exact thresholds, see the <a href="#methodology-section">Methodology</a> section.</p>
+            <p class="legend-footer">For the full score formula and thresholds, see the <a href="#methodology-section">Methodology</a> section below.</p>
         </div>
     </div>
 
