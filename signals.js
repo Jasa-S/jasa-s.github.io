@@ -525,6 +525,22 @@
         });
     }
 
+    function bottomRankedTickers(data, count) {
+        if (data.ranked_avoid && data.ranked_avoid.length) {
+            return data.ranked_avoid.slice(0, count);
+        }
+        return Object.keys(data.tickers || {})
+            .filter(function (t) {
+                var score = data.tickers[t] && data.tickers[t].score;
+                return typeof score === 'number' && isFinite(score);
+            })
+            .sort(function (a, b) {
+                var scoreDiff = data.tickers[a].score - data.tickers[b].score;
+                return scoreDiff || a.localeCompare(b);
+            })
+            .slice(0, count);
+    }
+
     function render(data) {
         DATA = data;
         document.getElementById('meta-updated').innerHTML =
@@ -558,7 +574,7 @@
 
         var avoidBody = document.querySelector('#avoid-table tbody');
         avoidBody.innerHTML = '';
-        (data.ranked_avoid || []).forEach(function (t, i) {
+        bottomRankedTickers(data, 10).forEach(function (t, i) {
             var v = data.tickers[t];
             if (v) avoidBody.appendChild(tableRow(i + 1, t, v));
         });
