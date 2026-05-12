@@ -41,7 +41,7 @@
     },
     "ASML": {
       "action": null,
-      "score": 51,
+      "score": 52,
       "verdict": "WATCH"
     },
     "AVGO": {
@@ -96,7 +96,7 @@
     },
     "GOOG": {
       "action": "HOLD",
-      "score": 53,
+      "score": 52,
       "verdict": "WATCH"
     },
     "IONQ": {
@@ -111,7 +111,7 @@
     },
     "MDB": {
       "action": null,
-      "score": 46,
+      "score": 45,
       "verdict": "WATCH"
     },
     "META": {
