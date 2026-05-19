@@ -1,7 +1,6 @@
 {
   "benchmark": "SPY",
   "benchmark_spark": [
-    680.5315,
     685.4779,
     691.2622,
     687.4226,
@@ -60,11 +59,12 @@
     742.31,
     748.17,
     739.17,
-    738.65
+    738.65,
+    733.73
   ],
   "errors": [],
-  "fx_eur_usd": 1.1614,
-  "generated_at": "2026-05-18T23:36:25Z",
+  "fx_eur_usd": 1.1655,
+  "generated_at": "2026-05-19T23:40:59Z",
   "holdings_summary": [
     {
       "action": "HOLD",
@@ -122,44 +122,44 @@
     "by_holding": [
       {
         "cost_eur": 481.0,
-        "pnl_eur": 2342.99,
-        "pnl_pct": 4.8711,
+        "pnl_eur": 2181.43,
+        "pnl_pct": 4.5352,
         "ticker": "IREN",
-        "value_eur": 2823.99
+        "value_eur": 2662.43
       },
       {
         "cost_eur": 423.5,
-        "pnl_eur": 1469.37,
-        "pnl_pct": 3.4696,
+        "pnl_eur": 1442.65,
+        "pnl_pct": 3.4065,
         "ticker": "NBIS",
-        "value_eur": 1892.87
+        "value_eur": 1866.15
       },
       {
         "cost_eur": 826.0,
-        "pnl_eur": 866.34,
-        "pnl_pct": 1.0488,
+        "pnl_eur": 825.2,
+        "pnl_pct": 0.999,
         "ticker": "GOOG",
-        "value_eur": 1692.34
+        "value_eur": 1651.2
       },
       {
         "cost_eur": 358.4,
-        "pnl_eur": 1000.19,
-        "pnl_pct": 2.7907,
+        "pnl_eur": 971.55,
+        "pnl_pct": 2.7108,
         "ticker": "IONQ",
-        "value_eur": 1358.59
+        "value_eur": 1329.95
       },
       {
         "cost_eur": 660.0,
-        "pnl_eur": 488.51,
-        "pnl_pct": 0.7402,
+        "pnl_eur": 475.69,
+        "pnl_pct": 0.7207,
         "ticker": "NVDA",
-        "value_eur": 1148.51
+        "value_eur": 1135.69
       }
     ],
     "cost_eur": 2748.9,
-    "pnl_eur": 6167.4,
-    "pnl_pct": 2.2436,
-    "value_eur": 8916.3
+    "pnl_eur": 5896.53,
+    "pnl_pct": 2.145,
+    "value_eur": 8645.43
   },
   "ranked_avoid": [],
   "ranked_buys": [
@@ -167,72 +167,76 @@
     "AAOI",
     "NBIS",
     "MU",
-    "APLD",
     "WULF",
+    "RKLB",
     "IREN",
     "CIFR",
-    "RKLB",
+    "APLD",
     "VRT"
   ],
   "regime": "RISK_ON",
   "regime_score": 52,
   "sector_concentration": {
-    "AI Infra": 0.529,
-    "AI/Cloud": 0.1898,
-    "Quantum": 0.1524,
-    "Semis": 0.1288
+    "AI Infra": 0.5238,
+    "AI/Cloud": 0.191,
+    "Quantum": 0.1538,
+    "Semis": 0.1314
   },
   "tickers": {
     "AAOI": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.07,
-        "momentum": 3.15,
-        "rs": 6.88,
-        "rsi": -0.09,
+        "macd": -0.5,
+        "momentum": 3.92,
+        "rs": 6.37,
+        "rsi": -0.03,
         "trend": 2.5,
-        "vol_adj": 1.91
+        "vol_adj": 2.51
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 23.5915,
+        "atr14": 23.0414,
         "breakout_20d": false,
         "donchian_high_20": 223.1,
-        "macd_hist": -0.218,
-        "mom_12_1": 12.9231,
+        "macd_hist": -1.7286,
+        "mom_12_1": 14.6731,
         "near_sma_fast": false,
-        "rs_6m": 7.1806,
-        "rsi14": 52.71,
-        "sma200": 59.9298,
-        "sma50": 137.0612,
+        "rs_6m": 6.8836,
+        "rsi14": 52.16,
+        "sma200": 60.6788,
+        "sma50": 138.2754,
         "trend_ok": true,
-        "vol_63d_ann": 1.7381
+        "vol_63d_ann": 1.7382
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "AAOI",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 149.1769,
-      "price_usd": 173.26,
+      "price_eur": 146.9994,
+      "price_usd": 171.33,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 64,
-      "score_delta_1d": 0,
-      "score_delta_5d": -2,
+      "score": 65,
+      "score_delta_1d": 1,
+      "score_delta_5d": -1,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:18Z",
+          "as_of": "2026-05-19T23:40:52Z",
           "key": "buy",
           "n_analysts": 5,
           "score": 1,
-          "target_upside_pct": -0.1267
+          "target_upside_pct": -0.1169
         },
-        "news": null
+        "news": {
+          "as_of": "2026-05-19T23:40:52Z",
+          "compound": 0.12,
+          "label": "NEUTRAL",
+          "n_headlines": 10
+        }
       },
       "spark": [
-        53.96,
         56.27,
         58.12,
         53.69,
@@ -291,7 +295,8 @@
         223.1,
         203.57,
         190.36,
-        173.26
+        173.26,
+        171.33
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -301,58 +306,57 @@
     "AMD": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.28,
-        "momentum": -0.68,
-        "rs": 0.0,
-        "rsi": 0.83,
+        "macd": -0.1,
+        "momentum": -0.65,
+        "rs": -0.01,
+        "rsi": 0.73,
         "trend": 2.5,
-        "vol_adj": -0.45
+        "vol_adj": -0.36
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 23.4967,
+        "atr14": 24.3463,
         "breakout_20d": false,
         "donchian_high_20": 458.79,
-        "macd_hist": 0.4791,
-        "mom_12_1": 1.9215,
+        "macd_hist": -2.2842,
+        "mom_12_1": 2.1142,
         "near_sma_fast": false,
-        "rs_6m": 0.5924,
-        "rsi14": 66.23,
-        "sma200": 225.4122,
-        "sma50": 283.7838,
+        "rs_6m": 0.5794,
+        "rsi14": 63.81,
+        "sma200": 226.624,
+        "sma50": 288.0112,
         "trend_ok": true,
-        "vol_63d_ann": 0.7006
+        "vol_63d_ann": 0.7009
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "AMD",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 362.4724,
-      "price_usd": 420.99,
+      "price_eur": 355.2508,
+      "price_usd": 414.05,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 52,
-      "score_delta_1d": -1,
+      "score_delta_1d": 0,
       "score_delta_5d": -1,
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:15Z",
+          "as_of": "2026-05-19T23:40:49Z",
           "key": "buy",
           "n_analysts": 48,
           "score": 1,
-          "target_upside_pct": 0.0875
+          "target_upside_pct": 0.1129
         },
         "news": {
-          "as_of": "2026-05-18T23:36:15Z",
-          "compound": 0.0471,
+          "as_of": "2026-05-19T23:40:49Z",
+          "compound": 0.0433,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        196.6,
         213.84,
         210.86,
         203.68,
@@ -411,7 +415,8 @@
         445.5,
         449.7,
         424.1,
-        420.99
+        420.99,
+        414.05
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -421,58 +426,57 @@
     "AMZN": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.56,
-        "momentum": -1.22,
-        "rs": -0.6,
-        "rsi": 0.36,
+        "macd": -0.5,
+        "momentum": -1.26,
+        "rs": -0.59,
+        "rsi": -0.04,
         "trend": 2.5,
-        "vol_adj": -1.13
+        "vol_adj": -1.17
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 6.6318,
+        "atr14": 6.8488,
         "breakout_20d": false,
         "donchian_high_20": 274.99,
-        "macd_hist": -2.2411,
-        "mom_12_1": 0.3952,
+        "macd_hist": -2.705,
+        "mom_12_1": 0.4242,
         "near_sma_fast": false,
-        "rs_6m": 0.0094,
-        "rsi14": 59.27,
-        "sma200": 229.5712,
-        "sma50": 237.741,
+        "rs_6m": 0.0068,
+        "rsi14": 51.93,
+        "sma200": 229.7942,
+        "sma50": 238.658,
         "trend_ok": true,
-        "vol_63d_ann": 0.2831
+        "vol_63d_ann": 0.2862
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "AMZN",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 228.0445,
-      "price_usd": 264.86,
+      "price_eur": 222.5111,
+      "price_usd": 259.34,
       "prior_action": null,
-      "prior_verdict": null,
+      "prior_verdict": "WATCH",
       "score": 49,
-      "score_delta_1d": null,
+      "score_delta_1d": 0,
       "score_delta_5d": 0,
       "sector": "AI/Cloud",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:20Z",
+          "as_of": "2026-05-19T23:40:54Z",
           "key": "strongBuy",
           "n_analysts": 62,
           "score": 2,
-          "target_upside_pct": 0.1763
+          "target_upside_pct": 0.2019
         },
         "news": {
-          "as_of": "2026-05-18T23:36:20Z",
-          "compound": 0.0398,
+          "as_of": "2026-05-19T23:40:54Z",
+          "compound": 0.1254,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        205.27,
         208.56,
         210.64,
         207.92,
@@ -531,7 +535,8 @@
         270.13,
         267.22,
         264.14,
-        264.86
+        264.86,
+        259.34
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -541,58 +546,57 @@
     "ANET": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -0.92,
-        "rs": -0.63,
-        "rsi": -0.81,
+        "macd": -0.5,
+        "momentum": -0.94,
+        "rs": -0.62,
+        "rsi": -0.69,
         "trend": 2.5,
         "vol_adj": -0.81
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 7.5907,
+        "atr14": 7.4414,
         "breakout_20d": false,
         "donchian_high_20": 177.73,
-        "macd_hist": -3.1823,
-        "mom_12_1": 1.2436,
+        "macd_hist": -2.8024,
+        "mom_12_1": 1.3216,
         "near_sma_fast": true,
-        "rs_6m": -0.0178,
-        "rsi14": 42.15,
-        "sma200": 139.3516,
-        "sma50": 146.3536,
+        "rs_6m": -0.0205,
+        "rsi14": 42.05,
+        "sma200": 139.4717,
+        "sma50": 146.4418,
         "trend_ok": true,
-        "vol_63d_ann": 0.6117
+        "vol_63d_ann": 0.6102
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "ANET",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 122.0123,
-      "price_usd": 141.71,
+      "price_eur": 121.4742,
+      "price_usd": 141.58,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 49,
-      "score_delta_1d": 1,
+      "score_delta_1d": 0,
       "score_delta_5d": 1,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:18Z",
+          "as_of": "2026-05-19T23:40:52Z",
           "key": "strongBuy",
           "n_analysts": 27,
           "score": 2,
-          "target_upside_pct": 0.3265
+          "target_upside_pct": 0.3292
         },
         "news": {
-          "as_of": "2026-05-18T23:36:18Z",
-          "compound": 0.2662,
+          "as_of": "2026-05-19T23:40:52Z",
+          "compound": 0.273,
           "label": "POS",
           "n_headlines": 10
         }
       },
       "spark": [
-        127.43,
         128.77,
         132.89,
         130.25,
@@ -651,7 +655,8 @@
         140.69,
         147.81,
         141.97,
-        141.71
+        141.71,
+        141.58
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -661,58 +666,57 @@
     "APLD": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.33,
-        "momentum": 1.49,
-        "rs": 0.0,
-        "rsi": -0.04,
+        "macd": -0.5,
+        "momentum": 1.09,
+        "rs": -0.14,
+        "rsi": -0.25,
         "trend": 2.5,
-        "vol_adj": 2.35
+        "vol_adj": 1.73
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 3.6218,
+        "atr14": 3.6102,
         "breakout_20d": false,
         "donchian_high_20": 46.71,
-        "macd_hist": 0.0678,
-        "mom_12_1": 8.1657,
+        "macd_hist": -0.4402,
+        "mom_12_1": 6.8897,
         "near_sma_fast": false,
-        "rs_6m": 0.5919,
-        "rsi14": 53.49,
-        "sma200": 28.0028,
-        "sma50": 31.5435,
+        "rs_6m": 0.4502,
+        "rsi14": 48.82,
+        "sma200": 28.1233,
+        "sma50": 31.7353,
         "trend_ok": true,
-        "vol_63d_ann": 0.9827
+        "vol_63d_ann": 0.9868
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "APLD",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 33.6995,
-      "price_usd": 39.14,
+      "price_eur": 31.4196,
+      "price_usd": 36.62,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 57,
-      "score_delta_1d": 3,
-      "score_delta_5d": 1,
+      "score": 54,
+      "score_delta_1d": -3,
+      "score_delta_5d": -1,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:24Z",
+          "as_of": "2026-05-19T23:40:58Z",
           "key": "strongBuy",
           "n_analysts": 10,
           "score": 2,
-          "target_upside_pct": 0.3567
+          "target_upside_pct": 0.45
         },
         "news": {
-          "as_of": "2026-05-18T23:36:24Z",
-          "compound": 0.066,
+          "as_of": "2026-05-19T23:40:58Z",
+          "compound": 0.0606,
           "label": "NEUTRAL",
-          "n_headlines": 8
+          "n_headlines": 7
         }
       },
       "spark": [
-        30.0,
         30.66,
         29.08,
         28.65,
@@ -771,7 +775,8 @@
         45.48,
         46.71,
         42.56,
-        39.14
+        39.14,
+        36.62
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -781,58 +786,57 @@
     "APP": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.47,
-        "momentum": -1.02,
+        "macd": 0.48,
+        "momentum": -1.0,
         "rs": -0.84,
-        "rsi": 0.15,
+        "rsi": -0.01,
         "trend": -2.5,
-        "vol_adj": -1.16
+        "vol_adj": -1.09
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 29.9578,
+        "atr14": 29.9958,
         "breakout_20d": false,
         "donchian_high_20": 501.0,
-        "macd_hist": 1.6222,
-        "mom_12_1": 0.944,
-        "near_sma_fast": false,
-        "rs_6m": -0.22,
-        "rsi14": 56.17,
-        "sma200": 532.1049,
-        "sma50": 447.8652,
+        "macd_hist": 0.4692,
+        "mom_12_1": 1.1364,
+        "near_sma_fast": true,
+        "rs_6m": -0.2431,
+        "rsi14": 52.4,
+        "sma200": 532.5935,
+        "sma50": 447.0586,
         "trend_ok": false,
-        "vol_63d_ann": 0.6993
+        "vol_63d_ann": 0.6893
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "APP",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 423.9392,
-      "price_usd": 492.38,
+      "price_eur": 409.1754,
+      "price_usd": 476.9,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 45,
       "score_delta_1d": 0,
-      "score_delta_5d": 2,
+      "score_delta_5d": 1,
       "sector": "AdTech",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:23Z",
+          "as_of": "2026-05-19T23:40:57Z",
           "key": "strongBuy",
           "n_analysts": 30,
           "score": 2,
-          "target_upside_pct": 0.3089
+          "target_upside_pct": 0.3514
         },
         "news": {
-          "as_of": "2026-05-18T23:36:23Z",
-          "compound": 0.2932,
+          "as_of": "2026-05-19T23:40:57Z",
+          "compound": 0.3202,
           "label": "POS",
           "n_headlines": 10
         }
       },
       "spark": [
-        380.62,
         393.22,
         421.63,
         444.93,
@@ -891,7 +895,8 @@
         453.53,
         485.16,
         501.0,
-        492.38
+        492.38,
+        476.9
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -901,58 +906,57 @@
     "ARM": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -1.14,
-        "rs": -0.17,
-        "rsi": 0.19,
+        "macd": -0.36,
+        "momentum": -1.15,
+        "rs": -0.09,
+        "rsi": 0.45,
         "trend": 2.5,
-        "vol_adj": -1.46
+        "vol_adj": -1.48
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 14.8285,
+        "atr14": 15.2386,
         "breakout_20d": false,
         "donchian_high_20": 237.3,
-        "macd_hist": -2.1646,
-        "mom_12_1": 0.6063,
+        "macd_hist": -1.8714,
+        "mom_12_1": 0.7337,
         "near_sma_fast": false,
-        "rs_6m": 0.4278,
-        "rsi14": 56.89,
-        "sma200": 144.3987,
-        "sma50": 169.8253,
+        "rs_6m": 0.4984,
+        "rsi14": 59.56,
+        "sma200": 144.8266,
+        "sma50": 171.9357,
         "trend_ok": true,
-        "vol_63d_ann": 0.8043
+        "vol_63d_ann": 0.8062
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "ARM",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 185.2183,
-      "price_usd": 215.12,
+      "price_eur": 191.4605,
+      "price_usd": 223.15,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 49,
-      "score_delta_1d": 0,
-      "score_delta_5d": 0,
+      "score": 50,
+      "score_delta_1d": 1,
+      "score_delta_5d": 1,
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:16Z",
+          "as_of": "2026-05-19T23:40:50Z",
           "key": "buy",
-          "n_analysts": 36,
+          "n_analysts": 37,
           "score": 1,
-          "target_upside_pct": 0.0645
+          "target_upside_pct": 0.0348
         },
         "news": {
-          "as_of": "2026-05-18T23:36:16Z",
-          "compound": 0.0634,
-          "label": "NEUTRAL",
+          "as_of": "2026-05-19T23:40:51Z",
+          "compound": 0.1904,
+          "label": "POS",
           "n_headlines": 10
         }
       },
       "spark": [
-        123.78,
         128.14,
         131.74,
         129.26,
@@ -1011,7 +1015,8 @@
         221.21,
         228.5,
         209.16,
-        215.12
+        215.12,
+        223.15
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1021,58 +1026,57 @@
     "ASML": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.18,
-        "momentum": -0.95,
-        "rs": -0.26,
-        "rsi": -0.29,
+        "macd": 0.07,
+        "momentum": -0.93,
+        "rs": -0.24,
+        "rsi": -0.26,
         "trend": 2.5,
-        "vol_adj": -0.65
+        "vol_adj": -0.5
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 64.9466,
+        "atr14": 63.4832,
         "breakout_20d": false,
         "donchian_high_20": 1592.02,
-        "macd_hist": -0.0615,
-        "mom_12_1": 1.1555,
+        "macd_hist": -5.1907,
+        "mom_12_1": 1.3458,
         "near_sma_fast": true,
-        "rs_6m": 0.3434,
-        "rsi14": 49.75,
-        "sma200": 1156.5435,
-        "sma50": 1418.8512,
+        "rs_6m": 0.3562,
+        "rsi14": 48.57,
+        "sma200": 1160.4097,
+        "sma50": 1420.9508,
         "trend_ok": true,
-        "vol_63d_ann": 0.4911
+        "vol_63d_ann": 0.4868
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "ASML",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 1267.7279,
-      "price_usd": 1472.39,
+      "price_eur": 1252.1849,
+      "price_usd": 1459.4399,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 51,
       "score_delta_1d": 0,
-      "score_delta_5d": -1,
+      "score_delta_5d": 0,
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:15Z",
+          "as_of": "2026-05-19T23:40:50Z",
           "key": "strongBuy",
           "n_analysts": 15,
           "score": 2,
-          "target_upside_pct": 0.1316
+          "target_upside_pct": 0.1371
         },
         "news": {
-          "as_of": "2026-05-18T23:36:16Z",
-          "compound": 0.2258,
-          "label": "POS",
+          "as_of": "2026-05-19T23:40:50Z",
+          "compound": -0.1023,
+          "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        1482.7513,
         1494.5356,
         1523.1831,
         1460.6097,
@@ -1131,7 +1135,8 @@
         1581.58,
         1584.51,
         1501.8101,
-        1472.39
+        1472.39,
+        1459.4399
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1141,58 +1146,57 @@
     "AVGO": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.38,
-        "momentum": -0.9,
-        "rs": -0.47,
-        "rsi": 0.17,
+        "macd": -0.41,
+        "momentum": -0.94,
+        "rs": -0.49,
+        "rsi": -0.03,
         "trend": 2.5,
-        "vol_adj": -0.25
+        "vol_adj": -0.29
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 15.5505,
+        "atr14": 15.4997,
         "breakout_20d": false,
         "donchian_high_20": 439.79,
-        "macd_hist": -2.6982,
-        "mom_12_1": 1.2902,
+        "macd_hist": -3.6917,
+        "mom_12_1": 1.3072,
         "near_sma_fast": false,
-        "rs_6m": 0.137,
-        "rsi14": 56.54,
-        "sma200": 346.4775,
-        "sma50": 371.0701,
+        "rs_6m": 0.107,
+        "rsi14": 52.18,
+        "sma200": 347.0978,
+        "sma50": 372.3909,
         "trend_ok": true,
-        "vol_63d_ann": 0.4106
+        "vol_63d_ann": 0.4141
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "AVGO",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 362.2313,
-      "price_usd": 420.71,
+      "price_eur": 352.694,
+      "price_usd": 411.07,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 51,
-      "score_delta_1d": 0,
-      "score_delta_5d": 1,
+      "score": 50,
+      "score_delta_1d": -1,
+      "score_delta_5d": -1,
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:16Z",
+          "as_of": "2026-05-19T23:40:50Z",
           "key": "strongBuy",
-          "n_analysts": 42,
+          "n_analysts": 43,
           "score": 2,
-          "target_upside_pct": 0.148
+          "target_upside_pct": 0.1607
         },
         "news": {
-          "as_of": "2026-05-18T23:36:16Z",
-          "compound": 0.0531,
+          "as_of": "2026-05-19T23:40:50Z",
+          "compound": -0.0041,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        329.6485,
         324.8086,
         331.6144,
         321.0266,
@@ -1251,7 +1255,8 @@
         416.79,
         439.79,
         425.19,
-        420.71
+        420.71,
+        411.07
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1261,35 +1266,35 @@
     "AXTI": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.35,
-        "momentum": 22.86,
-        "rs": 8.81,
-        "rsi": 0.17,
+        "macd": 0.04,
+        "momentum": 22.71,
+        "rs": 9.23,
+        "rsi": 0.47,
         "trend": 2.5,
-        "vol_adj": 18.01
+        "vol_adj": 17.88
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 13.9471,
+        "atr14": 13.8687,
         "breakout_20d": false,
         "donchian_high_20": 125.81,
-        "macd_hist": 0.2107,
-        "mom_12_1": 69.5641,
+        "macd_hist": -0.45,
+        "mom_12_1": 66.3162,
         "near_sma_fast": false,
-        "rs_6m": 9.0364,
-        "rsi14": 56.55,
-        "sma200": 27.6861,
-        "sma50": 73.4672,
+        "rs_6m": 9.7141,
+        "rsi14": 59.76,
+        "sma200": 28.2409,
+        "sma50": 74.9536,
         "trend_ok": true,
-        "vol_63d_ann": 1.7664
+        "vol_63d_ann": 1.7681
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "AXTI",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 91.1627,
-      "price_usd": 105.88,
+      "price_eur": 96.8499,
+      "price_usd": 112.88,
       "prior_action": null,
       "prior_verdict": "BUY",
       "score": 100,
@@ -1299,14 +1304,13 @@
       "sentiment": {
         "analyst": null,
         "news": {
-          "as_of": "2026-05-18T23:36:17Z",
-          "compound": 0.0817,
+          "as_of": "2026-05-19T23:40:51Z",
+          "compound": 0.0953,
           "label": "NEUTRAL",
-          "n_headlines": 7
+          "n_headlines": 6
         }
       },
       "spark": [
-        28.43,
         35.08,
         40.97,
         37.12,
@@ -1365,7 +1369,8 @@
         121.94,
         114.98,
         123.78,
-        105.88
+        105.88,
+        112.88
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1375,58 +1380,57 @@
     "CEG": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -1.2,
-        "rs": -0.95,
-        "rsi": -1.4,
+        "macd": -0.5,
+        "momentum": -1.27,
+        "rs": -0.93,
+        "rsi": -1.28,
         "trend": -2.5,
-        "vol_adj": -1.4
+        "vol_adj": -1.52
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 13.5516,
+        "atr14": 13.0057,
         "breakout_20d": false,
         "donchian_high_20": 322.2793,
-        "macd_hist": -5.5949,
-        "mom_12_1": 0.4284,
+        "macd_hist": -5.8016,
+        "mom_12_1": 0.4154,
         "near_sma_fast": false,
-        "rs_6m": -0.3219,
-        "rsi14": 33.54,
-        "sma200": 324.388,
-        "sma50": 295.8402,
+        "rs_6m": -0.325,
+        "rsi14": 33.08,
+        "sma200": 323.9964,
+        "sma50": 294.6038,
         "trend_ok": false,
-        "vol_63d_ann": 0.5015
+        "vol_63d_ann": 0.4983
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "CEG",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 225.582,
-      "price_usd": 262.0,
+      "price_eur": 223.6523,
+      "price_usd": 260.67,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 42,
       "score_delta_1d": 0,
-      "score_delta_5d": 0,
+      "score_delta_5d": 1,
       "sector": "AI Power",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:19Z",
+          "as_of": "2026-05-19T23:40:53Z",
           "key": "buy",
           "n_analysts": 20,
           "score": 1,
-          "target_upside_pct": 0.3963
+          "target_upside_pct": 0.4034
         },
         "news": {
-          "as_of": "2026-05-18T23:36:19Z",
-          "compound": 0.0976,
+          "as_of": "2026-05-19T23:40:53Z",
+          "compound": 0.1249,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        292.9517,
         311.7373,
         324.8991,
         322.6257,
@@ -1434,7 +1438,7 @@
         326.2153,
         323.9319,
         321.9178,
-        331.1111,
+        331.1112,
         318.1387,
         322.489,
         316.5981,
@@ -1485,7 +1489,8 @@
         274.4636,
         274.833,
         267.2,
-        262.0
+        262.0,
+        260.67
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1495,58 +1500,57 @@
     "CIFR": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.21,
-        "momentum": 1.21,
-        "rs": -0.43,
-        "rsi": -0.23,
+        "macd": -0.5,
+        "momentum": 1.24,
+        "rs": -0.38,
+        "rsi": -0.21,
         "trend": 2.5,
-        "vol_adj": 1.96
+        "vol_adj": 2.0
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 1.8561,
+        "atr14": 1.8311,
         "breakout_20d": false,
         "donchian_high_20": 22.29,
-        "macd_hist": -0.0862,
-        "mom_12_1": 7.3491,
+        "macd_hist": -0.2117,
+        "mom_12_1": 7.2968,
         "near_sma_fast": false,
-        "rs_6m": 0.1753,
-        "rsi14": 50.7,
-        "sma200": 15.2241,
-        "sma50": 16.8327,
+        "rs_6m": 0.211,
+        "rsi14": 49.42,
+        "sma200": 15.2934,
+        "sma50": 16.9225,
         "trend_ok": true,
-        "vol_63d_ann": 0.9745
+        "vol_63d_ann": 0.9747
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "CIFR",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 16.4623,
-      "price_usd": 19.12,
+      "price_eur": 16.1302,
+      "price_usd": 18.8,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 55,
-      "score_delta_1d": 1,
-      "score_delta_5d": -2,
+      "score_delta_1d": 0,
+      "score_delta_5d": -1,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:24Z",
+          "as_of": "2026-05-19T23:40:58Z",
           "key": "strongBuy",
           "n_analysts": 15,
           "score": 2,
-          "target_upside_pct": 0.59
+          "target_upside_pct": 0.6241
         },
         "news": {
-          "as_of": "2026-05-18T23:36:25Z",
-          "compound": 0.1767,
+          "as_of": "2026-05-19T23:40:59Z",
+          "compound": 0.1808,
           "label": "POS",
-          "n_headlines": 5
+          "n_headlines": 7
         }
       },
       "spark": [
-        15.22,
         17.12,
         16.61,
         16.48,
@@ -1605,7 +1609,8 @@
         21.24,
         22.29,
         20.33,
-        19.12
+        19.12,
+        18.8
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1615,35 +1620,35 @@
     "CRWD": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 1.06,
-        "momentum": -1.33,
+        "macd": 1.29,
+        "momentum": -1.37,
         "rs": -0.55,
-        "rsi": 1.09,
+        "rsi": 1.14,
         "trend": -2.5,
-        "vol_adj": -1.76
+        "vol_adj": -1.82
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 23.8107,
-        "breakout_20d": true,
-        "donchian_high_20": 594.08,
-        "macd_hist": 12.9462,
-        "mom_12_1": 0.0793,
+        "atr14": 23.6063,
+        "breakout_20d": false,
+        "donchian_high_20": 618.83,
+        "macd_hist": 12.5546,
+        "mom_12_1": 0.1403,
         "near_sma_fast": false,
-        "rs_6m": 0.0627,
-        "rsi14": 84.82,
-        "sma200": 461.2865,
-        "sma50": 446.3344,
+        "rs_6m": 0.0494,
+        "rsi14": 83.9,
+        "sma200": 462.1376,
+        "sma50": 449.9894,
         "trend_ok": false,
-        "vol_63d_ann": 0.5527
+        "vol_63d_ann": 0.553
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "CRWD",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 532.8127,
-      "price_usd": 618.83,
+      "price_eur": 529.2769,
+      "price_usd": 616.88,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 46,
@@ -1652,21 +1657,20 @@
       "sector": "AI Sec",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:21Z",
+          "as_of": "2026-05-19T23:40:55Z",
           "key": "buy",
           "n_analysts": 51,
           "score": 1,
-          "target_upside_pct": -0.196
+          "target_upside_pct": -0.1752
         },
         "news": {
-          "as_of": "2026-05-18T23:36:21Z",
-          "compound": 0.1386,
+          "as_of": "2026-05-19T23:40:55Z",
+          "compound": 0.0851,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        350.33,
         350.25,
         363.31,
         381.1,
@@ -1725,7 +1729,8 @@
         562.57,
         579.95,
         594.08,
-        618.83
+        618.83,
+        616.88
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1735,35 +1740,35 @@
     "CRWV": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -0.7,
-        "rs": -0.39,
-        "rsi": -0.62,
+        "macd": -0.5,
+        "momentum": -0.73,
+        "rs": -0.4,
+        "rsi": -0.66,
         "trend": -2.5,
-        "vol_adj": -0.83
+        "vol_adj": -0.89
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 9.2302,
+        "atr14": 9.2102,
         "breakout_20d": false,
         "donchian_high_20": 137.98,
-        "macd_hist": -2.9369,
-        "mom_12_1": 1.8654,
+        "macd_hist": -3.3148,
+        "mom_12_1": 1.8831,
         "near_sma_fast": true,
-        "rs_6m": 0.2192,
-        "rsi14": 44.93,
-        "sma200": 100.3006,
-        "sma50": 99.8075,
+        "rs_6m": 0.192,
+        "rsi14": 42.49,
+        "sma200": 100.2789,
+        "sma50": 100.3155,
         "trend_ok": false,
-        "vol_63d_ann": 0.9385
+        "vol_63d_ann": 0.9373
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "CRWV",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 89.346,
-      "price_usd": 103.77,
+      "price_eur": 85.636,
+      "price_usd": 99.81,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 44,
@@ -1772,21 +1777,20 @@
       "sector": "AI Cloud",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:22Z",
+          "as_of": "2026-05-19T23:40:56Z",
           "key": "buy",
           "n_analysts": 31,
           "score": 1,
-          "target_upside_pct": 0.3619
+          "target_upside_pct": 0.3917
         },
         "news": {
-          "as_of": "2026-05-18T23:36:23Z",
-          "compound": 0.0535,
+          "as_of": "2026-05-19T23:40:57Z",
+          "compound": 0.0976,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        90.84,
         99.3,
         98.01,
         97.63,
@@ -1845,7 +1849,8 @@
         111.31,
         114.215,
         107.3,
-        103.77
+        103.77,
+        99.81
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1855,35 +1860,35 @@
     "DDOG": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 1.06,
-        "momentum": -1.22,
-        "rs": -0.6,
-        "rsi": 1.09,
+        "macd": 1.29,
+        "momentum": -1.27,
+        "rs": -0.53,
+        "rsi": 1.14,
         "trend": -2.5,
-        "vol_adj": -1.6
+        "vol_adj": -1.68
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 10.0888,
+        "atr14": 9.9817,
         "breakout_20d": true,
-        "donchian_high_20": 207.98,
-        "macd_hist": 5.3198,
-        "mom_12_1": 0.368,
+        "donchian_high_20": 208.82,
+        "macd_hist": 4.7807,
+        "mom_12_1": 0.4121,
         "near_sma_fast": false,
-        "rs_6m": 0.0175,
-        "rsi14": 83.51,
-        "sma200": 140.2958,
-        "sma50": 137.7324,
+        "rs_6m": 0.0647,
+        "rsi14": 84.9,
+        "sma200": 140.6935,
+        "sma50": 139.4642,
         "trend_ok": false,
-        "vol_63d_ann": 0.7791
+        "vol_63d_ann": 0.7797
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "DDOG",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 179.794,
-      "price_usd": 208.82,
+      "price_eur": 184.5965,
+      "price_usd": 215.15,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 46,
@@ -1892,21 +1897,20 @@
       "sector": "Data",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:22Z",
+          "as_of": "2026-05-19T23:40:56Z",
           "key": "strongBuy",
           "n_analysts": 47,
           "score": 2,
-          "target_upside_pct": 0.068
+          "target_upside_pct": 0.0366
         },
         "news": {
-          "as_of": "2026-05-18T23:36:22Z",
-          "compound": 0.1698,
-          "label": "POS",
+          "as_of": "2026-05-19T23:40:56Z",
+          "compound": 0.0266,
+          "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        102.615,
         104.43,
         110.33,
         116.46,
@@ -1965,7 +1969,8 @@
         205.31,
         202.84,
         207.98,
-        208.82
+        208.82,
+        215.15
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -1975,58 +1980,57 @@
     "DELL": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.1,
-        "momentum": -0.89,
-        "rs": 0.1,
-        "rsi": 0.45,
+        "macd": -0.02,
+        "momentum": -0.87,
+        "rs": 0.08,
+        "rsi": 0.41,
         "trend": 2.5,
-        "vol_adj": -0.85
+        "vol_adj": -0.81
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 12.6859,
+        "atr14": 12.6726,
         "breakout_20d": false,
         "donchian_high_20": 260.46,
-        "macd_hist": -0.2204,
-        "mom_12_1": 1.3418,
+        "macd_hist": -1.0953,
+        "mom_12_1": 1.4956,
         "near_sma_fast": false,
-        "rs_6m": 0.6851,
-        "rsi14": 60.56,
-        "sma200": 146.8542,
-        "sma50": 192.0116,
+        "rs_6m": 0.6738,
+        "rsi14": 58.83,
+        "sma200": 147.4009,
+        "sma50": 193.7957,
         "trend_ok": true,
-        "vol_63d_ann": 0.6864
+        "vol_63d_ann": 0.6879
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "DELL",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 204.9438,
-      "price_usd": 238.03,
+      "price_eur": 201.8507,
+      "price_usd": 235.26,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 51,
       "score_delta_1d": 0,
-      "score_delta_5d": -1,
+      "score_delta_5d": 0,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:17Z",
+          "as_of": "2026-05-19T23:40:52Z",
           "key": "buy",
           "n_analysts": 23,
           "score": 1,
-          "target_upside_pct": -0.1585
+          "target_upside_pct": -0.1368
         },
         "news": {
-          "as_of": "2026-05-18T23:36:18Z",
-          "compound": 0.1878,
-          "label": "POS",
+          "as_of": "2026-05-19T23:40:52Z",
+          "compound": 0.0636,
+          "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        118.7725,
         119.4105,
         123.0991,
         121.0754,
@@ -2085,7 +2089,8 @@
         243.87,
         247.89,
         241.99,
-        238.03
+        238.03,
+        235.26
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -2095,35 +2100,35 @@
     "ETN": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -1.18,
+        "macd": -0.5,
+        "momentum": -1.22,
         "rs": -0.64,
-        "rsi": -0.85,
+        "rsi": -0.93,
         "trend": 2.5,
-        "vol_adj": -1.21
+        "vol_adj": -1.23
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 15.4037,
+        "atr14": 15.3232,
         "breakout_20d": false,
         "donchian_high_20": 431.8167,
-        "macd_hist": -4.5766,
-        "mom_12_1": 0.4839,
-        "near_sma_fast": true,
-        "rs_6m": -0.0205,
-        "rsi14": 41.55,
-        "sma200": 361.7976,
-        "sma50": 387.0733,
+        "macd_hist": -5.8136,
+        "mom_12_1": 0.5329,
+        "near_sma_fast": false,
+        "rs_6m": -0.0367,
+        "rsi14": 38.29,
+        "sma200": 361.7724,
+        "sma50": 387.4749,
         "trend_ok": true,
-        "vol_63d_ann": 0.3903
+        "vol_63d_ann": 0.3896
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "ETN",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 328.7901,
-      "price_usd": 381.87,
+      "price_eur": 319.0693,
+      "price_usd": 371.88,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 48,
@@ -2132,21 +2137,20 @@
       "sector": "AI Power",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:19Z",
+          "as_of": "2026-05-19T23:40:53Z",
           "key": "buy",
           "n_analysts": 28,
           "score": 1,
-          "target_upside_pct": 0.1809
+          "target_upside_pct": 0.2126
         },
         "news": {
-          "as_of": "2026-05-18T23:36:19Z",
-          "compound": 0.0943,
+          "as_of": "2026-05-19T23:40:53Z",
+          "compound": 0.0961,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        359.9299,
         372.3667,
         371.3427,
         372.3965,
@@ -2205,7 +2209,8 @@
         406.94,
         408.1,
         399.44,
-        381.87
+        381.87,
+        371.88
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -2215,25 +2220,25 @@
     "GEV": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -0.64,
-        "rs": 0.13,
-        "rsi": -0.53,
+        "macd": -0.5,
+        "momentum": -0.68,
+        "rs": 0.06,
+        "rsi": -0.42,
         "trend": 2.5,
-        "vol_adj": 0.26
+        "vol_adj": 0.2
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 48.0488,
+        "atr14": 47.5025,
         "breakout_20d": false,
         "donchian_high_20": 1149.53,
-        "macd_hist": -13.1674,
-        "mom_12_1": 2.061,
+        "macd_hist": -14.7434,
+        "mom_12_1": 2.0263,
         "near_sma_fast": true,
-        "rs_6m": 0.7106,
-        "rsi14": 46.28,
-        "sma200": 732.9623,
-        "sma50": 970.883,
+        "rs_6m": 0.6537,
+        "rsi14": 46.22,
+        "sma200": 734.7445,
+        "sma50": 974.527,
         "trend_ok": true,
         "vol_63d_ann": 0.4956
       },
@@ -2242,8 +2247,8 @@
       "name": "GEV",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 871.5473,
-      "price_usd": 1012.25,
+      "price_eur": 868.1143,
+      "price_usd": 1011.8,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 51,
@@ -2252,21 +2257,20 @@
       "sector": "AI Power",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:19Z",
+          "as_of": "2026-05-19T23:40:53Z",
           "key": "buy",
           "n_analysts": 32,
           "score": 1,
-          "target_upside_pct": 0.2024
+          "target_upside_pct": 0.203
         },
         "news": {
-          "as_of": "2026-05-18T23:36:19Z",
-          "compound": 0.0675,
+          "as_of": "2026-05-19T23:40:53Z",
+          "compound": 0.0462,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        831.1974,
         879.1983,
         875.4806,
         875.9304,
@@ -2325,7 +2329,8 @@
         1062.5699,
         1090.53,
         1049.23,
-        1012.25
+        1012.25,
+        1011.8
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -2333,37 +2338,37 @@
       "weight": null
     },
     "GOOG": {
-      "drawdown_vs_basis": 1.0488,
+      "drawdown_vs_basis": 0.999,
       "factor_contributions": {
-        "macd": 0.11,
-        "momentum": -0.95,
+        "macd": 0.06,
+        "momentum": -0.99,
         "rs": -0.3,
-        "rsi": 1.07,
+        "rsi": 0.63,
         "trend": 2.5,
-        "vol_adj": -0.09
+        "vol_adj": -0.12
       },
       "holding_action": "HOLD",
       "indicators": {
-        "atr14": 9.6976,
+        "atr14": 9.7477,
         "breakout_20d": false,
         "donchian_high_20": 399.04,
-        "macd_hist": -0.332,
-        "mom_12_1": 1.1463,
+        "macd_hist": -1.443,
+        "mom_12_1": 1.1644,
         "near_sma_fast": false,
-        "rs_6m": 0.3049,
-        "rsi14": 69.66,
-        "sma200": 292.0119,
-        "sma50": 332.6798,
+        "rs_6m": 0.2933,
+        "rsi14": 62.3,
+        "sma200": 292.9888,
+        "sma50": 334.2576,
         "trend_ok": true,
-        "vol_63d_ann": 0.3307
+        "vol_63d_ann": 0.3345
       },
       "is_holding": true,
       "is_pullback": false,
       "name": "Alphabet (C)",
       "next_earnings": "2026-07-23",
-      "next_earnings_in_days": 66,
-      "price_eur": 338.4677,
-      "price_usd": 393.11,
+      "next_earnings_in_days": 65,
+      "price_eur": 330.2404,
+      "price_usd": 384.9,
       "prior_action": "HOLD",
       "prior_verdict": "WATCH",
       "score": 52,
@@ -2372,21 +2377,20 @@
       "sector": "AI/Cloud",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:13Z",
+          "as_of": "2026-05-19T23:40:48Z",
           "key": "strongBuy",
           "n_analysts": 16,
           "score": 2,
-          "target_upside_pct": 0.0695
+          "target_upside_pct": 0.0956
         },
         "news": {
-          "as_of": "2026-05-18T23:36:13Z",
-          "compound": 0.109,
+          "as_of": "2026-05-19T23:40:48Z",
+          "compound": 0.1372,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        311.4706,
         310.7011,
         312.8096,
         306.9338,
@@ -2445,68 +2449,68 @@
         399.04,
         397.17,
         393.32,
-        393.11
+        393.11,
+        384.9
       ],
-      "stop_loss_eur": 321.7684,
+      "stop_loss_eur": 313.5135,
       "suggested_add_eur": null,
       "verdict": "WATCH",
-      "weight": 0.1898
+      "weight": 0.191
     },
     "IONQ": {
-      "drawdown_vs_basis": 2.7907,
+      "drawdown_vs_basis": 2.7108,
       "factor_contributions": {
-        "macd": 0.05,
+        "macd": -0.48,
         "momentum": -1.07,
-        "rs": -0.63,
-        "rsi": 0.0,
+        "rs": -0.67,
+        "rsi": 0.01,
         "trend": -2.5,
-        "vol_adj": -1.41
+        "vol_adj": -1.43
       },
       "holding_action": "HOLD",
       "indicators": {
-        "atr14": 4.3891,
+        "atr14": 4.358,
         "breakout_20d": false,
         "donchian_high_20": 57.47,
-        "macd_hist": -0.0759,
-        "mom_12_1": 0.8146,
+        "macd_hist": -0.47,
+        "mom_12_1": 0.9666,
         "near_sma_fast": false,
-        "rs_6m": -0.0193,
-        "rsi14": 54.12,
-        "sma200": 47.0248,
-        "sma50": 39.2546,
+        "rs_6m": -0.0715,
+        "rsi14": 52.69,
+        "sma200": 47.0764,
+        "sma50": 39.506,
         "trend_ok": false,
-        "vol_63d_ann": 0.9729
+        "vol_63d_ann": 0.9741
       },
       "is_holding": true,
       "is_pullback": false,
       "name": "IonQ",
       "next_earnings": "2026-08-05",
-      "next_earnings_in_days": 79,
-      "price_eur": 42.4559,
-      "price_usd": 49.31,
+      "next_earnings_in_days": 78,
+      "price_eur": 41.561,
+      "price_usd": 48.44,
       "prior_action": "HOLD",
       "prior_verdict": "WATCH",
       "score": 44,
-      "score_delta_1d": -1,
+      "score_delta_1d": 0,
       "score_delta_5d": -1,
       "sector": "Quantum",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:15Z",
+          "as_of": "2026-05-19T23:40:49Z",
           "key": "strongBuy",
-          "n_analysts": 14,
+          "n_analysts": 13,
           "score": 2,
-          "target_upside_pct": 0.3461
+          "target_upside_pct": 0.3963
         },
         "news": {
-          "as_of": "2026-05-18T23:36:15Z",
-          "compound": 0.0328,
+          "as_of": "2026-05-19T23:40:49Z",
+          "compound": -0.0013,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        30.78,
         31.62,
         33.59,
         40.88,
@@ -2565,45 +2569,46 @@
         55.26,
         57.47,
         51.95,
-        49.31
+        49.31,
+        48.44
       ],
-      "stop_loss_eur": 34.8979,
+      "stop_loss_eur": 34.0828,
       "suggested_add_eur": null,
       "verdict": "WATCH",
-      "weight": 0.1524
+      "weight": 0.1538
     },
     "IREN": {
-      "drawdown_vs_basis": 4.8711,
+      "drawdown_vs_basis": 4.5352,
       "factor_contributions": {
-        "macd": -0.49,
-        "momentum": 1.37,
-        "rs": -0.69,
-        "rsi": -0.28,
+        "macd": -0.5,
+        "momentum": 1.46,
+        "rs": -0.67,
+        "rsi": -0.38,
         "trend": 2.5,
-        "vol_adj": 2.22
+        "vol_adj": 2.32
       },
       "holding_action": "HOLD",
       "indicators": {
-        "atr14": 4.9209,
+        "atr14": 4.89,
         "breakout_20d": false,
         "donchian_high_20": 61.2,
-        "macd_hist": -0.3864,
-        "mom_12_1": 7.8294,
-        "near_sma_fast": false,
-        "rs_6m": -0.0682,
-        "rsi14": 49.96,
-        "sma200": 44.0306,
-        "sma50": 44.9964,
+        "macd_hist": -0.8576,
+        "mom_12_1": 7.9068,
+        "near_sma_fast": true,
+        "rs_6m": -0.0686,
+        "rsi14": 46.72,
+        "sma200": 44.1923,
+        "sma50": 45.1744,
         "trend_ok": true,
-        "vol_63d_ann": 0.9721
+        "vol_63d_ann": 0.9779
       },
       "is_holding": true,
       "is_pullback": false,
       "name": "IREN",
       "next_earnings": "2026-05-07",
-      "next_earnings_in_days": -11,
-      "price_eur": 43.4461,
-      "price_usd": 50.46,
+      "next_earnings_in_days": -12,
+      "price_eur": 40.9604,
+      "price_usd": 47.74,
       "prior_action": "HOLD",
       "prior_verdict": "WATCH",
       "score": 55,
@@ -2613,14 +2618,13 @@
       "sentiment": {
         "analyst": null,
         "news": {
-          "as_of": "2026-05-18T23:36:14Z",
+          "as_of": "2026-05-19T23:40:49Z",
           "compound": 0.1482,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        42.36,
         45.45,
         44.03,
         44.24,
@@ -2679,45 +2683,46 @@
         55.17,
         58.4,
         52.94,
-        50.46
+        50.46,
+        47.74
       ],
-      "stop_loss_eur": 34.9723,
+      "stop_loss_eur": 32.5693,
       "suggested_add_eur": null,
       "verdict": "WATCH",
-      "weight": 0.3167
+      "weight": 0.308
     },
     "MDB": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 1.06,
-        "momentum": -1.12,
-        "rs": -0.79,
-        "rsi": 1.09,
+        "macd": 1.29,
+        "momentum": -1.18,
+        "rs": -0.75,
+        "rsi": 1.14,
         "trend": -2.5,
-        "vol_adj": -1.4
+        "vol_adj": -1.51
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 17.1062,
+        "atr14": 17.2564,
         "breakout_20d": true,
-        "donchian_high_20": 312.16,
-        "macd_hist": 5.975,
-        "mom_12_1": 0.6609,
+        "donchian_high_20": 330.0,
+        "macd_hist": 6.3519,
+        "mom_12_1": 0.6503,
         "near_sma_fast": false,
-        "rs_6m": -0.1656,
-        "rsi14": 73.19,
-        "sma200": 320.4104,
-        "sma50": 263.8432,
+        "rs_6m": -0.149,
+        "rsi14": 74.33,
+        "sma200": 320.979,
+        "sma50": 265.102,
         "trend_ok": false,
-        "vol_63d_ann": 0.7732
+        "vol_63d_ann": 0.7721
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "MDB",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 284.13,
-      "price_usd": 330.0,
+      "price_eur": 287.1521,
+      "price_usd": 334.68,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 46,
@@ -2726,21 +2731,20 @@
       "sector": "Data",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:22Z",
+          "as_of": "2026-05-19T23:40:56Z",
           "key": "buy",
           "n_analysts": 36,
           "score": 1,
-          "target_upside_pct": 0.0623
+          "target_upside_pct": 0.0638
         },
         "news": {
-          "as_of": "2026-05-18T23:36:22Z",
-          "compound": 0.2955,
+          "as_of": "2026-05-19T23:40:56Z",
+          "compound": 0.2168,
           "label": "POS",
-          "n_headlines": 6
+          "n_headlines": 7
         }
       },
       "spark": [
-        305.37,
         312.51,
         314.99,
         336.61,
@@ -2799,7 +2803,8 @@
         303.0,
         303.09,
         312.16,
-        330.0
+        330.0,
+        334.68
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -2809,35 +2814,35 @@
     "META": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.16,
-        "momentum": -1.24,
-        "rs": -0.72,
-        "rsi": -0.65,
+        "macd": 0.03,
+        "momentum": -1.29,
+        "rs": -0.71,
+        "rsi": -0.73,
         "trend": -2.5,
-        "vol_adj": -1.43
+        "vol_adj": -1.51
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 16.6875,
+        "atr14": 16.4506,
         "breakout_20d": false,
         "donchian_high_20": 678.62,
-        "macd_hist": -2.3628,
-        "mom_12_1": 0.3244,
-        "near_sma_fast": true,
-        "rs_6m": -0.1015,
-        "rsi14": 44.51,
-        "sma200": 671.7947,
-        "sma50": 621.1429,
+        "macd_hist": -2.4343,
+        "mom_12_1": 0.3398,
+        "near_sma_fast": false,
+        "rs_6m": -0.1078,
+        "rsi14": 41.47,
+        "sma200": 671.0664,
+        "sma50": 620.2584,
         "trend_ok": false,
-        "vol_63d_ann": 0.399
+        "vol_63d_ann": 0.3997
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "META",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 526.2519,
-      "price_usd": 611.21,
+      "price_eur": 517.0334,
+      "price_usd": 602.61,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 43,
@@ -2846,21 +2851,20 @@
       "sector": "AI",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:20Z",
+          "as_of": "2026-05-19T23:40:54Z",
           "key": "strongBuy",
           "n_analysts": 58,
           "score": 2,
-          "target_upside_pct": 0.3525
+          "target_upside_pct": 0.3719
         },
         "news": {
-          "as_of": "2026-05-18T23:36:21Z",
-          "compound": 0.1038,
+          "as_of": "2026-05-19T23:40:55Z",
+          "compound": 0.0886,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        636.7049,
         638.7531,
         653.1308,
         656.448,
@@ -2919,7 +2923,8 @@
         616.63,
         618.43,
         614.23,
-        611.21
+        611.21,
+        602.61
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -2929,58 +2934,57 @@
     "MP": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -0.85,
-        "rs": -0.74,
+        "macd": -0.5,
+        "momentum": -0.91,
+        "rs": -0.76,
         "rsi": -0.94,
         "trend": -2.5,
-        "vol_adj": -0.82
+        "vol_adj": -0.92
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 4.6008,
+        "atr14": 4.4243,
         "breakout_20d": false,
         "donchian_high_20": 72.65,
-        "macd_hist": -1.3566,
-        "mom_12_1": 1.4328,
+        "macd_hist": -1.6504,
+        "mom_12_1": 1.4014,
         "near_sma_fast": true,
-        "rs_6m": -0.1205,
-        "rsi14": 40.33,
-        "sma200": 63.1937,
-        "sma50": 59.251,
+        "rs_6m": -0.1615,
+        "rsi14": 38.18,
+        "sma200": 63.1499,
+        "sma50": 59.1436,
         "trend_ok": false,
-        "vol_63d_ann": 0.7145
+        "vol_63d_ann": 0.7163
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "MP",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 48.7929,
-      "price_usd": 56.67,
+      "price_eur": 47.1294,
+      "price_usd": 54.93,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 43,
-      "score_delta_1d": -1,
-      "score_delta_5d": -1,
+      "score_delta_1d": 0,
+      "score_delta_5d": 0,
       "sector": "Materials",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:25Z",
+          "as_of": "2026-05-19T23:40:59Z",
           "key": "strongBuy",
           "n_analysts": 14,
           "score": 2,
-          "target_upside_pct": 0.4268
+          "target_upside_pct": 0.472
         },
         "news": {
-          "as_of": "2026-05-18T23:36:25Z",
+          "as_of": "2026-05-19T23:40:59Z",
           "compound": 0.1158,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        55.7,
         58.44,
         58.66,
         60.0,
@@ -3039,7 +3043,8 @@
         63.73,
         60.31,
         61.27,
-        56.67
+        56.67,
+        54.93
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -3049,58 +3054,57 @@
     "MRVL": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.51,
-        "momentum": -0.79,
-        "rs": 0.25,
-        "rsi": 0.35,
+        "macd": -0.3,
+        "momentum": -0.74,
+        "rs": 0.36,
+        "rsi": 0.67,
         "trend": 2.5,
-        "vol_adj": -0.62
+        "vol_adj": -0.51
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 10.4984,
+        "atr14": 11.0905,
         "breakout_20d": false,
         "donchian_high_20": 182.58,
-        "macd_hist": -1.3352,
-        "mom_12_1": 1.6269,
+        "macd_hist": -1.3633,
+        "mom_12_1": 1.8546,
         "near_sma_fast": false,
-        "rs_6m": 0.8272,
-        "rsi14": 59.15,
-        "sma200": 93.5899,
-        "sma50": 129.7567,
+        "rs_6m": 0.9433,
+        "rsi14": 62.91,
+        "sma200": 94.0997,
+        "sma50": 131.43,
         "trend_ok": true,
-        "vol_63d_ann": 0.6764
+        "vol_63d_ann": 0.6787
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "MRVL",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 145.4487,
-      "price_usd": 168.93,
+      "price_eur": 151.2379,
+      "price_usd": 176.27,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 51,
-      "score_delta_1d": -1,
+      "score": 52,
+      "score_delta_1d": 1,
       "score_delta_5d": 0,
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:17Z",
+          "as_of": "2026-05-19T23:40:51Z",
           "key": "strongBuy",
           "n_analysts": 39,
           "score": 2,
-          "target_upside_pct": -0.175
+          "target_upside_pct": -0.1978
         },
         "news": {
-          "as_of": "2026-05-18T23:36:17Z",
-          "compound": -0.0225,
+          "as_of": "2026-05-19T23:40:51Z",
+          "compound": 0.008,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        77.7511,
         78.3508,
         80.8795,
         79.2503,
@@ -3159,7 +3163,8 @@
         177.95,
         182.58,
         176.89,
-        168.93
+        168.93,
+        176.27
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -3169,35 +3174,35 @@
     "MSFT": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.05,
-        "momentum": -1.32,
-        "rs": -0.89,
-        "rsi": 0.32,
+        "macd": 0.27,
+        "momentum": -1.37,
+        "rs": -0.88,
+        "rsi": 0.1,
         "trend": -2.5,
-        "vol_adj": -1.64
+        "vol_adj": -1.7
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 10.9507,
+        "atr14": 11.3263,
         "breakout_20d": false,
         "donchian_high_20": 432.92,
-        "macd_hist": -0.6145,
-        "mom_12_1": 0.1045,
+        "macd_hist": -0.5745,
+        "mom_12_1": 0.1336,
         "near_sma_fast": false,
-        "rs_6m": -0.2603,
-        "rsi14": 58.78,
-        "sma200": 461.3783,
-        "sma50": 399.3564,
+        "rs_6m": -0.2766,
+        "rsi14": 54.18,
+        "sma200": 460.8599,
+        "sma50": 399.5166,
         "trend_ok": false,
-        "vol_63d_ann": 0.2725
+        "vol_63d_ann": 0.2741
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "MSFT",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 364.668,
-      "price_usd": 423.54,
+      "price_eur": 358.1422,
+      "price_usd": 417.42,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 44,
@@ -3206,21 +3211,20 @@
       "sector": "AI/Cloud",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:20Z",
+          "as_of": "2026-05-19T23:40:54Z",
           "key": "strongBuy",
           "n_analysts": 54,
           "score": 2,
-          "target_upside_pct": 0.3237
+          "target_upside_pct": 0.3431
         },
         "news": {
-          "as_of": "2026-05-18T23:36:20Z",
-          "compound": 0.0228,
+          "as_of": "2026-05-19T23:40:54Z",
+          "compound": 0.0411,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        384.47,
         389.0,
         400.6,
         401.72,
@@ -3279,7 +3283,8 @@
         405.21,
         409.43,
         421.92,
-        423.54
+        423.54,
+        417.42
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -3289,35 +3294,35 @@
     "MU": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.93,
-        "momentum": 0.53,
-        "rs": 1.24,
-        "rsi": 0.38,
+        "macd": 0.45,
+        "momentum": 0.58,
+        "rs": 1.16,
+        "rsi": 0.57,
         "trend": 2.5,
-        "vol_adj": 1.69
+        "vol_adj": 1.8
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 48.9296,
+        "atr14": 50.7011,
         "breakout_20d": false,
         "donchian_high_20": 803.63,
-        "macd_hist": 5.8229,
-        "mom_12_1": 5.4212,
+        "macd_hist": 0.394,
+        "mom_12_1": 5.4834,
         "near_sma_fast": false,
-        "rs_6m": 1.7733,
-        "rsi14": 59.63,
-        "sma200": 309.8397,
-        "sma50": 492.4106,
+        "rs_6m": 1.735,
+        "rsi14": 61.3,
+        "sma200": 312.8097,
+        "sma50": 498.6023,
         "trend_ok": true,
-        "vol_63d_ann": 0.7752
+        "vol_63d_ann": 0.771
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "MU",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 586.8059,
-      "price_usd": 681.54,
+      "price_eur": 599.5119,
+      "price_usd": 698.74,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 57,
@@ -3326,21 +3331,20 @@
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:16Z",
+          "as_of": "2026-05-19T23:40:51Z",
           "key": "strongBuy",
           "n_analysts": 41,
           "score": 2,
-          "target_upside_pct": -0.1428
+          "target_upside_pct": -0.1232
         },
         "news": {
-          "as_of": "2026-05-18T23:36:17Z",
-          "compound": 0.0634,
+          "as_of": "2026-05-19T23:40:51Z",
+          "compound": 0.0795,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        420.7932,
         417.8345,
         428.8199,
         415.3855,
@@ -3399,7 +3403,8 @@
         803.63,
         776.01,
         724.66,
-        681.54
+        681.54,
+        698.74
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -3407,60 +3412,59 @@
       "weight": null
     },
     "NBIS": {
-      "drawdown_vs_basis": 3.4696,
+      "drawdown_vs_basis": 3.4065,
       "factor_contributions": {
-        "macd": 1.06,
-        "momentum": 0.86,
-        "rs": 0.58,
+        "macd": 1.2,
+        "momentum": 0.97,
+        "rs": 0.69,
         "rsi": 0.52,
         "trend": 2.5,
-        "vol_adj": 1.21
+        "vol_adj": 1.34
       },
       "holding_action": "HOLD",
       "indicators": {
-        "atr14": 17.3094,
+        "atr14": 17.4637,
         "breakout_20d": false,
         "donchian_high_20": 221.15,
-        "macd_hist": 3.0821,
-        "mom_12_1": 6.3671,
+        "macd_hist": 1.7703,
+        "mom_12_1": 6.5503,
         "near_sma_fast": false,
-        "rs_6m": 1.1496,
-        "rsi14": 61.58,
-        "sma200": 106.5785,
-        "sma50": 142.8221,
+        "rs_6m": 1.2687,
+        "rsi14": 60.57,
+        "sma200": 107.3072,
+        "sma50": 144.8779,
         "trend_ok": true,
-        "vol_63d_ann": 1.0526
+        "vol_63d_ann": 1.0515
       },
       "is_holding": true,
       "is_pullback": false,
       "name": "Nebius (A)",
       "next_earnings": "2026-08-06",
-      "next_earnings_in_days": 80,
-      "price_eur": 172.0795,
-      "price_usd": 199.86,
+      "next_earnings_in_days": 79,
+      "price_eur": 169.6504,
+      "price_usd": 197.73,
       "prior_action": "HOLD",
       "prior_verdict": "WATCH",
       "score": 57,
       "score_delta_1d": 0,
-      "score_delta_5d": 0,
+      "score_delta_5d": -1,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:14Z",
+          "as_of": "2026-05-19T23:40:48Z",
           "key": "buy",
           "n_analysts": 13,
           "score": 1,
-          "target_upside_pct": 0.1547
+          "target_upside_pct": 0.1671
         },
         "news": {
-          "as_of": "2026-05-18T23:36:14Z",
-          "compound": 0.0818,
+          "as_of": "2026-05-19T23:40:48Z",
+          "compound": 0.0004,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        100.61,
         102.58,
         106.12,
         104.88,
@@ -3519,68 +3523,68 @@
         207.27,
         221.15,
         219.94,
-        199.86
+        199.86,
+        197.73
       ],
-      "stop_loss_eur": 142.2727,
+      "stop_loss_eur": 139.683,
       "suggested_add_eur": null,
       "verdict": "WATCH",
-      "weight": 0.2123
+      "weight": 0.2159
     },
     "NET": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -1.06,
-        "rs": -0.78,
-        "rsi": -0.43,
-        "trend": -2.5,
-        "vol_adj": -1.35
+        "macd": -0.5,
+        "momentum": -1.1,
+        "rs": -0.72,
+        "rsi": -0.18,
+        "trend": 2.5,
+        "vol_adj": -1.43
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 13.7259,
+        "atr14": 13.3347,
         "breakout_20d": false,
         "donchian_high_20": 256.79,
-        "macd_hist": -3.0178,
-        "mom_12_1": 0.8416,
+        "macd_hist": -2.2596,
+        "mom_12_1": 0.8696,
         "near_sma_fast": true,
-        "rs_6m": -0.1606,
-        "rsi14": 47.73,
-        "sma200": 204.0291,
-        "sma50": 207.8156,
-        "trend_ok": false,
-        "vol_63d_ann": 0.8674
+        "rs_6m": -0.1166,
+        "rsi14": 49.91,
+        "sma200": 204.0622,
+        "sma50": 207.9206,
+        "trend_ok": true,
+        "vol_63d_ann": 0.8683
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "NET",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 173.7068,
-      "price_usd": 201.75,
+      "price_eur": 177.3723,
+      "price_usd": 206.73,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 43,
-      "score_delta_1d": 0,
-      "score_delta_5d": 1,
+      "score": 49,
+      "score_delta_1d": 6,
+      "score_delta_5d": 7,
       "sector": "AI Edge",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:21Z",
+          "as_of": "2026-05-19T23:40:55Z",
           "key": "buy",
           "n_analysts": 31,
           "score": 1,
-          "target_upside_pct": 0.1607
+          "target_upside_pct": 0.1328
         },
         "news": {
-          "as_of": "2026-05-18T23:36:22Z",
-          "compound": 0.0754,
+          "as_of": "2026-05-19T23:40:56Z",
+          "compound": -0.0113,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        160.19,
         163.81,
         171.8,
         174.66,
@@ -3639,7 +3643,8 @@
         192.62,
         199.81,
         197.56,
-        201.75
+        201.75,
+        206.73
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -3647,37 +3652,37 @@
       "weight": null
     },
     "NVDA": {
-      "drawdown_vs_basis": 0.7402,
+      "drawdown_vs_basis": 0.7207,
       "factor_contributions": {
-        "macd": 0.68,
+        "macd": 0.66,
         "momentum": -1.08,
-        "rs": -0.53,
-        "rsi": 0.52,
+        "rs": -0.54,
+        "rsi": 0.48,
         "trend": 2.5,
-        "vol_adj": -0.77
+        "vol_adj": -0.65
       },
       "holding_action": "HOLD",
       "indicators": {
-        "atr14": 7.7921,
+        "atr14": 7.7048,
         "breakout_20d": false,
         "donchian_high_20": 235.74,
-        "macd_hist": 1.2576,
-        "mom_12_1": 0.7979,
+        "macd_hist": 0.6421,
+        "mom_12_1": 0.9342,
         "near_sma_fast": false,
-        "rs_6m": 0.0845,
-        "rsi14": 61.66,
-        "sma200": 186.1814,
-        "sma50": 193.9608,
+        "rs_6m": 0.062,
+        "rsi14": 59.95,
+        "sma200": 186.416,
+        "sma50": 194.7202,
         "trend_ok": true,
-        "vol_63d_ann": 0.3786
+        "vol_63d_ann": 0.3782
       },
       "is_holding": true,
       "is_pullback": false,
       "name": "NVIDIA",
       "next_earnings": "2026-05-20",
-      "next_earnings_in_days": 2,
-      "price_eur": 191.4175,
-      "price_usd": 222.32,
+      "next_earnings_in_days": 1,
+      "price_eur": 189.2812,
+      "price_usd": 220.61,
       "prior_action": "HOLD",
       "prior_verdict": "WATCH",
       "score": 51,
@@ -3686,21 +3691,20 @@
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:14Z",
+          "as_of": "2026-05-19T23:40:48Z",
           "key": "strongBuy",
           "n_analysts": 57,
           "score": 2,
-          "target_upside_pct": 0.2277
+          "target_upside_pct": 0.2479
         },
         "news": {
-          "as_of": "2026-05-18T23:36:14Z",
-          "compound": 0.0446,
+          "as_of": "2026-05-19T23:40:48Z",
+          "compound": -0.0443,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        191.5396,
         192.8396,
         195.5494,
         184.88,
@@ -3759,68 +3763,68 @@
         225.83,
         235.74,
         225.32,
-        222.32
+        222.32,
+        220.61
       ],
-      "stop_loss_eur": 177.9995,
+      "stop_loss_eur": 176.0599,
       "suggested_add_eur": null,
       "verdict": "WATCH",
-      "weight": 0.1288
+      "weight": 0.1314
     },
     "PLTR": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.06,
-        "momentum": -1.18,
-        "rs": -0.95,
-        "rsi": -0.62,
+        "macd": 0.27,
+        "momentum": -1.21,
+        "rs": -0.92,
+        "rsi": -0.49,
         "trend": -2.5,
-        "vol_adj": -1.34
+        "vol_adj": -1.35
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 6.0059,
+        "atr14": 5.8526,
         "breakout_20d": false,
         "donchian_high_20": 152.62,
-        "macd_hist": -0.3639,
-        "mom_12_1": 0.4877,
+        "macd_hist": -0.1915,
+        "mom_12_1": 0.5736,
         "near_sma_fast": false,
-        "rs_6m": -0.3203,
-        "rsi14": 45.02,
-        "sma200": 163.2384,
-        "sma50": 143.9632,
+        "rs_6m": -0.3209,
+        "rsi14": 45.18,
+        "sma200": 163.1433,
+        "sma50": 143.5398,
         "trend_ok": false,
-        "vol_63d_ann": 0.5002
+        "vol_63d_ann": 0.499
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "PLTR",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 116.3555,
-      "price_usd": 135.14,
+      "price_eur": 116.0517,
+      "price_usd": 135.26,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 43,
-      "score_delta_1d": 0,
-      "score_delta_5d": 1,
+      "score": 44,
+      "score_delta_1d": 1,
+      "score_delta_5d": 2,
       "sector": "AI",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:21Z",
+          "as_of": "2026-05-19T23:40:55Z",
           "key": "buy",
           "n_analysts": 27,
           "score": 1,
-          "target_upside_pct": 0.3595
+          "target_upside_pct": 0.3583
         },
         "news": {
-          "as_of": "2026-05-18T23:36:21Z",
-          "compound": 0.1547,
-          "label": "POS",
+          "as_of": "2026-05-19T23:40:55Z",
+          "compound": 0.0936,
+          "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        130.6,
         128.84,
         134.19,
         135.94,
@@ -3879,7 +3883,8 @@
         130.05,
         133.73,
         133.99,
-        135.14
+        135.14,
+        135.26
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -3889,35 +3894,35 @@
     "QBTS": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -0.61,
-        "rs": -0.92,
-        "rsi": -0.56,
+        "macd": -0.5,
+        "momentum": -0.56,
+        "rs": -0.93,
+        "rsi": -0.61,
         "trend": -2.5,
-        "vol_adj": -0.66
+        "vol_adj": -0.6
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 1.827,
+        "atr14": 1.7965,
         "breakout_20d": false,
         "donchian_high_20": 24.03,
-        "macd_hist": -0.3023,
-        "mom_12_1": 2.1344,
+        "macd_hist": -0.4731,
+        "mom_12_1": 2.3634,
         "near_sma_fast": true,
-        "rs_6m": -0.2905,
-        "rsi14": 45.91,
-        "sma200": 22.8621,
-        "sma50": 18.2236,
+        "rs_6m": -0.3278,
+        "rsi14": 43.23,
+        "sma200": 22.8712,
+        "sma50": 18.2066,
         "trend_ok": false,
-        "vol_63d_ann": 0.9173
+        "vol_63d_ann": 0.9196
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "QBTS",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 16.4107,
-      "price_usd": 19.06,
+      "price_eur": 15.6068,
+      "price_usd": 18.19,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 44,
@@ -3926,21 +3931,20 @@
       "sector": "Quantum",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:24Z",
+          "as_of": "2026-05-19T23:40:57Z",
           "key": "strongBuy",
           "n_analysts": 15,
           "score": 2,
-          "target_upside_pct": 0.8453
+          "target_upside_pct": 0.9336
         },
         "news": {
-          "as_of": "2026-05-18T23:36:24Z",
-          "compound": 0.0197,
+          "as_of": "2026-05-19T23:40:58Z",
+          "compound": 0.1047,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        18.05,
         18.66,
         19.65,
         20.14,
@@ -3999,7 +4003,8 @@
         21.44,
         22.13,
         20.35,
-        19.06
+        19.06,
+        18.19
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4009,58 +4014,57 @@
     "RGTI": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -0.9,
+        "macd": -0.5,
+        "momentum": -0.91,
         "rs": -1.08,
-        "rsi": -0.61,
+        "rsi": -0.64,
         "trend": -2.5,
-        "vol_adj": -1.02
+        "vol_adj": -1.04
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 1.5856,
+        "atr14": 1.5652,
         "breakout_20d": false,
         "donchian_high_20": 20.51,
-        "macd_hist": -0.1752,
-        "mom_12_1": 1.2981,
+        "macd_hist": -0.3085,
+        "mom_12_1": 1.3806,
         "near_sma_fast": true,
-        "rs_6m": -0.4459,
-        "rsi14": 45.16,
-        "sma200": 23.0198,
-        "sma50": 16.6429,
+        "rs_6m": -0.4718,
+        "rsi14": 42.77,
+        "sma200": 23.029,
+        "sma50": 16.6101,
         "trend_ok": false,
-        "vol_63d_ann": 0.7989
+        "vol_63d_ann": 0.7997
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "RGTI",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 14.3098,
-      "price_usd": 16.62,
+      "price_eur": 13.6935,
+      "price_usd": 15.96,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 43,
-      "score_delta_1d": -1,
+      "score_delta_1d": 0,
       "score_delta_5d": -1,
       "sector": "Quantum",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:23Z",
+          "as_of": "2026-05-19T23:40:57Z",
           "key": "buy",
           "n_analysts": 12,
           "score": 1,
-          "target_upside_pct": 0.7595
+          "target_upside_pct": 0.8322
         },
         "news": {
-          "as_of": "2026-05-18T23:36:23Z",
-          "compound": 0.0364,
+          "as_of": "2026-05-19T23:40:57Z",
+          "compound": 0.0076,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        16.02,
         16.48,
         17.63,
         18.64,
@@ -4119,7 +4123,8 @@
         18.415,
         19.27,
         17.85,
-        16.62
+        16.62,
+        15.96
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4129,58 +4134,57 @@
     "RKLB": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 1.06,
-        "momentum": -0.3,
-        "rs": 1.26,
-        "rsi": 1.09,
+        "macd": 1.29,
+        "momentum": -0.15,
+        "rs": 1.12,
+        "rsi": 1.11,
         "trend": 2.5,
-        "vol_adj": -0.35
+        "vol_adj": -0.16
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 9.2292,
+        "atr14": 9.7079,
         "breakout_20d": false,
         "donchian_high_20": 132.55,
-        "macd_hist": 4.5542,
-        "mom_12_1": 3.0247,
+        "macd_hist": 3.8924,
+        "mom_12_1": 3.4786,
         "near_sma_fast": false,
-        "rs_6m": 1.7932,
-        "rsi14": 73.1,
-        "sma200": 65.3623,
-        "sma50": 80.4668,
+        "rs_6m": 1.6974,
+        "rsi14": 69.57,
+        "sma200": 65.7748,
+        "sma50": 81.5834,
         "trend_ok": true,
-        "vol_63d_ann": 1.0284
+        "vol_63d_ann": 1.0257
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "RKLB",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 112.9288,
-      "price_usd": 131.16,
+      "price_eur": 109.2307,
+      "price_usd": 127.31,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 55,
-      "score_delta_1d": 0,
-      "score_delta_5d": 1,
+      "score": 56,
+      "score_delta_1d": 1,
+      "score_delta_5d": 2,
       "sector": "Space",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:25Z",
+          "as_of": "2026-05-19T23:40:59Z",
           "key": "buy",
           "n_analysts": 15,
           "score": 1,
-          "target_upside_pct": -0.2312
+          "target_upside_pct": -0.2079
         },
         "news": {
-          "as_of": "2026-05-18T23:36:25Z",
-          "compound": 0.0393,
-          "label": "NEUTRAL",
+          "as_of": "2026-05-19T23:40:59Z",
+          "compound": 0.2071,
+          "label": "POS",
           "n_headlines": 10
         }
       },
       "spark": [
-        70.21,
         69.97,
         70.2,
         72.65,
@@ -4239,7 +4243,8 @@
         124.15,
         132.55,
         124.77,
-        131.16
+        131.16,
+        127.31
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4249,58 +4254,57 @@
     "SMCI": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.26,
-        "momentum": -1.4,
-        "rs": -0.85,
-        "rsi": -0.07,
+        "macd": 0.07,
+        "momentum": -1.45,
+        "rs": -0.86,
+        "rsi": -0.03,
         "trend": -2.5,
-        "vol_adj": -1.9
+        "vol_adj": -2.0
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 2.1373,
+        "atr14": 2.1189,
         "breakout_20d": false,
         "donchian_high_20": 35.37,
-        "macd_hist": 0.0275,
-        "mom_12_1": -0.147,
+        "macd_hist": -0.1107,
+        "mom_12_1": -0.0966,
         "near_sma_fast": false,
-        "rs_6m": -0.2262,
-        "rsi14": 53.03,
-        "sma200": 36.5127,
-        "sma50": 27.7726,
+        "rs_6m": -0.2591,
+        "rsi14": 52.11,
+        "sma200": 36.3823,
+        "sma50": 27.7442,
         "trend_ok": false,
-        "vol_63d_ann": 1.1323
+        "vol_63d_ann": 1.1322
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "SMCI",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 26.5619,
-      "price_usd": 30.85,
+      "price_eur": 26.2202,
+      "price_usd": 30.56,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 44,
-      "score_delta_1d": 0,
-      "score_delta_5d": 0,
+      "score": 43,
+      "score_delta_1d": -1,
+      "score_delta_5d": -1,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:17Z",
+          "as_of": "2026-05-19T23:40:51Z",
           "key": "hold",
           "n_analysts": 16,
           "score": 0,
-          "target_upside_pct": 0.1912
+          "target_upside_pct": 0.2026
         },
         "news": {
-          "as_of": "2026-05-18T23:36:17Z",
-          "compound": 0.4026,
+          "as_of": "2026-05-19T23:40:51Z",
+          "compound": 0.3114,
           "label": "POS",
           "n_headlines": 10
         }
       },
       "spark": [
-        30.71,
         31.13,
         33.6,
         32.28,
@@ -4359,7 +4363,8 @@
         32.0,
         33.03,
         31.04,
-        30.85
+        30.85,
+        30.56
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4369,58 +4374,57 @@
     "SMR": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": -1.41,
-        "rs": -1.3,
+        "macd": -0.5,
+        "momentum": -1.46,
+        "rs": -1.26,
         "rsi": -0.86,
         "trend": -2.5,
-        "vol_adj": -1.93
+        "vol_adj": -2.02
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 1.1446,
+        "atr14": 1.121,
         "breakout_20d": false,
         "donchian_high_20": 13.57,
-        "macd_hist": -0.1945,
-        "mom_12_1": -0.1775,
-        "near_sma_fast": true,
-        "rs_6m": -0.6527,
-        "rsi14": 41.46,
-        "sma200": 23.661,
-        "sma50": 11.5546,
+        "macd_hist": -0.2683,
+        "mom_12_1": -0.1179,
+        "near_sma_fast": false,
+        "rs_6m": -0.6501,
+        "rsi14": 39.49,
+        "sma200": 23.4891,
+        "sma50": 11.5126,
         "trend_ok": false,
-        "vol_63d_ann": 0.9191
+        "vol_63d_ann": 0.9219
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "SMR",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 9.0233,
-      "price_usd": 10.48,
+      "price_eur": 8.6314,
+      "price_usd": 10.06,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 41,
       "score_delta_1d": 0,
-      "score_delta_5d": -1,
+      "score_delta_5d": 0,
       "sector": "AI Power",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:20Z",
+          "as_of": "2026-05-19T23:40:53Z",
           "key": "hold",
           "n_analysts": 14,
           "score": 0,
-          "target_upside_pct": 0.5744
+          "target_upside_pct": 0.6402
         },
         "news": {
-          "as_of": "2026-05-18T23:36:20Z",
-          "compound": 0.0685,
+          "as_of": "2026-05-19T23:40:54Z",
+          "compound": 0.1084,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        12.6,
         13.43,
         13.18,
         13.33,
@@ -4479,7 +4483,8 @@
         11.96,
         12.06,
         11.23,
-        10.48
+        10.48,
+        10.06
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4489,58 +4494,57 @@
     "SNOW": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 1.06,
-        "momentum": -1.36,
-        "rs": -1.1,
-        "rsi": 0.62,
+        "macd": 1.29,
+        "momentum": -1.41,
+        "rs": -1.04,
+        "rsi": 0.9,
         "trend": -2.5,
-        "vol_adj": -1.85
+        "vol_adj": -1.93
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 8.4811,
+        "atr14": 8.7912,
         "breakout_20d": true,
-        "donchian_high_20": 157.47,
-        "macd_hist": 2.5204,
-        "mom_12_1": -0.0175,
+        "donchian_high_20": 164.24,
+        "macd_hist": 3.0326,
+        "mom_12_1": 0.0298,
         "near_sma_fast": false,
-        "rs_6m": -0.4661,
-        "rsi14": 63.05,
-        "sma200": 203.4918,
-        "sma50": 153.8562,
+        "rs_6m": -0.4385,
+        "rsi14": 66.43,
+        "sma200": 203.3145,
+        "sma50": 153.5904,
         "trend_ok": false,
-        "vol_63d_ann": 0.6362
+        "vol_63d_ann": 0.6395
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "SNOW",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 141.4107,
-      "price_usd": 164.24,
+      "price_eur": 145.4722,
+      "price_usd": 169.55,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 45,
-      "score_delta_1d": 1,
+      "score_delta_1d": 0,
       "score_delta_5d": 2,
       "sector": "Data",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:22Z",
+          "as_of": "2026-05-19T23:40:56Z",
           "key": "buy",
           "n_analysts": 48,
           "score": 1,
-          "target_upside_pct": 0.3983
+          "target_upside_pct": 0.3521
         },
         "news": {
-          "as_of": "2026-05-18T23:36:22Z",
-          "compound": 0.0815,
+          "as_of": "2026-05-19T23:40:56Z",
+          "compound": 0.0663,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        157.6,
         161.06,
         169.21,
         173.06,
@@ -4599,7 +4603,8 @@
         152.37,
         150.76,
         157.47,
-        164.24
+        164.24,
+        169.55
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4609,35 +4614,35 @@
     "TSLA": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.65,
-        "momentum": -1.15,
+        "macd": 0.42,
+        "momentum": -1.19,
         "rs": -0.7,
-        "rsi": -0.09,
+        "rsi": -0.15,
         "trend": -2.5,
-        "vol_adj": -1.11
+        "vol_adj": -1.14
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 17.1595,
+        "atr14": 17.1024,
         "breakout_20d": false,
         "donchian_high_20": 445.27,
-        "macd_hist": 2.205,
-        "mom_12_1": 0.5766,
-        "near_sma_fast": false,
-        "rs_6m": -0.0855,
-        "rsi14": 52.68,
-        "sma200": 407.9042,
-        "sma50": 387.0448,
+        "macd_hist": 0.1186,
+        "mom_12_1": 0.6249,
+        "near_sma_fast": true,
+        "rs_6m": -0.0988,
+        "rsi14": 50.3,
+        "sma200": 408.4116,
+        "sma50": 387.1534,
         "trend_ok": false,
-        "vol_63d_ann": 0.4023
+        "vol_63d_ann": 0.4033
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "TSLA",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 353.0014,
-      "price_usd": 409.99,
+      "price_eur": 346.7223,
+      "price_usd": 404.11,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 45,
@@ -4646,21 +4651,20 @@
       "sector": "AI/Auto",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:23Z",
+          "as_of": "2026-05-19T23:40:57Z",
           "key": "buy",
           "n_analysts": 41,
           "score": 1,
-          "target_upside_pct": 0.0046
+          "target_upside_pct": 0.0192
         },
         "news": {
-          "as_of": "2026-05-18T23:36:23Z",
-          "compound": -0.2218,
-          "label": "NEG",
+          "as_of": "2026-05-19T23:40:57Z",
+          "compound": 0.0599,
+          "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        399.83,
         409.38,
         417.4,
         408.58,
@@ -4719,7 +4723,8 @@
         445.27,
         443.3,
         422.24,
-        409.99
+        409.99,
+        404.11
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4729,35 +4734,35 @@
     "TSM": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.24,
-        "momentum": -0.87,
-        "rs": -0.3,
+        "macd": -0.23,
+        "momentum": -0.89,
+        "rs": -0.31,
         "rsi": -0.13,
         "trend": 2.5,
-        "vol_adj": -0.21
+        "vol_adj": -0.17
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 15.1903,
+        "atr14": 15.0943,
         "breakout_20d": false,
         "donchian_high_20": 419.5,
-        "macd_hist": -1.9187,
-        "mom_12_1": 1.3841,
+        "macd_hist": -2.7181,
+        "mom_12_1": 1.4446,
         "near_sma_fast": false,
-        "rs_6m": 0.3055,
-        "rsi14": 52.21,
-        "sma200": 313.3957,
-        "sma50": 368.6177,
+        "rs_6m": 0.2879,
+        "rsi14": 50.63,
+        "sma200": 314.1928,
+        "sma50": 369.5155,
         "trend_ok": true,
-        "vol_63d_ann": 0.428
+        "vol_63d_ann": 0.4282
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "TSM",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 340.913,
-      "price_usd": 395.95,
+      "price_eur": 336.8555,
+      "price_usd": 392.61,
       "prior_action": null,
       "prior_verdict": "WATCH",
       "score": 51,
@@ -4766,21 +4771,20 @@
       "sector": "Semis",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:15Z",
+          "as_of": "2026-05-19T23:40:50Z",
           "key": "strongBuy",
           "n_analysts": 18,
           "score": 2,
-          "target_upside_pct": 0.1705
+          "target_upside_pct": 0.1916
         },
         "news": {
-          "as_of": "2026-05-18T23:36:15Z",
-          "compound": 0.0982,
+          "as_of": "2026-05-19T23:40:50Z",
+          "compound": 0.0105,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        369.0002,
         384.6661,
         386.6405,
         375.7512,
@@ -4839,7 +4843,8 @@
         399.8,
         417.72,
         404.35,
-        395.95
+        395.95,
+        392.61
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4849,58 +4854,57 @@
     "VRT": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": 0.11,
-        "momentum": -0.23,
-        "rs": 0.4,
-        "rsi": -0.02,
+        "macd": -0.49,
+        "momentum": -0.18,
+        "rs": 0.2,
+        "rsi": -0.33,
         "trend": 2.5,
-        "vol_adj": 0.93
+        "vol_adj": 1.04
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 18.5452,
+        "atr14": 19.0341,
         "breakout_20d": false,
         "donchian_high_20": 376.23,
-        "macd_hist": -0.2654,
-        "mom_12_1": 3.2322,
+        "macd_hist": -3.1891,
+        "mom_12_1": 3.3936,
         "near_sma_fast": false,
-        "rs_6m": 0.972,
-        "rsi14": 53.69,
-        "sma200": 204.0227,
-        "sma50": 298.5964,
+        "rs_6m": 0.79,
+        "rsi14": 47.52,
+        "sma200": 204.9285,
+        "sma50": 299.7633,
         "trend_ok": true,
-        "vol_63d_ann": 0.5881
+        "vol_63d_ann": 0.5989
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "VRT",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 292.5076,
-      "price_usd": 339.73,
+      "price_eur": 276.8133,
+      "price_usd": 322.63,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 54,
+      "score": 53,
       "score_delta_1d": -1,
-      "score_delta_5d": -2,
+      "score_delta_5d": -3,
       "sector": "AI Power",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:18Z",
+          "as_of": "2026-05-19T23:40:52Z",
           "key": "buy",
-          "n_analysts": 25,
+          "n_analysts": 26,
           "score": 1,
-          "target_upside_pct": 0.0559
+          "target_upside_pct": 0.121
         },
         "news": {
-          "as_of": "2026-05-18T23:36:19Z",
-          "compound": 0.0319,
+          "as_of": "2026-05-19T23:40:53Z",
+          "compound": 0.0659,
           "label": "NEUTRAL",
           "n_headlines": 10
         }
       },
       "spark": [
-        245.3616,
         253.0898,
         262.1276,
         259.1683,
@@ -4959,7 +4963,8 @@
         369.99,
         376.23,
         370.94,
-        339.73
+        339.73,
+        322.63
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
@@ -4969,58 +4974,57 @@
     "WULF": {
       "drawdown_vs_basis": null,
       "factor_contributions": {
-        "macd": -0.7,
-        "momentum": 1.44,
-        "rs": 0.12,
-        "rsi": -0.33,
+        "macd": -0.5,
+        "momentum": 1.46,
+        "rs": 0.26,
+        "rsi": -0.17,
         "trend": 2.5,
-        "vol_adj": 2.93
+        "vol_adj": 3.03
       },
       "holding_action": null,
       "indicators": {
-        "atr14": 1.7183,
+        "atr14": 1.7245,
         "breakout_20d": false,
         "donchian_high_20": 25.74,
-        "macd_hist": -0.2996,
-        "mom_12_1": 8.0131,
+        "macd_hist": -0.3829,
+        "mom_12_1": 7.913,
         "near_sma_fast": false,
-        "rs_6m": 0.7046,
-        "rsi14": 49.23,
-        "sma200": 14.099,
-        "sma50": 18.7756,
+        "rs_6m": 0.8436,
+        "rsi14": 50.05,
+        "sma200": 14.1819,
+        "sma50": 18.9254,
         "trend_ok": true,
-        "vol_63d_ann": 0.8465
+        "vol_63d_ann": 0.8391
       },
       "is_holding": false,
       "is_pullback": false,
       "name": "WULF",
       "next_earnings": null,
       "next_earnings_in_days": null,
-      "price_eur": 18.2015,
-      "price_usd": 21.14,
+      "price_eur": 18.3095,
+      "price_usd": 21.34,
       "prior_action": null,
       "prior_verdict": "WATCH",
-      "score": 56,
+      "score": 57,
       "score_delta_1d": 1,
-      "score_delta_5d": -3,
+      "score_delta_5d": -1,
       "sector": "AI Infra",
       "sentiment": {
         "analyst": {
-          "as_of": "2026-05-18T23:36:24Z",
+          "as_of": "2026-05-19T23:40:58Z",
           "key": "strongBuy",
           "n_analysts": 13,
           "score": 2,
-          "target_upside_pct": 0.4573
+          "target_upside_pct": 0.4455
         },
         "news": {
-          "as_of": "2026-05-18T23:36:24Z",
-          "compound": 0.2453,
+          "as_of": "2026-05-19T23:40:58Z",
+          "compound": 0.1978,
           "label": "POS",
-          "n_headlines": 5
+          "n_headlines": 6
         }
       },
       "spark": [
-        15.68,
         17.56,
         17.92,
         17.88,
@@ -5079,7 +5083,8 @@
         23.12,
         24.17,
         22.32,
-        21.14
+        21.14,
+        21.34
       ],
       "stop_loss_eur": null,
       "suggested_add_eur": null,
