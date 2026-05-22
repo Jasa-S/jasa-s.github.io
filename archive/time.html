@@ -10,13 +10,13 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href="/blue-images/profileImage.png?v=2">
-    <link rel="manifest" href="/time.webmanifest">
+    <link rel="manifest" href="/archive/time.webmanifest">
     <meta name="theme-color" content="#0a0a0a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
-    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="/shared.css">
     <style>
         * { box-sizing: border-box; }
         body {
@@ -526,18 +526,11 @@
 
         <footer>
             <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
-            <a href="index.html">Homepage</a>
+            <a href="/index.html">Homepage</a>
         </footer>
     </div>
 
-    <script src="theme.js"></script>
+    <script src="/theme.js"></script>
     <script src="time.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
-                navigator.serviceWorker.register('/sw.js').catch(function () {});
-            });
-        }
-    </script>
 </body>
 </html>

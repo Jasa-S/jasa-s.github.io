@@ -1,19 +1,13 @@
 /* Site-wide service worker. Stale-while-revalidate so updates roll out on
    the next reload instead of being pinned forever to the first cached
-   version. Shared by Slow Walking, TIME, and BlUE Admin. */
-const CACHE = 'site-v6';
+   version. Used by BlUE Admin. */
+const CACHE = 'site-v7';
 const SHELL = [
-    '/slow-walking.html',
-    '/slow-walking.js',
-    '/time.html',
-    '/time.js',
-    '/time.webmanifest',
     '/blue-admin.html',
     '/blue-admin.webmanifest',
     '/theme.js',
     '/shared.css',
     '/favicon.svg',
-    '/manifest.webmanifest',
 ];
 
 /* Share target: when iOS shares photos to BlUE Admin, it POSTs multipart
