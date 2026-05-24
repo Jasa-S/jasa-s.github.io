@@ -266,6 +266,33 @@
             if (empty) empty.style.display = shown === 0 ? 'block' : 'none';
         }
 
+        var FILTER_KEY = 'blue_filter';
+        function saveFilter() {
+            try { sessionStorage.setItem(FILTER_KEY, JSON.stringify({ c: selectedCamera, y: selectedYear })); } catch(e) {}
+        }
+        function restoreSavedFilter() {
+            try {
+                var raw = sessionStorage.getItem(FILTER_KEY);
+                if (!raw) return;
+                var saved = JSON.parse(raw);
+                var restored = false;
+                // filterSelects[0] = Camera, filterSelects[1] = Year (build order)
+                if (filterSelects[0] && saved.c && saved.c !== 'all') {
+                    var camOpts = filterSelects[0].options;
+                    for (var i = 0; i < camOpts.length; i++) {
+                        if (camOpts[i].value === saved.c) { filterSelects[0].value = saved.c; selectedCamera = saved.c; restored = true; break; }
+                    }
+                }
+                if (filterSelects[1] && saved.y && saved.y !== 'all') {
+                    var yrOpts = filterSelects[1].options;
+                    for (var i = 0; i < yrOpts.length; i++) {
+                        if (yrOpts[i].value === saved.y) { filterSelects[1].value = saved.y; selectedYear = saved.y; restored = true; break; }
+                    }
+                }
+                if (restored) { applyFilters(); updateFilterUI(); }
+            } catch(e) {}
+        }
+
         var filterSelects = [];
         function buildSelect(fieldLabel, allLabel, values, onPick) {
             if (values.length < 2) return; // nothing to filter on
@@ -284,7 +311,7 @@
                 opt.value = o.v; opt.textContent = o.t;
                 sel.appendChild(opt);
             });
-            sel.addEventListener('change', function () { onPick(sel.value); applyFilters(); updateFilterUI(); });
+            sel.addEventListener('change', function () { onPick(sel.value); applyFilters(); updateFilterUI(); saveFilter(); });
             wrap.appendChild(sel);
             var chev = document.createElement('i');
             chev.className = 'fa-solid fa-chevron-down select-chev';
@@ -339,6 +366,7 @@
                 selectedCamera = 'all'; selectedYear = 'all';
                 filterSelects.forEach(function (s) { s.value = 'all'; });
                 applyFilters(); updateFilterUI();
+                try { sessionStorage.removeItem(FILTER_KEY); } catch(e) {}
             });
             filtersEl.appendChild(filterClear);
             filterMenu.hidden = false;
@@ -367,6 +395,7 @@
                     grid.appendChild(a);
                 });
                 renderFilters(data.posts);
+                restoreSavedFilter();
             })
             .catch(function() {
                 grid.innerHTML =
