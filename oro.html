@@ -327,6 +327,20 @@
         .status i { display: block; font-size: 1.3rem; margin-bottom: 0.6rem; opacity: 0.5; }
         .hidden { display: none !important; }
 
+        /* Retry button inside error status */
+        .status-retry {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            margin-top: 0.85rem;
+            background: none; border: 1px solid var(--border);
+            border-radius: 999px; padding: 0.4rem 1rem;
+            font-family: inherit; font-size: 0.78rem; font-weight: 500;
+            color: var(--text-muted); cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .status-retry:hover { color: var(--cosmic-purple); border-color: rgba(124,58,237,0.45); }
+        .status-retry:focus-visible { outline: 2px solid var(--cosmic-purple); outline-offset: 2px; }
+        .status-retry i { display: inline; font-size: 0.72rem; margin-bottom: 0; opacity: 1; }
+
         /* Skeleton */
         .skeleton {
             background: var(--card);
@@ -352,6 +366,9 @@
             .day-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.25rem; }
             .day-cell { padding: 0.5rem 0.2rem; }
             .day-times { font-size: 0.55rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .skeleton { animation: none; }
         }
     </style>
 </head>

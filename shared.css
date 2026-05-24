@@ -51,6 +51,9 @@ a:visited { color: inherit; }
     min-width: unset; min-height: unset;
     line-height: 1; display: inline-flex; align-items: center; justify-content: center;
 }
+.top-btn:focus-visible,
+.bar-btn:focus-visible  { outline: 2px solid var(--cosmic-purple); outline-offset: 2px; }
+.bar-back:focus-visible { outline: 2px solid var(--cosmic-purple); outline-offset: 2px; border-radius: 999px; }
 
 /* Skill/tag badge */
 .badge {
@@ -108,4 +111,11 @@ body.dark #sticky-bar { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
     .bar-back:hover .back-arrow { transform: translateX(-2px); }
     .bar-btn:hover { color: var(--cosmic-purple); }
     #top-bar-direct .top-btn:hover { color: var(--cosmic-purple); transform: rotate(20deg) scale(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .icon-globe { animation: none; }
+    .top-btn { transition: color 0.2s; }
+    .bar-back .back-arrow { transition: none; }
+    #top-bar-direct .top-btn:hover { transform: none; }
 }

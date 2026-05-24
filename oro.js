@@ -163,6 +163,20 @@
         statusEl.classList.add('hidden');
         statusEl.innerHTML = '';
     }
+    // Show an error status with an optional retry button.
+    function showError(html, retryFn) {
+        _lastAction = retryFn || null;
+        var retryHtml = retryFn
+            ? '<button type="button" class="status-retry" id="status-retry-btn">'
+              + '<i class="fa-solid fa-rotate-right"></i>Try again</button>'
+            : '';
+        statusEl.classList.remove('hidden');
+        statusEl.innerHTML = html + retryHtml;
+        if (retryFn) {
+            var btn = document.getElementById('status-retry-btn');
+            if (btn) btn.addEventListener('click', retryFn);
+        }
+    }
     function showSkeleton() {
         hideStatus();
         content.innerHTML =
@@ -181,6 +195,8 @@
     var currentPlace = null;
     var currentWeather = null;
     var selectedDate = null;
+    var _loadToken = 0;   // incremented on each loadFor; stale responses are dropped
+    var _lastAction = null; // stores a zero-arg function to retry the last failed action
 
     function locationNow(weather) {
         // Shift Date.now() by (location offset − browser offset) so .getHours()
@@ -412,6 +428,7 @@
     }
 
     function loadFor(place) {
+        var token = ++_loadToken; // capture this call's token; stale calls are ignored
         showSkeleton();
         // Reset to today-at-location when loading a new place.
         selectedDate = null;
@@ -419,21 +436,25 @@
         var cached = cacheGet(cacheKey);
         if (cached && cached.weather) {
             try {
+                if (token !== _loadToken) return; // superseded by a newer call
                 applyWeather(place, cached.weather);
                 return;
             } catch (e) { /* fall through */ }
         }
         fetchWeather(place.lat, place.lon).then(function (weather) {
+            if (token !== _loadToken) return; // superseded — discard stale result
             cacheSet(cacheKey, { weather: weather });
             applyWeather(place, weather);
             try {
                 localStorage.setItem('oro_last_place', JSON.stringify(place));
             } catch (e) {}
-        }).catch(function (err) {
+        }).catch(function () {
+            if (token !== _loadToken) return; // superseded — don't clobber a newer result
             content.innerHTML = '';
-            showStatus(
+            showError(
                 '<i class="fa-solid fa-triangle-exclamation"></i>'
-              + 'Could not load forecast — please try again.'
+              + 'Could not load forecast — please try again.',
+                function () { loadFor(place); }
             );
         });
     }
@@ -446,9 +467,10 @@
         showSkeleton();
         geocode(name).then(loadFor).catch(function () {
             content.innerHTML = '';
-            showStatus(
+            showError(
                 '<i class="fa-solid fa-magnifying-glass"></i>'
-              + 'City not found — try another name.'
+              + 'City not found — try another name.',
+                null // user needs to retype; retry button wouldn't help
             );
         });
     });
@@ -549,14 +571,19 @@
             showStatus('<i class="fa-solid fa-ban"></i>Geolocation not supported.');
             return;
         }
-        showSkeleton();
+        // Show a descriptive waiting message — the skeleton would be misleading
+        // here because we're waiting for the device, not for data.
+        content.innerHTML = '';
+        showStatus('<i class="fa-solid fa-location-crosshairs"></i>Getting your location…');
         navigator.geolocation.getCurrentPosition(function (pos) {
+            // Position received; loadFor will call showSkeleton() → hideStatus() internally.
             reverseGeocode(pos.coords.latitude, pos.coords.longitude).then(loadFor);
         }, function () {
             content.innerHTML = '';
-            showStatus(
+            showError(
                 '<i class="fa-solid fa-location-dot"></i>'
-              + 'Location permission denied.'
+              + 'Location permission denied.',
+                null // retrying won't help; user must change browser settings
             );
         }, { timeout: 8000, maximumAge: 600000 });
     });

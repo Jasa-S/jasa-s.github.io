@@ -224,6 +224,13 @@
             letter-spacing: var(--ls-wide); color: var(--text-muted);
         }
         footer a { text-decoration: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .grid-skeleton { animation: none; }
+            .filter-pop { animation: none; }
+            .grid-tile img { transition: none; }
+            .grid-tile-overlay { transition: none; }
+            .grid-tile-label { transition: none; }
+        }
     </style>
 </head>
 <body>
@@ -291,6 +298,7 @@
         }
 
         var FILTER_KEY = 'blue_filter';
+        var SCROLL_KEY = 'blue_scroll';
         function saveFilter() {
             try { sessionStorage.setItem(FILTER_KEY, JSON.stringify({ c: selectedCamera, y: selectedYear })); } catch(e) {}
         }
@@ -356,6 +364,7 @@
             filterSelects.forEach(function (s) { s.value = 'all'; });
             applyFilters(); updateFilterUI();
             try { sessionStorage.removeItem(FILTER_KEY); } catch(e) {}
+            try { sessionStorage.removeItem(SCROLL_KEY); } catch(e) {}
         }
         filterResetPill.addEventListener('click', clearAllFilters);
 
@@ -422,9 +431,23 @@
                         + '>'
                         + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + esc(p.title) + '</div></div>';
                     grid.appendChild(a);
+                    a.addEventListener('click', function () {
+                        try { sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY))); } catch(e) {}
+                    });
                 });
                 renderFilters(data.posts);
                 restoreSavedFilter();
+                // Restore scroll position after filters are applied
+                (function () {
+                    try {
+                        var savedY = sessionStorage.getItem(SCROLL_KEY);
+                        if (!savedY) return;
+                        var y = parseInt(savedY, 10);
+                        if (!y) return;
+                        sessionStorage.removeItem(SCROLL_KEY);
+                        requestAnimationFrame(function () { window.scrollTo(0, y); });
+                    } catch(e) {}
+                })();
             })
             .catch(function() {
                 grid.innerHTML =
