@@ -1,7 +1,7 @@
 /* Site-wide service worker. Stale-while-revalidate so updates roll out on
    the next reload instead of being pinned forever to the first cached
    version. Used by BlUE Admin. */
-const CACHE = 'site-v8';
+const CACHE = 'site-v9';
 const SHELL = [
     '/blue-admin.html',
     '/blue-admin.webmanifest',
@@ -82,10 +82,12 @@ self.addEventListener('fetch', (event) => {
             return res;
         }).catch(() => null);
 
-        // Network-first for the shell so HTML/JS/CSS updates land immediately;
-        // fall back to cache when offline. Other paths use stale-while-revalidate.
-        const isShell = SHELL.some((p) => url.pathname === p || url.pathname === p.replace(/^\//, ''));
-        if (isShell) {
+        // Network-first for navigations and HTML/JS/CSS so code updates land on
+        // the first reload; fall back to cache when offline. Other assets
+        // (images, etc.) use stale-while-revalidate for speed.
+        const networkFirst = req.mode === 'navigate'
+            || /\.(?:html|js|css|webmanifest)$/.test(url.pathname);
+        if (networkFirst) {
             const fresh = await networkPromise;
             return fresh || cached || new Response('', { status: 504 });
         }
