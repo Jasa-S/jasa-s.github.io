@@ -565,7 +565,7 @@
         if (raw) initial = JSON.parse(raw);
     } catch (e) {}
     if (!initial) {
-        initial = { lat: 50.1109, lon: 8.6821, name: 'Frankfurt', admin: 'Hesse', country: 'Germany' };
+        initial = { lat: 37.5665, lon: 126.9780, name: 'Seoul', admin: '', country: 'South Korea' };
     }
     loadFor(initial);
 })();
