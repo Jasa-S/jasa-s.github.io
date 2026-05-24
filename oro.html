@@ -35,36 +35,42 @@
             margin: 0.5rem 0 0;
         }
 
-        /* Search */
+        /* Search — primary input on top, secondary controls beneath (aligned, full-width) */
         .search-row {
-            display: flex; gap: 0.5rem; align-items: center;
-            margin-bottom: 1.75rem; flex-wrap: wrap;
+            display: flex; flex-direction: column;
+            gap: 0.6rem; margin-bottom: 1.75rem;
+        }
+        .control-row {
+            display: flex; gap: 0.6rem; align-items: stretch;
         }
         .search-input {
+            height: 2.75rem;
             background: var(--card); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 999px;
-            padding: 0 1rem; font-size: 0.9rem;
-            height: 2.4rem; line-height: 1;
-            font-family: inherit; outline: none;
-            transition: border-color 0.2s;
+            padding: 0 1.1rem; font-size: 0.875rem;
+            line-height: 1; font-family: inherit; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
             min-width: 0;
         }
-        .search-input:focus { border-color: var(--cosmic-purple); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-input:focus {
+            border-color: var(--cosmic-purple);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+        }
         .city-field {
-            position: relative;
-            flex: 1 1 11rem; min-width: 0;
-            display: inline-flex; align-items: center;
+            position: relative; flex: 1 1 auto; min-width: 0;
+            display: flex; align-items: center;
         }
         .city-field .search-input {
             flex: 1 1 auto; width: 100%;
-            padding-right: 2.6rem;
+            padding-right: 3rem;
         }
         .city-field-action {
-            position: absolute; right: 0.25rem;
+            position: absolute; right: 0.45rem;
             top: 50%; transform: translateY(-50%);
             background: none; border: none;
             color: var(--text-muted); cursor: pointer;
-            width: 1.95rem; height: 1.95rem;
+            width: 2rem; height: 2rem;
             border-radius: 999px;
             display: inline-flex; align-items: center; justify-content: center;
             font-size: 0.85rem;
@@ -77,33 +83,31 @@
         /* City dropdown — pill styled like blue.html's select fields */
         .city-select-wrap {
             position: relative;
-            display: inline-flex; align-items: center;
-            flex: 0 1 auto; min-width: 0;
+            display: flex; align-items: center;
+            flex: 1 1 auto; min-width: 0;
         }
         .city-select {
             appearance: none; -webkit-appearance: none; -moz-appearance: none;
-            background: var(--card); color: var(--text-muted);
+            width: 100%; height: 2.75rem;
+            background: var(--card); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 999px;
-            height: 2.4rem; line-height: 1;
-            padding: 0 2.1rem 0 1rem;
-            font-family: inherit; font-size: 0.8rem; font-weight: 500;
-            letter-spacing: var(--ls-tight);
+            line-height: 1; padding: 0 2.5rem 0 1.1rem;
+            font-family: inherit; font-size: 0.875rem; font-weight: 400;
             cursor: pointer; outline: none;
-            max-width: 11rem; text-overflow: ellipsis;
-            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            text-overflow: ellipsis;
+            transition: border-color 0.2s, background 0.2s;
         }
         .city-select:hover {
-            color: var(--cosmic-purple);
             border-color: rgba(125,125,125,0.3);
             background: var(--card-hover);
         }
         .city-select:focus-visible { border-color: var(--cosmic-purple); }
         .city-select-chev {
-            position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%);
+            position: absolute; right: 1.05rem; top: 50%; transform: translateY(-50%);
             font-size: 0.6rem; color: var(--text-muted); pointer-events: none;
         }
         .date-input {
-            flex: 0 1 8.5rem;
+            flex: 0 1 9.5rem;
             font-variant-numeric: tabular-nums;
         }
         /* Calendar icon inherits current text color so it works in both themes */
@@ -114,17 +118,24 @@
             filter: invert(1);
         }
         .btn {
-            background: var(--card); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 999px;
-            padding: 0 0.95rem; font-size: 0.8rem;
-            height: 2.4rem; line-height: 1;
-            font-family: inherit; cursor: pointer;
-            transition: background 0.2s, border-color 0.2s, color 0.2s;
-            display: inline-flex; align-items: center; gap: 0.4rem;
+            flex: 0 0 auto; height: 2.75rem;
+            background: var(--cosmic-purple); color: #fff;
+            border: 1px solid var(--cosmic-purple); border-radius: 999px;
+            padding: 0 1.4rem; font-size: 0.875rem; font-weight: 500;
+            line-height: 1; font-family: inherit; cursor: pointer;
+            transition: filter 0.2s, transform 0.06s;
+            display: inline-flex; align-items: center; gap: 0.45rem;
             white-space: nowrap;
         }
-        .btn:hover { background: var(--card-hover); border-color: rgba(125,125,125,0.3); color: var(--cosmic-purple); }
-        .btn i { font-size: 0.75rem; }
+        .btn:hover { filter: brightness(1.08); }
+        .btn:active { transform: translateY(1px); }
+        .btn i { font-size: 0.8rem; }
+
+        @media (max-width: 560px) {
+            .control-row { flex-wrap: wrap; }
+            .city-select-wrap { flex: 1 1 100%; }
+            .date-input { flex: 1 1 auto; }
+        }
 
         /* Summary card */
         .sun-card {
@@ -372,17 +383,19 @@
                     <i class="fa-solid fa-location-crosshairs"></i>
                 </button>
             </div>
-            <div class="city-select-wrap">
-                <select class="city-select" id="city-select" aria-label="Jump to a major city"></select>
-                <i class="fa-solid fa-chevron-down city-select-chev" aria-hidden="true"></i>
+            <div class="control-row">
+                <div class="city-select-wrap">
+                    <select class="city-select" id="city-select" aria-label="Jump to a major city"></select>
+                    <i class="fa-solid fa-chevron-down city-select-chev" aria-hidden="true"></i>
+                </div>
+                <input
+                    type="date" class="search-input date-input" id="date-input"
+                    aria-label="Date"
+                >
+                <button type="submit" class="btn" id="search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>Search
+                </button>
             </div>
-            <input
-                type="date" class="search-input date-input" id="date-input"
-                aria-label="Date"
-            >
-            <button type="submit" class="btn" id="search-btn">
-                <i class="fa-solid fa-magnifying-glass"></i>Search
-            </button>
         </form>
 
         <div id="content"></div>

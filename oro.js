@@ -490,6 +490,7 @@
             { name: 'Buenos Aires', country: 'Argentina', lat: -34.6037, lon: -58.3816 }
         ] },
         { group: 'Asia', items: [
+            { name: 'Seoul', country: 'South Korea', lat: 37.5665, lon: 126.9780 },
             { name: 'Tokyo', country: 'Japan', lat: 35.6762, lon: 139.6503 },
             { name: 'Singapore', country: 'Singapore', lat: 1.3521, lon: 103.8198 },
             { name: 'Hong Kong', country: 'China', lat: 22.3193, lon: 114.1694 },
