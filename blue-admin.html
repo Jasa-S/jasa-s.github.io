@@ -980,13 +980,15 @@
             setStatus('Deleting "' + (post.title || postId) + '"…');
             progressBar.style.display = 'block';
             progressFill.style.width = '0%';
-            var totalSteps = post.count + 1;
+            // Concurrency-limited deletes: full images, cover thumbnail, and preview stub.
+            var paths = [];
+            for (var i = 0; i < post.count; i++) paths.push(IMG_DIR + '/' + post.imageId + '_' + pad2(i+1) + '.jpg');
+            if (post.thumb) paths.push(IMG_DIR + '/' + post.imageId + '_' + post.cover + '_thumb.jpg');
+            paths.push('p/' + postId + '.html');
+            var totalSteps = paths.length + 1;
             var done = 0;
             function tick() { done++; progressFill.style.width = Math.round((done/totalSteps)*100) + '%'; }
 
-            // Concurrency-limited deletes.
-            var paths = [];
-            for (var i = 0; i < post.count; i++) paths.push(IMG_DIR + '/' + post.imageId + '_' + pad2(i+1) + '.jpg');
             runPool(paths, 3, function (path) {
                 return ghDeleteFile(path, 'blue: delete ' + path).then(tick);
             }).then(function () {
@@ -1402,6 +1404,48 @@
             });
         }
 
+        // Resolve a photo's natural dimensions (for posts.json aspect ratios).
+        // Works for local Files and edit-mode remote URLs (we only read sizes).
+        function ensureDims(photo) {
+            if (photo.w && photo.h) return Promise.resolve();
+            return new Promise(function (resolve) {
+                var img = new Image();
+                img.onload  = function () { photo.w = img.naturalWidth || 0; photo.h = img.naturalHeight || 0; resolve(); };
+                img.onerror = function () { resolve(); };
+                img.src = photo.url;
+            });
+        }
+
+        function escHtml(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        // Crawler-facing static page with Open Graph tags; redirects humans to the SPA.
+        function buildStubHtml(entry, origin) {
+            var pid = entry.id, title = entry.title || '';
+            var desc = (entry.body && entry.body.length) ? entry.body[0]
+                     : [entry.category, entry.date].filter(Boolean).join(' · ');
+            var img = origin + '/' + IMG_DIR + '/' + entry.imageId + '_' + entry.cover + '.jpg';
+            var url = origin + '/p/' + pid + '.html';
+            var target = '/blue-post.html#' + pid;
+            return '<!doctype html><html lang=en><head><meta charset=utf-8>\n'
+                + '<title>' + escHtml(title) + ' | BlUE</title>\n'
+                + '<link rel=canonical href="' + escHtml(origin + '/blue-post.html#' + pid) + '">\n'
+                + '<meta property="og:type" content="article">\n'
+                + '<meta property="og:title" content="' + escHtml(title) + '">\n'
+                + '<meta property="og:description" content="' + escHtml(desc) + '">\n'
+                + '<meta property="og:image" content="' + escHtml(img) + '">\n'
+                + '<meta property="og:url" content="' + escHtml(url) + '">\n'
+                + '<meta name="twitter:card" content="summary_large_image">\n'
+                + '<meta http-equiv="refresh" content="0; url=' + escHtml(target) + '">\n'
+                + '<script>location.replace(' + JSON.stringify(target) + ');<\/script>\n'
+                + '</head><body><a href="' + escHtml(target) + '">View post</a></body></html>\n';
+        }
+        function ghPutStub(entry) {
+            return ghPutUpsert('p/' + entry.id + '.html', utf8ToBase64(buildStubHtml(entry, location.origin)),
+                'blue: stub ' + entry.id + '.html');
+        }
+
         // ---------- Concurrency-limited promise pool ----------
         function runPool(items, concurrency, worker) {
             return new Promise(function (resolve, reject) {
@@ -1554,21 +1598,27 @@
                 setStatus('Creating thumbnail…');
                 var coverSeq = pad2(coverIndex + 1);
                 var thumbName = imageId + '_' + coverSeq + '_thumb.jpg';
+                var entry;
                 return makeThumbnail(photos[coverIndex].file)
                     .then(blobToBase64)
                     .then(function (b64) { return ghPutUpsert(IMG_DIR + '/' + thumbName, b64, 'blue: add ' + thumbName); })
                     .then(function () {
                         tick();
+                        return Promise.all(photos.map(ensureDims));
+                    })
+                    .then(function () {
                         setStatus('Updating posts.json…');
                         return ghGetContent(POSTS_PATH);
                     }).then(function (meta) {
                         var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
-                        var entry = buildPostEntry({ id: postId, imageId: imageId, count: photos.length, thumb: true });
+                        var ratios = photos.map(function (p) { return (p.w && p.h) ? Math.round(p.w / p.h * 1e4) / 1e4 : 0; });
+                        entry = buildPostEntry({ id: postId, imageId: imageId, count: photos.length, thumb: true, ratios: ratios });
                         json.posts = [entry].concat(json.posts || []);
                         var newContent = JSON.stringify(json, null, 2) + '\n';
-                        return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: add post ' + postId, meta.sha)
-                            .then(function () { return entry; });
-                    }).then(function (entry) {
+                        return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: add post ' + postId, meta.sha);
+                    }).then(function () {
+                        return ghPutStub(entry).catch(function () {}); // preview stub is best-effort
+                    }).then(function () {
                         tick();
                         publishing = false;
                         pendingImageId = null;
@@ -1643,11 +1693,13 @@
                     id: editingId,
                     imageId: existingPost.imageId,
                     count: existingPost.count,
-                    thumb: true
+                    thumb: true,
+                    ratios: existingPost.ratios
                 });
                 json.posts[idx] = entry;
                 var newContent = JSON.stringify(json, null, 2) + '\n';
                 return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: edit post ' + editingId, meta.sha)
+                    .then(function () { return ghPutStub(entry).catch(function () {}); })
                     .then(function () { return entry; });
             }).then(function (entry) {
                 progressFill.style.width = '100%';
@@ -1675,6 +1727,7 @@
                 cover: pad2(coverIndex + 1)
             };
             if (opts.thumb) entry.thumb = true;
+            if (opts.ratios && opts.ratios.length) entry.ratios = opts.ratios;
             if (fLocation.value.trim()) entry.location = fLocation.value.trim();
             var bodyText = fBody.value.trim();
             if (bodyText) {

@@ -130,6 +130,10 @@
             <button class="bar-nav-btn disabled" id="btn-next" aria-label="Next post"><i class="fa-solid fa-chevron-right" style="font-size:0.85rem;"></i></button>
             <div class="bar-divider"></div>
         </span>
+        <button class="bar-btn" id="btn-share" aria-label="Share this post">
+            <i class="fa-solid fa-share-nodes" style="font-size:0.85rem;"></i>
+        </button>
+        <div class="bar-divider"></div>
         <button class="bar-btn" id="theme-toggle" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
         </button>
@@ -226,8 +230,29 @@
         }, { passive: true });
     })();
 
+    // ---------- Share (uses the crawler-friendly static stub URL) ----------
+    var shareBtn = document.getElementById('btn-share');
+    var shareIcon = shareBtn.querySelector('i');
+    function flashShareDone() {
+        shareIcon.className = 'fa-solid fa-check';
+        shareIcon.style.fontSize = '0.85rem';
+        setTimeout(function () { shareIcon.className = 'fa-solid fa-share-nodes'; }, 1300);
+    }
+    shareBtn.addEventListener('click', function () {
+        if (!currentId) return;
+        var url = location.origin + '/p/' + encodeURIComponent(currentId) + '.html';
+        if (navigator.share) {
+            navigator.share({ title: document.title, url: url }).catch(function () {});
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(flashShareDone).catch(function () { prompt('Copy link:', url); });
+        } else {
+            prompt('Copy link:', url);
+        }
+    });
+
     var allPosts = null;
     var pendingId = null;
+    var currentId = null;
 
     function renderPost(postId) {
         if (!allPosts) return;
@@ -238,6 +263,7 @@
         var idx   = ids.indexOf(postId);
 
         if (!post) { window.location = 'blue.html'; return; }
+        currentId = postId;
 
         document.title = (post.title || 'Post') + ' | BlUE';
         document.getElementById('post-title').textContent = post.title || '';
@@ -255,8 +281,9 @@
             var n   = String(i + 1).padStart(2, '0');
             var src = BASE + post.imageId + '_' + n + '.jpg';
             var cap = (post.captions && post.captions[i]) || '';
+            var ar  = (post.ratios && post.ratios[i]) ? ' style="aspect-ratio:' + post.ratios[i] + '"' : '';
             html += '<div class="post-image">'
-                + '<img src="' + esc(src) + '" alt="' + esc(cap) + '"'
+                + '<img src="' + esc(src) + '" alt="' + esc(cap) + '"' + ar
                 + (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"')
                 + '>'
                 + (cap ? '<div class="post-image-caption">' + esc(cap) + '</div>' : '')
