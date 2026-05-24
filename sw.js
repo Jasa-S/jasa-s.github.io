@@ -1,7 +1,7 @@
 /* Site-wide service worker. Stale-while-revalidate so updates roll out on
    the next reload instead of being pinned forever to the first cached
    version. Used by BlUE Admin. */
-const CACHE = 'site-v7';
+const CACHE = 'site-v8';
 const SHELL = [
     '/blue-admin.html',
     '/blue-admin.webmanifest',

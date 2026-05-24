@@ -1,5 +1,5 @@
 {
-  "base": "https://raw.githubusercontent.com/Jasa-S/jasa-s.github.io/main/blue-images/",
+  "base": "/blue-images/",
   "posts": [
     { "id": "upsilon", "imageId": "224105519781", "title": "SUPERIA 400 | HOME",          "category": "Yashica T3",      "date": "2025", "count": 17, "cover": "01" },
     { "id": "tau",     "imageId": "224012140603", "title": "Reflx Lab 400 (069)",         "category": "Yashica T3",      "date": "2025", "count": 12, "cover": "05" },
