@@ -64,36 +64,73 @@
 
         #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
 
-        .filters {
-            display: flex; justify-content: flex-end; flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .filters:empty { display: none; }
-        .select-wrap { position: relative; display: inline-flex; }
-        .select-wrap select {
-            appearance: none; -webkit-appearance: none; -moz-appearance: none;
-            font-family: inherit; cursor: pointer;
-            padding: 0.45rem 2rem 0.45rem 0.9rem;
-            border-radius: 999px;
+        .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+        /* Filter: a quiet icon button that reveals a popover, left of ORO */
+        .filter-menu { position: relative; display: inline-flex; }
+        .filter-menu[hidden] { display: none; }
+        .filter-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2rem; height: 2rem; border-radius: 999px;
             background: var(--card); border: 1px solid var(--border);
-            color: var(--text-main); font-size: 0.75rem; font-weight: 500;
-            letter-spacing: var(--ls-tight);
+            color: var(--text-muted); cursor: pointer; font-size: 0.72rem;
             transition: color 0.2s, border-color 0.2s, background 0.2s;
         }
-        .select-wrap select:focus-visible {
-            outline: 2px solid var(--cosmic-purple); outline-offset: 2px;
-        }
-        .select-chev {
-            position: absolute; right: 0.85rem; top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.62rem; color: var(--text-muted);
-            pointer-events: none; transition: color 0.2s;
-        }
+        .filter-toggle:focus-visible { outline: 2px solid var(--cosmic-purple); outline-offset: 2px; }
         @media (hover: hover) and (pointer: fine) {
-            .select-wrap:hover select { border-color: rgba(124,58,237,0.45); color: var(--cosmic-purple); }
-            .select-wrap:hover .select-chev { color: var(--cosmic-purple); }
+            .filter-toggle:hover { color: var(--cosmic-purple); border-color: rgba(125,125,125,0.3); background: var(--card-hover); }
         }
+        /* Active-filter indicator: accent + dot */
+        .filter-menu.has-active .filter-toggle { color: var(--cosmic-purple); border-color: rgba(124,58,237,0.45); }
+        .filter-menu.has-active .filter-toggle::after {
+            content: ''; position: absolute; top: -1px; right: -1px;
+            width: 7px; height: 7px; border-radius: 999px;
+            background: var(--cosmic-purple); border: 1.5px solid var(--bg);
+        }
+
+        .filter-pop {
+            position: absolute; top: calc(100% + 0.5rem); right: 0; z-index: 50;
+            display: none; flex-direction: column; gap: 0.6rem;
+            min-width: 11rem; padding: 0.85rem;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+            transform-origin: top right;
+            animation: filter-pop-in 0.14s ease-out;
+        }
+        body.dark .filter-pop { box-shadow: 0 6px 28px rgba(0,0,0,0.5); }
+        .filter-menu.open .filter-pop { display: flex; }
+        @keyframes filter-pop-in { from { opacity: 0; transform: scale(0.96) translateY(-3px); } to { opacity: 1; transform: none; } }
+        .filter-field { display: flex; flex-direction: column; gap: 0.3rem; }
+        .filter-field > span {
+            font-size: 0.58rem; text-transform: uppercase; letter-spacing: var(--ls-wide);
+            color: var(--text-muted); font-weight: 600;
+        }
+        .select-wrap { position: relative; display: block; }
+        .select-wrap select {
+            appearance: none; -webkit-appearance: none; -moz-appearance: none;
+            width: 100%; box-sizing: border-box;
+            font-family: inherit; cursor: pointer;
+            padding: 0.35rem 1.6rem 0.35rem 0.65rem;
+            border-radius: 0.5rem;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-main); font-size: 0.72rem; font-weight: 500;
+            letter-spacing: var(--ls-tight);
+            transition: border-color 0.2s;
+        }
+        .select-wrap select:focus-visible { outline: 2px solid var(--cosmic-purple); outline-offset: 1px; }
+        .select-chev {
+            position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%);
+            font-size: 0.55rem; color: var(--text-muted); pointer-events: none;
+        }
+        .filter-clear {
+            align-self: flex-start; background: none; border: none; padding: 0;
+            color: var(--text-muted); font-family: inherit; font-size: 0.68rem;
+            cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+            transition: color 0.2s;
+        }
+        .filter-clear[hidden] { display: none; }
+        @media (hover: hover) and (pointer: fine) { .filter-clear:hover { color: var(--cosmic-purple); } }
         .filter-empty {
             display: none; text-align: center; padding: 3rem 1rem;
             color: var(--text-muted); font-size: 0.8rem; letter-spacing: var(--ls-tight);
@@ -178,11 +215,18 @@
     <div id="page">
         <header>
             <h1><span class="icon-globe">&#127757;</span>BlUE</h1>
-            <a href="oro.html" class="oro-link" aria-label="Open ORO golden hour planner">
-                <i class="fa-solid fa-cube"></i>ORO
-            </a>
+            <div class="header-actions">
+                <div class="filter-menu" id="filter-menu" hidden>
+                    <button class="filter-toggle" id="filter-toggle" aria-label="Filter posts" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                    </button>
+                    <div class="filter-pop" id="filters" role="group" aria-label="Filters"></div>
+                </div>
+                <a href="oro.html" class="oro-link" aria-label="Open ORO golden hour planner">
+                    <i class="fa-solid fa-cube"></i>ORO
+                </a>
+            </div>
         </header>
-        <div class="filters" id="filters"></div>
         <div class="photo-grid" id="grid"></div>
         <div class="filter-empty" id="filter-empty">No posts match these filters.</div>
         <footer>
@@ -222,26 +266,57 @@
             if (empty) empty.style.display = shown === 0 ? 'block' : 'none';
         }
 
-        function buildSelect(allLabel, values, onPick) {
+        var filterSelects = [];
+        function buildSelect(fieldLabel, allLabel, values, onPick) {
             if (values.length < 2) return; // nothing to filter on
+            var field = document.createElement('div');
+            field.className = 'filter-field';
+            var fl = document.createElement('span');
+            fl.textContent = fieldLabel;
+            field.appendChild(fl);
             var wrap = document.createElement('div');
             wrap.className = 'select-wrap';
             var sel = document.createElement('select');
-            sel.setAttribute('aria-label', allLabel);
+            sel.setAttribute('aria-label', fieldLabel);
             var opts = [{ v: 'all', t: allLabel }].concat(values.map(function (v) { return { v: v, t: v }; }));
             opts.forEach(function (o) {
                 var opt = document.createElement('option');
                 opt.value = o.v; opt.textContent = o.t;
                 sel.appendChild(opt);
             });
-            sel.addEventListener('change', function () { onPick(sel.value); applyFilters(); });
+            sel.addEventListener('change', function () { onPick(sel.value); applyFilters(); updateFilterUI(); });
             wrap.appendChild(sel);
             var chev = document.createElement('i');
             chev.className = 'fa-solid fa-chevron-down select-chev';
             chev.setAttribute('aria-hidden', 'true');
             wrap.appendChild(chev);
-            filtersEl.appendChild(wrap);
+            field.appendChild(wrap);
+            filtersEl.appendChild(field);
+            filterSelects.push(sel);
         }
+
+        var filterMenu = document.getElementById('filter-menu');
+        var filterToggle = document.getElementById('filter-toggle');
+        var filterClear = null;
+
+        function updateFilterUI() {
+            var active = (selectedCamera !== 'all' || selectedYear !== 'all');
+            filterMenu.classList.toggle('has-active', active);
+            if (filterClear) filterClear.hidden = !active;
+        }
+        function openFilters() { filterMenu.classList.add('open'); filterToggle.setAttribute('aria-expanded', 'true'); }
+        function closeFilters() { filterMenu.classList.remove('open'); filterToggle.setAttribute('aria-expanded', 'false'); }
+
+        filterToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            filterMenu.classList.contains('open') ? closeFilters() : openFilters();
+        });
+        document.addEventListener('click', function (e) {
+            if (filterMenu.classList.contains('open') && !filterMenu.contains(e.target)) closeFilters();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && filterMenu.classList.contains('open')) { closeFilters(); filterToggle.focus(); }
+        });
 
         function renderFilters(posts) {
             var cameras = [], years = [];
@@ -251,8 +326,22 @@
             });
             cameras.sort();
             years.sort(function(a, b) { return b.localeCompare(a); });
-            buildSelect('All cameras', cameras, function(v) { selectedCamera = v; });
-            buildSelect('All years', years, function(v) { selectedYear = v; });
+            buildSelect('Camera', 'All cameras', cameras, function(v) { selectedCamera = v; });
+            buildSelect('Year', 'All years', years, function(v) { selectedYear = v; });
+            if (!filterSelects.length) return; // nothing to filter — keep header clean
+
+            filterClear = document.createElement('button');
+            filterClear.type = 'button';
+            filterClear.className = 'filter-clear';
+            filterClear.textContent = 'Clear filters';
+            filterClear.hidden = true;
+            filterClear.addEventListener('click', function () {
+                selectedCamera = 'all'; selectedYear = 'all';
+                filterSelects.forEach(function (s) { s.value = 'all'; });
+                applyFilters(); updateFilterUI();
+            });
+            filtersEl.appendChild(filterClear);
+            filterMenu.hidden = false;
         }
 
         fetch('posts.json')
