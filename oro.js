@@ -406,7 +406,8 @@
         dateInput.min = available[0];
         dateInput.max = available[available.length - 1];
         dateInput.value = selectedDate;
-        document.getElementById('city-input').value = place.name || '';
+        // Clear the search box so the next city can be typed without deleting first.
+        document.getElementById('city-input').value = '';
         render(place, weather, selectedDate);
     }
 
@@ -462,6 +463,84 @@
         if (cell && cell.dataset.date) renderWithDate(cell.dataset.date);
     });
 
+    // ── Major-city quick picker ──
+    var CITIES = [
+        { group: 'Europe', items: [
+            { name: 'London', country: 'United Kingdom', lat: 51.5074, lon: -0.1278 },
+            { name: 'Paris', country: 'France', lat: 48.8566, lon: 2.3522 },
+            { name: 'Berlin', country: 'Germany', lat: 52.5200, lon: 13.4050 },
+            { name: 'Amsterdam', country: 'Netherlands', lat: 52.3676, lon: 4.9041 },
+            { name: 'Rome', country: 'Italy', lat: 41.9028, lon: 12.4964 },
+            { name: 'Barcelona', country: 'Spain', lat: 41.3851, lon: 2.1734 },
+            { name: 'Istanbul', country: 'Turkey', lat: 41.0082, lon: 28.9784 },
+            { name: 'Moscow', country: 'Russia', lat: 55.7558, lon: 37.6173 },
+            { name: 'Reykjavik', country: 'Iceland', lat: 64.1466, lon: -21.9426 }
+        ] },
+        { group: 'North America', items: [
+            { name: 'New York', country: 'United States', lat: 40.7128, lon: -74.0060 },
+            { name: 'Los Angeles', country: 'United States', lat: 34.0522, lon: -118.2437 },
+            { name: 'San Francisco', country: 'United States', lat: 37.7749, lon: -122.4194 },
+            { name: 'Chicago', country: 'United States', lat: 41.8781, lon: -87.6298 },
+            { name: 'Toronto', country: 'Canada', lat: 43.6532, lon: -79.3832 },
+            { name: 'Mexico City', country: 'Mexico', lat: 19.4326, lon: -99.1332 }
+        ] },
+        { group: 'South America', items: [
+            { name: 'Rio de Janeiro', country: 'Brazil', lat: -22.9068, lon: -43.1729 },
+            { name: 'São Paulo', country: 'Brazil', lat: -23.5505, lon: -46.6333 },
+            { name: 'Buenos Aires', country: 'Argentina', lat: -34.6037, lon: -58.3816 }
+        ] },
+        { group: 'Asia', items: [
+            { name: 'Tokyo', country: 'Japan', lat: 35.6762, lon: 139.6503 },
+            { name: 'Singapore', country: 'Singapore', lat: 1.3521, lon: 103.8198 },
+            { name: 'Hong Kong', country: 'China', lat: 22.3193, lon: 114.1694 },
+            { name: 'Shanghai', country: 'China', lat: 31.2304, lon: 121.4737 },
+            { name: 'Beijing', country: 'China', lat: 39.9042, lon: 116.4074 },
+            { name: 'Bangkok', country: 'Thailand', lat: 13.7563, lon: 100.5018 },
+            { name: 'Mumbai', country: 'India', lat: 19.0760, lon: 72.8777 },
+            { name: 'Delhi', country: 'India', lat: 28.6139, lon: 77.2090 },
+            { name: 'Dubai', country: 'United Arab Emirates', lat: 25.2048, lon: 55.2708 }
+        ] },
+        { group: 'Africa', items: [
+            { name: 'Cairo', country: 'Egypt', lat: 30.0444, lon: 31.2357 },
+            { name: 'Cape Town', country: 'South Africa', lat: -33.9249, lon: 18.4241 }
+        ] },
+        { group: 'Oceania', items: [
+            { name: 'Sydney', country: 'Australia', lat: -33.8688, lon: 151.2093 }
+        ] }
+    ];
+
+    var citySelect = document.getElementById('city-select');
+    var cityLookup = {};
+    (function buildCitySelect() {
+        var placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        placeholder.textContent = 'Jump to a city…';
+        citySelect.appendChild(placeholder);
+        CITIES.forEach(function (region) {
+            var og = document.createElement('optgroup');
+            og.label = region.group;
+            region.items.forEach(function (c) {
+                var key = c.name + '|' + c.country;
+                cityLookup[key] = { lat: c.lat, lon: c.lon, name: c.name, admin: '', country: c.country };
+                var opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = c.name;
+                og.appendChild(opt);
+            });
+            citySelect.appendChild(og);
+        });
+    })();
+
+    citySelect.addEventListener('change', function () {
+        var place = cityLookup[citySelect.value];
+        if (!place) return;
+        document.getElementById('city-input').value = '';
+        loadFor(place);
+        citySelect.selectedIndex = 0; // reset back to placeholder
+    });
+
     document.getElementById('geo-btn').addEventListener('click', function () {
         if (!navigator.geolocation) {
             showStatus('<i class="fa-solid fa-ban"></i>Geolocation not supported.');
@@ -486,8 +565,7 @@
         if (raw) initial = JSON.parse(raw);
     } catch (e) {}
     if (!initial) {
-        initial = { lat: 50.1109, lon: 8.6821, name: 'Frankfurt', admin: 'Hesse', country: 'Germany' };
+        initial = { lat: 37.5665, lon: 126.9780, name: 'Seoul', admin: '', country: 'South Korea' };
     }
-    document.getElementById('city-input').value = initial.name || '';
     loadFor(initial);
 })();
