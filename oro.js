@@ -499,6 +499,8 @@
             { name: 'Bangkok', country: 'Thailand', lat: 13.7563, lon: 100.5018 },
             { name: 'Mumbai', country: 'India', lat: 19.0760, lon: 72.8777 },
             { name: 'Delhi', country: 'India', lat: 28.6139, lon: 77.2090 },
+            { name: 'Amritsar', country: 'India', lat: 31.6340, lon: 74.8723 },
+            { name: 'Chongqing', country: 'China', lat: 29.4316, lon: 106.9123 },
             { name: 'Dubai', country: 'United Arab Emirates', lat: 25.2048, lon: 55.2708 }
         ] },
         { group: 'Africa', items: [
