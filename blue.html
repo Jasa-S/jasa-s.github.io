@@ -62,6 +62,27 @@
             }
         }
 
+        /* Reset pill — appears in the header when a filter is active */
+        .filter-reset-pill {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.45rem 0.9rem; border-radius: 999px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-muted); font-family: inherit;
+            font-size: 0.75rem; font-weight: 500;
+            letter-spacing: var(--ls-mid); text-transform: uppercase;
+            cursor: pointer; white-space: nowrap;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .filter-reset-pill[hidden] { display: none; }
+        .filter-reset-pill i { font-size: 0.7rem; }
+        @media (hover: hover) and (pointer: fine) {
+            .filter-reset-pill:hover {
+                color: var(--cosmic-purple);
+                border-color: rgba(125,125,125,0.3);
+                background: var(--card-hover);
+            }
+        }
+
         #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
 
         .header-actions { display: flex; align-items: center; gap: 0.5rem; }
@@ -222,6 +243,9 @@
                     </button>
                     <div class="filter-pop" id="filters" role="group" aria-label="Filters"></div>
                 </div>
+                <button class="filter-reset-pill" id="filter-reset" hidden aria-label="Clear all filters">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>Reset
+                </button>
                 <a href="oro.html" class="oro-link" aria-label="Open ORO golden hour planner">
                     <i class="fa-solid fa-cube"></i>ORO
                 </a>
@@ -324,11 +348,21 @@
 
         var filterMenu = document.getElementById('filter-menu');
         var filterToggle = document.getElementById('filter-toggle');
+        var filterResetPill = document.getElementById('filter-reset');
         var filterClear = null;
+
+        function clearAllFilters() {
+            selectedCamera = 'all'; selectedYear = 'all';
+            filterSelects.forEach(function (s) { s.value = 'all'; });
+            applyFilters(); updateFilterUI();
+            try { sessionStorage.removeItem(FILTER_KEY); } catch(e) {}
+        }
+        filterResetPill.addEventListener('click', clearAllFilters);
 
         function updateFilterUI() {
             var active = (selectedCamera !== 'all' || selectedYear !== 'all');
             filterMenu.classList.toggle('has-active', active);
+            filterResetPill.hidden = !active;
             if (filterClear) filterClear.hidden = !active;
         }
         function openFilters() { filterMenu.classList.add('open'); filterToggle.setAttribute('aria-expanded', 'true'); }
@@ -362,12 +396,7 @@
             filterClear.className = 'filter-clear';
             filterClear.textContent = 'Clear filters';
             filterClear.hidden = true;
-            filterClear.addEventListener('click', function () {
-                selectedCamera = 'all'; selectedYear = 'all';
-                filterSelects.forEach(function (s) { s.value = 'all'; });
-                applyFilters(); updateFilterUI();
-                try { sessionStorage.removeItem(FILTER_KEY); } catch(e) {}
-            });
+            filterClear.addEventListener('click', clearAllFilters);
             filtersEl.appendChild(filterClear);
             filterMenu.hidden = false;
         }
