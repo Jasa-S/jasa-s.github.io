@@ -65,33 +65,34 @@
         #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
 
         .filters {
-            display: flex; flex-direction: column; gap: 0.6rem;
-            margin-bottom: 1.25rem;
+            display: flex; justify-content: flex-end; flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
         }
         .filters:empty { display: none; }
-        .filter-group {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
-        }
-        .filter-label {
-            font-size: 0.62rem; text-transform: uppercase;
-            letter-spacing: var(--ls-wide); color: var(--text-muted);
-            font-weight: 600; margin-right: 0.35rem;
-        }
-        .chip {
+        .select-wrap { position: relative; display: inline-flex; }
+        .select-wrap select {
+            appearance: none; -webkit-appearance: none; -moz-appearance: none;
             font-family: inherit; cursor: pointer;
-            padding: 0.3rem 0.7rem; border-radius: 999px;
+            padding: 0.45rem 2rem 0.45rem 0.9rem;
+            border-radius: 999px;
             background: var(--card); border: 1px solid var(--border);
-            color: var(--text-muted); font-size: 0.72rem; font-weight: 500;
+            color: var(--text-main); font-size: 0.75rem; font-weight: 500;
             letter-spacing: var(--ls-tight);
             transition: color 0.2s, border-color 0.2s, background 0.2s;
         }
-        .chip.active {
-            color: var(--cosmic-purple);
-            border-color: rgba(124,58,237,0.45);
-            background: rgba(124,58,237,0.10);
+        .select-wrap select:focus-visible {
+            outline: 2px solid var(--cosmic-purple); outline-offset: 2px;
+        }
+        .select-chev {
+            position: absolute; right: 0.85rem; top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.62rem; color: var(--text-muted);
+            pointer-events: none; transition: color 0.2s;
         }
         @media (hover: hover) and (pointer: fine) {
-            .chip:hover { color: var(--cosmic-purple); border-color: rgba(125,125,125,0.3); }
+            .select-wrap:hover select { border-color: rgba(124,58,237,0.45); color: var(--cosmic-purple); }
+            .select-wrap:hover .select-chev { color: var(--cosmic-purple); }
         }
         .filter-empty {
             display: none; text-align: center; padding: 3rem 1rem;
@@ -221,37 +222,25 @@
             if (empty) empty.style.display = shown === 0 ? 'block' : 'none';
         }
 
-        function buildChipGroup(label, values, current, onPick) {
+        function buildSelect(allLabel, values, onPick) {
             if (values.length < 2) return; // nothing to filter on
-            var group = document.createElement('div');
-            group.className = 'filter-group';
-            var lbl = document.createElement('span');
-            lbl.className = 'filter-label';
-            lbl.textContent = label;
-            group.appendChild(lbl);
-            var all = ['all'].concat(values);
-            var chips = [];
-            all.forEach(function(v) {
-                var chip = document.createElement('button');
-                chip.type = 'button';
-                chip.className = 'chip';
-                chip.textContent = v === 'all' ? 'All' : v;
-                var active = (current() === v);
-                chip.setAttribute('aria-pressed', active ? 'true' : 'false');
-                if (active) chip.classList.add('active');
-                chip.addEventListener('click', function() {
-                    onPick(v);
-                    chips.forEach(function(c) {
-                        var on = c === chip;
-                        c.classList.toggle('active', on);
-                        c.setAttribute('aria-pressed', on ? 'true' : 'false');
-                    });
-                    applyFilters();
-                });
-                chips.push(chip);
-                group.appendChild(chip);
+            var wrap = document.createElement('div');
+            wrap.className = 'select-wrap';
+            var sel = document.createElement('select');
+            sel.setAttribute('aria-label', allLabel);
+            var opts = [{ v: 'all', t: allLabel }].concat(values.map(function (v) { return { v: v, t: v }; }));
+            opts.forEach(function (o) {
+                var opt = document.createElement('option');
+                opt.value = o.v; opt.textContent = o.t;
+                sel.appendChild(opt);
             });
-            filtersEl.appendChild(group);
+            sel.addEventListener('change', function () { onPick(sel.value); applyFilters(); });
+            wrap.appendChild(sel);
+            var chev = document.createElement('i');
+            chev.className = 'fa-solid fa-chevron-down select-chev';
+            chev.setAttribute('aria-hidden', 'true');
+            wrap.appendChild(chev);
+            filtersEl.appendChild(wrap);
         }
 
         function renderFilters(posts) {
@@ -260,9 +249,10 @@
                 if (p.category && cameras.indexOf(p.category) === -1) cameras.push(p.category);
                 if (p.date && years.indexOf(String(p.date)) === -1) years.push(String(p.date));
             });
+            cameras.sort();
             years.sort(function(a, b) { return b.localeCompare(a); });
-            buildChipGroup('Camera', cameras, function() { return selectedCamera; }, function(v) { selectedCamera = v; });
-            buildChipGroup('Year', years, function() { return selectedYear; }, function(v) { selectedYear = v; });
+            buildSelect('All cameras', cameras, function(v) { selectedCamera = v; });
+            buildSelect('All years', years, function(v) { selectedYear = v; });
         }
 
         fetch('posts.json')
