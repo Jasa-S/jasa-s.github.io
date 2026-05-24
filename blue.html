@@ -65,33 +65,45 @@
         #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
 
         .filters {
-            display: flex; flex-direction: column; gap: 0.6rem;
-            margin-bottom: 1.25rem;
+            display: flex; flex-direction: column; gap: 0.5rem;
+            margin-bottom: 1.75rem;
         }
         .filters:empty { display: none; }
         .filter-group {
-            display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
+            display: flex; align-items: center; gap: 0.6rem;
+            min-width: 0;
         }
         .filter-label {
-            font-size: 0.62rem; text-transform: uppercase;
+            flex: none; width: 3.25rem;
+            font-size: 0.6rem; text-transform: uppercase;
             letter-spacing: var(--ls-wide); color: var(--text-muted);
-            font-weight: 600; margin-right: 0.35rem;
+            font-weight: 600;
         }
+        .chip-row {
+            display: flex; gap: 0.35rem; min-width: 0;
+            overflow-x: auto; scrollbar-width: none;
+            padding: 1px; margin: -1px; /* keep focus ring from clipping */
+        }
+        .chip-row::-webkit-scrollbar { display: none; }
         .chip {
+            flex: none; white-space: nowrap;
             font-family: inherit; cursor: pointer;
-            padding: 0.3rem 0.7rem; border-radius: 999px;
-            background: var(--card); border: 1px solid var(--border);
-            color: var(--text-muted); font-size: 0.72rem; font-weight: 500;
+            padding: 0.32rem 0.8rem; border-radius: 999px;
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-muted); font-size: 0.73rem; font-weight: 500;
             letter-spacing: var(--ls-tight);
             transition: color 0.2s, border-color 0.2s, background 0.2s;
         }
         .chip.active {
-            color: var(--cosmic-purple);
-            border-color: rgba(124,58,237,0.45);
-            background: rgba(124,58,237,0.10);
+            color: #fff; font-weight: 600;
+            background: var(--cosmic-purple);
+            border-color: var(--cosmic-purple);
         }
         @media (hover: hover) and (pointer: fine) {
-            .chip:hover { color: var(--cosmic-purple); border-color: rgba(125,125,125,0.3); }
+            .chip:not(.active):hover {
+                color: var(--cosmic-purple);
+                border-color: rgba(124,58,237,0.45);
+            }
         }
         .filter-empty {
             display: none; text-align: center; padding: 3rem 1rem;
@@ -229,6 +241,9 @@
             lbl.className = 'filter-label';
             lbl.textContent = label;
             group.appendChild(lbl);
+            var row = document.createElement('div');
+            row.className = 'chip-row';
+            group.appendChild(row);
             var all = ['all'].concat(values);
             var chips = [];
             all.forEach(function(v) {
@@ -249,7 +264,7 @@
                     applyFilters();
                 });
                 chips.push(chip);
-                group.appendChild(chip);
+                row.appendChild(chip);
             });
             filtersEl.appendChild(group);
         }
