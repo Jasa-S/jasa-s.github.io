@@ -64,6 +64,39 @@
 
         #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
 
+        .filters {
+            display: flex; flex-direction: column; gap: 0.6rem;
+            margin-bottom: 1.25rem;
+        }
+        .filters:empty { display: none; }
+        .filter-group {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem;
+        }
+        .filter-label {
+            font-size: 0.62rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+            font-weight: 600; margin-right: 0.35rem;
+        }
+        .chip {
+            font-family: inherit; cursor: pointer;
+            padding: 0.3rem 0.7rem; border-radius: 999px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-muted); font-size: 0.72rem; font-weight: 500;
+            letter-spacing: var(--ls-tight);
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .chip.active {
+            color: var(--cosmic-purple);
+            border-color: rgba(124,58,237,0.45);
+            background: rgba(124,58,237,0.10);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .chip:hover { color: var(--cosmic-purple); border-color: rgba(125,125,125,0.3); }
+        }
+        .filter-empty {
+            display: none; text-align: center; padding: 3rem 1rem;
+            color: var(--text-muted); font-size: 0.8rem; letter-spacing: var(--ls-tight);
+        }
         .photo-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -148,7 +181,9 @@
                 <i class="fa-solid fa-cube"></i>ORO
             </a>
         </header>
+        <div class="filters" id="filters"></div>
         <div class="photo-grid" id="grid"></div>
+        <div class="filter-empty" id="filter-empty">No posts match these filters.</div>
         <footer>
             <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
             <a href="index.html">Homepage</a>
@@ -168,24 +203,91 @@
             grid.appendChild(sk);
         }
 
+        var filtersEl = document.getElementById('filters');
+        var selectedCamera = 'all';
+        var selectedYear = 'all';
+
+        function applyFilters() {
+            var tiles = grid.querySelectorAll('.grid-tile');
+            var shown = 0;
+            for (var i = 0; i < tiles.length; i++) {
+                var t = tiles[i];
+                var ok = (selectedCamera === 'all' || t.dataset.cat === selectedCamera)
+                      && (selectedYear === 'all' || t.dataset.year === selectedYear);
+                t.style.display = ok ? '' : 'none';
+                if (ok) shown++;
+            }
+            var empty = document.getElementById('filter-empty');
+            if (empty) empty.style.display = shown === 0 ? 'block' : 'none';
+        }
+
+        function buildChipGroup(label, values, current, onPick) {
+            if (values.length < 2) return; // nothing to filter on
+            var group = document.createElement('div');
+            group.className = 'filter-group';
+            var lbl = document.createElement('span');
+            lbl.className = 'filter-label';
+            lbl.textContent = label;
+            group.appendChild(lbl);
+            var all = ['all'].concat(values);
+            var chips = [];
+            all.forEach(function(v) {
+                var chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'chip';
+                chip.textContent = v === 'all' ? 'All' : v;
+                var active = (current() === v);
+                chip.setAttribute('aria-pressed', active ? 'true' : 'false');
+                if (active) chip.classList.add('active');
+                chip.addEventListener('click', function() {
+                    onPick(v);
+                    chips.forEach(function(c) {
+                        var on = c === chip;
+                        c.classList.toggle('active', on);
+                        c.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    });
+                    applyFilters();
+                });
+                chips.push(chip);
+                group.appendChild(chip);
+            });
+            filtersEl.appendChild(group);
+        }
+
+        function renderFilters(posts) {
+            var cameras = [], years = [];
+            posts.forEach(function(p) {
+                if (p.category && cameras.indexOf(p.category) === -1) cameras.push(p.category);
+                if (p.date && years.indexOf(String(p.date)) === -1) years.push(String(p.date));
+            });
+            years.sort(function(a, b) { return b.localeCompare(a); });
+            buildChipGroup('Camera', cameras, function() { return selectedCamera; }, function(v) { selectedCamera = v; });
+            buildChipGroup('Year', years, function() { return selectedYear; }, function(v) { selectedYear = v; });
+        }
+
         fetch('posts.json')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 grid.innerHTML = '';
                 var BASE = data.base;
                 data.posts.forEach(function(p, i) {
-                    var src = BASE + p.imageId + '_' + p.cover + '.jpg';
+                    var full  = BASE + p.imageId + '_' + p.cover + '.jpg';
+                    var src   = p.thumb ? (BASE + p.imageId + '_' + p.cover + '_thumb.jpg') : full;
                     var a   = document.createElement('a');
                     a.className = 'grid-tile';
                     a.href = 'blue-post.html#' + encodeURIComponent(p.id);
+                    a.dataset.cat  = p.category || '';
+                    a.dataset.year = String(p.date || '');
                     a.innerHTML =
                         '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
                         + ' width="400" height="400" decoding="async"'
                         + (i === 0 ? '' : ' loading="lazy"')
+                        + (p.thumb ? ' data-full="' + esc(full) + '" onerror="if(this.dataset.full){this.src=this.dataset.full;this.removeAttribute(\'data-full\');}"' : '')
                         + '>'
                         + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + esc(p.title) + '</div></div>';
                     grid.appendChild(a);
                 });
+                renderFilters(data.posts);
             })
             .catch(function() {
                 grid.innerHTML =

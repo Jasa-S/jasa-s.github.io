@@ -517,6 +517,8 @@
         var IMG_DIR     = 'blue-images';
         var TOKEN_KEY   = 'blue.gh.token';
         var MAX_EDGE    = 2000;
+        var THUMB_EDGE  = 640;
+        var THUMB_QUAL  = 0.8;
         var JPEG_QUAL_COMPRESSED   = 0.85;
         var JPEG_QUAL_UNCOMPRESSED = 0.95;
         var UPLOAD_CONCURRENCY = 3;
@@ -645,6 +647,7 @@
         var allPosts = null;              // raw posts.json (kept for edit/delete)
         var editingId = null;             // post id being edited, or null
         var editingOriginalCount = 0;     // for edit-mode safety
+        var pendingImageId = null;        // stable imageId for an in-progress (possibly retried) publish
 
         // ---------- Helpers ----------
         function setStatus(msg, kind) {
@@ -725,6 +728,17 @@
             var body = { message: msg, content: b64, branch: BRANCH };
             if (sha) body.sha = sha;
             return gh('PUT', '/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(p), body);
+        }
+        // Create or overwrite a file regardless of whether it already exists
+        // (GitHub requires the current sha to overwrite). Used for thumbnails,
+        // which may already exist from an earlier publish attempt.
+        function ghPutUpsert(path, b64, msg) {
+            return ghGetContent(path)
+                .then(function (m) { return ghPutContent(path, b64, msg, m.sha); })
+                .catch(function (err) {
+                    if (err && err.status === 404) return ghPutContent(path, b64, msg);
+                    throw err;
+                });
         }
         function ghDeleteContent(p, sha, msg) {
             return gh('DELETE', '/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(p),
@@ -1169,6 +1183,15 @@
                     var st = document.createElement('div');
                     st.className = 'photo-status ' + (p.status === 'ok' ? 'ok' : (p.status === 'err' ? 'err' : ''));
                     st.textContent = p.statusText || p.status;
+                    if (p.status === 'err' && !editingId && !p.uploadedAs && pendingImageId) {
+                        var retry = document.createElement('button');
+                        retry.type = 'button';
+                        retry.className = 'btn';
+                        retry.style.cssText = 'margin-left:0.5rem;padding:0.15rem 0.55rem;min-height:0;font-size:0.7rem;';
+                        retry.innerHTML = '<i class="fa-solid fa-rotate-right"></i>Retry';
+                        retry.addEventListener('click', (function (idx) { return function () { retryPhoto(idx); }; })(i));
+                        st.appendChild(retry);
+                    }
                     meta.appendChild(st);
                 }
 
@@ -1256,6 +1279,7 @@
                     title: fTitle.value, category: fCategory.value, date: fDate.value,
                     location: fLocation.value, body: fBody.value, id: fId.value,
                     coverIndex: coverIndex, compressAll: compressAllChk.checked,
+                    pendingImageId: pendingImageId,
                     photos: photos.filter(function (p) { return p.file && !p.existing; }).map(function (p) {
                         return { name: p.file.name, type: p.file.type, file: p.file, caption: p.caption, compress: p.compress };
                     })
@@ -1273,6 +1297,7 @@
                 if (d.body)     fBody.value     = d.body;
                 if (d.id)       fId.value       = d.id;
                 if (typeof d.compressAll === 'boolean') compressAllChk.checked = d.compressAll;
+                if (d.pendingImageId) pendingImageId = d.pendingImageId;
                 if (Array.isArray(d.photos) && d.photos.length) {
                     d.photos.forEach(function (rec) {
                         if (!rec || !rec.file) return;
@@ -1337,6 +1362,25 @@
                 });
             });
         }
+        // Build a small cover derivative for the grid (source may be a File or a Blob).
+        function makeThumbnail(source) {
+            return loadBitmap(source).then(function (bmp) {
+                var w = bmp.width, h = bmp.height;
+                var scale = Math.min(1, THUMB_EDGE / Math.max(w, h));
+                var tw = Math.max(1, Math.round(w * scale));
+                var th = Math.max(1, Math.round(h * scale));
+                var canvas = document.createElement('canvas');
+                canvas.width = tw; canvas.height = th;
+                canvas.getContext('2d').drawImage(bmp, 0, 0, tw, th);
+                if (bmp.close) try { bmp.close(); } catch (e) {}
+                return new Promise(function (resolve, reject) {
+                    canvas.toBlob(function (blob) {
+                        if (!blob) reject(new Error('thumbnail toBlob returned null'));
+                        else resolve(blob);
+                    }, 'image/jpeg', THUMB_QUAL);
+                });
+            });
+        }
         function loadBitmap(file) {
             if (typeof createImageBitmap === 'function') {
                 try {
@@ -1389,9 +1433,31 @@
                 exitEdit();
                 return;
             }
+            // Images uploaded by an in-progress publish that never wrote posts.json
+            // would be orphaned in the repo — offer to delete them on discard.
+            var orphans = (pendingImageId ? photos.filter(function (p) { return p.uploadedAs; }) : []);
+            if (orphans.length) {
+                if (!confirm('Discard draft and delete ' + orphans.length + ' already-uploaded image'
+                    + (orphans.length === 1 ? '' : 's') + ' from the repo?')) return;
+                publishing = true; updatePublishState();
+                setStatus('Cleaning up uploaded images…');
+                var paths = orphans.map(function (p) { return IMG_DIR + '/' + p.uploadedAs; });
+                runPool(paths, 3, function (path) { return ghDeleteFile(path, 'blue: discard ' + path); })
+                    .then(function () { publishing = false; finishReset(); })
+                    .catch(function (err) {
+                        publishing = false; updatePublishState();
+                        setStatus('Cleanup failed: ' + (err && err.message ? err.message : err), 'err');
+                    });
+                return;
+            }
             if (!confirm('Discard the current draft?')) return;
+            finishReset();
+        });
+
+        function finishReset() {
             photos.forEach(function (p) { try { if (p.file) URL.revokeObjectURL(p.url); } catch (e) {} });
             photos = []; coverIndex = 0;
+            pendingImageId = null;
             fTitle.value = ''; fCategory.value = ''; fLocation.value = ''; fBody.value = '';
             fDate.value = String(new Date().getFullYear());
             fId.value = pickNextPostId();
@@ -1400,7 +1466,7 @@
             updatePublishState();
             setStatus('');
             successPanel.classList.add('hidden');
-        });
+        }
 
         publishBtn.addEventListener('click', function () {
             if (publishing) return;
@@ -1416,10 +1482,14 @@
             if (!fTitle.value.trim()) { setStatus('Title is required.', 'err'); return Promise.resolve(); }
             if (photos.length === 0)  { setStatus('Add at least one photo.', 'err'); return Promise.resolve(); }
 
-            // Resolve unique imageId.
-            var imageId = nowStamp();
-            while (existingIds.has(imageId)) {
-                imageId = String((Number(imageId) + 1));
+            // Resolve unique imageId — reuse the in-progress one across retries so
+            // already-uploaded photos and retried photos share a single id.
+            var imageId = pendingImageId;
+            if (!imageId) {
+                imageId = nowStamp();
+                while (existingIds.has(imageId)) {
+                    imageId = String((Number(imageId) + 1));
+                }
             }
             // Resolve unique post id.
             var postId = (fId.value || '').trim() || pickNextPostId();
@@ -1428,12 +1498,14 @@
                 return Promise.resolve();
             }
 
+            pendingImageId = imageId;
+            saveDraft();
             publishing = true; updatePublishState();
             successPanel.classList.add('hidden');
             setStatus('Uploading photos…');
             progressBar.style.display = 'block';
             progressFill.style.width = '0%';
-            var totalSteps = photos.length + 1;
+            var totalSteps = photos.length + 2; // photos + cover thumbnail + posts.json
             var doneSteps = 0;
             function tick() { doneSteps++; progressFill.style.width = Math.round((doneSteps/totalSteps)*100) + '%'; }
 
@@ -1446,6 +1518,7 @@
 
             // Build upload tasks (preserve i-based naming).
             var tasks = photos.map(function (p, i) { return { p: p, i: i, name: imageId + '_' + pad2(i + 1) + '.jpg' }; });
+            var failures = [];
 
             return runPool(tasks, UPLOAD_CONCURRENCY, function (task) {
                 if (task.p.uploadedAs) { tick(); return Promise.resolve(); }
@@ -1462,34 +1535,77 @@
                     })
                     .catch(function (err) {
                         task.p.status = 'err'; task.p.statusText = 'Failed: ' + err.message;
+                        failures.push(task);
                         renderPhotos();
-                        throw err;
+                        // Resolve (don't rethrow) so the pool finishes every photo.
                     });
             }).then(function () {
-                setStatus('Updating posts.json…');
-                return ghGetContent(POSTS_PATH);
-            }).then(function (meta) {
-                var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
-                var entry = buildPostEntry({ id: postId, imageId: imageId, count: photos.length });
-                json.posts = [entry].concat(json.posts || []);
-                var newContent = JSON.stringify(json, null, 2) + '\n';
-                return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: add post ' + postId, meta.sha)
-                    .then(function () { return entry; });
-            }).then(function (entry) {
-                tick();
-                publishing = false;
-                progressBar.style.display = 'none';
-                setStatus('Published 🎉', 'ok');
-                successTitle.textContent = 'Published';
-                successMsg.textContent = 'Your post is live. GitHub Pages may take ~30s to refresh.';
-                successView.href = 'blue-post.html#' + encodeURIComponent(entry.id);
-                successPanel.classList.remove('hidden');
-                clearDraft();
-                existingPostIds.add(entry.id);
-                existingIds.add(entry.imageId);
-                updatePublishState();
-                return loadPosts();
+                if (failures.length) {
+                    // Stop short of posts.json; keep pendingImageId so a re-publish
+                    // resumes under the same id and skips already-uploaded photos.
+                    publishing = false;
+                    progressBar.style.display = 'none';
+                    updatePublishState();
+                    setStatus(failures.length + ' of ' + photos.length + ' photo'
+                        + (photos.length === 1 ? '' : 's') + ' failed — retry the failed ones, then tap Publish again.', 'err');
+                    return null;
+                }
+                // Cover thumbnail for the grid.
+                setStatus('Creating thumbnail…');
+                var coverSeq = pad2(coverIndex + 1);
+                var thumbName = imageId + '_' + coverSeq + '_thumb.jpg';
+                return makeThumbnail(photos[coverIndex].file)
+                    .then(blobToBase64)
+                    .then(function (b64) { return ghPutUpsert(IMG_DIR + '/' + thumbName, b64, 'blue: add ' + thumbName); })
+                    .then(function () {
+                        tick();
+                        setStatus('Updating posts.json…');
+                        return ghGetContent(POSTS_PATH);
+                    }).then(function (meta) {
+                        var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
+                        var entry = buildPostEntry({ id: postId, imageId: imageId, count: photos.length, thumb: true });
+                        json.posts = [entry].concat(json.posts || []);
+                        var newContent = JSON.stringify(json, null, 2) + '\n';
+                        return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: add post ' + postId, meta.sha)
+                            .then(function () { return entry; });
+                    }).then(function (entry) {
+                        tick();
+                        publishing = false;
+                        pendingImageId = null;
+                        progressBar.style.display = 'none';
+                        setStatus('Published 🎉', 'ok');
+                        successTitle.textContent = 'Published';
+                        successMsg.textContent = 'Your post is live. GitHub Pages may take ~30s to refresh.';
+                        successView.href = 'blue-post.html#' + encodeURIComponent(entry.id);
+                        successPanel.classList.remove('hidden');
+                        clearDraft();
+                        existingPostIds.add(entry.id);
+                        existingIds.add(entry.imageId);
+                        updatePublishState();
+                        return loadPosts();
+                    });
             });
+        }
+
+        function retryPhoto(i) {
+            if (publishing || editingId) return;
+            var p = photos[i];
+            if (!p || p.uploadedAs || !pendingImageId) return;
+            var name = pendingImageId + '_' + pad2(i + 1) + '.jpg';
+            p.status = 'uploading'; p.statusText = 'Uploading…'; renderPhotos();
+            processForUpload(p)
+                .then(blobToBase64)
+                .then(function (b64) { return ghPutContent(IMG_DIR + '/' + name, b64, 'blue: add ' + name); })
+                .then(function () {
+                    p.uploadedAs = name; p.status = 'ok'; p.statusText = 'Uploaded';
+                    renderPhotos();
+                    setStatus('Uploaded — tap Publish to finish.', 'ok');
+                })
+                .catch(function (err) {
+                    p.status = 'err'; p.statusText = 'Failed: ' + err.message;
+                    renderPhotos();
+                    setStatus('Retry failed: ' + (err && err.message ? err.message : err), 'err');
+                });
         }
 
         function saveEdit() {
@@ -1503,14 +1619,31 @@
             var existingPost = allPosts.posts.find(function (p) { return p.id === editingId; });
             if (!existingPost) { setStatus('Original post no longer exists.', 'err'); publishing = false; updatePublishState(); progressBar.style.display = 'none'; return Promise.resolve(); }
 
-            return ghGetContent(POSTS_PATH).then(function (meta) {
+            // Ensure a thumbnail exists for the chosen cover. Regenerate when the
+            // cover changed or the post predates thumbnails; reuse otherwise.
+            var coverSeq = pad2(coverIndex + 1);
+            var thumbName = existingPost.imageId + '_' + coverSeq + '_thumb.jpg';
+            var thumbReady;
+            if (existingPost.thumb && coverSeq === existingPost.cover) {
+                thumbReady = Promise.resolve();
+            } else {
+                setStatus('Creating thumbnail…');
+                thumbReady = fetch(allPosts.base + existingPost.imageId + '_' + coverSeq + '.jpg', { cache: 'no-store' })
+                    .then(function (r) { if (!r.ok) throw new Error('Could not load cover image'); return r.blob(); })
+                    .then(makeThumbnail)
+                    .then(blobToBase64)
+                    .then(function (b64) { return ghPutUpsert(IMG_DIR + '/' + thumbName, b64, 'blue: thumb ' + thumbName); });
+            }
+
+            return thumbReady.then(function () { return ghGetContent(POSTS_PATH); }).then(function (meta) {
                 var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
                 var idx = json.posts.findIndex(function (p) { return p.id === editingId; });
                 if (idx < 0) throw new Error('Post not found in posts.json');
                 var entry = buildPostEntry({
                     id: editingId,
                     imageId: existingPost.imageId,
-                    count: existingPost.count
+                    count: existingPost.count,
+                    thumb: true
                 });
                 json.posts[idx] = entry;
                 var newContent = JSON.stringify(json, null, 2) + '\n';
@@ -1541,6 +1674,7 @@
                 count: opts.count,
                 cover: pad2(coverIndex + 1)
             };
+            if (opts.thumb) entry.thumb = true;
             if (fLocation.value.trim()) entry.location = fLocation.value.trim();
             var bodyText = fBody.value.trim();
             if (bodyText) {
