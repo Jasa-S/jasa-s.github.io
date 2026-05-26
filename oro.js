@@ -77,6 +77,24 @@
     }
     var WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+    // ── Date error toast ──
+    var dateInput  = document.getElementById('date-input');
+    var dateToast  = document.getElementById('date-toast');
+    var dateToastMsg = document.getElementById('date-toast-msg');
+    var _toastTimer = null;
+
+    function showDateError(msg) {
+        dateInput.classList.add('date-error');
+        dateToastMsg.textContent = msg;
+        dateToast.classList.add('visible');
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(clearDateError, 3500);
+    }
+    function clearDateError() {
+        dateInput.classList.remove('date-error');
+        dateToast.classList.remove('visible');
+    }
+
     // ── Lighting model ──
     function classifyHour(hourDate, sunrise, sunset, cloudPct) {
         var t = hourDate.getTime() + 30 * 60000;
@@ -207,7 +225,7 @@
         if (best) {
             bestHtml =
                 '<div class="best-window">'
-              + '<div>'
+              + '<div class="best-window-body">'
               + '<p class="best-window-label">' + esc(isToday ? 'Best photo walk window today' : 'Best photo walk window') + '</p>'
               + '<div class="best-window-time">' + fmtTime(best.start) + ' – ' + fmtTime(best.end) + '</div>'
               + '<p class="best-window-note">' + esc(best.note) + '</p>'
@@ -267,8 +285,8 @@
     function renderWithDate(dateStr) {
         if (!currentWeather || !currentPlace) return;
         selectedDate = dateStr;
-        var dateInput = document.getElementById('date-input');
         if (dateInput.value !== dateStr) dateInput.value = dateStr;
+        clearDateError();
         render(currentPlace, currentWeather, dateStr);
     }
 
@@ -321,10 +339,10 @@
         var available  = weather.daily.time;
         if (!selectedDate || available.indexOf(selectedDate) === -1)
             selectedDate = available.indexOf(todayLocal) !== -1 ? todayLocal : available[0];
-        var dateInput = document.getElementById('date-input');
         dateInput.min   = available[0];
         dateInput.max   = available[available.length - 1];
         dateInput.value = selectedDate;
+        clearDateError();
         document.getElementById('city-input').value = '';
         render(place, weather, selectedDate);
     }
@@ -354,25 +372,25 @@
         });
     }
 
-    // ── City list (regions sorted, cities alphabetical within each region) ──
+    // ── City list ──
     var CITIES = [
         { group: 'Africa', items: [
             { name: 'Cairo',     country: 'Egypt',        lat:  30.0444, lon:  31.2357 },
             { name: 'Cape Town', country: 'South Africa', lat: -33.9249, lon:  18.4241 }
         ] },
         { group: 'Asia', items: [
-            { name: 'Amritsar',  country: 'India',                  lat:  31.6340, lon:  74.8723 },
-            { name: 'Bangkok',   country: 'Thailand',               lat:  13.7563, lon: 100.5018 },
-            { name: 'Beijing',   country: 'China',                  lat:  39.9042, lon: 116.4074 },
-            { name: 'Chongqing', country: 'China',                  lat:  29.4316, lon: 106.9123 },
-            { name: 'Delhi',     country: 'India',                  lat:  28.6139, lon:  77.2090 },
-            { name: 'Dubai',     country: 'United Arab Emirates',   lat:  25.2048, lon:  55.2708 },
-            { name: 'Hong Kong', country: 'China',                  lat:  22.3193, lon: 114.1694 },
-            { name: 'Mumbai',    country: 'India',                  lat:  19.0760, lon:  72.8777 },
-            { name: 'Seoul',     country: 'South Korea',            lat:  37.5665, lon: 126.9780 },
-            { name: 'Shanghai',  country: 'China',                  lat:  31.2304, lon: 121.4737 },
-            { name: 'Singapore', country: 'Singapore',              lat:   1.3521, lon: 103.8198 },
-            { name: 'Tokyo',     country: 'Japan',                  lat:  35.6762, lon: 139.6503 }
+            { name: 'Amritsar',  country: 'India',                lat:  31.6340, lon:  74.8723 },
+            { name: 'Bangkok',   country: 'Thailand',             lat:  13.7563, lon: 100.5018 },
+            { name: 'Beijing',   country: 'China',                lat:  39.9042, lon: 116.4074 },
+            { name: 'Chongqing', country: 'China',                lat:  29.4316, lon: 106.9123 },
+            { name: 'Delhi',     country: 'India',                lat:  28.6139, lon:  77.2090 },
+            { name: 'Dubai',     country: 'United Arab Emirates', lat:  25.2048, lon:  55.2708 },
+            { name: 'Hong Kong', country: 'China',                lat:  22.3193, lon: 114.1694 },
+            { name: 'Mumbai',    country: 'India',                lat:  19.0760, lon:  72.8777 },
+            { name: 'Seoul',     country: 'South Korea',          lat:  37.5665, lon: 126.9780 },
+            { name: 'Shanghai',  country: 'China',                lat:  31.2304, lon: 121.4737 },
+            { name: 'Singapore', country: 'Singapore',            lat:   1.3521, lon: 103.8198 },
+            { name: 'Tokyo',     country: 'Japan',                lat:  35.6762, lon: 139.6503 }
         ] },
         { group: 'Europe', items: [
             { name: 'Amsterdam', country: 'Netherlands',    lat:  52.3676, lon:   4.9041 },
@@ -405,7 +423,7 @@
         ] }
     ];
 
-    // ── Build native <select> with <optgroup>s ──
+    // ── Build native <select> ──
     var citySelect = document.getElementById('city-select');
     CITIES.forEach(function (region) {
         var grp = document.createElement('optgroup');
@@ -441,7 +459,7 @@
         });
     });
 
-    // ── Form submit (free-text geocode) ──
+    // ── City text search (form submit) ──
     document.getElementById('search-form').addEventListener('submit', function (e) {
         e.preventDefault();
         var name = document.getElementById('city-input').value.trim();
@@ -453,8 +471,26 @@
         });
     });
 
-    document.getElementById('date-input').addEventListener('change', function (e) {
-        if (e.target.value) renderWithDate(e.target.value);
+    // ── Date input: validate against available range, show error instead of silently resetting ──
+    dateInput.addEventListener('change', function () {
+        var val = dateInput.value;
+        if (!val) return;
+        if (!currentWeather) return;
+        var available = currentWeather.daily.time;
+        var min = available[0];
+        var max = available[available.length - 1];
+        if (val < min || val > max) {
+            // Restore previous valid date in the input without triggering another change
+            dateInput.value = selectedDate || min;
+            var fmt = function(iso) {
+                var d = parseISOLocal(iso + 'T12:00:00');
+                return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            };
+            showDateError('Only ' + fmt(min) + ' – ' + fmt(max) + ' available');
+            return;
+        }
+        clearDateError();
+        renderWithDate(val);
     });
 
     content.addEventListener('click', function (e) {
