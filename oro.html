@@ -31,144 +31,167 @@
             margin: 0;
         }
 
-        /* ── Search area ── */
-        .search-block {
-            margin-bottom: 1.75rem;
-        }
+        /* ── Search bar ── */
+        .search-block { margin-bottom: 1.75rem; }
 
-        /* Row 1: main search bar (full width) */
-        .search-main {
+        .search-row {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 0.5rem;
+            align-items: center;
         }
-        .city-field {
+
+        /* The unified input pill */
+        .search-pill {
             position: relative;
             flex: 1 1 auto;
             min-width: 0;
             display: flex;
             align-items: center;
-        }
-        .city-field .search-input {
-            flex: 1 1 auto;
-            width: 100%;
-            padding-right: 3rem;
-        }
-        .city-field-action {
-            position: absolute; right: 0.45rem;
-            top: 50%; transform: translateY(-50%);
-            background: none; border: none;
-            color: var(--text-muted); cursor: pointer;
-            width: 2rem; height: 2rem;
-            border-radius: 999px;
-            display: inline-flex; align-items: center; justify-content: center;
-            font-size: 0.85rem;
-            transition: color 0.2s, background 0.2s;
-        }
-        .city-field-action:hover {
-            color: var(--cosmic-purple);
-            background: var(--card-hover);
-        }
-
-        /* Row 2: secondary controls — jump picker + date */
-        .search-secondary {
-            display: flex;
-            gap: 0.5rem;
-            align-items: stretch;
-        }
-        /* Label pill sitting left of its control */
-        .ctrl-group {
-            display: flex;
-            align-items: center;
-            gap: 0;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-        .ctrl-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-muted);
-            white-space: nowrap;
-            padding: 0 0.6rem 0 0.1rem;
-            flex-shrink: 0;
-        }
-
-        /* Shared pill style */
-        .search-input {
             height: 2.75rem;
-            background: var(--card); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 999px;
-            padding: 0 1.1rem; font-size: 0.875rem;
-            line-height: 1; font-family: inherit; outline: none;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
             transition: border-color 0.2s, box-shadow 0.2s;
-            min-width: 0;
         }
-        .search-input::placeholder { color: var(--text-muted); }
-        .search-input:focus {
+        .search-pill:focus-within {
             border-color: var(--cosmic-purple);
             box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
         }
 
-        /* City dropdown */
-        .city-select-wrap {
-            position: relative;
-            display: flex; align-items: center;
-            flex: 1 1 auto; min-width: 0;
+        .search-pill input {
+            flex: 1 1 auto;
+            min-width: 0;
+            height: 100%;
+            background: none;
+            border: none;
+            outline: none;
+            padding: 0 0.75rem 0 1.1rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: var(--text-main);
         }
-        .city-select {
-            appearance: none; -webkit-appearance: none; -moz-appearance: none;
-            width: 100%; height: 2.75rem;
-            background: var(--card); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 999px;
-            line-height: 1; padding: 0 2.5rem 0 1.1rem;
-            font-family: inherit; font-size: 0.875rem; font-weight: 400;
-            cursor: pointer; outline: none;
-            text-overflow: ellipsis;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .city-select:hover {
-            border-color: rgba(125,125,125,0.3);
-            background: var(--card-hover);
-        }
-        .city-select:focus-visible { border-color: var(--cosmic-purple); }
-        .city-select-chev {
-            position: absolute; right: 1.05rem; top: 50%; transform: translateY(-50%);
-            font-size: 0.6rem; color: var(--text-muted); pointer-events: none;
+        .search-pill input::placeholder { color: var(--text-muted); }
+
+        /* Divider between text input and icon buttons */
+        .pill-divider {
+            width: 1px;
+            height: 1.25rem;
+            background: var(--border);
+            flex-shrink: 0;
         }
 
-        /* Date */
+        /* Icon buttons inside the pill */
+        .pill-btn {
+            flex-shrink: 0;
+            width: 2.25rem; height: 100%;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .pill-btn:first-of-type { margin-left: 0.1rem; }
+        .pill-btn:last-of-type  { margin-right: 0.3rem; }
+        .pill-btn:hover { color: var(--cosmic-purple); }
+        .pill-btn:focus-visible { outline: none; color: var(--cosmic-purple); }
+
+        /* Date input */
         .date-input {
-            flex: 0 1 9.5rem;
+            flex: 0 0 auto;
+            height: 2.75rem;
+            background: var(--card); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0 1rem;
+            font-size: 0.875rem; font-family: inherit;
+            outline: none;
             font-variant-numeric: tabular-nums;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            /* shrink gracefully, but keep a usable minimum */
+            width: 8.5rem;
         }
-        .date-input::-webkit-calendar-picker-indicator {
-            opacity: 0.6; cursor: pointer;
+        .date-input:focus {
+            border-color: var(--cosmic-purple);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
         }
-        body.dark .date-input::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-        }
+        .date-input::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+        body.dark .date-input::-webkit-calendar-picker-indicator { filter: invert(1); }
 
         /* Search button */
         .btn {
             flex: 0 0 auto; height: 2.75rem;
             background: var(--cosmic-purple); color: #fff;
             border: 1px solid var(--cosmic-purple); border-radius: 999px;
-            padding: 0 1.4rem; font-size: 0.875rem; font-weight: 500;
+            padding: 0 1.35rem; font-size: 0.875rem; font-weight: 500;
             line-height: 1; font-family: inherit; cursor: pointer;
             transition: filter 0.2s, transform 0.06s;
-            display: inline-flex; align-items: center; gap: 0.45rem;
+            display: inline-flex; align-items: center; gap: 0.4rem;
             white-space: nowrap;
         }
         .btn:hover { filter: brightness(1.08); }
         .btn:active { transform: translateY(1px); }
-        .btn i { font-size: 0.8rem; }
+        .btn i { font-size: 0.78rem; }
 
-        @media (max-width: 560px) {
-            .search-secondary { flex-wrap: wrap; }
-            .city-select-wrap { flex: 1 1 100%; }
-            .ctrl-label { display: none; }
-            .date-input { flex: 1 1 auto; }
+        /* ── Popular-cities dropdown panel ── */
+        .city-panel-wrap {
+            position: relative;
+        }
+        .city-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            /* align right edge with the pill-btn that opened it */
+            right: 0;
+            width: 22rem;
+            max-width: calc(100vw - 3rem);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            padding: 0.75rem;
+            z-index: 200;
+            /* tuck inside the pill */
+        }
+        .city-panel.open { display: block; }
+
+        .city-panel-group { margin-bottom: 0.6rem; }
+        .city-panel-group:last-child { margin-bottom: 0; }
+
+        .city-panel-heading {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 0.1rem 0.4rem 0.4rem;
+        }
+        .city-panel-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .city-chip {
+            font-size: 0.78rem;
+            font-family: inherit;
+            background: var(--bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.3rem 0.7rem;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+        .city-chip:hover {
+            background: var(--card-hover);
+            border-color: var(--cosmic-purple);
+            color: var(--cosmic-purple);
+        }
+
+        @media (max-width: 520px) {
+            .btn span { display: none; }
+            .btn { padding: 0 1rem; }
+            .date-input { width: 7rem; padding: 0 0.65rem; }
         }
 
         /* Summary card */
@@ -222,18 +245,12 @@
             font-size: 1.15rem; font-weight: 600;
             font-variant-numeric: tabular-nums;
         }
-        .best-window-note {
-            font-size: 0.8rem; opacity: 0.8;
-            margin: 0.15rem 0 0;
-        }
+        .best-window-note { font-size: 0.8rem; opacity: 0.8; margin: 0.15rem 0 0; }
         .best-window-score {
             font-size: 2rem; font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
+            font-variant-numeric: tabular-nums; line-height: 1;
         }
-        .best-window-score small {
-            font-size: 0.75rem; opacity: 0.7; font-weight: 400;
-        }
+        .best-window-score small { font-size: 0.75rem; opacity: 0.7; font-weight: 400; }
 
         /* Timeline */
         .section-title {
@@ -251,124 +268,49 @@
         .hour-scroll::-webkit-scrollbar-thumb { background: var(--timeline); border-radius: 2px; }
 
         .hour-card {
-            flex: 0 0 auto;
-            width: 4.25rem;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 0.6rem;
-            padding: 0.6rem 0.4rem 0.55rem;
-            text-align: center;
-            scroll-snap-align: start;
-            position: relative;
+            flex: 0 0 auto; width: 4.25rem;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 0.6rem; padding: 0.6rem 0.4rem 0.55rem;
+            text-align: center; scroll-snap-align: start; position: relative;
         }
-        .hour-card.now {
-            border-color: var(--cosmic-purple);
-            box-shadow: inset 0 0 0 100px rgba(124, 58, 237, 0.06);
-        }
-        .hour-card.now .hour-time {
-            color: var(--cosmic-purple);
-            font-weight: 600;
-        }
-        .hour-time {
-            font-size: 0.72rem; color: var(--text-muted);
-            font-variant-numeric: tabular-nums;
-            margin-bottom: 0.35rem;
-        }
-        .hour-swatch {
-            width: 100%; height: 1.6rem;
-            border-radius: 0.3rem; margin-bottom: 0.4rem;
-        }
-        .hour-score {
-            font-size: 1rem; font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-        }
-        .hour-score small {
-            font-size: 0.6rem; font-weight: 400;
-            color: var(--text-muted);
-        }
-        .hour-cloud {
-            font-size: 0.65rem; color: var(--text-muted);
-            margin-top: 0.25rem;
-            display: flex; align-items: center; justify-content: center; gap: 0.2rem;
-        }
+        .hour-card.now { border-color: var(--cosmic-purple); box-shadow: inset 0 0 0 100px rgba(124,58,237,0.06); }
+        .hour-card.now .hour-time { color: var(--cosmic-purple); font-weight: 600; }
+        .hour-time { font-size: 0.72rem; color: var(--text-muted); font-variant-numeric: tabular-nums; margin-bottom: 0.35rem; }
+        .hour-swatch { width: 100%; height: 1.6rem; border-radius: 0.3rem; margin-bottom: 0.4rem; }
+        .hour-score { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+        .hour-score small { font-size: 0.6rem; font-weight: 400; color: var(--text-muted); }
+        .hour-cloud { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.25rem; display: flex; align-items: center; justify-content: center; gap: 0.2rem; }
 
         /* 7-day strip */
-        .day-strip {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0.35rem;
-        }
+        .day-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.35rem; }
         .day-cell {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 0.6rem;
-            padding: 0.6rem 0.3rem;
-            text-align: center;
-            min-width: 0;
-            cursor: pointer;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 0.6rem; padding: 0.6rem 0.3rem;
+            text-align: center; min-width: 0; cursor: pointer;
             transition: background 0.2s, border-color 0.2s;
-            font-family: inherit;
-            color: inherit;
-            -webkit-appearance: none;
-            appearance: none;
+            font-family: inherit; color: inherit;
+            -webkit-appearance: none; appearance: none;
         }
-        .day-cell:focus-visible {
-            outline: 2px solid var(--cosmic-purple);
-            outline-offset: 2px;
-        }
-        .day-cell.selected {
-            border-color: var(--cosmic-purple);
-            box-shadow: inset 0 0 0 100px rgba(124, 58, 237, 0.06);
-        }
+        .day-cell:focus-visible { outline: 2px solid var(--cosmic-purple); outline-offset: 2px; }
+        .day-cell.selected { border-color: var(--cosmic-purple); box-shadow: inset 0 0 0 100px rgba(124,58,237,0.06); }
         .day-cell.selected .day-name { color: var(--cosmic-purple); }
-        @media (hover: hover) and (pointer: fine) {
-            .day-cell:hover { background: var(--card-hover); }
-        }
+        @media (hover: hover) and (pointer: fine) { .day-cell:hover { background: var(--card-hover); } }
 
-        .local-time-note {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            letter-spacing: var(--ls-mid);
-            text-transform: uppercase;
-            margin: 0.6rem 0 0;
-        }
-        .day-name {
-            font-size: 0.65rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: var(--ls-mid);
-            margin-bottom: 0.35rem;
-        }
-        .day-bar {
-            height: 0.4rem; border-radius: 999px;
-            background: var(--timeline); overflow: hidden;
-            margin: 0.4rem 0 0.35rem;
-        }
-        .day-bar-fill {
-            height: 100%; border-radius: 999px;
-            background: linear-gradient(90deg, hsl(220,70%,55%) 0%, hsl(35,90%,60%) 100%);
-        }
-        .day-score {
-            font-size: 0.8rem; font-weight: 500;
-            font-variant-numeric: tabular-nums;
-        }
-        .day-times {
-            font-size: 0.6rem; color: var(--text-muted);
-            margin-top: 0.2rem;
-            font-variant-numeric: tabular-nums;
-        }
+        .local-time-note { font-size: 0.65rem; color: var(--text-muted); letter-spacing: var(--ls-mid); text-transform: uppercase; margin: 0.6rem 0 0; }
+        .day-name { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 0.35rem; }
+        .day-bar { height: 0.4rem; border-radius: 999px; background: var(--timeline); overflow: hidden; margin: 0.4rem 0 0.35rem; }
+        .day-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, hsl(220,70%,55%) 0%, hsl(35,90%,60%) 100%); }
+        .day-score { font-size: 0.8rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+        .day-times { font-size: 0.6rem; color: var(--text-muted); margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
 
         /* Status */
-        .status {
-            padding: 2rem 1rem; text-align: center;
-            color: var(--text-muted); font-size: 0.85rem;
-        }
+        .status { padding: 2rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
         .status i { display: block; font-size: 1.3rem; margin-bottom: 0.6rem; opacity: 0.5; }
         .hidden { display: none !important; }
 
         .status-retry {
             display: inline-flex; align-items: center; gap: 0.4rem;
-            margin-top: 0.85rem;
-            background: none; border: 1px solid var(--border);
+            margin-top: 0.85rem; background: none; border: 1px solid var(--border);
             border-radius: 999px; padding: 0.4rem 1rem;
             font-family: inherit; font-size: 0.78rem; font-weight: 500;
             color: var(--text-muted); cursor: pointer;
@@ -379,19 +321,11 @@
         .status-retry i { display: inline; font-size: 0.72rem; margin-bottom: 0; opacity: 1; }
 
         /* Skeleton */
-        .skeleton {
-            background: var(--card);
-            border-radius: var(--radius-card);
-            animation: pulse 1.4s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        .skeleton { background: var(--card); border-radius: var(--radius-card); animation: pulse 1.4s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
         footer {
-            padding: 1.5rem 0;
-            margin-top: 3rem;
+            padding: 1.5rem 0; margin-top: 3rem;
             border-top: 1px solid var(--timeline);
             display: flex; justify-content: space-between;
             font-size: 0.65rem; text-transform: uppercase;
@@ -404,9 +338,7 @@
             .day-cell { padding: 0.5rem 0.2rem; }
             .day-times { font-size: 0.55rem; }
         }
-        @media (prefers-reduced-motion: reduce) {
-            .skeleton { animation: none; }
-        }
+        @media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
     </style>
 </head>
 <body>
@@ -422,39 +354,40 @@
         </header>
 
         <form class="search-block" id="search-form" autocomplete="off">
+            <div class="search-row">
 
-            <!-- Row 1: type-to-search + submit -->
-            <div class="search-main">
-                <div class="city-field">
+                <!-- Unified pill: text input + geo + popular -->
+                <div class="search-pill city-panel-wrap">
                     <input
-                        type="text" class="search-input" id="city-input"
-                        placeholder="Search any city&hellip;" aria-label="City"
+                        type="text" id="city-input"
+                        placeholder="Search a city&hellip;" aria-label="City"
                     >
-                    <button type="button" class="city-field-action" id="geo-btn"
+                    <span class="pill-divider" aria-hidden="true"></span>
+                    <button type="button" class="pill-btn" id="geo-btn"
                         aria-label="Use my location" title="Use my location">
                         <i class="fa-solid fa-location-crosshairs"></i>
                     </button>
-                </div>
-                <button type="submit" class="btn" id="search-btn">
-                    <i class="fa-solid fa-magnifying-glass"></i>Search
-                </button>
-            </div>
+                    <button type="button" class="pill-btn" id="popular-btn"
+                        aria-label="Popular cities" title="Popular cities"
+                        aria-expanded="false" aria-controls="city-panel">
+                        <i class="fa-solid fa-list"></i>
+                    </button>
 
-            <!-- Row 2: quick-jump picker + date -->
-            <div class="search-secondary">
-                <div class="ctrl-group">
-                    <span class="ctrl-label">or jump to</span>
-                    <div class="city-select-wrap">
-                        <select class="city-select" id="city-select" aria-label="Jump to a major city"></select>
-                        <i class="fa-solid fa-chevron-down city-select-chev" aria-hidden="true"></i>
-                    </div>
+                    <!-- Popular cities panel -->
+                    <div class="city-panel" id="city-panel" role="listbox" aria-label="Popular cities"></div>
                 </div>
+
+                <!-- Date -->
                 <input
-                    type="date" class="search-input date-input" id="date-input"
+                    type="date" class="date-input" id="date-input"
                     aria-label="Date"
                 >
-            </div>
 
+                <!-- Submit -->
+                <button type="submit" class="btn" id="search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i><span>Search</span>
+                </button>
+            </div>
         </form>
 
         <div id="content"></div>
@@ -468,5 +401,34 @@
 
     <script src="theme.js"></script>
     <script src="oro.js"></script>
+    <script>
+        // Popular-cities panel toggle
+        (function () {
+            var btn   = document.getElementById('popular-btn');
+            var panel = document.getElementById('city-panel');
+
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var open = panel.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open);
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function (e) {
+                if (!panel.contains(e.target) && e.target !== btn) {
+                    panel.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Close on Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    panel.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
