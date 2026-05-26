@@ -281,6 +281,19 @@
             padding: 0.55rem 0; border-top: 1px solid var(--border);
         }
         .post-row:first-of-type { border-top: 1px solid var(--border); margin-top: 0.4rem; }
+        .post-row.dragging {
+            box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+            background: var(--card); border-radius: 0.5rem;
+            z-index: 10; opacity: 0.96; position: relative;
+        }
+        body.dark .post-row.dragging { box-shadow: 0 8px 28px rgba(0,0,0,0.55); }
+        .post-row .pr-handle {
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); cursor: grab;
+            min-width: 28px; min-height: 44px; flex-shrink: 0;
+            touch-action: none; user-select: none; -webkit-user-select: none;
+        }
+        .post-row .pr-handle:active { cursor: grabbing; }
         .post-row .pr-thumb {
             width: 44px; height: 44px; border-radius: 0.45rem;
             background: var(--bg); overflow: hidden; flex-shrink: 0;
@@ -408,6 +421,10 @@
                 <span class="count" id="existing-count"></span>
             </summary>
             <div id="existing-list"></div>
+            <div class="btn-row hidden" id="order-actions" style="margin-top:0.6rem;">
+                <button class="btn primary" id="btn-save-order" type="button"><i class="fa-solid fa-arrow-down-1-9"></i>Save order</button>
+                <button class="btn" id="btn-cancel-order" type="button"><i class="fa-solid fa-rotate-left"></i>Reset</button>
+            </div>
         </details>
 
         <!-- Edit-mode banner -->
@@ -415,7 +432,7 @@
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
                 <div>
                     <p class="panel-title" style="margin:0 0 0.2rem;">Editing post</p>
-                    <p style="margin:0;font-size:0.85rem;">Updating metadata + cover + captions for <strong id="edit-banner-title">…</strong>. Photos can't be added or removed in edit mode — delete and recreate the post for that.</p>
+                    <p style="margin:0;font-size:0.85rem;">Editing <strong id="edit-banner-title">…</strong>. Drag to reorder, add, remove or replace photos, change the cover, captions and details — then tap <strong>Save changes</strong>.</p>
                 </div>
                 <button class="btn" id="edit-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
             </div>
@@ -473,6 +490,7 @@
 
             <input type="file" id="file-camera" class="file-input" accept="image/*" capture="environment">
             <input type="file" id="file-library" class="file-input" accept="image/*" multiple>
+            <input type="file" id="file-replace" class="file-input" accept="image/*">
 
             <div id="photos-empty" class="empty">
                 <i class="fa-regular fa-image"></i>
@@ -612,6 +630,9 @@
         var photosWrap     = $('photos');
         var photosEmpty    = $('photos-empty');
         var photoActions   = $('photo-actions');
+        var orderActions   = $('order-actions');
+        var saveOrderBtn   = $('btn-save-order');
+        var cancelOrderBtn = $('btn-cancel-order');
         var statusEl       = $('status');
         var progressBar    = $('progress');
         var progressFill   = progressBar.firstElementChild;
@@ -649,6 +670,8 @@
         var editingId = null;             // post id being edited, or null
         var editingOriginalCount = 0;     // for edit-mode safety
         var pendingImageId = null;        // stable imageId for an in-progress (possibly retried) publish
+        var photosDirty = false;          // edit mode: photo set changed (reorder/add/remove/replace)
+        var orderDirty = false;           // gallery post order changed but not yet saved
 
         // ---------- Helpers ----------
         function setStatus(msg, kind) {
@@ -854,9 +877,17 @@
             existingPanel.classList.remove('hidden');
             existingCount.textContent = '(' + allPosts.posts.length + ')';
             existingList.innerHTML = '';
-            allPosts.posts.forEach(function (p) {
+            allPosts.posts.forEach(function (p, i) {
                 var row = document.createElement('div');
                 row.className = 'post-row';
+                row.dataset.idx = String(i);
+
+                var rowHandle = document.createElement('div');
+                rowHandle.className = 'pr-handle';
+                rowHandle.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
+                rowHandle.setAttribute('aria-label', 'Drag to reorder posts');
+                attachRowDragHandle(rowHandle, row);
+                row.appendChild(rowHandle);
 
                 var thumb = document.createElement('div');
                 thumb.className = 'pr-thumb';
@@ -897,7 +928,86 @@
 
                 existingList.appendChild(row);
             });
+            orderActions.classList.toggle('hidden', !orderDirty);
         }
+
+        // ---------- Gallery post reordering ----------
+        function movePost(from, to) {
+            if (to < 0) to = 0;
+            if (to >= allPosts.posts.length) to = allPosts.posts.length - 1;
+            if (from === to) return;
+            var item = allPosts.posts.splice(from, 1)[0];
+            allPosts.posts.splice(to, 0, item);
+            orderDirty = true;
+            renderExisting();
+        }
+        function attachRowDragHandle(handle, row) {
+            var dragging = false, startY = 0, pointerId = null, fromIdx = -1;
+            handle.addEventListener('pointerdown', function (e) {
+                if (publishing || editingId || allPosts.posts.length < 2) return;
+                pointerId = e.pointerId;
+                try { handle.setPointerCapture(pointerId); } catch (err) {}
+                dragging = true; startY = e.clientY;
+                fromIdx = parseInt(row.dataset.idx, 10);
+                row.classList.add('dragging');
+                e.preventDefault();
+            });
+            handle.addEventListener('pointermove', function (e) {
+                if (!dragging || e.pointerId !== pointerId) return;
+                row.style.transform = 'translateY(' + (e.clientY - startY) + 'px)';
+                e.preventDefault();
+            });
+            function endDrag(e) {
+                if (!dragging || (e && e.pointerId !== pointerId)) return;
+                dragging = false;
+                var dr = row.getBoundingClientRect();
+                var draggedMid = dr.top + dr.height / 2;
+                var siblings = Array.prototype.slice.call(existingList.children);
+                var newIdx = fromIdx;
+                for (var i = 0; i < siblings.length; i++) {
+                    var s = siblings[i];
+                    if (s === row) continue;
+                    var r = s.getBoundingClientRect();
+                    var sIdx = parseInt(s.dataset.idx, 10);
+                    var sMid = r.top + r.height / 2;
+                    if (sIdx < fromIdx && draggedMid < sMid) { newIdx = sIdx; break; }
+                    if (sIdx > fromIdx && draggedMid > sMid) { newIdx = sIdx; }
+                }
+                row.classList.remove('dragging');
+                row.style.transform = '';
+                try { handle.releasePointerCapture(pointerId); } catch (err) {}
+                pointerId = null;
+                if (newIdx !== fromIdx) movePost(fromIdx, newIdx);
+            }
+            handle.addEventListener('pointerup', endDrag);
+            handle.addEventListener('pointercancel', endDrag);
+        }
+        saveOrderBtn.addEventListener('click', function () {
+            if (publishing || !orderDirty || !allPosts) return;
+            var order = allPosts.posts.map(function (p) { return p.id; });
+            publishing = true; updatePublishState();
+            setStatus('Saving post order…');
+            ghGetContent(POSTS_PATH).then(function (meta) {
+                var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
+                json.posts.sort(function (a, b) { return order.indexOf(a.id) - order.indexOf(b.id); });
+                var newContent = JSON.stringify(json, null, 2) + '\n';
+                return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: reorder posts', meta.sha);
+            }).then(function () {
+                orderDirty = false;
+                publishing = false; updatePublishState();
+                setStatus('Post order saved.', 'ok');
+                return loadPosts();
+            }).catch(function (err) {
+                publishing = false; updatePublishState();
+                setStatus('Saving order failed: ' + (err && err.message ? err.message : err), 'err');
+            });
+        });
+        cancelOrderBtn.addEventListener('click', function () {
+            if (publishing) return;
+            orderDirty = false;
+            loadPosts();
+            setStatus('');
+        });
 
         // ---------- Edit mode ----------
         function startEdit(postId) {
@@ -907,10 +1017,11 @@
             if (!post) return;
             editingId = postId;
             editingOriginalCount = post.count;
+            photosDirty = false;
             // Clear in-memory photo state and form draft.
-            photos.forEach(function (p) { try { URL.revokeObjectURL(p.url); } catch (e) {} });
+            photos.forEach(function (p) { try { if (p.file) URL.revokeObjectURL(p.url); } catch (e) {} });
             photos = [];
-            // Build read-only photo entries from the existing files.
+            // Build photo entries from the existing files (editable in place).
             for (var i = 0; i < post.count; i++) {
                 var seq = pad2(i + 1);
                 photos.push({
@@ -923,7 +1034,8 @@
                     statusText: '',
                     uploadedAs: post.imageId + '_' + seq + '.jpg',
                     existing: true,
-                    seq: seq
+                    seq: seq,
+                    ratio: (post.ratios && post.ratios[i]) || 0
                 });
             }
             coverIndex = Math.max(0, Math.min(post.count - 1, parseInt(post.cover, 10) - 1));
@@ -933,10 +1045,11 @@
             fLocation.value = post.location || '';
             fBody.value     = (post.body && post.body.length) ? post.body.join('\n\n') : '';
             fId.value       = post.id;
+            autoGrowBody();
             // UI tweaks
             formTitle.textContent = 'Edit post';
             publishLabel.textContent = 'Save changes';
-            photoActions.style.display = 'none';
+            photoActions.style.display = '';
             editBanner.classList.remove('hidden');
             editBannerTitle.textContent = post.title || post.id;
             successPanel.classList.add('hidden');
@@ -948,6 +1061,7 @@
         function exitEdit() {
             editingId = null;
             editingOriginalCount = 0;
+            photosDirty = false;
             formTitle.textContent = 'New post';
             publishLabel.textContent = 'Publish';
             photoActions.style.display = '';
@@ -958,6 +1072,7 @@
             fTitle.value = ''; fCategory.value = ''; fLocation.value = ''; fBody.value = '';
             fDate.value  = String(new Date().getFullYear());
             fId.value    = pickNextPostId();
+            autoGrowBody();
             successPanel.classList.add('hidden');
             setStatus('');
             renderPhotos();
@@ -1017,7 +1132,6 @@
 
         // ---------- Photo handling ----------
         function addFiles(fileList) {
-            if (editingId) return; // photos are immutable in edit mode
             var arr = Array.prototype.slice.call(fileList || []);
             arr.forEach(function (file) {
                 if (!file || !file.type || file.type.indexOf('image/') !== 0) return;
@@ -1035,21 +1149,37 @@
                 photos.push(photo);
             });
             if (coverIndex >= photos.length) coverIndex = 0;
+            if (editingId) photosDirty = true;
             renderPhotos();
             saveDraft();
             updatePublishState();
         }
         function removePhoto(i) {
-            if (editingId) return;
             try { if (photos[i].file) URL.revokeObjectURL(photos[i].url); } catch (e) {}
             photos.splice(i, 1);
             if (coverIndex >= photos.length) coverIndex = Math.max(0, photos.length - 1);
+            if (editingId) photosDirty = true;
+            renderPhotos();
+            saveDraft();
+            updatePublishState();
+        }
+        function replacePhoto(i, file) {
+            var p = photos[i];
+            if (!p || !file || file.type.indexOf('image/') !== 0) return;
+            try { if (p.file) URL.revokeObjectURL(p.url); } catch (e) {}
+            p.file = file;
+            p.url = URL.createObjectURL(file);
+            p.existing = false;
+            p.uploadedAs = null;
+            p.compress = compressAllChk.checked;
+            p.status = ''; p.statusText = '';
+            p.w = 0; p.h = 0; p.ratio = 0;
+            if (editingId) photosDirty = true;
             renderPhotos();
             saveDraft();
             updatePublishState();
         }
         function movePhoto(from, to) {
-            if (editingId) return; // order is fixed in edit mode
             if (to < 0) to = 0;
             if (to >= photos.length) to = photos.length - 1;
             if (from === to) return;
@@ -1059,6 +1189,7 @@
             if (coverIndex === from) coverIndex = to;
             else if (from < coverIndex && to >= coverIndex) coverIndex--;
             else if (from > coverIndex && to <= coverIndex) coverIndex++;
+            if (editingId) photosDirty = true;
             renderPhotos();
             saveDraft();
         }
@@ -1080,8 +1211,7 @@
                 handle.className = 'drag-handle';
                 handle.innerHTML = '<i class="fa-solid fa-grip-vertical"></i>';
                 handle.setAttribute('aria-label', 'Drag to reorder');
-                if (editingId) handle.style.visibility = 'hidden';
-                else attachDragHandle(handle, card);
+                attachDragHandle(handle, card);
                 card.appendChild(handle);
 
                 var thumb = document.createElement('div');
@@ -1132,8 +1262,8 @@
                 coverLbl.appendChild(document.createTextNode('Cover'));
                 ctrl.appendChild(coverLbl);
 
-                // Compress checkbox (hidden in edit mode for existing photos)
-                if (!editingId) {
+                // Compress checkbox (only for newly added/replaced photos)
+                if (!p.existing) {
                     var compLbl = document.createElement('label');
                     var compC = document.createElement('input');
                     compC.type = 'checkbox';
@@ -1151,7 +1281,15 @@
                 spacer.className = 'spacer';
                 ctrl.appendChild(spacer);
 
-                if (!editingId) {
+                {
+                    // Replace
+                    var rpBtn = document.createElement('button');
+                    rpBtn.type = 'button';
+                    rpBtn.className = 'icon-btn';
+                    rpBtn.setAttribute('aria-label', 'Replace');
+                    rpBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i>';
+                    rpBtn.addEventListener('click', (function (idx) { return function () { openReplace(idx); }; })(i));
+                    ctrl.appendChild(rpBtn);
                     // Move up
                     var upBtn = document.createElement('button');
                     upBtn.type = 'button';
@@ -1209,13 +1347,23 @@
             saveDraft();
         });
 
-        $('btn-camera').addEventListener('click', function () { if (!editingId) $('file-camera').click(); });
-        $('btn-library').addEventListener('click', function () { if (!editingId) $('file-library').click(); });
+        $('btn-camera').addEventListener('click', function () { $('file-camera').click(); });
+        $('btn-library').addEventListener('click', function () { $('file-library').click(); });
         $('file-camera').addEventListener('change', function (e) {
             addFiles(e.target.files); e.target.value = '';
         });
         $('file-library').addEventListener('change', function (e) {
             addFiles(e.target.files); e.target.value = '';
+        });
+
+        // Replace a single photo's image file in place.
+        var replaceTargetIdx = -1;
+        function openReplace(idx) { replaceTargetIdx = idx; $('file-replace').click(); }
+        $('file-replace').addEventListener('change', function (e) {
+            var file = e.target.files && e.target.files[0];
+            if (file && replaceTargetIdx >= 0) replacePhoto(replaceTargetIdx, file);
+            replaceTargetIdx = -1;
+            e.target.value = '';
         });
 
         // ---------- Drag-to-reorder (Pointer Events; works on iOS) ----------
@@ -1229,7 +1377,7 @@
             var fromIdx = -1;
 
             handle.addEventListener('pointerdown', function (e) {
-                if (publishing || editingId || photos.length < 2) return;
+                if (publishing || photos.length < 2) return;
                 pointerId = e.pointerId;
                 try { handle.setPointerCapture(pointerId); } catch (err) {}
                 dragging = true;
@@ -1297,7 +1445,7 @@
                 if (d.category) fCategory.value = d.category;
                 if (d.date)     fDate.value     = d.date;
                 if (d.location) fLocation.value = d.location;
-                if (d.body)     fBody.value     = d.body;
+                if (d.body)   { fBody.value     = d.body; autoGrowBody(); }
                 if (d.id)       fId.value       = d.id;
                 if (typeof d.compressAll === 'boolean') compressAllChk.checked = d.compressAll;
                 if (d.pendingImageId) pendingImageId = d.pendingImageId;
@@ -1328,6 +1476,13 @@
         [fTitle, fCategory, fDate, fLocation, fBody, fId].forEach(function (el) {
             el.addEventListener('input', saveDraft);
         });
+
+        // Auto-grow the body textarea so long posts stay editable without scrolling.
+        function autoGrowBody() {
+            fBody.style.height = 'auto';
+            fBody.style.height = Math.min(fBody.scrollHeight, 600) + 'px';
+        }
+        fBody.addEventListener('input', autoGrowBody);
 
         // ---------- Share target consumption ----------
         function consumeShareTargetIfAny() {
@@ -1506,6 +1661,7 @@
             fTitle.value = ''; fCategory.value = ''; fLocation.value = ''; fBody.value = '';
             fDate.value = String(new Date().getFullYear());
             fId.value = pickNextPostId();
+            autoGrowBody();
             clearDraft();
             renderPhotos();
             updatePublishState();
@@ -1662,13 +1818,18 @@
         function saveEdit() {
             if (!editingId) return Promise.resolve();
             if (!fTitle.value.trim()) { setStatus('Title is required.', 'err'); return Promise.resolve(); }
+            if (photos.length === 0)  { setStatus('Add at least one photo.', 'err'); return Promise.resolve(); }
+            var existingPost = allPosts.posts.find(function (p) { return p.id === editingId; });
+            if (!existingPost) { setStatus('Original post no longer exists.', 'err'); return Promise.resolve(); }
+            return photosDirty ? saveEditFull(existingPost) : saveEditMeta(existingPost);
+        }
+
+        // Metadata + cover + captions only: reuse the existing image files in place.
+        function saveEditMeta(existingPost) {
             publishing = true; updatePublishState();
             setStatus('Saving changes…');
             progressBar.style.display = 'block';
             progressFill.style.width = '50%';
-
-            var existingPost = allPosts.posts.find(function (p) { return p.id === editingId; });
-            if (!existingPost) { setStatus('Original post no longer exists.', 'err'); publishing = false; updatePublishState(); progressBar.style.display = 'none'; return Promise.resolve(); }
 
             // Ensure a thumbnail exists for the chosen cover. Regenerate when the
             // cover changed or the post predates thumbnails; reuse otherwise.
@@ -1717,6 +1878,104 @@
             });
         }
 
+        // Photo set changed (reorder/add/remove/replace): re-upload the whole set
+        // under a fresh imageId, repoint posts.json + stub, then delete old files.
+        function saveEditFull(existingPost) {
+            publishing = true; updatePublishState();
+            successPanel.classList.add('hidden');
+            setStatus('Uploading photos…');
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+
+            var newImageId = nowStamp();
+            while (existingIds.has(newImageId) || newImageId === existingPost.imageId) {
+                newImageId = String(Number(newImageId) + 1);
+            }
+
+            var totalSteps = photos.length + 3; // photos + thumb + posts.json + cleanup
+            var doneSteps = 0;
+            function tick() { doneSteps++; progressFill.style.width = Math.round((doneSteps / totalSteps) * 100) + '%'; }
+
+            photos.forEach(function (p) { p.status = ''; p.statusText = ''; });
+            renderPhotos();
+
+            // New photo -> processed File bytes; existing photo -> current file bytes.
+            function photoBytes(p) {
+                if (p.file) return processForUpload(p).then(blobToBase64);
+                return fetch(p.url, { cache: 'no-store' })
+                    .then(function (r) { if (!r.ok) throw new Error('Could not load existing image'); return r.blob(); })
+                    .then(blobToBase64);
+            }
+
+            var tasks = photos.map(function (p, i) { return { p: p, name: newImageId + '_' + pad2(i + 1) + '.jpg' }; });
+
+            return runPool(tasks, UPLOAD_CONCURRENCY, function (task) {
+                task.p.status = 'uploading'; task.p.statusText = 'Uploading…'; renderPhotos();
+                return photoBytes(task.p)
+                    .then(function (b64) { return ghPutContent(IMG_DIR + '/' + task.name, b64, 'blue: add ' + task.name); })
+                    .then(function () {
+                        task.p.uploadedAs = task.name; task.p.status = 'ok'; task.p.statusText = 'Uploaded';
+                        renderPhotos(); tick();
+                    })
+                    .catch(function (err) {
+                        task.p.status = 'err'; task.p.statusText = 'Failed: ' + err.message;
+                        renderPhotos(); throw err;
+                    });
+            }).then(function () {
+                setStatus('Creating thumbnail…');
+                var coverSeq = pad2(coverIndex + 1);
+                var thumbName = newImageId + '_' + coverSeq + '_thumb.jpg';
+                var cover = photos[coverIndex];
+                var srcReady = cover.file
+                    ? Promise.resolve(cover.file)
+                    : fetch(cover.url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Could not load cover image'); return r.blob(); });
+                return srcReady.then(makeThumbnail).then(blobToBase64)
+                    .then(function (b64) { return ghPutUpsert(IMG_DIR + '/' + thumbName, b64, 'blue: thumb ' + thumbName); })
+                    .then(tick);
+            }).then(function () {
+                // Resolve dimensions for any photo whose ratio we don't already know.
+                return runPool(photos, 4, function (p) { return p.ratio ? Promise.resolve() : ensureDims(p); });
+            }).then(function () {
+                setStatus('Updating posts.json…');
+                return ghGetContent(POSTS_PATH);
+            }).then(function (meta) {
+                var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
+                var idx = json.posts.findIndex(function (p) { return p.id === editingId; });
+                if (idx < 0) throw new Error('Post not found in posts.json');
+                var ratios = photos.map(function (p) {
+                    if (p.ratio) return p.ratio;
+                    return (p.w && p.h) ? Math.round(p.w / p.h * 1e4) / 1e4 : 0;
+                });
+                var entry = buildPostEntry({ id: editingId, imageId: newImageId, count: photos.length, thumb: true, ratios: ratios });
+                json.posts[idx] = entry;
+                var newContent = JSON.stringify(json, null, 2) + '\n';
+                return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: edit post ' + editingId, meta.sha)
+                    .then(function () { return ghPutStub(entry).catch(function () {}); })
+                    .then(function () { tick(); return entry; });
+            }).then(function (entry) {
+                // posts.json now points at the new files; old ones are safe to remove.
+                setStatus('Cleaning up old images…');
+                var oldPaths = [];
+                for (var i = 0; i < existingPost.count; i++) oldPaths.push(IMG_DIR + '/' + existingPost.imageId + '_' + pad2(i + 1) + '.jpg');
+                if (existingPost.thumb) oldPaths.push(IMG_DIR + '/' + existingPost.imageId + '_' + existingPost.cover + '_thumb.jpg');
+                return runPool(oldPaths, 3, function (path) { return ghDeleteFile(path, 'blue: replace ' + path); })
+                    .catch(function () {}) // orphaned old files are harmless
+                    .then(function () { return entry; });
+            }).then(function (entry) {
+                progressFill.style.width = '100%';
+                publishing = false;
+                progressBar.style.display = 'none';
+                setStatus('Saved.', 'ok');
+                successTitle.textContent = 'Saved';
+                successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
+                successView.href = 'blue-post.html#' + encodeURIComponent(entry.id);
+                successPanel.classList.remove('hidden');
+                return loadPosts();
+            }).then(function () {
+                exitEdit();
+            });
+        }
+
         function buildPostEntry(opts) {
             var entry = {
                 id: opts.id,
@@ -1745,6 +2004,7 @@
             fTitle.value = ''; fCategory.value = ''; fLocation.value = ''; fBody.value = '';
             fDate.value = String(new Date().getFullYear());
             fId.value = pickNextPostId();
+            autoGrowBody();
             renderPhotos();
             updatePublishState();
             successPanel.classList.add('hidden');
