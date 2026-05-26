@@ -20,7 +20,7 @@
             background-color: var(--bg); color: var(--text-main);
             font-family: 'Inter', sans-serif;
             transition: background-color 0.3s, color 0.3s;
-            margin: 0;
+            margin: 0; overflow-x: hidden;
         }
         /* Header: title on left, ORO link on right (parallel to index.html layout) */
         header {
@@ -175,7 +175,8 @@
         }
         .grid-tile-overlay {
             position: absolute; inset: 0; background: rgba(0,0,0,0);
-            transition: background 0.3s; display: flex; align-items: flex-end; padding: 0.6rem;
+            transition: background 0.3s; display: flex; flex-direction: column;
+            justify-content: flex-end; align-items: flex-start; padding: 0.6rem;
         }
         .grid-tile-label {
             color: white; font-size: 0.7rem; font-weight: 500;
@@ -230,10 +231,70 @@
             .grid-tile img { transition: none; }
             .grid-tile-overlay { transition: none; }
             .grid-tile-label { transition: none; }
+            .grid-tile-cat { transition: none; }
+            .hero img { transition: none; }
         }
+
+        /* View Transitions: morph a tile's cover into the post page */
+        @media (prefers-reduced-motion: no-preference) {
+            @view-transition { navigation: auto; }
+        }
+
+        /* Cinematic hero — full-bleed feature of the latest post */
+        .hero {
+            display: block; position: relative; text-decoration: none;
+            width: 100vw; margin-left: calc(50% - 50vw);
+            height: min(64vh, 34rem); margin-bottom: 0.25rem;
+            overflow: hidden; background: var(--card);
+        }
+        .hero[hidden] { display: none; }
+        .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 1.5rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.62), rgba(0,0,0,0) 55%);
+        }
+        .hero-cat {
+            color: rgba(255,255,255,0.85); font-size: 0.68rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 0.35rem;
+        }
+        .hero-title {
+            color: #fff; font-size: clamp(1.5rem, 4.5vw, 2.4rem); font-weight: 600;
+            letter-spacing: -0.025em; line-height: 1.15;
+            text-shadow: 0 1px 12px rgba(0,0,0,0.45);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .hero img { transition: transform 0.6s cubic-bezier(0.4,0,0.2,1); }
+            .hero:hover img { transform: scale(1.03); }
+        }
+
+        /* Category badge in the tile hover overlay */
+        .grid-tile-cat {
+            color: rgba(255,255,255,0.85); font-size: 0.56rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: var(--ls-mid);
+            opacity: 0; transform: translateY(4px);
+            transition: opacity 0.25s, transform 0.25s;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6); margin-bottom: 0.15rem;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .grid-tile:hover img { filter: brightness(1.05); }
+            .grid-tile:hover .grid-tile-cat { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search input in the filter popover */
+        .filter-search {
+            width: 100%; box-sizing: border-box; font-family: inherit;
+            font-size: 0.72rem; font-weight: 500; letter-spacing: var(--ls-tight);
+            padding: 0.4rem 0.65rem; border-radius: 0.5rem;
+            background: var(--card); border: 1px solid var(--border); color: var(--text-main);
+        }
+        .filter-search::placeholder { color: var(--text-muted); }
+        .filter-search:focus-visible { outline: 2px solid var(--cosmic-purple); outline-offset: 1px; }
     </style>
 </head>
 <body>
+    <div class="grain-overlay" aria-hidden="true"></div>
     <div id="top-bar-direct">
         <button class="top-btn" id="theme-toggle" aria-label="Toggle dark mode">
             <i id="theme-icon" class="fa-solid fa-moon"></i>
@@ -258,6 +319,7 @@
                 </a>
             </div>
         </header>
+        <a id="hero" class="hero" hidden></a>
         <div class="photo-grid" id="grid"></div>
         <div class="filter-empty" id="filter-empty">No posts match these filters.</div>
         <footer>
@@ -282,14 +344,72 @@
         var filtersEl = document.getElementById('filters');
         var selectedCamera = 'all';
         var selectedYear = 'all';
+        var searchText = '';
+        var sortMode = 'newest';
+        var tilesData = [];          // [{ el, post }] in posts.json (newest-first) order
+        var BASE = '';
+
+        // ---- Motion helpers (scroll-reveal + blur-up), reduced-motion aware ----
+        var prefersReduced = false;
+        try { prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+        var revealObserver = (('IntersectionObserver' in window) && !prefersReduced)
+            ? new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    if (en.isIntersecting) { en.target.classList.add('is-visible'); revealObserver.unobserve(en.target); }
+                });
+              }, { rootMargin: '0px 0px -8% 0px' })
+            : null;
+        function observeReveal(el) {
+            if (revealObserver) revealObserver.observe(el);
+            else el.classList.add('is-visible');
+        }
+        function wireBlurUp(img) {
+            if (img.complete && img.naturalWidth) { img.classList.add('loaded'); return; }
+            img.addEventListener('load',  function () { img.classList.add('loaded'); });
+            img.addEventListener('error', function () { img.classList.add('loaded'); });
+        }
+
+        // ---- View Transition morph target (one tile at a time) ----
+        var morphImg = null;
+        function setMorphTarget(img) {
+            if (!img) return;
+            if (morphImg && morphImg !== img) { try { morphImg.style.viewTransitionName = ''; } catch (e) {} }
+            try { img.style.viewTransitionName = 'post-cover'; } catch (e) {}
+            morphImg = img;
+        }
+        function tagBackMorph() {
+            var last = null;
+            try { last = sessionStorage.getItem('blue_last'); } catch (e) {}
+            if (!last) return;
+            for (var i = 0; i < tilesData.length; i++) {
+                if (tilesData[i].post.id === last) { setMorphTarget(tilesData[i].el.querySelector('img')); break; }
+            }
+        }
+
+        // ---- Sorting ----
+        function sortedTiles() {
+            var arr = tilesData.slice();
+            if (sortMode === 'oldest') arr.reverse();
+            else if (sortMode === 'camera') arr.sort(function (a, b) { return (a.post.category || '').localeCompare(b.post.category || ''); });
+            else if (sortMode === 'count')  arr.sort(function (a, b) { return (b.post.count || 0) - (a.post.count || 0); });
+            return arr; // 'newest' keeps original order
+        }
+        function applySort() { sortedTiles().forEach(function (t) { grid.appendChild(t.el); }); }
 
         function applyFilters() {
             var tiles = grid.querySelectorAll('.grid-tile');
+            var q = searchText.trim().toLowerCase();
             var shown = 0;
             for (var i = 0; i < tiles.length; i++) {
                 var t = tiles[i];
+                var matchSearch = !q
+                    || (t.dataset.title && t.dataset.title.indexOf(q) !== -1)
+                    || (t.dataset.cat && t.dataset.cat.toLowerCase().indexOf(q) !== -1)
+                    || (t.dataset.year && t.dataset.year.indexOf(q) !== -1)
+                    || (t.dataset.loc && t.dataset.loc.indexOf(q) !== -1);
                 var ok = (selectedCamera === 'all' || t.dataset.cat === selectedCamera)
-                      && (selectedYear === 'all' || t.dataset.year === selectedYear);
+                      && (selectedYear === 'all' || t.dataset.year === selectedYear)
+                      && matchSearch;
                 t.style.display = ok ? '' : 'none';
                 if (ok) shown++;
             }
@@ -300,32 +420,70 @@
         var FILTER_KEY = 'blue_filter';
         var SCROLL_KEY = 'blue_scroll';
         function saveFilter() {
-            try { sessionStorage.setItem(FILTER_KEY, JSON.stringify({ c: selectedCamera, y: selectedYear })); } catch(e) {}
+            try { sessionStorage.setItem(FILTER_KEY, JSON.stringify({ c: selectedCamera, y: selectedYear, s: searchText, sort: sortMode })); } catch(e) {}
         }
         function restoreSavedFilter() {
             try {
                 var raw = sessionStorage.getItem(FILTER_KEY);
                 if (!raw) return;
                 var saved = JSON.parse(raw);
-                var restored = false;
+                var changed = false;
                 // filterSelects[0] = Camera, filterSelects[1] = Year (build order)
                 if (filterSelects[0] && saved.c && saved.c !== 'all') {
                     var camOpts = filterSelects[0].options;
                     for (var i = 0; i < camOpts.length; i++) {
-                        if (camOpts[i].value === saved.c) { filterSelects[0].value = saved.c; selectedCamera = saved.c; restored = true; break; }
+                        if (camOpts[i].value === saved.c) { filterSelects[0].value = saved.c; selectedCamera = saved.c; changed = true; break; }
                     }
                 }
                 if (filterSelects[1] && saved.y && saved.y !== 'all') {
                     var yrOpts = filterSelects[1].options;
                     for (var i = 0; i < yrOpts.length; i++) {
-                        if (yrOpts[i].value === saved.y) { filterSelects[1].value = saved.y; selectedYear = saved.y; restored = true; break; }
+                        if (yrOpts[i].value === saved.y) { filterSelects[1].value = saved.y; selectedYear = saved.y; changed = true; break; }
                     }
                 }
-                if (restored) { applyFilters(); updateFilterUI(); }
+                if (saved.s && searchInput) { searchText = saved.s; searchInput.value = saved.s; changed = true; }
+                if (saved.sort && saved.sort !== 'newest' && sortSelect) { sortMode = saved.sort; sortSelect.value = saved.sort; applySort(); }
+                if (changed) { applyFilters(); updateFilterUI(); }
             } catch(e) {}
         }
 
         var filterSelects = [];
+        var searchInput = null, sortSelect = null;
+        function buildSearch() {
+            var field = document.createElement('div');
+            field.className = 'filter-field';
+            var fl = document.createElement('span'); fl.textContent = 'Search'; field.appendChild(fl);
+            searchInput = document.createElement('input');
+            searchInput.type = 'search';
+            searchInput.className = 'filter-search';
+            searchInput.placeholder = 'Title, place, camera…';
+            searchInput.setAttribute('aria-label', 'Search posts');
+            searchInput.addEventListener('input', function () {
+                searchText = searchInput.value; applyFilters(); updateFilterUI(); saveFilter();
+            });
+            field.appendChild(searchInput);
+            filtersEl.appendChild(field);
+        }
+        function buildSort() {
+            var field = document.createElement('div');
+            field.className = 'filter-field';
+            var fl = document.createElement('span'); fl.textContent = 'Sort'; field.appendChild(fl);
+            var wrap = document.createElement('div'); wrap.className = 'select-wrap';
+            sortSelect = document.createElement('select');
+            sortSelect.setAttribute('aria-label', 'Sort posts');
+            [['newest', 'Newest first'], ['oldest', 'Oldest first'], ['camera', 'Camera A–Z'], ['count', 'Most photos']]
+                .forEach(function (o) {
+                    var opt = document.createElement('option'); opt.value = o[0]; opt.textContent = o[1]; sortSelect.appendChild(opt);
+                });
+            sortSelect.addEventListener('change', function () { sortMode = sortSelect.value; applySort(); saveFilter(); });
+            wrap.appendChild(sortSelect);
+            var chev = document.createElement('i');
+            chev.className = 'fa-solid fa-chevron-down select-chev';
+            chev.setAttribute('aria-hidden', 'true');
+            wrap.appendChild(chev);
+            field.appendChild(wrap);
+            filtersEl.appendChild(field);
+        }
         function buildSelect(fieldLabel, allLabel, values, onPick) {
             if (values.length < 2) return; // nothing to filter on
             var field = document.createElement('div');
@@ -360,16 +518,16 @@
         var filterClear = null;
 
         function clearAllFilters() {
-            selectedCamera = 'all'; selectedYear = 'all';
+            selectedCamera = 'all'; selectedYear = 'all'; searchText = '';
             filterSelects.forEach(function (s) { s.value = 'all'; });
-            applyFilters(); updateFilterUI();
-            try { sessionStorage.removeItem(FILTER_KEY); } catch(e) {}
+            if (searchInput) searchInput.value = '';
+            applyFilters(); updateFilterUI(); saveFilter();
             try { sessionStorage.removeItem(SCROLL_KEY); } catch(e) {}
         }
         filterResetPill.addEventListener('click', clearAllFilters);
 
         function updateFilterUI() {
-            var active = (selectedCamera !== 'all' || selectedYear !== 'all');
+            var active = (selectedCamera !== 'all' || selectedYear !== 'all' || searchText.trim() !== '');
             filterMenu.classList.toggle('has-active', active);
             filterResetPill.hidden = !active;
             if (filterClear) filterClear.hidden = !active;
@@ -396,9 +554,10 @@
             });
             cameras.sort();
             years.sort(function(a, b) { return b.localeCompare(a); });
+            buildSearch();
             buildSelect('Camera', 'All cameras', cameras, function(v) { selectedCamera = v; });
             buildSelect('Year', 'All years', years, function(v) { selectedYear = v; });
-            if (!filterSelects.length) return; // nothing to filter — keep header clean
+            buildSort();
 
             filterClear = document.createElement('button');
             filterClear.type = 'button';
@@ -407,37 +566,75 @@
             filterClear.hidden = true;
             filterClear.addEventListener('click', clearAllFilters);
             filtersEl.appendChild(filterClear);
-            filterMenu.hidden = false;
+            filterMenu.hidden = false; // search + sort always available
         }
 
         fetch('posts.json')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 grid.innerHTML = '';
-                var BASE = data.base;
-                data.posts.forEach(function(p, i) {
+                BASE = data.base;
+                var posts = data.posts;
+
+                // Hero: feature the latest post.
+                if (posts[0]) {
+                    var hp = posts[0];
+                    var heroEl = document.getElementById('hero');
+                    var heroFull = BASE + hp.imageId + '_' + hp.cover + '.jpg';
+                    heroEl.href = 'blue-post.html#' + encodeURIComponent(hp.id);
+                    heroEl.innerHTML =
+                        '<img src="' + esc(heroFull) + '" alt="' + esc(hp.title) + '" class="img-blur">'
+                        + '<div class="hero-overlay">'
+                        + (hp.category ? '<div class="hero-cat">' + esc(hp.category) + '</div>' : '')
+                        + '<div class="hero-title">' + esc(hp.title) + '</div></div>';
+                    heroEl.hidden = false;
+                    var heroImg = heroEl.querySelector('img');
+                    wireBlurUp(heroImg);
+                    heroEl.addEventListener('click', function () {
+                        setMorphTarget(heroImg);
+                        try { sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY))); } catch(e) {}
+                        try { sessionStorage.setItem('blue_last', hp.id); } catch(e) {}
+                    });
+                }
+
+                // Tiles.
+                posts.forEach(function(p, i) {
                     var full  = BASE + p.imageId + '_' + p.cover + '.jpg';
                     var src   = p.thumb ? (BASE + p.imageId + '_' + p.cover + '_thumb.jpg') : full;
                     var a   = document.createElement('a');
-                    a.className = 'grid-tile';
+                    a.className = 'grid-tile reveal';
                     a.href = 'blue-post.html#' + encodeURIComponent(p.id);
-                    a.dataset.cat  = p.category || '';
-                    a.dataset.year = String(p.date || '');
+                    a.dataset.cat   = p.category || '';
+                    a.dataset.year  = String(p.date || '');
+                    a.dataset.title = (p.title || '').toLowerCase();
+                    a.dataset.loc   = (p.location || '').toLowerCase();
                     a.innerHTML =
-                        '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
+                        '<img class="img-blur" src="' + esc(src) + '" alt="' + esc(p.title) + '"'
                         + ' width="400" height="400" decoding="async"'
                         + (i === 0 ? '' : ' loading="lazy"')
                         + (p.thumb ? ' data-full="' + esc(full) + '" onerror="if(this.dataset.full){this.src=this.dataset.full;this.removeAttribute(\'data-full\');}"' : '')
                         + '>'
-                        + '<div class="grid-tile-overlay"><div class="grid-tile-label">' + esc(p.title) + '</div></div>';
-                    grid.appendChild(a);
+                        + '<div class="grid-tile-overlay">'
+                        + (p.category ? '<div class="grid-tile-cat">' + esc(p.category) + '</div>' : '')
+                        + '<div class="grid-tile-label">' + esc(p.title) + '</div></div>';
+                    var img = a.querySelector('img');
+                    wireBlurUp(img);
                     a.addEventListener('click', function () {
+                        setMorphTarget(img);
                         try { sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY))); } catch(e) {}
+                        try { sessionStorage.setItem('blue_last', p.id); } catch(e) {}
                     });
+                    tilesData.push({ el: a, post: p });
                 });
-                renderFilters(data.posts);
+
+                // Append in current sort order and start revealing.
+                sortedTiles().forEach(function (t) { grid.appendChild(t.el); observeReveal(t.el); });
+
+                renderFilters(posts);
                 restoreSavedFilter();
-                // Restore scroll position after filters are applied
+                tagBackMorph();
+
+                // Restore scroll position after filters/sort are applied.
                 (function () {
                     try {
                         var savedY = sessionStorage.getItem(SCROLL_KEY);
@@ -453,6 +650,28 @@
                 grid.innerHTML =
                     '<div class="grid-error"><i class="fa-regular fa-image"></i>Could not load posts &mdash; please try again later.</div>';
             });
+
+        // ---- Gallery keyboard navigation ----
+        function gridCols() { try { return matchMedia('(min-width: 640px)').matches ? 4 : 3; } catch (e) { return 3; } }
+        document.addEventListener('keydown', function (e) {
+            var ae = document.activeElement;
+            if (!ae || !ae.classList || !ae.classList.contains('grid-tile')) return;
+            var delta = 0;
+            if (e.key === 'ArrowRight' || e.key === 'j') delta = 1;
+            else if (e.key === 'ArrowLeft' || e.key === 'k') delta = -1;
+            else if (e.key === 'ArrowDown') delta = gridCols();
+            else if (e.key === 'ArrowUp') delta = -gridCols();
+            else return;
+            var visible = Array.prototype.filter.call(grid.children, function (el) {
+                return el.classList && el.classList.contains('grid-tile') && el.style.display !== 'none';
+            });
+            var cur = visible.indexOf(ae);
+            if (cur === -1) return;
+            var next = cur + delta;
+            if (next < 0 || next >= visible.length) return;
+            e.preventDefault();
+            visible[next].focus();
+        });
     })();
     </script>
 </body>
