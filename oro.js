@@ -40,9 +40,11 @@
             return r.json();
         }).then(function (d) {
             var name = d.city || d.locality || d.principalSubdivision || 'My location';
-            return { lat: lat, lon: lon, name: name,
+            return {
+                lat: lat, lon: lon, name: name,
                 admin: d.principalSubdivision && d.principalSubdivision !== name ? d.principalSubdivision : '',
-                country: d.countryName || '' };
+                country: d.countryName || ''
+            };
         }).catch(function () {
             return { lat: lat, lon: lon, name: 'My location', admin: '', country: '' };
         });
@@ -72,7 +74,9 @@
         return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()
             && a.getDate() === b.getDate() && a.getHours() === b.getHours();
     }
-    function dayKey(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+    function dayKey(d) {
+        return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+    }
     var WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     // ── Lighting model ──
@@ -82,21 +86,21 @@
         var HOUR = 3600000, HALF = 1800000;
         var phase, base;
         if      (t >= rise && t < rise + HOUR)       { phase = 'golden-am';   base = 10; }
-        else if (t >= set - HOUR && t < set)          { phase = 'golden-pm';   base = 10; }
+        else if (t >= set  - HOUR && t < set)         { phase = 'golden-pm';   base = 10; }
         else if (t >= rise - HALF && t < rise)        { phase = 'blue-am';     base = 8; }
-        else if (t >= set && t < set + HALF)          { phase = 'blue-pm';     base = 8; }
+        else if (t >= set  && t < set + HALF)         { phase = 'blue-pm';     base = 8; }
         else if (t >= rise - HOUR && t < rise - HALF) { phase = 'twilight-am'; base = 6; }
-        else if (t >= set + HALF && t < set + HOUR)   { phase = 'twilight-pm'; base = 6; }
+        else if (t >= set  + HALF && t < set + HOUR)  { phase = 'twilight-pm'; base = 6; }
         else if (t >= rise && t <= set)               { phase = 'day';         base = 4; }
         else                                          { phase = 'night';       base = 1; }
-        var cloud = Math.max(0, Math.min(100, cloudPct || 0));
-        var mod = 0;
+
+        var cloud = Math.max(0, Math.min(100, cloudPct || 0)), mod = 0;
         if (phase === 'golden-am' || phase === 'golden-pm') {
-            mod = cloud < 20 ? 0 : cloud < 55 ? 0.5 : cloud < 80 ? -2 : -4;
+            if (cloud < 20) mod = 0; else if (cloud < 55) mod = 0.5; else if (cloud < 80) mod = -2; else mod = -4;
         } else if (phase === 'blue-am' || phase === 'blue-pm') {
-            mod = cloud < 40 ? 0 : cloud < 75 ? -1 : -3;
+            if (cloud < 40) mod = 0; else if (cloud < 75) mod = -1; else mod = -3;
         } else if (phase === 'day') {
-            mod = cloud < 25 ? 1 : cloud > 80 ? -1 : 0;
+            if (cloud < 25) mod = 1; else if (cloud > 80) mod = -1;
         }
         return { phase: phase, score: Math.max(0, Math.min(10, base + mod)), color: colorFor(phase, cloud) };
     }
@@ -104,18 +108,18 @@
     function colorFor(phase, cloud) {
         var h, s, l;
         switch (phase) {
-            case 'golden-am': case 'golden-pm':       h = 35;  s = 90; l = 60; break;
-            case 'blue-am':   case 'blue-pm':         h = 220; s = 70; l = 55; break;
-            case 'twilight-am': case 'twilight-pm':   h = 280; s = 40; l = 45; break;
-            case 'day':                               h = 45;  s = 10; l = 90; break;
-            default:                                  h = 230; s = 40; l = 15; break;
+            case 'golden-am': case 'golden-pm':     h = 35;  s = 90; l = 60; break;
+            case 'blue-am':   case 'blue-pm':       h = 220; s = 70; l = 55; break;
+            case 'twilight-am': case 'twilight-pm': h = 280; s = 40; l = 45; break;
+            case 'day':                             h = 45;  s = 10; l = 90; break;
+            default:                                h = 230; s = 40; l = 15; break;
         }
         s = Math.round(s * (1 - Math.min(0.65, (cloud || 0) / 100 * 0.7)));
         return 'hsl(' + h + ',' + s + '%,' + l + '%)';
     }
 
     // ── Rendering ──
-    var content = document.getElementById('content');
+    var content  = document.getElementById('content');
     var statusEl = document.getElementById('status');
 
     function showStatus(html) { statusEl.classList.remove('hidden'); statusEl.innerHTML = html; }
@@ -123,8 +127,8 @@
     function showError(html, retryFn) {
         _lastAction = retryFn || null;
         var retryHtml = retryFn
-            ? '<button type="button" class="status-retry" id="status-retry-btn"><i class="fa-solid fa-rotate-right"></i>Try again</button>'
-            : '';
+            ? '<button type="button" class="status-retry" id="status-retry-btn">'
+              + '<i class="fa-solid fa-rotate-right"></i>Try again</button>' : '';
         statusEl.classList.remove('hidden');
         statusEl.innerHTML = html + retryHtml;
         if (retryFn) { var btn = document.getElementById('status-retry-btn'); if (btn) btn.addEventListener('click', retryFn); }
@@ -142,13 +146,16 @@
             .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    var currentPlace = null, currentWeather = null, selectedDate = null;
-    var _loadToken = 0, _lastAction = null;
+    var currentPlace  = null;
+    var currentWeather = null;
+    var selectedDate  = null;
+    var _loadToken    = 0;
+    var _lastAction   = null;
 
     function locationNow(weather) {
-        var utcOff = weather.utc_offset_seconds || 0;
-        var brwOff = -new Date().getTimezoneOffset() * 60;
-        return new Date(Date.now() + (utcOff - brwOff) * 1000);
+        var utcOffsetSec    = weather.utc_offset_seconds || 0;
+        var browserOffsetSec = -new Date().getTimezoneOffset() * 60;
+        return new Date(Date.now() + (utcOffsetSec - browserOffsetSec) * 1000);
     }
 
     function render(place, weather, dateStr) {
@@ -156,63 +163,78 @@
         var todayKey = dayKey(nowLoc);
         var dayIndex = weather.daily.time.indexOf(dateStr);
         if (dayIndex < 0) { dayIndex = 0; dateStr = weather.daily.time[0]; }
-        var isToday = dateStr === todayKey;
+        var isToday  = (dateStr === todayKey);
+
         var sunrise  = parseISOLocal(weather.daily.sunrise[dayIndex]);
         var sunset   = parseISOLocal(weather.daily.sunset[dayIndex]);
         var solarNoon = new Date((sunrise.getTime() + sunset.getTime()) / 2);
+        var goldenAmEnd   = addMinutes(sunrise, 60);
+        var goldenPmStart = addMinutes(sunset, -60);
+        var bluePmEnd     = addMinutes(sunset, 30);
 
-        var locLabel = esc(place.name)
+        var locLabel  = esc(place.name)
             + (place.admin && place.admin !== place.name ? ', ' + esc(place.admin) : '')
             + (place.country ? ' · ' + esc(place.country) : '');
-        var tzAbbr   = weather.timezone_abbreviation || 'local';
+        var tzAbbr    = weather.timezone_abbreviation || 'local';
         var prettyDate = parseISOLocal(dateStr + 'T12:00:00');
-        var dateLabel  = isToday ? 'Today' : prettyDate.toLocaleDateString(undefined, { weekday:'long', month:'short', day:'numeric' });
+        var dateLabel  = isToday ? 'Today' : prettyDate.toLocaleDateString(undefined,
+            { weekday: 'long', month: 'short', day: 'numeric' });
 
         var summaryHtml =
             '<div class="sun-card">'
           + '<p class="sun-location"><i class="fa-solid fa-location-dot"></i> ' + locLabel + '  ·  ' + esc(dateLabel) + '</p>'
           + '<div class="sun-grid">'
-          + sunItem('Sunrise',    fmtTime(sunrise), 'blue-am')
-          + sunItem('Golden AM',  fmtTime(sunrise) + '–' + fmtTime(addMinutes(sunrise, 60)), 'golden-am')
-          + sunItem('Solar noon', fmtTime(solarNoon), 'day')
-          + sunItem('Golden PM',  fmtTime(addMinutes(sunset, -60)) + '–' + fmtTime(sunset), 'golden-pm')
-          + sunItem('Blue hour',  fmtTime(sunset) + '–' + fmtTime(addMinutes(sunset, 30)), 'blue-pm')
-          + sunItem('Sunset',     fmtTime(sunset), 'golden-pm')
+          + sunItem('Sunrise',    fmtTime(sunrise),                             'blue-am')
+          + sunItem('Golden AM',  fmtTime(sunrise)    + '–' + fmtTime(goldenAmEnd),   'golden-am')
+          + sunItem('Solar noon', fmtTime(solarNoon),                           'day')
+          + sunItem('Golden PM',  fmtTime(goldenPmStart) + '–' + fmtTime(sunset),   'golden-pm')
+          + sunItem('Blue hour',  fmtTime(sunset)     + '–' + fmtTime(bluePmEnd),   'blue-pm')
+          + sunItem('Sunset',     fmtTime(sunset),                              'golden-pm')
           + '</div>'
           + '<p class="local-time-note">All times shown in ' + esc(tzAbbr) + ' (local to ' + esc(place.name) + ')</p>'
           + '</div>';
 
-        var hourlyTimes = weather.hourly.time, hourlyCloud = weather.hourly.cloudcover;
+        var hourlyTimes = weather.hourly.time;
+        var hourlyCloud = weather.hourly.cloudcover;
         var hours = [];
         for (var i = 0; i < hourlyTimes.length; i++) {
             var hd = parseISOLocal(hourlyTimes[i]);
-            if (dayKey(hd) === dateStr) hours.push({ date: hd, cloud: hourlyCloud[i], cls: classifyHour(hd, sunrise, sunset, hourlyCloud[i]) });
+            if (dayKey(hd) === dateStr) {
+                hours.push({ date: hd, cloud: hourlyCloud[i], cls: classifyHour(hd, sunrise, sunset, hourlyCloud[i]) });
+            }
         }
 
         var best = findBestWindow(hours);
         var bestHtml = '';
         if (best) {
-            bestHtml = '<div class="best-window">'
-              + '<div><p class="best-window-label">' + esc(isToday ? 'Best photo walk window today' : 'Best photo walk window') + '</p>'
+            bestHtml =
+                '<div class="best-window">'
+              + '<div>'
+              + '<p class="best-window-label">' + esc(isToday ? 'Best photo walk window today' : 'Best photo walk window') + '</p>'
               + '<div class="best-window-time">' + fmtTime(best.start) + ' – ' + fmtTime(best.end) + '</div>'
-              + '<p class="best-window-note">' + esc(best.note) + '</p></div>'
-              + '<div class="best-window-score">' + best.score.toFixed(1) + '<small>/10</small></div></div>';
+              + '<p class="best-window-note">' + esc(best.note) + '</p>'
+              + '</div>'
+              + '<div class="best-window-score">' + best.score.toFixed(1) + '<small>/10</small></div>'
+              + '</div>';
         }
 
         var hourHtml = '<p class="section-title">Hour by hour</p><div class="hour-scroll" id="hour-scroll">';
         for (var j = 0; j < hours.length; j++) {
-            var h = hours[j], isNow = isToday && sameHour(h.date, nowLoc);
-            hourHtml += '<div class="hour-card' + (isNow ? ' now' : '') + '">'
+            var h = hours[j];
+            var isNow = isToday && sameHour(h.date, nowLoc);
+            hourHtml +=
+                '<div class="hour-card' + (isNow ? ' now' : '') + '">'
               + '<div class="hour-time">' + pad2(h.date.getHours()) + ':00</div>'
               + '<div class="hour-swatch" style="background:' + h.cls.color + '"></div>'
               + '<div class="hour-score">' + h.cls.score.toFixed(1) + '<small>/10</small></div>'
-              + '<div class="hour-cloud"><i class="fa-solid fa-cloud" style="opacity:.6"></i>' + Math.round(h.cloud) + '%</div></div>';
+              + '<div class="hour-cloud"><i class="fa-solid fa-cloud" style="opacity:0.6"></i>' + Math.round(h.cloud) + '%</div>'
+              + '</div>';
         }
         hourHtml += '</div>';
 
         var sevenHtml = '<p class="section-title">Next 7 days · click to view any day</p><div class="day-strip">';
         for (var d = 0; d < weather.daily.time.length && d < 7; d++) {
-            var dIso = weather.daily.time[d];
+            var dIso  = weather.daily.time[d];
             var dayDate = parseISOLocal(dIso + 'T12:00:00');
             var dRise = parseISOLocal(weather.daily.sunrise[d]);
             var dSet  = parseISOLocal(weather.daily.sunset[d]);
@@ -225,16 +247,19 @@
                 }
             }
             var avg = dayHours.length ? dayHours.reduce(function(a,b){return a+b;},0)/dayHours.length : 0;
-            var pct = Math.round(avg * 10);
-            sevenHtml += '<button type="button" class="day-cell' + (dIso===dateStr?' selected':'') + '" data-date="' + esc(dIso) + '" aria-label="View ' + esc(dIso) + '">'
+            var selClass = dIso === dateStr ? ' selected' : '';
+            sevenHtml +=
+                '<button type="button" class="day-cell' + selClass + '" data-date="' + esc(dIso) + '" aria-label="View ' + esc(dIso) + '">'
               + '<div class="day-name">' + WEEKDAYS[dayDate.getDay()] + '</div>'
               + '<div class="day-score">' + avg.toFixed(1) + '</div>'
-              + '<div class="day-bar"><div class="day-bar-fill" style="width:' + pct + '%"></div></div>'
-              + '<div class="day-times">' + fmtTime(addMinutes(dSet,-60)) + '<br>' + fmtTime(dSet) + '</div></button>';
+              + '<div class="day-bar"><div class="day-bar-fill" style="width:' + Math.round(avg*10) + '%"></div></div>'
+              + '<div class="day-times">' + fmtTime(addMinutes(dSet,-60)) + '<br>' + fmtTime(dSet) + '</div>'
+              + '</button>';
         }
         sevenHtml += '</div>';
 
         content.innerHTML = summaryHtml + bestHtml + hourHtml + sevenHtml;
+
         var scrollEl = document.getElementById('hour-scroll');
         var nowCard  = scrollEl && scrollEl.querySelector('.hour-card.now');
         if (scrollEl && nowCard) scrollEl.scrollLeft = Math.max(0, nowCard.offsetLeft - 16);
@@ -243,14 +268,16 @@
     function renderWithDate(dateStr) {
         if (!currentWeather || !currentPlace) return;
         selectedDate = dateStr;
-        var di = document.getElementById('date-input');
-        if (di.value !== dateStr) di.value = dateStr;
+        var dateInput = document.getElementById('date-input');
+        if (dateInput.value !== dateStr) dateInput.value = dateStr;
         render(currentPlace, currentWeather, dateStr);
     }
 
     function sunItem(label, value, phase) {
         var color = colorFor(phase, 0);
-        return '<div class="sun-item"><p class="sun-label"><span class="sun-swatch" style="background:' + color + '"></span>' + esc(label) + '</p><div class="sun-value">' + esc(value) + '</div></div>';
+        return '<div class="sun-item">'
+             + '<p class="sun-label"><span class="sun-swatch" style="background:' + color + '"></span>' + esc(label) + '</p>'
+             + '<div class="sun-value">' + esc(value) + '</div></div>';
     }
 
     function findBestWindow(hours) {
@@ -259,92 +286,107 @@
         for (var i = 0; i < hours.length; i++) {
             var sum = 0, minS = 10;
             for (var j = i; j < hours.length; j++) {
-                sum += hours[j].cls.score; minS = Math.min(minS, hours[j].cls.score);
+                sum += hours[j].cls.score;
+                minS = Math.min(minS, hours[j].cls.score);
                 var len = j - i + 1;
                 if (len >= 2 && minS >= 6) {
                     var avg = sum / len;
-                    if (!best || avg > best.avg || (avg === best.avg && len > best.len)) best = { i:i, j:j, avg:avg, len:len };
+                    if (!best || avg > best.avg || (avg === best.avg && len > best.len))
+                        best = { i: i, j: j, avg: avg, len: len };
                 }
             }
         }
         if (!best) {
             var top = 0;
             for (var k = 1; k < hours.length; k++) if (hours[k].cls.score > hours[top].cls.score) top = k;
-            return { start: hours[top].date, end: addMinutes(hours[top].date,60), score: hours[top].cls.score, note: labelForPhase(hours[top].cls.phase) };
+            var hk = hours[top];
+            return { start: hk.date, end: addMinutes(hk.date, 60), score: hk.cls.score, note: labelForPhase(hk.cls.phase) };
         }
         var phases = {};
-        for (var m = best.i; m <= best.j; m++) phases[hours[m].cls.phase] = (phases[hours[m].cls.phase]||0)+1;
+        for (var m = best.i; m <= best.j; m++) phases[hours[m].cls.phase] = (phases[hours[m].cls.phase] || 0) + 1;
         var topPhase = Object.keys(phases).sort(function(a,b){return phases[b]-phases[a];})[0];
-        return { start: hours[best.i].date, end: addMinutes(hours[best.j].date,60), score: best.avg, note: labelForPhase(topPhase) };
+        return { start: hours[best.i].date, end: addMinutes(hours[best.j].date, 60), score: best.avg, note: labelForPhase(topPhase) };
     }
 
     function labelForPhase(p) {
-        return ({ 'golden-am':'Morning golden hour','golden-pm':'Evening golden hour','blue-am':'Morning blue hour','blue-pm':'Evening blue hour','twilight-am':'Dawn twilight','twilight-pm':'Dusk twilight','day':'Daylight','night':'Night' })[p] || 'Best light';
+        return ({ 'golden-am':'Morning golden hour','golden-pm':'Evening golden hour',
+                  'blue-am':'Morning blue hour','blue-pm':'Evening blue hour',
+                  'twilight-am':'Dawn twilight','twilight-pm':'Dusk twilight',
+                  'day':'Daylight','night':'Night' })[p] || 'Best light';
     }
 
     function applyWeather(place, weather) {
-        currentPlace = place; currentWeather = weather;
+        currentPlace   = place;
+        currentWeather = weather;
         var todayLocal = dayKey(locationNow(weather));
         var available  = weather.daily.time;
         if (!selectedDate || available.indexOf(selectedDate) === -1)
             selectedDate = available.indexOf(todayLocal) !== -1 ? todayLocal : available[0];
-        var di = document.getElementById('date-input');
-        di.min = available[0]; di.max = available[available.length-1]; di.value = selectedDate;
+        var dateInput = document.getElementById('date-input');
+        dateInput.min = available[0];
+        dateInput.max = available[available.length - 1];
+        dateInput.value = selectedDate;
         document.getElementById('city-input').value = '';
         render(place, weather, selectedDate);
     }
 
     function loadFor(place) {
-        var token = ++_loadToken;
-        showSkeleton(); selectedDate = null;
-        // Close popular panel if open
-        var panel = document.getElementById('city-panel');
-        if (panel) { panel.classList.remove('open'); var pb = document.getElementById('popular-btn'); if (pb) pb.setAttribute('aria-expanded','false'); }
+        var token    = ++_loadToken;
+        showSkeleton();
+        selectedDate = null;
         var cacheKey = 'oro_' + place.lat.toFixed(3) + '_' + place.lon.toFixed(3);
-        var cached = cacheGet(cacheKey);
+        var cached   = cacheGet(cacheKey);
         if (cached && cached.weather) {
-            try { if (token !== _loadToken) return; applyWeather(place, cached.weather); return; } catch(e){}
+            try { if (token !== _loadToken) return; applyWeather(place, cached.weather); return; }
+            catch (e) {}
         }
-        fetchWeather(place.lat, place.lon).then(function(weather){
+        fetchWeather(place.lat, place.lon).then(function (weather) {
             if (token !== _loadToken) return;
             cacheSet(cacheKey, { weather: weather });
             applyWeather(place, weather);
-            try { localStorage.setItem('oro_last_place', JSON.stringify(place)); } catch(e){}
-        }).catch(function(){
+            try { localStorage.setItem('oro_last_place', JSON.stringify(place)); } catch (e) {}
+        }).catch(function () {
             if (token !== _loadToken) return;
             content.innerHTML = '';
-            showError('<i class="fa-solid fa-triangle-exclamation"></i>Could not load forecast — please try again.', function(){ loadFor(place); });
+            showError(
+                '<i class="fa-solid fa-triangle-exclamation"></i>Could not load forecast — please try again.',
+                function () { loadFor(place); }
+            );
         });
     }
 
-    // ── Events ──
-    document.getElementById('search-form').addEventListener('submit', function(e){
+    // ── Form events ──
+    document.getElementById('search-form').addEventListener('submit', function (e) {
         e.preventDefault();
         var name = document.getElementById('city-input').value.trim();
         if (!name) return;
+        closePanel();
         showSkeleton();
-        geocode(name).then(loadFor).catch(function(){
+        geocode(name).then(loadFor).catch(function () {
             content.innerHTML = '';
             showError('<i class="fa-solid fa-magnifying-glass"></i>City not found — try another name.', null);
         });
     });
 
-    document.getElementById('date-input').addEventListener('change', function(e){ if (e.target.value) renderWithDate(e.target.value); });
+    document.getElementById('date-input').addEventListener('change', function (e) {
+        if (e.target.value) renderWithDate(e.target.value);
+    });
 
-    content.addEventListener('click', function(e){
+    content.addEventListener('click', function (e) {
         var cell = e.target.closest('.day-cell');
         if (cell && cell.dataset.date) renderWithDate(cell.dataset.date);
     });
 
-    document.getElementById('geo-btn').addEventListener('click', function(){
+    // ── Geolocation ──
+    document.getElementById('geo-btn').addEventListener('click', function () {
         if (!navigator.geolocation) { showStatus('<i class="fa-solid fa-ban"></i>Geolocation not supported.'); return; }
-        content.innerHTML = ''; showStatus('<i class="fa-solid fa-location-crosshairs"></i>Getting your location…');
-        navigator.geolocation.getCurrentPosition(function(pos){
-            reverseGeocode(pos.coords.latitude, pos.coords.longitude).then(loadFor);
-        }, function(){
-            content.innerHTML = '';
-            showError('<i class="fa-solid fa-location-dot"></i>Location permission denied.', null);
-        }, { timeout:8000, maximumAge:600000 });
+        content.innerHTML = '';
+        showStatus('<i class="fa-solid fa-location-crosshairs"></i>Getting your location…');
+        navigator.geolocation.getCurrentPosition(
+            function (pos) { reverseGeocode(pos.coords.latitude, pos.coords.longitude).then(loadFor); },
+            function () { content.innerHTML = ''; showError('<i class="fa-solid fa-location-dot"></i>Location permission denied.', null); },
+            { timeout: 8000, maximumAge: 600000 }
+        );
     });
 
     // ── City list ──
@@ -360,21 +402,21 @@
             { name: 'Barcelona', country: 'Spain',          lat: 41.3851, lon:  2.1734 },
             { name: 'Istanbul',  country: 'Turkey',         lat: 41.0082, lon: 28.9784 },
             { name: 'Moscow',    country: 'Russia',         lat: 55.7558, lon: 37.6173 },
-            { name: 'Reykjavik', country: 'Iceland',        lat: 64.1466, lon:-21.9426 }
-        ]},
+            { name: 'Reykjavik', country: 'Iceland',        lat: 64.1466, lon: -21.9426 }
+        ] },
         { group: 'North America', items: [
-            { name: 'New York',     country: 'United States', lat: 40.7128, lon: -74.0060 },
-            { name: 'Los Angeles',  country: 'United States', lat: 34.0522, lon:-118.2437 },
-            { name: 'San Francisco',country: 'United States', lat: 37.7749, lon:-122.4194 },
-            { name: 'Chicago',      country: 'United States', lat: 41.8781, lon: -87.6298 },
-            { name: 'Toronto',      country: 'Canada',        lat: 43.6532, lon: -79.3832 },
-            { name: 'Mexico City',  country: 'Mexico',        lat: 19.4326, lon: -99.1332 }
-        ]},
+            { name: 'New York',    country: 'United States', lat: 40.7128, lon:  -74.0060 },
+            { name: 'Los Angeles', country: 'United States', lat: 34.0522, lon: -118.2437 },
+            { name: 'San Francisco', country: 'United States', lat: 37.7749, lon: -122.4194 },
+            { name: 'Chicago',     country: 'United States', lat: 41.8781, lon:  -87.6298 },
+            { name: 'Toronto',     country: 'Canada',        lat: 43.6532, lon:  -79.3832 },
+            { name: 'Mexico City', country: 'Mexico',        lat: 19.4326, lon:  -99.1332 }
+        ] },
         { group: 'South America', items: [
             { name: 'Rio de Janeiro', country: 'Brazil',    lat: -22.9068, lon: -43.1729 },
             { name: 'São Paulo',      country: 'Brazil',    lat: -23.5505, lon: -46.6333 },
-            { name: 'Buenos Aires',  country: 'Argentina',  lat: -34.6037, lon: -58.3816 }
-        ]},
+            { name: 'Buenos Aires',   country: 'Argentina', lat: -34.6037, lon: -58.3816 }
+        ] },
         { group: 'Asia', items: [
             { name: 'Seoul',     country: 'South Korea',        lat: 37.5665, lon: 126.9780 },
             { name: 'Tokyo',     country: 'Japan',              lat: 35.6762, lon: 139.6503 },
@@ -388,48 +430,75 @@
             { name: 'Amritsar',  country: 'India',              lat: 31.6340, lon:  74.8723 },
             { name: 'Chongqing', country: 'China',              lat: 29.4316, lon: 106.9123 },
             { name: 'Dubai',     country: 'United Arab Emirates', lat: 25.2048, lon: 55.2708 }
-        ]},
+        ] },
         { group: 'Africa', items: [
             { name: 'Cairo',     country: 'Egypt',        lat: 30.0444, lon: 31.2357 },
-            { name: 'Cape Town', country: 'South Africa', lat:-33.9249, lon: 18.4241 }
-        ]},
+            { name: 'Cape Town', country: 'South Africa', lat: -33.9249, lon: 18.4241 }
+        ] },
         { group: 'Oceania', items: [
             { name: 'Sydney', country: 'Australia', lat: -33.8688, lon: 151.2093 }
-        ]}
+        ] }
     ];
 
-    // Build chip panel
-    var panel = document.getElementById('city-panel');
-    if (panel) {
-        CITIES.forEach(function(region) {
-            var group = document.createElement('div');
-            group.className = 'city-panel-group';
-            var heading = document.createElement('div');
-            heading.className = 'city-panel-heading';
-            heading.textContent = region.group;
-            group.appendChild(heading);
-            var items = document.createElement('div');
-            items.className = 'city-panel-items';
-            region.items.forEach(function(c) {
-                var chip = document.createElement('button');
-                chip.type = 'button';
-                chip.className = 'city-chip';
-                chip.textContent = c.name;
-                chip.setAttribute('role', 'option');
-                chip.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    loadFor({ lat: c.lat, lon: c.lon, name: c.name, admin: '', country: c.country });
-                });
-                items.appendChild(chip);
+    // ── Populate city panel with chips ──
+    var cityPanel = document.getElementById('city-panel');
+    CITIES.forEach(function (region) {
+        var groupEl = document.createElement('div');
+        groupEl.className = 'city-panel-group';
+
+        var heading = document.createElement('div');
+        heading.className = 'city-panel-heading';
+        heading.textContent = region.group;
+        groupEl.appendChild(heading);
+
+        var items = document.createElement('div');
+        items.className = 'city-panel-items';
+
+        region.items.forEach(function (c) {
+            var chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'city-chip';
+            chip.textContent = c.name;
+            chip.setAttribute('role', 'option');
+            chip.setAttribute('aria-label', c.name + ', ' + c.country);
+            chip.addEventListener('click', function () {
+                closePanel();
+                loadFor({ lat: c.lat, lon: c.lon, name: c.name, admin: '', country: c.country });
             });
-            group.appendChild(items);
-            panel.appendChild(group);
+            items.appendChild(chip);
         });
+
+        groupEl.appendChild(items);
+        cityPanel.appendChild(groupEl);
+    });
+
+    // ── Panel open/close ──
+    var popularBtn = document.getElementById('popular-btn');
+
+    function openPanel() {
+        cityPanel.classList.add('open');
+        popularBtn.setAttribute('aria-expanded', 'true');
     }
+    function closePanel() {
+        cityPanel.classList.remove('open');
+        popularBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    popularBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        cityPanel.classList.contains('open') ? closePanel() : openPanel();
+    });
+    document.addEventListener('click', function (e) {
+        if (cityPanel.classList.contains('open') && !cityPanel.contains(e.target) && e.target !== popularBtn)
+            closePanel();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closePanel(); popularBtn.focus(); }
+    });
 
     // ── Initial load ──
     var initial = null;
-    try { var raw = localStorage.getItem('oro_last_place'); if (raw) initial = JSON.parse(raw); } catch(e){}
+    try { var raw = localStorage.getItem('oro_last_place'); if (raw) initial = JSON.parse(raw); } catch (e) {}
     if (!initial) initial = { lat: 37.5665, lon: 126.9780, name: 'Seoul', admin: '', country: 'South Korea' };
     loadFor(initial);
 })();
