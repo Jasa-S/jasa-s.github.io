@@ -160,6 +160,26 @@
         .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
         .btn-row .spacer { flex: 1; }
 
+        /* Compact pill — matches the ORO pill on blue.html */
+        .btn-pill {
+            display: inline-flex; align-items: center; gap: 0.45rem;
+            padding: 0.45rem 0.9rem; border-radius: 999px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-muted); font-family: inherit;
+            font-size: 0.75rem; font-weight: 500;
+            letter-spacing: var(--ls-mid); text-transform: uppercase;
+            cursor: pointer; white-space: nowrap; user-select: none;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .btn-pill i { font-size: 0.75rem; }
+        .btn-pill input { display: none; }
+        .btn-pill.toggle:has(input:checked) {
+            color: var(--cosmic-purple); border-color: rgba(124,58,237,0.45);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-pill:hover { color: var(--cosmic-purple); border-color: rgba(125,125,125,0.3); background: var(--card-hover); }
+        }
+
         /* hidden file inputs */
         .file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
@@ -245,6 +265,7 @@
         }
         .photo-controls .icon-btn:active { background: var(--card); }
         .photo-controls .icon-btn[disabled] { opacity: 0.3; cursor: not-allowed; }
+        .photo-controls .cover-btn.is-cover { color: var(--cosmic-purple); }
         .photo-controls .spacer { flex: 1; }
         .photo-status {
             font-size: 0.7rem; color: var(--text-muted);
@@ -434,7 +455,17 @@
                     <p class="panel-title" style="margin:0 0 0.2rem;">Editing post</p>
                     <p style="margin:0;font-size:0.85rem;">Editing <strong id="edit-banner-title">…</strong>. Drag to reorder, add, remove or replace photos, change the cover, captions and details — then tap <strong>Save changes</strong>.</p>
                 </div>
-                <button class="btn" id="edit-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
+                <div class="btn-row" style="flex-wrap:nowrap;">
+                    <button class="btn danger" id="edit-delete" type="button"><i class="fa-solid fa-trash"></i>Delete</button>
+                    <button class="btn" id="edit-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
+                </div>
+            </div>
+            <div id="delete-confirm" class="hidden" style="margin-top:0.85rem;padding-top:0.85rem;border-top:1px solid var(--border);">
+                <p style="margin:0 0 0.6rem;font-size:0.85rem;color:#b91c1c;">Permanently delete this post and all of its photos? This cannot be undone.</p>
+                <div class="btn-row">
+                    <button class="btn danger" id="delete-confirm-yes" type="button"><i class="fa-solid fa-trash"></i>Yes, delete permanently</button>
+                    <button class="btn" id="delete-confirm-no" type="button">Keep post</button>
+                </div>
             </div>
         </section>
 
@@ -478,23 +509,21 @@
             <div class="section-title">Photos</div>
 
             <div class="btn-row" id="photo-actions" style="margin-bottom:0.5rem;">
-                <button class="btn" id="btn-camera" type="button"><i class="fa-solid fa-camera"></i>Take photo</button>
-                <button class="btn" id="btn-library" type="button"><i class="fa-solid fa-images"></i>Choose from library</button>
+                <button class="btn-pill" id="btn-library" type="button"><i class="fa-solid fa-images"></i>Add photos</button>
                 <span class="spacer"></span>
-                <label class="btn" style="font-weight:500;cursor:pointer;">
-                    <input type="checkbox" id="compress-all" checked style="accent-color:var(--cosmic-purple);width:18px;height:18px;margin-right:0.4rem;">
+                <label class="btn-pill toggle">
+                    <input type="checkbox" id="compress-all" checked>
                     Compress all
                 </label>
             </div>
             <p class="hint" style="margin: 0 0 0.75rem; font-size: 0.72rem;">EXIF / GPS / device metadata is always stripped before upload.</p>
 
-            <input type="file" id="file-camera" class="file-input" accept="image/*" capture="environment">
             <input type="file" id="file-library" class="file-input" accept="image/*" multiple>
             <input type="file" id="file-replace" class="file-input" accept="image/*">
 
             <div id="photos-empty" class="empty">
                 <i class="fa-regular fa-image"></i>
-                No photos yet — tap <strong>Take photo</strong> or <strong>Choose from library</strong>.
+                No photos yet — tap <strong>Add photos</strong>.
             </div>
             <div id="photos"></div>
 
@@ -918,12 +947,6 @@
                 editBtn.setAttribute('aria-label', 'Edit');
                 editBtn.addEventListener('click', function () { startEdit(p.id); });
                 actions.appendChild(editBtn);
-                var delBtn = document.createElement('button');
-                delBtn.type = 'button'; delBtn.className = 'pr-btn danger';
-                delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-                delBtn.setAttribute('aria-label', 'Delete');
-                delBtn.addEventListener('click', function () { deletePost(p.id); });
-                actions.appendChild(delBtn);
                 row.appendChild(actions);
 
                 existingList.appendChild(row);
@@ -1051,6 +1074,7 @@
             publishLabel.textContent = 'Save changes';
             photoActions.style.display = '';
             editBanner.classList.remove('hidden');
+            hideDeleteConfirm();
             editBannerTitle.textContent = post.title || post.id;
             successPanel.classList.add('hidden');
             renderPhotos();
@@ -1066,6 +1090,7 @@
             publishLabel.textContent = 'Publish';
             photoActions.style.display = '';
             editBanner.classList.add('hidden');
+            hideDeleteConfirm();
             // Reset form to a fresh state.
             photos.forEach(function (p) { try { if (p.file) URL.revokeObjectURL(p.url); } catch (e) {} });
             photos = []; coverIndex = 0;
@@ -1084,13 +1109,26 @@
             exitEdit();
         });
 
+        // Delete is reachable only from edit mode, behind a two-step confirmation.
+        var deleteConfirm = $('delete-confirm');
+        function hideDeleteConfirm() { deleteConfirm.classList.add('hidden'); }
+        $('edit-delete').addEventListener('click', function () {
+            if (publishing || !editingId) return;
+            deleteConfirm.classList.remove('hidden');
+        });
+        $('delete-confirm-no').addEventListener('click', hideDeleteConfirm);
+        $('delete-confirm-yes').addEventListener('click', function () {
+            if (publishing || !editingId) return;
+            deletePost(editingId);
+        });
+
         // ---------- Delete ----------
         function deletePost(postId) {
             if (publishing) return;
             if (!allPosts) return;
             var post = allPosts.posts.find(function (p) { return p.id === postId; });
             if (!post) return;
-            if (!confirm('Delete "' + (post.title || postId) + '"?\n\nThis removes the post entry and all ' + post.count + ' image files. This cannot be undone.')) return;
+            hideDeleteConfirm();
 
             publishing = true; updatePublishState();
             setStatus('Deleting "' + (post.title || postId) + '"…');
@@ -1247,20 +1285,20 @@
                 var ctrl = document.createElement('div');
                 ctrl.className = 'photo-controls';
 
-                // Cover radio
-                var coverLbl = document.createElement('label');
-                var coverR = document.createElement('input');
-                coverR.type = 'radio';
-                coverR.name = 'cover';
-                coverR.checked = (i === coverIndex);
-                coverR.addEventListener('change', function () {
+                // Cover toggle (star) — replaces the old radio dots
+                var isCover = (i === coverIndex);
+                var coverBtn = document.createElement('button');
+                coverBtn.type = 'button';
+                coverBtn.className = 'icon-btn cover-btn' + (isCover ? ' is-cover' : '');
+                coverBtn.setAttribute('aria-label', isCover ? 'Cover image' : 'Set as cover');
+                coverBtn.setAttribute('aria-pressed', isCover ? 'true' : 'false');
+                coverBtn.innerHTML = '<i class="' + (isCover ? 'fa-solid' : 'fa-regular') + ' fa-star"></i>';
+                coverBtn.addEventListener('click', function () {
                     coverIndex = i;
                     renderPhotos();
                     saveDraft();
                 });
-                coverLbl.appendChild(coverR);
-                coverLbl.appendChild(document.createTextNode('Cover'));
-                ctrl.appendChild(coverLbl);
+                ctrl.appendChild(coverBtn);
 
                 // Compress checkbox (only for newly added/replaced photos)
                 if (!p.existing) {
@@ -1290,24 +1328,6 @@
                     rpBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i>';
                     rpBtn.addEventListener('click', (function (idx) { return function () { openReplace(idx); }; })(i));
                     ctrl.appendChild(rpBtn);
-                    // Move up
-                    var upBtn = document.createElement('button');
-                    upBtn.type = 'button';
-                    upBtn.className = 'icon-btn';
-                    upBtn.setAttribute('aria-label', 'Move up');
-                    upBtn.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
-                    if (i === 0) upBtn.disabled = true;
-                    upBtn.addEventListener('click', function () { movePhoto(i, i - 1); });
-                    ctrl.appendChild(upBtn);
-                    // Move down
-                    var dnBtn = document.createElement('button');
-                    dnBtn.type = 'button';
-                    dnBtn.className = 'icon-btn';
-                    dnBtn.setAttribute('aria-label', 'Move down');
-                    dnBtn.innerHTML = '<i class="fa-solid fa-arrow-down"></i>';
-                    if (i === photos.length - 1) dnBtn.disabled = true;
-                    dnBtn.addEventListener('click', function () { movePhoto(i, i + 1); });
-                    ctrl.appendChild(dnBtn);
                     // Remove
                     var rmBtn = document.createElement('button');
                     rmBtn.type = 'button';
@@ -1347,11 +1367,7 @@
             saveDraft();
         });
 
-        $('btn-camera').addEventListener('click', function () { $('file-camera').click(); });
         $('btn-library').addEventListener('click', function () { $('file-library').click(); });
-        $('file-camera').addEventListener('change', function (e) {
-            addFiles(e.target.files); e.target.value = '';
-        });
         $('file-library').addEventListener('change', function (e) {
             addFiles(e.target.files); e.target.value = '';
         });
