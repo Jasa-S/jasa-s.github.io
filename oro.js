@@ -71,8 +71,6 @@
 
     // ── Time helpers ──
     function parseISOLocal(s) {
-        // Accepts "2026-04-19T06:38" (no tz) or "2026-04-19T06:38:00+02:00".
-        // Return Date representing the same wall-clock moment.
         return new Date(s);
     }
     function pad2(n) { return n < 10 ? '0' + n : '' + n; }
@@ -93,9 +91,7 @@
     var WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     // ── Lighting model ──
-    // Classify hour relative to sunrise/sunset. Returns {phase, score, color}.
     function classifyHour(hourDate, sunrise, sunset, cloudPct) {
-        // Use hour midpoint so the label represents the average condition across the hour.
         var t = hourDate.getTime() + 30 * 60000;
         var rise = sunrise.getTime();
         var set = sunset.getTime();
@@ -112,7 +108,6 @@
         else if (t >= rise && t <= set) { phase = 'day'; base = 4; }
         else { phase = 'night'; base = 1; }
 
-        // Cloud modifier: moderate clouds (30-60%) can enhance golden hour.
         var cloud = Math.max(0, Math.min(100, cloudPct || 0));
         var mod = 0;
         if (phase === 'golden-am' || phase === 'golden-pm') {
@@ -133,7 +128,6 @@
     }
 
     function colorFor(phase, cloud) {
-        // Base HSL per phase, desaturated by cloud cover.
         var h, s, l;
         switch (phase) {
             case 'golden-am':
@@ -163,7 +157,6 @@
         statusEl.classList.add('hidden');
         statusEl.innerHTML = '';
     }
-    // Show an error status with an optional retry button.
     function showError(html, retryFn) {
         _lastAction = retryFn || null;
         var retryHtml = retryFn
@@ -191,16 +184,13 @@
             .replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // Module state so date switches don't re-fetch.
     var currentPlace = null;
     var currentWeather = null;
     var selectedDate = null;
-    var _loadToken = 0;   // incremented on each loadFor; stale responses are dropped
-    var _lastAction = null; // stores a zero-arg function to retry the last failed action
+    var _loadToken = 0;
+    var _lastAction = null;
 
     function locationNow(weather) {
-        // Shift Date.now() by (location offset − browser offset) so .getHours()
-        // on the resulting Date reads the location's wall-clock time.
         var utcOffsetSec = weather.utc_offset_seconds || 0;
         var browserOffsetSec = -new Date().getTimezoneOffset() * 60;
         return new Date(Date.now() + (utcOffsetSec - browserOffsetSec) * 1000);
@@ -225,7 +215,6 @@
         var bluePmStart = sunset;
         var bluePmEnd = addMinutes(sunset, 30);
 
-        // ── Header / summary ──
         var locLabel = esc(place.name)
             + (place.admin && place.admin !== place.name ? ', ' + esc(place.admin) : '')
             + (place.country ? ' · ' + esc(place.country) : '');
@@ -249,7 +238,6 @@
           + '<p class="local-time-note">All times shown in ' + esc(tzAbbr) + ' (local to ' + esc(place.name) + ')</p>'
           + '</div>';
 
-        // ── Hourly timeline (selected date) ──
         var hourlyTimes = weather.hourly.time;
         var hourlyCloud = weather.hourly.cloudcover;
         var hours = [];
@@ -278,7 +266,6 @@
               + '</div>';
         }
 
-        // ── Hourly scroll ──
         var hourHtml = '<p class="section-title">Hour by hour</p><div class="hour-scroll" id="hour-scroll">';
         for (var j = 0; j < hours.length; j++) {
             var h = hours[j];
@@ -294,7 +281,6 @@
         }
         hourHtml += '</div>';
 
-        // ── 7-day forecast ──
         var sevenHtml = '<p class="section-title">Next 7 days · click to view any day</p><div class="day-strip">';
         for (var d = 0; d < weather.daily.time.length && d < 7; d++) {
             var dIso = weather.daily.time[d];
@@ -328,7 +314,6 @@
 
         content.innerHTML = summaryHtml + bestHtml + hourHtml + sevenHtml;
 
-        // Scroll timeline to current hour on load.
         var scrollEl = document.getElementById('hour-scroll');
         var nowCard = scrollEl && scrollEl.querySelector('.hour-card.now');
         if (scrollEl && nowCard) {
@@ -355,7 +340,6 @@
 
     function findBestWindow(hours) {
         if (!hours.length) return null;
-        // Scan for the contiguous stretch of ≥2 hours with highest mean score (and min score ≥ 6).
         var best = null;
         for (var i = 0; i < hours.length; i++) {
             var sum = 0, minS = 10;
@@ -372,7 +356,6 @@
             }
         }
         if (!best) {
-            // Fallback: single highest-scoring hour
             var top = 0;
             for (var k = 1; k < hours.length; k++) {
                 if (hours[k].cls.score > hours[top].cls.score) top = k;
@@ -408,12 +391,10 @@
         })[p] || 'Best light';
     }
 
-    // ── Flow ──
     function applyWeather(place, weather) {
         currentPlace = place;
         currentWeather = weather;
         var todayLocal = dayKey(locationNow(weather));
-        // Clamp selectedDate to available range; default to today-at-location.
         var available = weather.daily.time;
         if (!selectedDate || available.indexOf(selectedDate) === -1) {
             selectedDate = available.indexOf(todayLocal) !== -1 ? todayLocal : available[0];
@@ -422,34 +403,32 @@
         dateInput.min = available[0];
         dateInput.max = available[available.length - 1];
         dateInput.value = selectedDate;
-        // Clear the search box so the next city can be typed without deleting first.
         document.getElementById('city-input').value = '';
         render(place, weather, selectedDate);
     }
 
     function loadFor(place) {
-        var token = ++_loadToken; // capture this call's token; stale calls are ignored
+        var token = ++_loadToken;
         showSkeleton();
-        // Reset to today-at-location when loading a new place.
         selectedDate = null;
         var cacheKey = 'oro_' + place.lat.toFixed(3) + '_' + place.lon.toFixed(3);
         var cached = cacheGet(cacheKey);
         if (cached && cached.weather) {
             try {
-                if (token !== _loadToken) return; // superseded by a newer call
+                if (token !== _loadToken) return;
                 applyWeather(place, cached.weather);
                 return;
             } catch (e) { /* fall through */ }
         }
         fetchWeather(place.lat, place.lon).then(function (weather) {
-            if (token !== _loadToken) return; // superseded — discard stale result
+            if (token !== _loadToken) return;
             cacheSet(cacheKey, { weather: weather });
             applyWeather(place, weather);
             try {
                 localStorage.setItem('oro_last_place', JSON.stringify(place));
             } catch (e) {}
         }).catch(function () {
-            if (token !== _loadToken) return; // superseded — don't clobber a newer result
+            if (token !== _loadToken) return;
             content.innerHTML = '';
             showError(
                 '<i class="fa-solid fa-triangle-exclamation"></i>'
@@ -470,7 +449,7 @@
             showError(
                 '<i class="fa-solid fa-magnifying-glass"></i>'
               + 'City not found — try another name.',
-                null // user needs to retype; retry button wouldn't help
+                null
             );
         });
     });
@@ -479,7 +458,6 @@
         if (e.target.value) renderWithDate(e.target.value);
     });
 
-    // Delegate clicks on day cells (rendered inside #content).
     content.addEventListener('click', function (e) {
         var cell = e.target.closest('.day-cell');
         if (cell && cell.dataset.date) renderWithDate(cell.dataset.date);
@@ -491,6 +469,8 @@
             { name: 'London', country: 'United Kingdom', lat: 51.5074, lon: -0.1278 },
             { name: 'Paris', country: 'France', lat: 48.8566, lon: 2.3522 },
             { name: 'Berlin', country: 'Germany', lat: 52.5200, lon: 13.4050 },
+            { name: 'Frankfurt', country: 'Germany', lat: 50.1109, lon: 8.6821 },
+            { name: 'Augsburg', country: 'Germany', lat: 48.3705, lon: 10.8978 },
             { name: 'Amsterdam', country: 'Netherlands', lat: 52.3676, lon: 4.9041 },
             { name: 'Rome', country: 'Italy', lat: 41.9028, lon: 12.4964 },
             { name: 'Barcelona', country: 'Spain', lat: 41.3851, lon: 2.1734 },
@@ -563,7 +543,7 @@
         if (!place) return;
         document.getElementById('city-input').value = '';
         loadFor(place);
-        citySelect.selectedIndex = 0; // reset back to placeholder
+        citySelect.selectedIndex = 0;
     });
 
     document.getElementById('geo-btn').addEventListener('click', function () {
@@ -571,24 +551,21 @@
             showStatus('<i class="fa-solid fa-ban"></i>Geolocation not supported.');
             return;
         }
-        // Show a descriptive waiting message — the skeleton would be misleading
-        // here because we're waiting for the device, not for data.
         content.innerHTML = '';
         showStatus('<i class="fa-solid fa-location-crosshairs"></i>Getting your location…');
         navigator.geolocation.getCurrentPosition(function (pos) {
-            // Position received; loadFor will call showSkeleton() → hideStatus() internally.
             reverseGeocode(pos.coords.latitude, pos.coords.longitude).then(loadFor);
         }, function () {
             content.innerHTML = '';
             showError(
                 '<i class="fa-solid fa-location-dot"></i>'
               + 'Location permission denied.',
-                null // retrying won't help; user must change browser settings
+                null
             );
         }, { timeout: 8000, maximumAge: 600000 });
     });
 
-    // ── Initial load: last searched place, else Frankfurt. ──
+    // ── Initial load ──
     var initial = null;
     try {
         var raw = localStorage.getItem('oro_last_place');

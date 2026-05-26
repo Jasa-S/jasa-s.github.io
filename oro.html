@@ -31,34 +31,27 @@
             margin: 0;
         }
 
-        /* Search — primary input on top, secondary controls beneath (aligned, full-width) */
-        .search-row {
-            display: flex; flex-direction: column;
-            gap: 0.6rem; margin-bottom: 1.75rem;
+        /* ── Search area ── */
+        .search-block {
+            margin-bottom: 1.75rem;
         }
-        .control-row {
-            display: flex; gap: 0.6rem; align-items: stretch;
-        }
-        .search-input {
-            height: 2.75rem;
-            background: var(--card); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 999px;
-            padding: 0 1.1rem; font-size: 0.875rem;
-            line-height: 1; font-family: inherit; outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            min-width: 0;
-        }
-        .search-input::placeholder { color: var(--text-muted); }
-        .search-input:focus {
-            border-color: var(--cosmic-purple);
-            box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+
+        /* Row 1: main search bar (full width) */
+        .search-main {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
         }
         .city-field {
-            position: relative; flex: 1 1 auto; min-width: 0;
-            display: flex; align-items: center;
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            align-items: center;
         }
         .city-field .search-input {
-            flex: 1 1 auto; width: 100%;
+            flex: 1 1 auto;
+            width: 100%;
             padding-right: 3rem;
         }
         .city-field-action {
@@ -73,10 +66,51 @@
             transition: color 0.2s, background 0.2s;
         }
         .city-field-action:hover {
-            color: var(--cosmic-purple); background: var(--card-hover);
+            color: var(--cosmic-purple);
+            background: var(--card-hover);
         }
 
-        /* City dropdown — pill styled like blue.html's select fields */
+        /* Row 2: secondary controls — jump picker + date */
+        .search-secondary {
+            display: flex;
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+        /* Label pill sitting left of its control */
+        .ctrl-group {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        .ctrl-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            white-space: nowrap;
+            padding: 0 0.6rem 0 0.1rem;
+            flex-shrink: 0;
+        }
+
+        /* Shared pill style */
+        .search-input {
+            height: 2.75rem;
+            background: var(--card); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0 1.1rem; font-size: 0.875rem;
+            line-height: 1; font-family: inherit; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-width: 0;
+        }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-input:focus {
+            border-color: var(--cosmic-purple);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+        }
+
+        /* City dropdown */
         .city-select-wrap {
             position: relative;
             display: flex; align-items: center;
@@ -102,17 +136,20 @@
             position: absolute; right: 1.05rem; top: 50%; transform: translateY(-50%);
             font-size: 0.6rem; color: var(--text-muted); pointer-events: none;
         }
+
+        /* Date */
         .date-input {
             flex: 0 1 9.5rem;
             font-variant-numeric: tabular-nums;
         }
-        /* Calendar icon inherits current text color so it works in both themes */
         .date-input::-webkit-calendar-picker-indicator {
             opacity: 0.6; cursor: pointer;
         }
         body.dark .date-input::-webkit-calendar-picker-indicator {
             filter: invert(1);
         }
+
+        /* Search button */
         .btn {
             flex: 0 0 auto; height: 2.75rem;
             background: var(--cosmic-purple); color: #fff;
@@ -128,8 +165,9 @@
         .btn i { font-size: 0.8rem; }
 
         @media (max-width: 560px) {
-            .control-row { flex-wrap: wrap; }
+            .search-secondary { flex-wrap: wrap; }
             .city-select-wrap { flex: 1 1 100%; }
+            .ctrl-label { display: none; }
             .date-input { flex: 1 1 auto; }
         }
 
@@ -327,7 +365,6 @@
         .status i { display: block; font-size: 1.3rem; margin-bottom: 0.6rem; opacity: 0.5; }
         .hidden { display: none !important; }
 
-        /* Retry button inside error status */
         .status-retry {
             display: inline-flex; align-items: center; gap: 0.4rem;
             margin-top: 0.85rem;
@@ -384,30 +421,40 @@
             <h1><span class="icon-globe">&#127774;</span>ORO</h1>
         </header>
 
-        <form class="search-row" id="search-form" autocomplete="off">
-            <div class="city-field">
-                <input
-                    type="text" class="search-input" id="city-input"
-                    placeholder="Search a city&hellip;" aria-label="City"
-                >
-                <button type="button" class="city-field-action" id="geo-btn"
-                    aria-label="Use my location" title="Use my location">
-                    <i class="fa-solid fa-location-crosshairs"></i>
+        <form class="search-block" id="search-form" autocomplete="off">
+
+            <!-- Row 1: type-to-search + submit -->
+            <div class="search-main">
+                <div class="city-field">
+                    <input
+                        type="text" class="search-input" id="city-input"
+                        placeholder="Search any city&hellip;" aria-label="City"
+                    >
+                    <button type="button" class="city-field-action" id="geo-btn"
+                        aria-label="Use my location" title="Use my location">
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                    </button>
+                </div>
+                <button type="submit" class="btn" id="search-btn">
+                    <i class="fa-solid fa-magnifying-glass"></i>Search
                 </button>
             </div>
-            <div class="control-row">
-                <div class="city-select-wrap">
-                    <select class="city-select" id="city-select" aria-label="Jump to a major city"></select>
-                    <i class="fa-solid fa-chevron-down city-select-chev" aria-hidden="true"></i>
+
+            <!-- Row 2: quick-jump picker + date -->
+            <div class="search-secondary">
+                <div class="ctrl-group">
+                    <span class="ctrl-label">or jump to</span>
+                    <div class="city-select-wrap">
+                        <select class="city-select" id="city-select" aria-label="Jump to a major city"></select>
+                        <i class="fa-solid fa-chevron-down city-select-chev" aria-hidden="true"></i>
+                    </div>
                 </div>
                 <input
                     type="date" class="search-input date-input" id="date-input"
                     aria-label="Date"
                 >
-                <button type="submit" class="btn" id="search-btn">
-                    <i class="fa-solid fa-magnifying-glass"></i>Search
-                </button>
             </div>
+
         </form>
 
         <div id="content"></div>
