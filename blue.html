@@ -171,6 +171,23 @@
         }
         .grid-tile img {
             width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        /* Hover overlay — desktop only */
+        .grid-tile::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .grid-tile:hover img {
+                transform: scale(1.06);
+            }
+            .grid-tile:hover::after {
+                background: rgba(0, 0, 0, 0.12);
+            }
         }
         .grid-skeleton {
             aspect-ratio: 1 / 1;
@@ -211,6 +228,8 @@
         @media (prefers-reduced-motion: reduce) {
             .grid-skeleton { animation: none; }
             .filter-pop { animation: none; }
+            .grid-tile img { transition: none; }
+            .grid-tile::after { transition: none; }
         }
     </style>
 </head>
