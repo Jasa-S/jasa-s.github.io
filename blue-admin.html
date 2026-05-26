@@ -53,7 +53,7 @@
             letter-spacing: var(--ls-mid); text-transform: uppercase;
             text-decoration: none;
             transition: color 0.2s, border-color 0.2s, background 0.2s;
-            white-space: nowrap;
+            white-space: nowrap; min-height: 36px;
         }
         .gallery-link i { font-size: 0.75rem; }
         @media (hover: hover) and (pointer: fine) {
@@ -160,6 +160,8 @@
         }
         .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
         .btn-row .spacer { flex: 1; }
+        /* Equal-width action buttons (Publish/Save + Reset) */
+        .btn-row-equal > .btn { flex: 1 1 0; }
 
         /* Compact pill — matches the ORO pill on blue.html */
         .btn-pill {
@@ -548,7 +550,7 @@
             </div>
             <div id="photos"></div>
 
-            <div class="btn-row" style="margin-top:1.5rem;">
+            <div class="btn-row btn-row-equal" style="margin-top:1.5rem;">
                 <button class="btn primary" id="btn-publish" disabled><i class="fa-solid fa-cloud-arrow-up"></i><span id="publish-label">Publish</span></button>
                 <button class="btn danger" id="btn-reset" type="button"><i class="fa-solid fa-trash"></i>Reset draft</button>
             </div>
