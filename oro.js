@@ -13,9 +13,7 @@
         } catch (e) { return null; }
     }
     function cacheSet(key, value) {
-        try {
-            localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: value }));
-        } catch (e) {}
+        try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: value })); } catch (e) {}
     }
 
     // ── API helpers ──
@@ -146,14 +144,14 @@
             .replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    var currentPlace  = null;
+    var currentPlace   = null;
     var currentWeather = null;
-    var selectedDate  = null;
-    var _loadToken    = 0;
-    var _lastAction   = null;
+    var selectedDate   = null;
+    var _loadToken     = 0;
+    var _lastAction    = null;
 
     function locationNow(weather) {
-        var utcOffsetSec    = weather.utc_offset_seconds || 0;
+        var utcOffsetSec     = weather.utc_offset_seconds || 0;
         var browserOffsetSec = -new Date().getTimezoneOffset() * 60;
         return new Date(Date.now() + (utcOffsetSec - browserOffsetSec) * 1000);
     }
@@ -167,7 +165,7 @@
 
         var sunrise  = parseISOLocal(weather.daily.sunrise[dayIndex]);
         var sunset   = parseISOLocal(weather.daily.sunset[dayIndex]);
-        var solarNoon = new Date((sunrise.getTime() + sunset.getTime()) / 2);
+        var solarNoon     = new Date((sunrise.getTime() + sunset.getTime()) / 2);
         var goldenAmEnd   = addMinutes(sunrise, 60);
         var goldenPmStart = addMinutes(sunset, -60);
         var bluePmEnd     = addMinutes(sunset, 30);
@@ -184,12 +182,12 @@
             '<div class="sun-card">'
           + '<p class="sun-location"><i class="fa-solid fa-location-dot"></i> ' + locLabel + '  ·  ' + esc(dateLabel) + '</p>'
           + '<div class="sun-grid">'
-          + sunItem('Sunrise',    fmtTime(sunrise),                             'blue-am')
-          + sunItem('Golden AM',  fmtTime(sunrise)    + '–' + fmtTime(goldenAmEnd),   'golden-am')
-          + sunItem('Solar noon', fmtTime(solarNoon),                           'day')
-          + sunItem('Golden PM',  fmtTime(goldenPmStart) + '–' + fmtTime(sunset),   'golden-pm')
-          + sunItem('Blue hour',  fmtTime(sunset)     + '–' + fmtTime(bluePmEnd),   'blue-pm')
-          + sunItem('Sunset',     fmtTime(sunset),                              'golden-pm')
+          + sunItem('Sunrise',    fmtTime(sunrise),                                    'blue-am')
+          + sunItem('Golden AM',  fmtTime(sunrise)      + '–' + fmtTime(goldenAmEnd),   'golden-am')
+          + sunItem('Solar noon', fmtTime(solarNoon),                                  'day')
+          + sunItem('Golden PM',  fmtTime(goldenPmStart) + '–' + fmtTime(sunset),       'golden-pm')
+          + sunItem('Blue hour',  fmtTime(sunset)       + '–' + fmtTime(bluePmEnd),    'blue-pm')
+          + sunItem('Sunset',     fmtTime(sunset),                                     'golden-pm')
           + '</div>'
           + '<p class="local-time-note">All times shown in ' + esc(tzAbbr) + ' (local to ' + esc(place.name) + ')</p>'
           + '</div>';
@@ -234,10 +232,10 @@
 
         var sevenHtml = '<p class="section-title">Next 7 days · click to view any day</p><div class="day-strip">';
         for (var d = 0; d < weather.daily.time.length && d < 7; d++) {
-            var dIso  = weather.daily.time[d];
+            var dIso    = weather.daily.time[d];
             var dayDate = parseISOLocal(dIso + 'T12:00:00');
-            var dRise = parseISOLocal(weather.daily.sunrise[d]);
-            var dSet  = parseISOLocal(weather.daily.sunset[d]);
+            var dRise   = parseISOLocal(weather.daily.sunrise[d]);
+            var dSet    = parseISOLocal(weather.daily.sunset[d]);
             var dayHours = [];
             for (var k = 0; k < hourlyTimes.length; k++) {
                 var hh = parseISOLocal(hourlyTimes[k]);
@@ -323,8 +321,8 @@
         if (!selectedDate || available.indexOf(selectedDate) === -1)
             selectedDate = available.indexOf(todayLocal) !== -1 ? todayLocal : available[0];
         var dateInput = document.getElementById('date-input');
-        dateInput.min = available[0];
-        dateInput.max = available[available.length - 1];
+        dateInput.min   = available[0];
+        dateInput.max   = available[available.length - 1];
         dateInput.value = selectedDate;
         document.getElementById('city-input').value = '';
         render(place, weather, selectedDate);
@@ -355,12 +353,104 @@
         });
     }
 
-    // ── Form events ──
+    // ── City list ──
+    var CITIES = [
+        { group: 'Europe', items: [
+            { name: 'London',    country: 'United Kingdom', lat: 51.5074, lon:  -0.1278 },
+            { name: 'Paris',     country: 'France',         lat: 48.8566, lon:   2.3522 },
+            { name: 'Berlin',    country: 'Germany',        lat: 52.5200, lon:  13.4050 },
+            { name: 'Frankfurt', country: 'Germany',        lat: 50.1109, lon:   8.6821 },
+            { name: 'Augsburg',  country: 'Germany',        lat: 48.3705, lon:  10.8978 },
+            { name: 'Amsterdam', country: 'Netherlands',    lat: 52.3676, lon:   4.9041 },
+            { name: 'Rome',      country: 'Italy',          lat: 41.9028, lon:  12.4964 },
+            { name: 'Barcelona', country: 'Spain',          lat: 41.3851, lon:   2.1734 },
+            { name: 'Istanbul',  country: 'Turkey',         lat: 41.0082, lon:  28.9784 },
+            { name: 'Moscow',    country: 'Russia',         lat: 55.7558, lon:  37.6173 },
+            { name: 'Reykjavik', country: 'Iceland',        lat: 64.1466, lon: -21.9426 }
+        ] },
+        { group: 'North America', items: [
+            { name: 'New York',      country: 'United States', lat: 40.7128, lon:  -74.0060 },
+            { name: 'Los Angeles',   country: 'United States', lat: 34.0522, lon: -118.2437 },
+            { name: 'San Francisco', country: 'United States', lat: 37.7749, lon: -122.4194 },
+            { name: 'Chicago',       country: 'United States', lat: 41.8781, lon:  -87.6298 },
+            { name: 'Toronto',       country: 'Canada',        lat: 43.6532, lon:  -79.3832 },
+            { name: 'Mexico City',   country: 'Mexico',        lat: 19.4326, lon:  -99.1332 }
+        ] },
+        { group: 'South America', items: [
+            { name: 'Rio de Janeiro', country: 'Brazil',    lat: -22.9068, lon:  -43.1729 },
+            { name: 'São Paulo',      country: 'Brazil',    lat: -23.5505, lon:  -46.6333 },
+            { name: 'Buenos Aires',   country: 'Argentina', lat: -34.6037, lon:  -58.3816 }
+        ] },
+        { group: 'Asia', items: [
+            { name: 'Seoul',     country: 'South Korea',          lat:  37.5665, lon: 126.9780 },
+            { name: 'Tokyo',     country: 'Japan',                lat:  35.6762, lon: 139.6503 },
+            { name: 'Singapore', country: 'Singapore',            lat:   1.3521, lon: 103.8198 },
+            { name: 'Hong Kong', country: 'China',                lat:  22.3193, lon: 114.1694 },
+            { name: 'Shanghai',  country: 'China',                lat:  31.2304, lon: 121.4737 },
+            { name: 'Beijing',   country: 'China',                lat:  39.9042, lon: 116.4074 },
+            { name: 'Bangkok',   country: 'Thailand',             lat:  13.7563, lon: 100.5018 },
+            { name: 'Mumbai',    country: 'India',                lat:  19.0760, lon:  72.8777 },
+            { name: 'Delhi',     country: 'India',                lat:  28.6139, lon:  77.2090 },
+            { name: 'Amritsar',  country: 'India',                lat:  31.6340, lon:  74.8723 },
+            { name: 'Chongqing', country: 'China',                lat:  29.4316, lon: 106.9123 },
+            { name: 'Dubai',     country: 'United Arab Emirates', lat:  25.2048, lon:  55.2708 }
+        ] },
+        { group: 'Africa', items: [
+            { name: 'Cairo',     country: 'Egypt',        lat:  30.0444, lon:  31.2357 },
+            { name: 'Cape Town', country: 'South Africa', lat: -33.9249, lon:  18.4241 }
+        ] },
+        { group: 'Oceania', items: [
+            { name: 'Sydney', country: 'Australia', lat: -33.8688, lon: 151.2093 }
+        ] }
+    ];
+
+    // ── Build native <select> with <optgroup>s ──
+    var citySelect = document.getElementById('city-select');
+    // index 0 is the placeholder "— pick a city —"
+    CITIES.forEach(function (region) {
+        var grp = document.createElement('optgroup');
+        grp.label = region.group;
+        region.items.forEach(function (c) {
+            var opt = document.createElement('option');
+            opt.value   = JSON.stringify({ lat: c.lat, lon: c.lon, name: c.name, admin: '', country: c.country });
+            opt.textContent = c.name;
+            grp.appendChild(opt);
+        });
+        citySelect.appendChild(grp);
+    });
+
+    // When user picks from native dropdown, load that city and reset to placeholder
+    citySelect.addEventListener('change', function () {
+        if (!citySelect.value) return;
+        var place;
+        try { place = JSON.parse(citySelect.value); } catch (e) { return; }
+        citySelect.value = '';          // reset so the same city can be re-picked
+        citySelect.blur();
+        loadFor(place);
+    });
+
+    // List button triggers the native select
+    document.getElementById('popular-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+        // Briefly make the select pointer-interactive, then programmatically open it
+        citySelect.style.pointerEvents = 'auto';
+        citySelect.focus();
+        // Use a tiny synthetic MouseEvent to open the native picker on all browsers
+        try {
+            var ev = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+            citySelect.dispatchEvent(ev);
+        } catch (err) {}
+        // Re-disable pointer-events after a frame so it doesn't intercept other taps
+        requestAnimationFrame(function () {
+            citySelect.style.pointerEvents = 'none';
+        });
+    });
+
+    // ── Form submit (free-text geocode) ──
     document.getElementById('search-form').addEventListener('submit', function (e) {
         e.preventDefault();
         var name = document.getElementById('city-input').value.trim();
         if (!name) return;
-        closePanel();
         showSkeleton();
         geocode(name).then(loadFor).catch(function () {
             content.innerHTML = '';
@@ -384,116 +474,9 @@
         showStatus('<i class="fa-solid fa-location-crosshairs"></i>Getting your location…');
         navigator.geolocation.getCurrentPosition(
             function (pos) { reverseGeocode(pos.coords.latitude, pos.coords.longitude).then(loadFor); },
-            function () { content.innerHTML = ''; showError('<i class="fa-solid fa-location-dot"></i>Location permission denied.', null); },
+            function ()    { content.innerHTML = ''; showError('<i class="fa-solid fa-location-dot"></i>Location permission denied.', null); },
             { timeout: 8000, maximumAge: 600000 }
         );
-    });
-
-    // ── City list ──
-    var CITIES = [
-        { group: 'Europe', items: [
-            { name: 'London',    country: 'United Kingdom', lat: 51.5074, lon: -0.1278 },
-            { name: 'Paris',     country: 'France',         lat: 48.8566, lon:  2.3522 },
-            { name: 'Berlin',    country: 'Germany',        lat: 52.5200, lon: 13.4050 },
-            { name: 'Frankfurt', country: 'Germany',        lat: 50.1109, lon:  8.6821 },
-            { name: 'Augsburg',  country: 'Germany',        lat: 48.3705, lon: 10.8978 },
-            { name: 'Amsterdam', country: 'Netherlands',    lat: 52.3676, lon:  4.9041 },
-            { name: 'Rome',      country: 'Italy',          lat: 41.9028, lon: 12.4964 },
-            { name: 'Barcelona', country: 'Spain',          lat: 41.3851, lon:  2.1734 },
-            { name: 'Istanbul',  country: 'Turkey',         lat: 41.0082, lon: 28.9784 },
-            { name: 'Moscow',    country: 'Russia',         lat: 55.7558, lon: 37.6173 },
-            { name: 'Reykjavik', country: 'Iceland',        lat: 64.1466, lon: -21.9426 }
-        ] },
-        { group: 'North America', items: [
-            { name: 'New York',    country: 'United States', lat: 40.7128, lon:  -74.0060 },
-            { name: 'Los Angeles', country: 'United States', lat: 34.0522, lon: -118.2437 },
-            { name: 'San Francisco', country: 'United States', lat: 37.7749, lon: -122.4194 },
-            { name: 'Chicago',     country: 'United States', lat: 41.8781, lon:  -87.6298 },
-            { name: 'Toronto',     country: 'Canada',        lat: 43.6532, lon:  -79.3832 },
-            { name: 'Mexico City', country: 'Mexico',        lat: 19.4326, lon:  -99.1332 }
-        ] },
-        { group: 'South America', items: [
-            { name: 'Rio de Janeiro', country: 'Brazil',    lat: -22.9068, lon: -43.1729 },
-            { name: 'São Paulo',      country: 'Brazil',    lat: -23.5505, lon: -46.6333 },
-            { name: 'Buenos Aires',   country: 'Argentina', lat: -34.6037, lon: -58.3816 }
-        ] },
-        { group: 'Asia', items: [
-            { name: 'Seoul',     country: 'South Korea',        lat: 37.5665, lon: 126.9780 },
-            { name: 'Tokyo',     country: 'Japan',              lat: 35.6762, lon: 139.6503 },
-            { name: 'Singapore', country: 'Singapore',          lat:  1.3521, lon: 103.8198 },
-            { name: 'Hong Kong', country: 'China',              lat: 22.3193, lon: 114.1694 },
-            { name: 'Shanghai',  country: 'China',              lat: 31.2304, lon: 121.4737 },
-            { name: 'Beijing',   country: 'China',              lat: 39.9042, lon: 116.4074 },
-            { name: 'Bangkok',   country: 'Thailand',           lat: 13.7563, lon: 100.5018 },
-            { name: 'Mumbai',    country: 'India',              lat: 19.0760, lon:  72.8777 },
-            { name: 'Delhi',     country: 'India',              lat: 28.6139, lon:  77.2090 },
-            { name: 'Amritsar',  country: 'India',              lat: 31.6340, lon:  74.8723 },
-            { name: 'Chongqing', country: 'China',              lat: 29.4316, lon: 106.9123 },
-            { name: 'Dubai',     country: 'United Arab Emirates', lat: 25.2048, lon: 55.2708 }
-        ] },
-        { group: 'Africa', items: [
-            { name: 'Cairo',     country: 'Egypt',        lat: 30.0444, lon: 31.2357 },
-            { name: 'Cape Town', country: 'South Africa', lat: -33.9249, lon: 18.4241 }
-        ] },
-        { group: 'Oceania', items: [
-            { name: 'Sydney', country: 'Australia', lat: -33.8688, lon: 151.2093 }
-        ] }
-    ];
-
-    // ── Populate city panel with chips ──
-    var cityPanel = document.getElementById('city-panel');
-    CITIES.forEach(function (region) {
-        var groupEl = document.createElement('div');
-        groupEl.className = 'city-panel-group';
-
-        var heading = document.createElement('div');
-        heading.className = 'city-panel-heading';
-        heading.textContent = region.group;
-        groupEl.appendChild(heading);
-
-        var items = document.createElement('div');
-        items.className = 'city-panel-items';
-
-        region.items.forEach(function (c) {
-            var chip = document.createElement('button');
-            chip.type = 'button';
-            chip.className = 'city-chip';
-            chip.textContent = c.name;
-            chip.setAttribute('role', 'option');
-            chip.setAttribute('aria-label', c.name + ', ' + c.country);
-            chip.addEventListener('click', function () {
-                closePanel();
-                loadFor({ lat: c.lat, lon: c.lon, name: c.name, admin: '', country: c.country });
-            });
-            items.appendChild(chip);
-        });
-
-        groupEl.appendChild(items);
-        cityPanel.appendChild(groupEl);
-    });
-
-    // ── Panel open/close ──
-    var popularBtn = document.getElementById('popular-btn');
-
-    function openPanel() {
-        cityPanel.classList.add('open');
-        popularBtn.setAttribute('aria-expanded', 'true');
-    }
-    function closePanel() {
-        cityPanel.classList.remove('open');
-        popularBtn.setAttribute('aria-expanded', 'false');
-    }
-
-    popularBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        cityPanel.classList.contains('open') ? closePanel() : openPanel();
-    });
-    document.addEventListener('click', function (e) {
-        if (cityPanel.classList.contains('open') && !cityPanel.contains(e.target) && e.target !== popularBtn)
-            closePanel();
-    });
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { closePanel(); popularBtn.focus(); }
     });
 
     // ── Initial load ──
@@ -501,4 +484,6 @@
     try { var raw = localStorage.getItem('oro_last_place'); if (raw) initial = JSON.parse(raw); } catch (e) {}
     if (!initial) initial = { lat: 37.5665, lon: 126.9780, name: 'Seoul', admin: '', country: 'South Korea' };
     loadFor(initial);
+
+    document.getElementById('copy-year').textContent = new Date().getFullYear();
 })();

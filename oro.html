@@ -33,20 +33,13 @@
 
         /* ── Search bar ── */
         .search-block { margin-bottom: 1.75rem; }
-
-        .search-row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
+        .search-row { display: flex; gap: 0.5rem; align-items: center; }
 
         /* The unified input pill */
         .search-pill {
             position: relative;
-            flex: 1 1 auto;
-            min-width: 0;
-            display: flex;
-            align-items: center;
+            flex: 1 1 auto; min-width: 0;
+            display: flex; align-items: center;
             height: 2.75rem;
             background: var(--card);
             border: 1px solid var(--border);
@@ -57,57 +50,53 @@
             border-color: var(--cosmic-purple);
             box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
         }
-
         .search-pill input {
-            flex: 1 1 auto;
-            min-width: 0;
-            height: 100%;
-            background: none;
-            border: none;
-            outline: none;
+            flex: 1 1 auto; min-width: 0; height: 100%;
+            background: none; border: none; outline: none;
             padding: 0 0.75rem 0 1.1rem;
-            font-size: 0.875rem;
-            font-family: inherit;
-            color: var(--text-main);
+            font-size: 0.875rem; font-family: inherit; color: var(--text-main);
         }
         .search-pill input::placeholder { color: var(--text-muted); }
 
-        /* Divider between text input and icon buttons */
         .pill-divider {
-            width: 1px;
-            height: 1.25rem;
-            background: var(--border);
-            flex-shrink: 0;
+            width: 1px; height: 1.25rem;
+            background: var(--border); flex-shrink: 0;
         }
-
-        /* Icon buttons inside the pill */
         .pill-btn {
-            flex-shrink: 0;
-            width: 2.25rem; height: 100%;
+            flex-shrink: 0; width: 2.25rem; height: 100%;
             display: inline-flex; align-items: center; justify-content: center;
             background: none; border: none;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: color 0.2s;
+            color: var(--text-muted); font-size: 0.85rem;
+            cursor: pointer; transition: color 0.2s;
         }
         .pill-btn:first-of-type { margin-left: 0.1rem; }
         .pill-btn:last-of-type  { margin-right: 0.3rem; }
-        .pill-btn:hover { color: var(--cosmic-purple); }
+        @media (hover: hover) and (pointer: fine) {
+            .pill-btn:hover { color: var(--cosmic-purple); }
+        }
         .pill-btn:focus-visible { outline: none; color: var(--cosmic-purple); }
+
+        /* Native select — invisible, sits exactly over the list button so the
+           OS picker opens right there. Size/position set via JS after layout. */
+        #city-select {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none; /* JS enables click-through only when needed */
+            width: 2.25rem; height: 2.75rem;
+            right: 0.3rem; top: 0;
+            font-size: 16px; /* prevents iOS zoom */
+            cursor: pointer;
+            border: none; background: none;
+        }
 
         /* Date input */
         .date-input {
-            flex: 0 0 auto;
-            height: 2.75rem;
+            flex: 0 0 auto; height: 2.75rem;
             background: var(--card); color: var(--text-main);
             border: 1px solid var(--border); border-radius: 999px;
-            padding: 0 1rem;
-            font-size: 0.875rem; font-family: inherit;
-            outline: none;
-            font-variant-numeric: tabular-nums;
+            padding: 0 1rem; font-size: 0.875rem; font-family: inherit;
+            outline: none; font-variant-numeric: tabular-nums;
             transition: border-color 0.2s, box-shadow 0.2s;
-            /* shrink gracefully, but keep a usable minimum */
             width: 8.5rem;
         }
         .date-input:focus {
@@ -132,62 +121,6 @@
         .btn:active { transform: translateY(1px); }
         .btn i { font-size: 0.78rem; }
 
-        /* ── Popular-cities dropdown panel ── */
-        .city-panel-wrap {
-            position: relative;
-        }
-        .city-panel {
-            display: none;
-            position: absolute;
-            top: calc(100% + 0.5rem);
-            /* align right edge with the pill-btn that opened it */
-            right: 0;
-            width: 22rem;
-            max-width: calc(100vw - 3rem);
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-            padding: 0.75rem;
-            z-index: 200;
-            /* tuck inside the pill */
-        }
-        .city-panel.open { display: block; }
-
-        .city-panel-group { margin-bottom: 0.6rem; }
-        .city-panel-group:last-child { margin-bottom: 0; }
-
-        .city-panel-heading {
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            font-weight: 600;
-            padding: 0.1rem 0.4rem 0.4rem;
-        }
-        .city-panel-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-        }
-        .city-chip {
-            font-size: 0.78rem;
-            font-family: inherit;
-            background: var(--bg);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 0.3rem 0.7rem;
-            cursor: pointer;
-            transition: background 0.15s, border-color 0.15s, color 0.15s;
-            white-space: nowrap;
-        }
-        .city-chip:hover {
-            background: var(--card-hover);
-            border-color: var(--cosmic-purple);
-            color: var(--cosmic-purple);
-        }
-
         @media (max-width: 520px) {
             .btn span { display: none; }
             .btn { padding: 0 1rem; }
@@ -196,8 +129,7 @@
 
         /* Summary card */
         .sun-card {
-            background: var(--card);
-            border: 1px solid var(--border);
+            background: var(--card); border: 1px solid var(--border);
             border-radius: var(--radius-card);
             padding: 1.25rem; margin-bottom: 1.5rem;
         }
@@ -218,10 +150,7 @@
             margin: 0 0 0.2rem;
             display: flex; align-items: center; gap: 0.35rem;
         }
-        .sun-value {
-            font-size: 0.95rem; font-weight: 500;
-            font-variant-numeric: tabular-nums;
-        }
+        .sun-value { font-size: 0.95rem; font-weight: 500; font-variant-numeric: tabular-nums; }
         .sun-swatch {
             width: 0.55rem; height: 0.55rem; border-radius: 50%;
             display: inline-block; flex-shrink: 0;
@@ -241,10 +170,7 @@
             letter-spacing: var(--ls-wide); font-weight: 600;
             opacity: 0.75; margin: 0 0 0.25rem;
         }
-        .best-window-time {
-            font-size: 1.15rem; font-weight: 600;
-            font-variant-numeric: tabular-nums;
-        }
+        .best-window-time { font-size: 1.15rem; font-weight: 600; font-variant-numeric: tabular-nums; }
         .best-window-note { font-size: 0.8rem; opacity: 0.8; margin: 0.15rem 0 0; }
         .best-window-score {
             font-size: 2rem; font-weight: 600;
@@ -266,7 +192,6 @@
         }
         .hour-scroll::-webkit-scrollbar { height: 4px; }
         .hour-scroll::-webkit-scrollbar-thumb { background: var(--timeline); border-radius: 2px; }
-
         .hour-card {
             flex: 0 0 auto; width: 4.25rem;
             background: var(--card); border: 1px solid var(--border);
@@ -307,7 +232,6 @@
         .status { padding: 2rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
         .status i { display: block; font-size: 1.3rem; margin-bottom: 0.6rem; opacity: 0.5; }
         .hidden { display: none !important; }
-
         .status-retry {
             display: inline-flex; align-items: center; gap: 0.4rem;
             margin-top: 0.85rem; background: none; border: 1px solid var(--border);
@@ -357,7 +281,7 @@
             <div class="search-row">
 
                 <!-- Unified pill: text input + geo + popular -->
-                <div class="search-pill city-panel-wrap">
+                <div class="search-pill">
                     <input
                         type="text" id="city-input"
                         placeholder="Search a city&hellip;" aria-label="City"
@@ -368,13 +292,14 @@
                         <i class="fa-solid fa-location-crosshairs"></i>
                     </button>
                     <button type="button" class="pill-btn" id="popular-btn"
-                        aria-label="Popular cities" title="Popular cities"
-                        aria-expanded="false" aria-controls="city-panel">
+                        aria-label="Popular cities" title="Popular cities">
                         <i class="fa-solid fa-list"></i>
                     </button>
-
-                    <!-- Popular cities panel -->
-                    <div class="city-panel" id="city-panel" role="listbox" aria-label="Popular cities"></div>
+                    <!-- Native select — invisible, triggered by the list button above.
+                         On iOS this opens the native wheel picker; on desktop the OS dropdown. -->
+                    <select id="city-select" aria-label="Popular cities" tabindex="-1">
+                        <option value="">— pick a city —</option>
+                    </select>
                 </div>
 
                 <!-- Date -->
@@ -401,34 +326,5 @@
 
     <script src="theme.js"></script>
     <script src="oro.js"></script>
-    <script>
-        // Popular-cities panel toggle
-        (function () {
-            var btn   = document.getElementById('popular-btn');
-            var panel = document.getElementById('city-panel');
-
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                var open = panel.classList.toggle('open');
-                btn.setAttribute('aria-expanded', open);
-            });
-
-            // Close on outside click
-            document.addEventListener('click', function (e) {
-                if (!panel.contains(e.target) && e.target !== btn) {
-                    panel.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            // Close on Escape
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    panel.classList.remove('open');
-                    btn.setAttribute('aria-expanded', 'false');
-                }
-            });
-        })();
-    </script>
 </body>
 </html>
