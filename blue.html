@@ -171,11 +171,22 @@
         }
         .grid-tile img {
             width: 100%; height: 100%; object-fit: cover; display: block;
-            transition: filter 0.3s ease;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        /* Hover overlay — desktop only */
+        .grid-tile::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: none;
         }
         @media (hover: hover) and (pointer: fine) {
             .grid-tile:hover img {
-                filter: brightness(1.08) contrast(1.02);
+                transform: scale(1.06);
+            }
+            .grid-tile:hover::after {
+                background: rgba(0, 0, 0, 0.12);
             }
         }
         .grid-skeleton {
@@ -218,6 +229,7 @@
             .grid-skeleton { animation: none; }
             .filter-pop { animation: none; }
             .grid-tile img { transition: none; }
+            .grid-tile::after { transition: none; }
         }
     </style>
 </head>
@@ -296,7 +308,6 @@
                 if (!raw) return;
                 var saved = JSON.parse(raw);
                 var restored = false;
-                // filterSelects[0] = Camera, filterSelects[1] = Year (build order)
                 if (filterSelects[0] && saved.c && saved.c !== 'all') {
                     var camOpts = filterSelects[0].options;
                     for (var i = 0; i < camOpts.length; i++) {
@@ -315,7 +326,7 @@
 
         var filterSelects = [];
         function buildSelect(fieldLabel, allLabel, values, onPick) {
-            if (values.length < 2) return; // nothing to filter on
+            if (values.length < 2) return;
             var field = document.createElement('div');
             field.className = 'filter-field';
             var fl = document.createElement('span');
@@ -386,7 +397,7 @@
             years.sort(function(a, b) { return b.localeCompare(a); });
             buildSelect('Camera', 'All cameras', cameras, function(v) { selectedCamera = v; });
             buildSelect('Year', 'All years', years, function(v) { selectedYear = v; });
-            if (!filterSelects.length) return; // nothing to filter — keep header clean
+            if (!filterSelects.length) return;
 
             filterClear = document.createElement('button');
             filterClear.type = 'button';
@@ -424,7 +435,6 @@
                 });
                 renderFilters(data.posts);
                 restoreSavedFilter();
-                // Restore scroll position after filters are applied
                 (function () {
                     try {
                         var savedY = sessionStorage.getItem(SCROLL_KEY);
