@@ -35,7 +35,6 @@
         .search-block { margin-bottom: 1.75rem; }
         .search-row { display: flex; gap: 0.5rem; align-items: center; }
 
-        /* The unified input pill */
         .search-pill {
             position: relative;
             flex: 1 1 auto; min-width: 0;
@@ -57,7 +56,6 @@
             font-size: 0.875rem; font-family: inherit; color: var(--text-main);
         }
         .search-pill input::placeholder { color: var(--text-muted); }
-
         .pill-divider {
             width: 1px; height: 1.25rem;
             background: var(--border); flex-shrink: 0;
@@ -76,16 +74,11 @@
         }
         .pill-btn:focus-visible { outline: none; color: var(--cosmic-purple); }
 
-        /* Native select — invisible, sits exactly over the list button so the
-           OS picker opens right there. Size/position set via JS after layout. */
         #city-select {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none; /* JS enables click-through only when needed */
+            position: absolute; opacity: 0; pointer-events: none;
             width: 2.25rem; height: 2.75rem;
             right: 0.3rem; top: 0;
-            font-size: 16px; /* prevents iOS zoom */
-            cursor: pointer;
+            font-size: 16px; cursor: pointer;
             border: none; background: none;
         }
 
@@ -103,10 +96,14 @@
             border-color: var(--cosmic-purple);
             box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
         }
+        .date-input.date-error {
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 3px rgba(229,62,62,0.15);
+        }
         .date-input::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
         body.dark .date-input::-webkit-calendar-picker-indicator { filter: invert(1); }
 
-        /* Search button */
+        /* City search submit button — now only for text search */
         .btn {
             flex: 0 0 auto; height: 2.75rem;
             background: var(--cosmic-purple); color: #fff;
@@ -126,6 +123,22 @@
             .btn { padding: 0 1rem; }
             .date-input { width: 7rem; padding: 0 0.65rem; }
         }
+
+        /* Date error toast */
+        #date-toast {
+            display: none;
+            align-items: center; gap: 0.4rem;
+            margin-top: 0.5rem;
+            padding: 0.4rem 0.9rem;
+            background: rgba(229,62,62,0.10);
+            border: 1px solid rgba(229,62,62,0.30);
+            border-radius: 999px;
+            font-size: 0.75rem; color: #c53030;
+            width: fit-content;
+        }
+        body.dark #date-toast { color: #fc8181; background: rgba(229,62,62,0.12); border-color: rgba(229,62,62,0.25); }
+        #date-toast.visible { display: inline-flex; }
+        #date-toast i { font-size: 0.7rem; }
 
         /* Summary card */
         .sun-card {
@@ -156,22 +169,16 @@
             display: inline-block; flex-shrink: 0;
         }
 
-        /* Best window card — never wraps; score is always right-aligned inline */
+        /* Best window card */
         .best-window {
             background: linear-gradient(135deg, hsl(35, 90%, 60%) 0%, hsl(20, 85%, 55%) 100%);
             border-radius: var(--radius-card);
             padding: 1.1rem 1.25rem; margin-bottom: 1.5rem;
             color: #1a1207;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            flex-wrap: nowrap;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 0.75rem; flex-wrap: nowrap;
         }
-        .best-window-body {
-            flex: 1 1 0;
-            min-width: 0;
-        }
+        .best-window-body { flex: 1 1 0; min-width: 0; }
         .best-window-label {
             font-size: 0.65rem; text-transform: uppercase;
             letter-spacing: var(--ls-wide); font-weight: 600;
@@ -179,23 +186,17 @@
         }
         .best-window-time {
             font-size: clamp(0.95rem, 2.5vw, 1.15rem);
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            white-space: nowrap;
+            font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap;
         }
         .best-window-note { font-size: 0.8rem; opacity: 0.8; margin: 0.15rem 0 0; }
         .best-window-tz {
             font-size: 0.62rem; text-transform: uppercase;
-            letter-spacing: var(--ls-mid); opacity: 0.6;
-            margin: 0.3rem 0 0;
+            letter-spacing: var(--ls-mid); opacity: 0.6; margin: 0.3rem 0 0;
         }
         .best-window-score {
             flex: 0 0 auto;
             font-size: clamp(1.5rem, 5vw, 2rem);
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-            white-space: nowrap;
+            font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap;
         }
         .best-window-score small { font-size: 0.75rem; opacity: 0.7; font-weight: 400; }
 
@@ -300,8 +301,6 @@
 
         <form class="search-block" id="search-form" autocomplete="off">
             <div class="search-row">
-
-                <!-- Unified pill: text input + geo + popular -->
                 <div class="search-pill">
                     <input
                         type="text" id="city-input"
@@ -316,23 +315,23 @@
                         aria-label="Popular cities" title="Popular cities">
                         <i class="fa-solid fa-list"></i>
                     </button>
-                    <!-- Native select — invisible, triggered by the list button above.
-                         On iOS this opens the native wheel picker; on desktop the OS dropdown. -->
                     <select id="city-select" aria-label="Popular cities" tabindex="-1">
                         <option value="">— pick a city —</option>
                     </select>
                 </div>
 
-                <!-- Date -->
                 <input
                     type="date" class="date-input" id="date-input"
                     aria-label="Date"
                 >
 
-                <!-- Submit -->
-                <button type="submit" class="btn" id="search-btn">
+                <button type="submit" class="btn" id="search-btn" aria-label="Search city">
                     <i class="fa-solid fa-magnifying-glass"></i><span>Search</span>
                 </button>
+            </div>
+            <div id="date-toast" role="alert" aria-live="polite">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="date-toast-msg">Date out of range</span>
             </div>
         </form>
 
