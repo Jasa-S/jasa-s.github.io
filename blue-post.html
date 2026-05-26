@@ -64,7 +64,7 @@
             color: var(--cosmic-purple); margin-bottom: 0.45rem;
         }
         @media (max-width: 1099px) { .mobile-category { display: block; } }
-        .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 0.35rem; line-height: 1.2; }
+        .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; margin: 0 0 0.35rem; line-height: 1.2; }
         .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 1.5rem; }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
         .post-image img { width: 100%; height: auto; display: block; border-radius: var(--radius-card); cursor: zoom-in; }
@@ -146,7 +146,7 @@
 
     <main id="page-wrap">
         <div id="mobile-category" class="mobile-category"></div>
-        <div class="post-title" id="post-title"></div>
+        <h1 class="post-title" id="post-title"></h1>
         <div class="post-meta" id="post-meta"></div>
         <div id="post-content"></div>
         <footer>
@@ -157,7 +157,7 @@
 
     <div id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
         <button class="lb-btn" id="lb-prev" aria-label="Previous image"><i class="fa-solid fa-chevron-left"></i></button>
-        <img id="lb-img" src="" alt="">
+        <img id="lb-img" alt="">
         <button class="lb-btn" id="lb-next" aria-label="Next image"><i class="fa-solid fa-chevron-right"></i></button>
         <button class="lb-btn" id="lb-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
         <div id="lb-counter"></div>
@@ -196,7 +196,7 @@
     function lbCloseFn() {
         lightbox.classList.remove('open');
         document.body.style.overflow = '';
-        lbImg.src = '';
+        lbImg.removeAttribute('src');
         if (lbOpener && lbOpener.focus) lbOpener.focus();
         lbOpener = null;
     }
