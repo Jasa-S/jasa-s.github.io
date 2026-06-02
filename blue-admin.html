@@ -592,7 +592,8 @@
         var THUMB_QUAL  = 0.8;
         var JPEG_QUAL_COMPRESSED   = 0.85;
         var JPEG_QUAL_UNCOMPRESSED = 0.95;
-        var UPLOAD_CONCURRENCY = 2;
+        var UPLOAD_CONCURRENCY = 1;     // one photo at a time — most reliable
+        var UPLOAD_PACE_MS = 400;       // small pause between uploads to dodge secondary rate limits
         var GREEK_NEXT  = ['phi','chi','psi','omega'];
 
         // ---------- IndexedDB ----------
@@ -815,16 +816,17 @@
             });
         }
 
-        // Retry a promise-returning fn on transient failures (network errors,
-        // request timeouts, 408/429, 5xx). Exponential backoff. Permanent
-        // 4xx (auth/notfound/conflict/etc.) bubble up immediately.
+        // Retry a promise-returning fn on transient failures: network errors,
+        // request timeouts, 408, 429, 5xx — and 403 (GitHub returns 403 for
+        // secondary rate limits, which clear after a short wait). Permanent
+        // permission errors will still surface after the retries are exhausted.
         function withRetry(fn, attempts, baseMs) {
-            attempts = attempts || 3;
-            baseMs = baseMs || 600;
+            attempts = attempts || 5;
+            baseMs = baseMs || 1000;
             function tryOnce(n) {
                 return fn().catch(function (err) {
                     var s = err && err.status;
-                    var retriable = !s || s === 408 || s === 429 || (s >= 500 && s < 600);
+                    var retriable = !s || s === 403 || s === 408 || s === 429 || (s >= 500 && s < 600);
                     if (!retriable || n >= attempts) throw err;
                     var delay = baseMs * Math.pow(2, n - 1);
                     return new Promise(function (r) { setTimeout(r, delay); }).then(function () { return tryOnce(n + 1); });
@@ -1840,6 +1842,9 @@
                         task.p.status = 'ok'; task.p.statusText = 'Uploaded';
                         renderPhotos();
                         tick();
+                        // Small pace between sequential uploads to dodge
+                        // GitHub's secondary rate limiting on bursts.
+                        return new Promise(function (r) { setTimeout(r, UPLOAD_PACE_MS); });
                     })
                     .catch(function (err) {
                         task.p.status = 'err'; task.p.statusText = 'Failed: ' + err.message;
@@ -2042,10 +2047,15 @@
             return runPool(tasks, UPLOAD_CONCURRENCY, function (task) {
                 task.p.status = 'uploading'; task.p.statusText = 'Uploading…'; renderPhotos();
                 return photoBytes(task.p)
-                    .then(function (b64) { return ghPutContent(IMG_DIR + '/' + task.name, b64, 'blue: add ' + task.name); })
+                    .then(function (b64) {
+                        return withRetry(function () {
+                            return ghPutContent(IMG_DIR + '/' + task.name, b64, 'blue: add ' + task.name);
+                        });
+                    })
                     .then(function () {
                         task.p.uploadedAs = task.name; task.p.status = 'ok'; task.p.statusText = 'Uploaded';
                         renderPhotos(); tick();
+                        return new Promise(function (r) { setTimeout(r, UPLOAD_PACE_MS); });
                     })
                     .catch(function (err) {
                         task.p.status = 'err'; task.p.statusText = 'Failed: ' + err.message;
@@ -2060,7 +2070,11 @@
                     ? Promise.resolve(cover.file)
                     : fetch(cover.url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Could not load cover image'); return r.blob(); });
                 return srcReady.then(makeThumbnail).then(blobToBase64)
-                    .then(function (b64) { return ghPutUpsert(IMG_DIR + '/' + thumbName, b64, 'blue: thumb ' + thumbName); })
+                    .then(function (b64) {
+                        return withRetry(function () {
+                            return ghPutUpsert(IMG_DIR + '/' + thumbName, b64, 'blue: thumb ' + thumbName);
+                        });
+                    })
                     .then(tick);
             }).then(function () {
                 // Resolve dimensions for any photo whose ratio we don't already know.
