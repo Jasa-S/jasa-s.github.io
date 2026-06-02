@@ -1760,14 +1760,26 @@
             var tasks = photos.map(function (p, i) { return { p: p, i: i, name: imageId + '_' + pad2(i + 1) + '.jpg' }; });
             var failures = [];
 
+            // Names this publish will write. Used after the pool to decide
+            // which prior uploads are now orphaned and safe to delete.
+            var targetNames = {};
+            tasks.forEach(function (t) { targetNames[t.name] = true; });
+            var staleOrphans = [];
+
             return runPool(tasks, UPLOAD_CONCURRENCY, function (task) {
-                if (task.p.uploadedAs) { tick(); return Promise.resolve(); }
+                // Only skip if this photo is already uploaded under the *target*
+                // name. If a prior partial publish + reorder/remove left it
+                // pointing at a different slot, re-upload under the new name and
+                // mark the old name for orphan cleanup.
+                if (task.p.uploadedAs === task.name) { tick(); return Promise.resolve(); }
+                var prior = (task.p.uploadedAs && task.p.uploadedAs !== task.name) ? task.p.uploadedAs : null;
                 task.p.status = 'uploading'; task.p.statusText = 'Uploading…';
                 renderPhotos();
                 return processForUpload(task.p)
                     .then(blobToBase64)
                     .then(function (b64) { return ghPutContent(IMG_DIR + '/' + task.name, b64, 'blue: add ' + task.name); })
                     .then(function () {
+                        if (prior) staleOrphans.push(prior);
                         task.p.uploadedAs = task.name;
                         task.p.status = 'ok'; task.p.statusText = 'Uploaded';
                         renderPhotos();
@@ -1814,6 +1826,16 @@
                         return ghPutContent(POSTS_PATH, utf8ToBase64(newContent), 'blue: add post ' + postId, meta.sha);
                     }).then(function () {
                         return ghPutStub(entry).catch(function () {}); // preview stub is best-effort
+                    }).then(function () {
+                        // Best-effort cleanup of files that were uploaded under a
+                        // different slot in a prior partial publish (reorder/remove).
+                        // Filter out any that match a current target name — those
+                        // hold the live content now.
+                        var orphans = staleOrphans.filter(function (n) { return !targetNames[n]; });
+                        if (!orphans.length) return;
+                        return runPool(orphans, 3, function (n) {
+                            return ghDeleteFile(IMG_DIR + '/' + n, 'blue: discard stale ' + n).catch(function () {});
+                        });
                     }).then(function () {
                         tick();
                         publishing = false;

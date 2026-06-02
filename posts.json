@@ -2,36 +2,6 @@
   "base": "/blue-images/",
   "posts": [
     {
-      "id": "phi",
-      "imageId": "260602021612",
-      "title": "Tio Pepe",
-      "category": "Ricoh GR IV",
-      "date": "2026",
-      "count": 17,
-      "cover": "16",
-      "thumb": true,
-      "ratios": [
-        0.7499,
-        0.75,
-        0.75,
-        0.75,
-        0.8,
-        1.3333,
-        0.75,
-        0.75,
-        0.75,
-        0.75,
-        0.75,
-        0.7499,
-        0.75,
-        0.7499,
-        0.7501,
-        0.75,
-        0.7498
-      ],
-      "location": "Madrid"
-    },
-    {
       "id": "upsilon",
       "imageId": "224105519781",
       "title": "SUPERIA 400 | HOME",
