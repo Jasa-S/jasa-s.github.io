@@ -3,12 +3,12 @@
   "posts": [
     {
       "id": "phi",
-      "imageId": "260602025110",
-      "title": "Tio",
+      "imageId": "260609211203",
+      "title": "Trafalgar",
       "category": "Ricoh GR IV",
       "date": "2026",
-      "count": 17,
-      "cover": "11",
+      "count": 20,
+      "cover": "18",
       "thumb": true,
       "ratios": [
         0.7499,
@@ -27,7 +27,10 @@
         0.7499,
         0.7501,
         0.75,
-        0.7498
+        0.7498,
+        0.75,
+        1.3332,
+        0.75
       ]
     },
     {
