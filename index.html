@@ -125,7 +125,28 @@
             position: absolute; left: -1.95rem; top: 1.35rem;
             width: 0.5rem; height: 0.5rem; border-radius: 50%;
         }
-        .tl-dot.active { background-color: var(--cosmic-purple); box-shadow: 0 0 10px rgba(124,58,237,0.3); }
+        .tl-dot.active {
+            background-color: var(--cosmic-purple);
+            box-shadow: 0 0 10px rgba(124,58,237,0.3);
+        }
+        .tl-dot.active::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border: 1px solid var(--cosmic-purple);
+            border-radius: inherit;
+            opacity: 0.42;
+            transform-origin: center;
+            animation: current-dot-pulse 1.8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes current-dot-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.42; }
+            50%      { transform: scale(2.15); opacity: 0.1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tl-dot.active::after { animation: none; opacity: 0.24; transform: scale(1.75); }
+        }
         .tl-dot.past   { background-color: #a1a1aa; }
         .tl-date  { font-size: 0.75rem; color: var(--text-muted); margin: 0 0 0.3rem; }
         .tl-date a[href^="tel"] { color: inherit; text-decoration: none; pointer-events: none; cursor: text; }
