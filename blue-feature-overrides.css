@@ -1,0 +1,13 @@
+@media (min-width: 561px), (orientation: landscape) {
+    .feature-collage-frame {
+        gap: clamp(1.25rem, 3vw, 2rem) !important;
+    }
+
+    .feature-shot:first-child {
+        width: min(64%, 30rem) !important;
+    }
+
+    .feature-shot:last-child {
+        width: min(58%, 27rem) !important;
+    }
+}

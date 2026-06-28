@@ -1,0 +1,175 @@
+@keyframes spin-globe {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.icon-globe {
+    display: inline-block;
+    animation: spin-globe 8s linear infinite;
+    margin-right: 0.5rem;
+    font-style: normal;
+}
+
+:root {
+    --bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --card: #f9fafb;
+    --card-hover: #f0f0f0;
+    --border: rgba(0,0,0,0.07);
+    --timeline: #e5e7eb;
+    --accent: #0A84FF;
+    --accent-blue: #0A84FF;
+    --radius-card: 0.75rem;
+    --ls-wide: 0.15em;
+    --ls-mid:  0.1em;
+    --ls-tight: 0.05em;
+}
+
+:root.dark,
+body.dark {
+    --bg: #0a0a0a;
+    --text-main: #ffffff;
+    --text-muted: #a1a1aa;
+    --card: #141414;
+    --card-hover: #1e1e1e;
+    --border: rgba(255,255,255,0.07);
+    --timeline: #27272a;
+}
+
+a { color: inherit; }
+a:visited { color: inherit; }
+
+.top-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: color 0.2s, transform 0.3s;
+    padding: 0.35rem;
+    min-width: unset;
+    min-height: unset;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.top-btn:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+}
+
+#top-bar-direct {
+    position: absolute;
+    top: 0.75rem;
+    right: 1.25rem;
+    z-index: 500;
+}
+
+body header {
+    margin-bottom: 2.4rem !important;
+}
+
+body header:has(.gallery-link) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+}
+body header:has(.gallery-link) .oro-title-row {
+    display: contents !important;
+}
+body header .gallery-link {
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 0.9rem !important;
+    border-radius: 999px !important;
+    background: var(--card) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-muted) !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    letter-spacing: var(--ls-mid) !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    transition: color 0.2s, border-color 0.2s, background 0.2s !important;
+    white-space: nowrap !important;
+}
+body header .gallery-link i {
+    font-size: 0.75rem !important;
+    line-height: 1 !important;
+}
+@media (hover: hover) and (pointer: fine) {
+    body header .gallery-link:hover {
+        color: var(--accent) !important;
+        border-color: rgba(125,125,125,0.3) !important;
+        background: var(--card-hover) !important;
+    }
+}
+
+.search-pill,
+.date-input,
+.btn {
+    height: 36px !important;
+    min-height: 36px !important;
+}
+.search-pill input {
+    line-height: 1 !important;
+}
+.date-input {
+    font-size: 0.78rem !important;
+    line-height: 1 !important;
+    padding: 0 0.78rem !important;
+    width: 7.85rem !important;
+}
+.date-input::-webkit-calendar-picker-indicator {
+    width: 0.9rem !important;
+    height: 0.9rem !important;
+    margin: 0 !important;
+}
+.pill-btn {
+    width: 36px !important;
+}
+#city-select {
+    height: 36px !important;
+}
+
+@media (max-width: 520px) {
+    .btn {
+        width: 36px !important;
+        padding: 0 !important;
+        justify-content: center !important;
+    }
+    .date-input {
+        width: 6.65rem !important;
+        padding: 0 0.55rem !important;
+        font-size: 0.72rem !important;
+    }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #top-bar-direct .top-btn:hover {
+        color: var(--accent-blue);
+        transform: rotate(20deg) scale(1.2);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .icon-globe { animation: none; }
+    .top-btn { transition: color 0.2s; }
+    #top-bar-direct .top-btn:hover { transform: none; }
+}

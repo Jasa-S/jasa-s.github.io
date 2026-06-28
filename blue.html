@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+    <script>(function(){try{var t=localStorage.getItem('theme'),d=t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();</script>
+    <title>BlUE</title>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BlUE">
+    <meta name="twitter:card" content="summary">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        body {
+            background-color: var(--bg); color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        header h1 {
+            font-size: 1.75rem; font-weight: 600;
+            letter-spacing: 0;
+            display: flex; align-items: center;
+            margin: 0;
+        }
+        .oro-link {
+            display: inline-flex; align-items: center; gap: 0.45rem;
+            padding: 0.45rem 0.9rem; border-radius: 999px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.75rem; font-weight: 500;
+            letter-spacing: var(--ls-mid); text-transform: uppercase;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .oro-link i { font-size: 0.75rem; }
+        @media (hover: hover) and (pointer: fine) {
+            .oro-link:hover {
+                color: var(--accent);
+                border-color: rgba(125,125,125,0.3);
+                background: var(--card-hover);
+            }
+        }
+        .filter-reset-pill {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.45rem 0.9rem; border-radius: 999px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-muted); font-family: inherit;
+            font-size: 0.75rem; font-weight: 500;
+            letter-spacing: var(--ls-mid); text-transform: uppercase;
+            cursor: pointer; white-space: nowrap;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .filter-reset-pill[hidden] { display: none; }
+        .filter-reset-pill i { font-size: 0.7rem; }
+        @media (hover: hover) and (pointer: fine) {
+            .filter-reset-pill:hover {
+                color: var(--accent);
+                border-color: rgba(125,125,125,0.3);
+                background: var(--card-hover);
+            }
+        }
+
+        #page { max-width: 48rem; margin: 0 auto; padding: 3rem 1.5rem 0; }
+
+        .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+        .filter-menu { position: relative; display: inline-flex; }
+        .filter-menu[hidden] { display: none; }
+        .filter-toggle {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 2rem; height: 2rem; border-radius: 999px;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-muted); cursor: pointer; font-size: 0.72rem;
+            transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .filter-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        @media (hover: hover) and (pointer: fine) {
+            .filter-toggle:hover { color: var(--accent); border-color: rgba(125,125,125,0.3); background: var(--card-hover); }
+        }
+        .filter-menu.has-active .filter-toggle { color: var(--accent); border-color: rgba(var(--accent-rgb),0.45); }
+        .filter-menu.has-active .filter-toggle::after {
+            content: ''; position: absolute; top: -1px; right: -1px;
+            width: 7px; height: 7px; border-radius: 999px;
+            background: var(--accent); border: 1.5px solid var(--bg);
+        }
+
+        .filter-pop {
+            position: absolute; top: calc(100% + 0.5rem); right: 0; z-index: 50;
+            display: none; flex-direction: column; gap: 0.6rem;
+            min-width: 11rem; padding: 0.85rem;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+            transform-origin: top right;
+            animation: filter-pop-in 0.14s ease-out;
+        }
+        body.dark .filter-pop { box-shadow: 0 6px 28px rgba(0,0,0,0.5); }
+        .filter-menu.open .filter-pop { display: flex; }
+        @keyframes filter-pop-in { from { opacity: 0; transform: scale(0.96) translateY(-3px); } to { opacity: 1; transform: none; } }
+        .filter-field { display: flex; flex-direction: column; gap: 0.3rem; }
+        .filter-field > span {
+            font-size: 0.58rem; text-transform: uppercase; letter-spacing: var(--ls-wide);
+            color: var(--text-muted); font-weight: 600;
+        }
+        .select-wrap { position: relative; display: block; }
+        .select-wrap select {
+            appearance: none; -webkit-appearance: none; -moz-appearance: none;
+            width: 100%; box-sizing: border-box;
+            font-family: inherit; cursor: pointer;
+            padding: 0.35rem 1.6rem 0.35rem 0.65rem;
+            border-radius: 0.5rem;
+            background: var(--card); border: 1px solid var(--border);
+            color: var(--text-main); font-size: 0.72rem; font-weight: 500;
+            letter-spacing: var(--ls-tight);
+            transition: border-color 0.2s;
+        }
+        .select-wrap select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+        .select-chev {
+            position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%);
+            font-size: 0.55rem; color: var(--text-muted); pointer-events: none;
+        }
+        .filter-clear {
+            align-self: flex-start; background: none; border: none; padding: 0;
+            color: var(--text-muted); font-family: inherit; font-size: 0.68rem;
+            cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+            transition: color 0.2s;
+        }
+        .filter-clear[hidden] { display: none; }
+        @media (hover: hover) and (pointer: fine) { .filter-clear:hover { color: var(--accent); } }
+        .filter-empty {
+            display: none; text-align: center; padding: 3rem 1rem;
+            color: var(--text-muted); font-size: 0.8rem; letter-spacing: var(--ls-tight);
+        }
+        .feature-collage {
+            margin: -0.4rem 0 3rem;
+        }
+        .feature-collage-frame {
+            position: relative;
+            min-height: clamp(21rem, 48vw, 31rem);
+        }
+        .feature-shot {
+            position: absolute;
+            display: block;
+            margin: 0;
+            overflow: hidden;
+            background: var(--card);
+            box-shadow: 0 1.2rem 3rem rgba(0,0,0,0.08);
+        }
+        body.dark .feature-shot { box-shadow: 0 1.2rem 3.2rem rgba(0,0,0,0.38); }
+        .feature-shot img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .feature-shot:first-child {
+            top: 0;
+            left: 0;
+            width: min(72%, 32rem);
+            aspect-ratio: 16 / 9;
+        }
+        .feature-shot:last-child {
+            right: 0;
+            bottom: 0;
+            width: min(62%, 28rem);
+            aspect-ratio: 16 / 9;
+        }
+        .feature-credit {
+            margin: 0.6rem 0 0;
+            color: var(--text-muted);
+            font-size: 0.62rem;
+            letter-spacing: var(--ls-wide);
+            text-transform: uppercase;
+            text-align: right;
+        }
+        .feature-credit a {
+            text-decoration: none;
+            border-bottom: 1px solid rgba(var(--accent-rgb),0.35);
+        }
+        @media (max-width: 560px) {
+            header {
+                align-items: flex-start;
+            }
+            .feature-collage {
+                margin: -0.75rem 0 2.4rem;
+            }
+            .feature-collage-frame {
+                min-height: clamp(18rem, 82vw, 24rem);
+            }
+            .feature-shot:first-child {
+                width: 82%;
+            }
+            .feature-shot:last-child {
+                width: 76%;
+            }
+            .feature-credit {
+                text-align: left;
+                line-height: 1.55;
+            }
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.25rem;
+        }
+        @media (min-width: 640px) {
+            .photo-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .grid-tile {
+            aspect-ratio: 1 / 1; overflow: hidden;
+            background: var(--card); position: relative; display: block;
+            text-decoration: none;
+        }
+        .grid-tile img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .grid-tile::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .grid-tile:hover img {
+                transform: scale(1.06);
+            }
+            .grid-tile:hover::after {
+                background: rgba(0, 0, 0, 0.12);
+            }
+        }
+        .grid-skeleton {
+            aspect-ratio: 1 / 1;
+            background: var(--card);
+            animation: skeleton-pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes skeleton-pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.45; }
+        }
+        .grid-error {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            letter-spacing: var(--ls-tight);
+        }
+        .grid-error i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+        }
+        .grid-tile:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+        footer {
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid var(--timeline);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: var(--ls-wide); color: var(--text-muted);
+        }
+        footer a { text-decoration: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .grid-skeleton { animation: none; }
+            .filter-pop { animation: none; }
+            .grid-tile img { transition: none; }
+            .grid-tile::after { transition: none; }
+        }
+    </style>
+</head>
+<body>
+    <div id="top-bar-direct">
+        <button class="top-btn" id="theme-toggle" aria-label="Toggle dark mode">
+            <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+    </div>
+
+    <div id="page">
+        <header>
+            <h1><span class="icon-globe">&#127757;</span>BlUE</h1>
+            <div class="header-actions">
+                <a href="oro.html" class="oro-link" aria-label="Open ORO">
+                    <i class="fa-solid fa-sun"></i>ORO
+                </a>
+                <div class="filter-menu" id="filter-menu" hidden>
+                    <button class="filter-toggle" id="filter-toggle" aria-label="Filter posts" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+                    </button>
+                    <div class="filter-pop" id="filters" role="group" aria-label="Filters"></div>
+                </div>
+                <button class="filter-reset-pill" id="filter-reset" hidden aria-label="Clear all filters">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>Reset
+                </button>
+            </div>
+        </header>
+        <section class="feature-collage" aria-label="Featured images">
+            <div class="feature-collage-frame">
+                <figure class="feature-shot">
+                    <img src="blue-images/J1.png" alt="" width="3840" height="2160" loading="eager" decoding="async">
+                </figure>
+                <figure class="feature-shot">
+                    <img src="blue-images/J2.png" alt="" width="3840" height="2160" loading="lazy" decoding="async">
+                </figure>
+            </div>
+            <p class="feature-credit">
+                &copy; <a href="https://www.youtube.com/watch?v=fR0tqhqM7Yg" target="_blank" rel="noopener noreferrer">TOHO animation</a>
+            </p>
+        </section>
+        <div class="photo-grid" id="grid"></div>
+        <div class="filter-empty" id="filter-empty">No posts match these filters.</div>
+        <footer>
+            <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
+            <a href="index.html">Homepage</a>
+        </footer>
+    </div>
+
+    <script src="theme.js"></script>
+    <script>
+    (function() {
+        function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        var grid = document.getElementById('grid');
+        var empty = document.getElementById('filter-empty');
+        var tiles = [];
+        var SKELETON_COUNT = 12;
+        for (var s = 0; s < SKELETON_COUNT; s++) {
+            var sk = document.createElement('div');
+            sk.className = 'grid-skeleton';
+            grid.appendChild(sk);
+        }
+
+        var filtersEl = document.getElementById('filters');
+        var selectedCamera = 'all';
+        var selectedYear = 'all';
+
+        function applyFilters() {
+            var shown = 0;
+            for (var i = 0; i < tiles.length; i++) {
+                var t = tiles[i];
+                var ok = (selectedCamera === 'all' || t.dataset.cat === selectedCamera)
+                      && (selectedYear === 'all' || t.dataset.year === selectedYear);
+                t.style.display = ok ? '' : 'none';
+                if (ok) shown++;
+            }
+            if (empty) empty.style.display = shown === 0 ? 'block' : 'none';
+        }
+
+        var FILTER_KEY = 'blue_filter';
+        var SCROLL_KEY = 'blue_scroll';
+        function saveFilter() {
+            try { sessionStorage.setItem(FILTER_KEY, JSON.stringify({ c: selectedCamera, y: selectedYear })); } catch(e) {}
+        }
+        function restoreSavedFilter() {
+            try {
+                var raw = sessionStorage.getItem(FILTER_KEY);
+                if (!raw) return;
+                var saved = JSON.parse(raw);
+                var restored = false;
+                if (filterSelects[0] && saved.c && saved.c !== 'all') {
+                    var camOpts = filterSelects[0].options;
+                    for (var i = 0; i < camOpts.length; i++) {
+                        if (camOpts[i].value === saved.c) { filterSelects[0].value = saved.c; selectedCamera = saved.c; restored = true; break; }
+                    }
+                }
+                if (filterSelects[1] && saved.y && saved.y !== 'all') {
+                    var yrOpts = filterSelects[1].options;
+                    for (var i = 0; i < yrOpts.length; i++) {
+                        if (yrOpts[i].value === saved.y) { filterSelects[1].value = saved.y; selectedYear = saved.y; restored = true; break; }
+                    }
+                }
+                if (restored) { applyFilters(); updateFilterUI(); }
+            } catch(e) {}
+        }
+
+        var filterSelects = [];
+        function buildSelect(fieldLabel, allLabel, values, onPick) {
+            if (values.length < 2) return;
+            var field = document.createElement('div');
+            field.className = 'filter-field';
+            var fl = document.createElement('span');
+            fl.textContent = fieldLabel;
+            field.appendChild(fl);
+            var wrap = document.createElement('div');
+            wrap.className = 'select-wrap';
+            var sel = document.createElement('select');
+            sel.setAttribute('aria-label', fieldLabel);
+            var opts = [{ v: 'all', t: allLabel }].concat(values.map(function (v) { return { v: v, t: v }; }));
+            opts.forEach(function (o) {
+                var opt = document.createElement('option');
+                opt.value = o.v; opt.textContent = o.t;
+                sel.appendChild(opt);
+            });
+            sel.addEventListener('change', function () { onPick(sel.value); applyFilters(); updateFilterUI(); saveFilter(); });
+            wrap.appendChild(sel);
+            var chev = document.createElement('i');
+            chev.className = 'fa-solid fa-chevron-down select-chev';
+            chev.setAttribute('aria-hidden', 'true');
+            wrap.appendChild(chev);
+            field.appendChild(wrap);
+            filtersEl.appendChild(field);
+            filterSelects.push(sel);
+        }
+
+        var filterMenu = document.getElementById('filter-menu');
+        var filterToggle = document.getElementById('filter-toggle');
+        var filterResetPill = document.getElementById('filter-reset');
+        var filterClear = null;
+
+        function clearAllFilters() {
+            selectedCamera = 'all'; selectedYear = 'all';
+            filterSelects.forEach(function (s) { s.value = 'all'; });
+            applyFilters(); updateFilterUI();
+            try { sessionStorage.removeItem(FILTER_KEY); } catch(e) {}
+            try { sessionStorage.removeItem(SCROLL_KEY); } catch(e) {}
+        }
+        filterResetPill.addEventListener('click', clearAllFilters);
+
+        function updateFilterUI() {
+            var active = (selectedCamera !== 'all' || selectedYear !== 'all');
+            filterMenu.classList.toggle('has-active', active);
+            filterResetPill.hidden = !active;
+            if (filterClear) filterClear.hidden = !active;
+        }
+        function openFilters() { filterMenu.classList.add('open'); filterToggle.setAttribute('aria-expanded', 'true'); }
+        function closeFilters() { filterMenu.classList.remove('open'); filterToggle.setAttribute('aria-expanded', 'false'); }
+
+        filterToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            filterMenu.classList.contains('open') ? closeFilters() : openFilters();
+        });
+        document.addEventListener('click', function (e) {
+            if (filterMenu.classList.contains('open') && !filterMenu.contains(e.target)) closeFilters();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && filterMenu.classList.contains('open')) { closeFilters(); filterToggle.focus(); }
+        });
+
+        function renderFilters(posts) {
+            var cameras = [], years = [];
+            posts.forEach(function(p) {
+                if (p.category && cameras.indexOf(p.category) === -1) cameras.push(p.category);
+                if (p.date && years.indexOf(String(p.date)) === -1) years.push(String(p.date));
+            });
+            cameras.sort();
+            years.sort(function(a, b) { return b.localeCompare(a); });
+            buildSelect('Camera', 'All cameras', cameras, function(v) { selectedCamera = v; });
+            buildSelect('Year', 'All years', years, function(v) { selectedYear = v; });
+            if (!filterSelects.length) return;
+
+            filterClear = document.createElement('button');
+            filterClear.type = 'button';
+            filterClear.className = 'filter-clear';
+            filterClear.textContent = 'Clear filters';
+            filterClear.hidden = true;
+            filterClear.addEventListener('click', clearAllFilters);
+            filtersEl.appendChild(filterClear);
+            filterMenu.hidden = false;
+        }
+
+        fetch('posts.json')
+            .then(function(r) {
+                if (!r.ok) throw new Error('Could not load posts');
+                return r.json();
+            })
+            .then(function(data) {
+                if (!data || !Array.isArray(data.posts)) throw new Error('Invalid posts data');
+                grid.innerHTML = '';
+                var BASE = data.base;
+                tiles = [];
+                data.posts.forEach(function(p, i) {
+                    var full  = BASE + p.imageId + '_' + p.cover + '.jpg';
+                    var src   = p.thumb ? (BASE + p.imageId + '_' + p.cover + '_thumb.jpg') : full;
+                    var a   = document.createElement('a');
+                    a.className = 'grid-tile';
+                    a.href = 'blue-post.html#' + encodeURIComponent(p.id);
+                    a.dataset.cat  = p.category || '';
+                    a.dataset.year = String(p.date || '');
+                    a.innerHTML =
+                        '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
+                        + ' width="400" height="400" decoding="async"'
+                        + (i === 0 ? '' : ' loading="lazy"')
+                        + (p.thumb ? ' data-full="' + esc(full) + '" onerror="if(this.dataset.full){this.src=this.dataset.full;this.removeAttribute(\'data-full\');}"' : '')
+                        + '>';
+                    grid.appendChild(a);
+                    tiles.push(a);
+                    a.addEventListener('click', function () {
+                        try { sessionStorage.setItem(SCROLL_KEY, String(Math.round(window.scrollY))); } catch(e) {}
+                    });
+                });
+                renderFilters(data.posts);
+                restoreSavedFilter();
+                (function () {
+                    try {
+                        var savedY = sessionStorage.getItem(SCROLL_KEY);
+                        if (!savedY) return;
+                        var y = parseInt(savedY, 10);
+                        if (!y) return;
+                        sessionStorage.removeItem(SCROLL_KEY);
+                        requestAnimationFrame(function () { window.scrollTo(0, y); });
+                    } catch(e) {}
+                })();
+            })
+            .catch(function() {
+                grid.innerHTML =
+                    '<div class="grid-error"><i class="fa-regular fa-image"></i>Could not load posts &mdash; please try again later.</div>';
+            });
+    })();
+    </script>
+</body>
+</html>
