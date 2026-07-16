@@ -1,0 +1,12 @@
+{
+  "name": "jasa-s.github.io",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate-post-stubs.mjs",
+    "test": "node scripts/generate-post-stubs.mjs --check && node scripts/validate-site.mjs && node --check theme.js && node --check oro.js && node --check sw.js && node --check cloudflare-analytics.js && node --check analytics-worker/src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "blue-analytics",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-11",
+  "vars": {
+    "GITHUB_OWNER": "Jasa-S",
+    "SITE_ORIGIN": "https://jasa-s.github.io"
+  }
+}

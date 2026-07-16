@@ -1,0 +1,38 @@
+{
+  "name": "BlUE Admin",
+  "short_name": "BlUE Admin",
+  "description": "Publish and manage photo posts for BlUE.",
+  "start_url": "/blue-admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/blue-admin-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/blue-admin-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/blue-admin.html",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text":  "text",
+      "url":   "url",
+      "files": [
+        { "name": "photos", "accept": ["image/*", "image/jpeg", "image/png", "image/heic", "image/heif"] }
+      ]
+    }
+  }
+}
