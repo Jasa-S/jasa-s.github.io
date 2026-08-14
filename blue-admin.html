@@ -71,6 +71,19 @@
         }
 
         .analytics-panel { padding: 0; overflow: hidden; }
+        details.analytics-panel summary.analytics-head {
+            cursor: pointer; user-select: none; list-style: none;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 0.75rem; padding: 1.1rem 1.25rem;
+        }
+        details.analytics-panel summary::-webkit-details-marker { display: none; }
+        details.analytics-panel summary .analytics-summary-title {
+            display: flex; align-items: center; gap: 0.65rem;
+        }
+        details.analytics-panel summary i.chev {
+            color: var(--text-muted); font-size: 0.7rem; transition: transform 0.18s;
+        }
+        details.analytics-panel[open] summary i.chev { transform: rotate(90deg); }
         .analytics-head {
             display: flex; align-items: center; justify-content: space-between;
             gap: 0.75rem; padding: 1.25rem 1.25rem 1rem;
@@ -94,8 +107,8 @@
         @keyframes analytics-refresh-spin {
             to { transform: rotate(360deg); }
         }
-        .analytics-head .panel-title { margin: 0 0 0.25rem; }
-        .analytics-head p:last-child { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+        .analytics-head .panel-title { margin: 0; }
+        .analytics-head p:last-child { margin: 0; font-size: 0.78rem; color: var(--text-muted); }
         .analytics-summary {
             display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
             border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
@@ -464,14 +477,16 @@
             font-size: 0.7rem; color: var(--text-muted);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .post-row .pr-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+        .post-row .pr-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
         .post-row .pr-btn {
             background: none; border: 1px solid var(--border); cursor: pointer;
-            color: var(--text-muted); padding: 0.4rem 0.55rem;
-            border-radius: 999px; min-height: 36px; min-width: 36px;
+            color: var(--text-muted); padding: 0;
+            border-radius: 999px; width: 34px; height: 34px; min-height: 34px; min-width: 34px;
             font-size: 0.78rem; font-family: inherit;
-            display: inline-flex; align-items: center; gap: 0.3rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
+        .post-row .pr-btn i { line-height: 1; }
         .post-row .pr-btn.danger { color: #b91c1c; }
         body.dark .post-row .pr-btn.danger { color: #f87171; }
         .post-row .pr-btn.is-hidden-btn { color: var(--text-muted); }
@@ -558,11 +573,14 @@
                 <button class="btn" id="sign-out"><i class="fa-solid fa-right-from-bracket"></i>Sign out</button>
             </div>
         </section>
-        <section id="analytics-panel" class="panel analytics-panel hidden">
-            <div class="analytics-head">
-                <div>
-                    <p class="panel-title">Analytics</p>
-                    <p id="analytics-period">Last 7 days</p>
+        <details id="analytics-panel" class="panel analytics-panel hidden" open>
+            <summary class="analytics-head">
+                <div class="analytics-summary-title">
+                    <i class="fa-solid fa-chevron-right chev"></i>
+                    <div>
+                        <p class="panel-title">Analytics</p>
+                        <p id="analytics-period">Last 7 days</p>
+                    </div>
                 </div>
                 <div class="analytics-actions">
                     <div class="analytics-range" aria-label="Analytics period">
@@ -572,7 +590,7 @@
                     </div>
                     <button class="btn-pill analytics-refresh" id="analytics-refresh" type="button" aria-label="Refresh analytics" title="Refresh analytics"><i class="fa-solid fa-rotate-right"></i></button>
                 </div>
-            </div>
+            </summary>
             <div id="analytics-connect" class="analytics-connect hidden">
                 <p class="note">Analytics are unavailable because no trusted endpoint is configured in <code>analytics-endpoint-config.js</code>.</p>
             </div>
@@ -604,7 +622,7 @@
                 </div>
             </div>
             <div id="analytics-status" class="analytics-status hidden" aria-live="polite"></div>
-        </section>
+        </details>
         <details class="posts-list hidden" id="existing-panel">
             <summary>
                 <i class="fa-solid fa-chevron-right chev"></i>
@@ -628,7 +646,7 @@
                     <p style="margin:0;font-size:0.85rem;">Editing <strong id="edit-banner-title">…</strong>. Drag to reorder, add, remove or replace photos, change the cover, captions and details — then tap <strong>Save changes</strong>.</p>
                 </div>
                 <div class="btn-row" style="flex-wrap:nowrap;">
-                    <button class="btn" id="edit-visibility" type="button"><i class="fa-solid fa-eye"></i><span id="edit-visibility-label">Hide from gallery</span></button>
+                    <button class="btn" id="edit-visibility" type="button"><i class="fa-solid fa-eye-slash"></i><span id="edit-visibility-label">Hide</span></button>
                     <button class="btn danger" id="edit-delete" type="button"><i class="fa-solid fa-trash"></i>Delete</button>
                     <button class="btn" id="edit-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
                 </div>
@@ -1140,7 +1158,8 @@
                 setAnalyticsStatus('Could not load analytics: ' + (err && err.message ? err.message : err), 'err');
             });
         }
-        $('analytics-refresh').addEventListener('click', function () {
+        $('analytics-refresh').addEventListener('click', function (e) {
+            e.stopPropagation();
             var button = this;
             button.disabled = true;
             button.classList.add('is-loading');
@@ -1149,8 +1168,12 @@
                 button.classList.remove('is-loading');
             });
         });
+        document.querySelector('.analytics-actions').addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
         Array.prototype.forEach.call(document.querySelectorAll('.analytics-range button'), function (button) {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function (e) {
+                e.stopPropagation();
                 analyticsDays = Number(button.getAttribute('data-days')) || 7;
                 Array.prototype.forEach.call(document.querySelectorAll('.analytics-range button'), function (item) {
                     item.classList.toggle('active', item === button);
@@ -1481,10 +1504,12 @@
             var icon = btn.querySelector('i');
             if (isHidden) {
                 icon.className = 'fa-solid fa-eye';
-                label.textContent = 'Show in gallery';
+                label.textContent = 'Show';
+                btn.title = 'Show in gallery';
             } else {
                 icon.className = 'fa-solid fa-eye-slash';
-                label.textContent = 'Hide from gallery';
+                label.textContent = 'Hide';
+                btn.title = 'Hide from gallery';
             }
         }
         function startEdit(postId) {
