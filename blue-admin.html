@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
-    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="/shared.css">
     <style>
         body {
             background-color: transparent; color: var(--text-main);
@@ -545,7 +545,7 @@
     <div id="page">
         <header>
             <h1><span class="icon-globe">&#127757;</span>BlUE<span class="sub">admin</span></h1>
-            <a href="blue.html" class="gallery-link nav-pill" aria-label="Open gallery">
+            <a href="/blue.html" class="gallery-link nav-pill" aria-label="Open gallery">
                 <i class="fa-solid fa-images"></i>Gallery
             </a>
         </header>
@@ -731,12 +731,12 @@
 
         <footer>
             <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
-            <a href="index.html">Homepage</a>
+            <a href="/index.html">Homepage</a>
         </footer>
     </div>
 
-    <script src="theme.js"></script>
-    <script src="analytics-endpoint-config.js"></script>
+    <script src="/theme.js"></script>
+    <script src="/analytics-endpoint-config.js"></script>
     <script>
     (function () {
         'use strict';
@@ -2250,7 +2250,7 @@
                         setStatus('Published 🎉', 'ok');
                         successTitle.textContent = 'Published';
                         successMsg.textContent = 'Your post is live. GitHub Pages may take ~30s to refresh.';
-                        successView.href = 'blue-post.html#' + encodeURIComponent(entry.id);
+                        successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
                         successPanel.classList.remove('hidden');
                         clearDraft();
                         existingPostIds.add(entry.id);
@@ -2353,7 +2353,7 @@
                 setStatus('Saved.', 'ok');
                 successTitle.textContent = 'Saved';
                 successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
-                successView.href = 'blue-post.html#' + encodeURIComponent(entry.id);
+                successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
                 successPanel.classList.remove('hidden');
                 return loadPosts();
             }).then(function () {
@@ -2465,7 +2465,7 @@
                 setStatus('Saved.', 'ok');
                 successTitle.textContent = 'Saved';
                 successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
-                successView.href = 'blue-post.html#' + encodeURIComponent(entry.id);
+                successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
                 successPanel.classList.remove('hidden');
                 return loadPosts();
             }).then(function () {

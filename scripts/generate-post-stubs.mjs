@@ -15,14 +15,26 @@ function escapeHtml(value) {
 }
 
 function buildStub(post) {
-  const target = `/blue-post.html#${post.id}`;
+  const hidden = Boolean(post.hidden);
+  const target = hidden ? '/blue.html' : `/blue-post.html#${post.id}`;
+  const imgUrl = `https://jasa-s.github.io/blue-images/${post.imageId}_${post.cover}.jpg`;
+  const postUrl = `https://jasa-s.github.io/p/${post.id}.html`;
+  const title = post.title || '';
 
   return '<!doctype html><html lang="en"><head><meta charset="utf-8">\n'
-    + `<title>${escapeHtml(post.title || '')} | BlUE</title>\n`
+    + `<title>${escapeHtml(title)} | BlUE</title>\n`
     + '<link rel="icon" href="/site-icon.svg" type="image/svg+xml">\n'
+    + `<meta property="og:title" content="${escapeHtml(title)} | BlUE">\n`
+    + `<meta property="og:image" content="${escapeHtml(imgUrl)}">\n`
+    + `<meta property="og:url" content="${escapeHtml(postUrl)}">\n`
+    + '<meta property="og:type" content="article">\n'
+    + '<meta property="og:site_name" content="BlUE">\n'
+    + '<meta name="twitter:card" content="summary_large_image">\n'
+    + `<meta name="twitter:title" content="${escapeHtml(title)} | BlUE">\n`
+    + `<meta name="twitter:image" content="${escapeHtml(imgUrl)}">\n`
     + `<meta http-equiv="refresh" content="0; url=${escapeHtml(target)}">\n`
     + `<script>location.replace(${JSON.stringify(target)});</script>\n`
-    + `</head><body><a href="${escapeHtml(target)}">View post</a></body></html>\n`;
+    + `</head><body><a href="${escapeHtml(target)}">${hidden ? 'Gallery' : 'View post'}</a></body></html>\n`;
 }
 
 const data = JSON.parse(await readFile(path.join(ROOT, 'posts.json'), 'utf8'));
