@@ -397,6 +397,31 @@
         details.posts-list summary .count {
             margin-left: auto; font-weight: 500; opacity: 0.7;
         }
+        .post-search {
+            display: flex; align-items: center; gap: 0.5rem;
+            margin: 0.5rem 0 0.15rem; position: relative;
+        }
+        .post-search input {
+            width: 100%; box-sizing: border-box;
+            padding: 0.5rem 0.75rem 0.5rem 2rem;
+            background: var(--glass-inset); color: var(--text-main);
+            border: 1px solid var(--border); border-radius: 999px;
+            font-family: inherit; font-size: 0.8rem; min-height: 36px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .post-search input:focus {
+            outline: none; border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.18);
+        }
+        .post-search input::placeholder { color: var(--text-muted); opacity: 0.7; }
+        .post-search .search-icon {
+            position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted); font-size: 0.7rem; pointer-events: none;
+        }
+        .post-search-empty {
+            padding: 1rem 0; text-align: center;
+            font-size: 0.78rem; color: var(--text-muted);
+        }
         .post-row {
             display: flex; align-items: center; gap: 0.7rem;
             padding: 0.55rem 0; border-top: 1px solid var(--border);
@@ -586,6 +611,10 @@
                 Existing posts
                 <span class="count" id="existing-count"></span>
             </summary>
+            <div class="post-search" id="post-search">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="post-search-input" placeholder="Search posts…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+            </div>
             <div id="existing-list"></div>
             <div class="btn-row hidden" id="order-actions" style="margin-top:0.6rem;">
                 <button class="btn primary" id="btn-save-order" type="button"><i class="fa-solid fa-arrow-down-1-9"></i>Save order</button>
@@ -810,6 +839,7 @@
         var orderActions   = $('order-actions');
         var saveOrderBtn   = $('btn-save-order');
         var cancelOrderBtn = $('btn-cancel-order');
+        var postSearchInput = $('post-search-input');
         var statusEl       = $('status');
         var progressBar    = $('progress');
         var progressFill   = progressBar.firstElementChild;
@@ -1241,7 +1271,14 @@
             existingPanel.classList.remove('hidden');
             existingCount.textContent = '(' + allPosts.posts.length + ')';
             existingList.innerHTML = '';
+            var searchTerm = (postSearchInput.value || '').trim().toLowerCase();
+            var matchCount = 0;
             allPosts.posts.forEach(function (p, i) {
+                if (searchTerm) {
+                    var haystack = [p.title, p.category, p.date, p.id].join(' ').toLowerCase();
+                    if (haystack.indexOf(searchTerm) < 0) return;
+                }
+                matchCount++;
                 var row = document.createElement('div');
                 row.className = 'post-row' + (p.hidden ? ' is-hidden' : '');
                 row.dataset.idx = String(i);
@@ -1300,8 +1337,15 @@
 
                 existingList.appendChild(row);
             });
+            if (searchTerm && matchCount === 0) {
+                var emptyMsg = document.createElement('div');
+                emptyMsg.className = 'post-search-empty';
+                emptyMsg.textContent = 'No posts match \u201c' + postSearchInput.value.trim() + '\u201d';
+                existingList.appendChild(emptyMsg);
+            }
             orderActions.classList.toggle('hidden', !orderDirty);
         }
+        postSearchInput.addEventListener('input', function () { renderExisting(); });
         function movePost(from, to) {
             if (to < 0) to = 0;
             if (to >= allPosts.posts.length) to = allPosts.posts.length - 1;
@@ -1392,8 +1436,10 @@
             var post = allPosts.posts.find(function (p) { return p.id === postId; });
             if (!post) return;
             var newHidden = !post.hidden;
+            var action = newHidden ? 'Hide' : 'Show';
+            if (!confirm(action + ' \u201c' + (post.title || postId) + '\u201d ' + (newHidden ? 'from' : 'in') + ' the gallery?')) return;
             publishing = true; updatePublishState();
-            setStatus((newHidden ? 'Hiding' : 'Showing') + ' "' + (post.title || postId) + '"…');
+            setStatus((newHidden ? 'Hiding' : 'Showing') + ' "' + (post.title || postId) + '"\u2026');
             ghGetContent(POSTS_PATH).then(function (meta) {
                 var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
                 var idx = json.posts.findIndex(function (p) { return p.id === postId; });
@@ -1403,13 +1449,20 @@
                 } else {
                     delete json.posts[idx].hidden;
                 }
+                var stubEntry = JSON.parse(JSON.stringify(json.posts[idx]));
                 var newContent = JSON.stringify(json, null, 2) + '\n';
-                return ghCreateTextBlob(newContent).then(function (postsSha) {
-                    return { postsSha: postsSha, expectedPostsSha: meta.sha };
+                return Promise.all([
+                    ghCreateTextBlob(newContent),
+                    ghCreateTextBlob(buildStubHtml(stubEntry))
+                ]).then(function (shas) {
+                    return { postsSha: shas[0], stubSha: shas[1], expectedPostsSha: meta.sha };
                 });
             }).then(function (prepared) {
                 return ghCommitTree(
-                    [{ path: POSTS_PATH, sha: prepared.postsSha }],
+                    [
+                        { path: POSTS_PATH, sha: prepared.postsSha },
+                        { path: 'p/' + postId + '.html', sha: prepared.stubSha }
+                    ],
                     (newHidden ? 'Hide' : 'Show') + ' photo post ' + postId,
                     prepared.expectedPostsSha
                 );
@@ -1979,13 +2032,21 @@
         }
         function buildStubHtml(entry) {
             var title = entry.title || '';
-            var target = '/blue-post.html#' + entry.id;
+            var hidden = !!entry.hidden;
+            var target = hidden ? '/blue.html' : '/blue-post.html#' + entry.id;
+            var imgUrl = SITE_ORIGIN + '/blue-images/' + entry.imageId + '_' + entry.cover + '.jpg';
+            var desc = [entry.category, entry.location, entry.date].filter(Boolean).join(' \u00b7 ') || 'A photo story from BlUE';
             return '<!doctype html><html lang="en"><head><meta charset="utf-8">\n'
                 + '<title>' + escHtml(title) + ' | BlUE</title>\n'
                 + '<link rel="icon" href="/site-icon.svg" type="image/svg+xml">\n'
+                + '<meta property="og:title" content="' + escHtml(title) + ' | BlUE">\n'
+                + '<meta property="og:description" content="' + escHtml(desc) + '">\n'
+                + '<meta property="og:image" content="' + escHtml(imgUrl) + '">\n'
+                + '<meta property="og:type" content="article">\n'
+                + '<meta name="twitter:card" content="summary_large_image">\n'
                 + '<meta http-equiv="refresh" content="0; url=' + escHtml(target) + '">\n'
                 + '<script>location.replace(' + JSON.stringify(target) + ');<\/script>\n'
-                + '</head><body><a href="' + escHtml(target) + '">View post</a></body></html>\n';
+                + '</head><body><a href="' + escHtml(target) + '">' + (hidden ? 'Gallery' : 'View post') + '</a></body></html>\n';
         }
         function runPool(items, concurrency, worker) {
             return new Promise(function (resolve, reject) {
