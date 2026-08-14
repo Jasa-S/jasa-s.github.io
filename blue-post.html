@@ -364,7 +364,8 @@
         .then(function(data) {
             if (!data || !Array.isArray(data.posts)) throw new Error('Invalid posts data');
             allPosts = data;
-            var targetId = pendingId || initialId || (data.posts[0] && data.posts[0].id) || '';
+            var firstVisible = data.posts.find(function(p){ return !p.hidden; });
+            var targetId = pendingId || initialId || (firstVisible && firstVisible.id) || '';
             pendingId = null;
             renderPost(targetId);
         })
