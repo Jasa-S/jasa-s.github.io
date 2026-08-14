@@ -431,6 +431,7 @@
         function renderFilters(posts) {
             var cameras = [], years = [];
             posts.forEach(function(p) {
+                if (p.hidden) return;
                 if (p.category && cameras.indexOf(p.category) === -1) cameras.push(p.category);
                 if (p.date && years.indexOf(String(p.date)) === -1) years.push(String(p.date));
             });
@@ -461,6 +462,7 @@
                 var BASE = data.base;
                 tiles = [];
                 data.posts.forEach(function(p, i) {
+                    if (p.hidden) return;
                     var full  = BASE + p.imageId + '_' + p.cover + '.jpg';
                     var src   = p.thumb ? (BASE + p.imageId + '_' + p.cover + '_thumb.jpg') : full;
                     var a   = document.createElement('a');

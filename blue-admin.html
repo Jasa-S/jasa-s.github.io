@@ -408,6 +408,16 @@
             z-index: 10; opacity: 0.96; position: relative;
         }
         body.dark .post-row.dragging { box-shadow: 0 8px 28px rgba(0,0,0,0.55); }
+        .post-row.is-hidden { opacity: 0.45; }
+        .post-row.is-hidden .pr-thumb { filter: grayscale(0.6); }
+        .post-row .pr-hidden-badge {
+            display: inline-block; font-size: 0.58rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: var(--ls-mid);
+            color: var(--text-muted); background: var(--glass-inset);
+            border: 1px solid var(--border); border-radius: 999px;
+            padding: 0.1rem 0.45rem; margin-left: 0.3rem;
+            vertical-align: middle;
+        }
         .post-row .pr-handle {
             display: flex; align-items: center; justify-content: center;
             color: var(--text-muted); cursor: grab;
@@ -439,6 +449,7 @@
         }
         .post-row .pr-btn.danger { color: #b91c1c; }
         body.dark .post-row .pr-btn.danger { color: #f87171; }
+        .post-row .pr-btn.is-hidden-btn { color: var(--text-muted); }
         @media (hover: hover) and (pointer: fine) {
             .post-row .pr-btn:hover { color: var(--accent); border-color: rgba(125,125,125,0.3); }
             .post-row .pr-btn.danger:hover { color: #b91c1c; }
@@ -588,6 +599,7 @@
                     <p style="margin:0;font-size:0.85rem;">Editing <strong id="edit-banner-title">…</strong>. Drag to reorder, add, remove or replace photos, change the cover, captions and details — then tap <strong>Save changes</strong>.</p>
                 </div>
                 <div class="btn-row" style="flex-wrap:nowrap;">
+                    <button class="btn" id="edit-visibility" type="button"><i class="fa-solid fa-eye"></i><span id="edit-visibility-label">Hide from gallery</span></button>
                     <button class="btn danger" id="edit-delete" type="button"><i class="fa-solid fa-trash"></i>Delete</button>
                     <button class="btn" id="edit-cancel"><i class="fa-solid fa-xmark"></i>Cancel</button>
                 </div>
@@ -829,6 +841,7 @@
         var existingCategories = [];
         var allPosts = null;
         var editingId = null;
+        var editingHidden = false;
         var pendingImageId = null;
         var photosDirty = false;
         var orderDirty = false;
@@ -1230,7 +1243,7 @@
             existingList.innerHTML = '';
             allPosts.posts.forEach(function (p, i) {
                 var row = document.createElement('div');
-                row.className = 'post-row';
+                row.className = 'post-row' + (p.hidden ? ' is-hidden' : '');
                 row.dataset.idx = String(i);
 
                 var rowHandle = document.createElement('div');
@@ -1254,6 +1267,12 @@
                 var t = document.createElement('div');
                 t.className = 'pr-title';
                 t.textContent = p.title || p.id;
+                if (p.hidden) {
+                    var badge = document.createElement('span');
+                    badge.className = 'pr-hidden-badge';
+                    badge.textContent = 'Hidden';
+                    t.appendChild(badge);
+                }
                 meta.appendChild(t);
                 var s = document.createElement('div');
                 s.className = 'pr-sub';
@@ -1263,6 +1282,14 @@
 
                 var actions = document.createElement('div');
                 actions.className = 'pr-actions';
+                var visBtn = document.createElement('button');
+                visBtn.type = 'button';
+                visBtn.className = 'pr-btn' + (p.hidden ? ' is-hidden-btn' : '');
+                visBtn.innerHTML = '<i class="fa-solid ' + (p.hidden ? 'fa-eye-slash' : 'fa-eye') + '"></i>';
+                visBtn.setAttribute('aria-label', p.hidden ? 'Show in gallery' : 'Hide from gallery');
+                visBtn.title = p.hidden ? 'Show in gallery' : 'Hide from gallery';
+                visBtn.addEventListener('click', (function (pid) { return function () { togglePostVisibility(pid); }; })(p.id));
+                actions.appendChild(visBtn);
                 var editBtn = document.createElement('button');
                 editBtn.type = 'button'; editBtn.className = 'pr-btn';
                 editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
@@ -1359,12 +1386,61 @@
             loadPosts();
             setStatus('');
         });
+        function togglePostVisibility(postId) {
+            if (publishing) return;
+            if (!allPosts) return;
+            var post = allPosts.posts.find(function (p) { return p.id === postId; });
+            if (!post) return;
+            var newHidden = !post.hidden;
+            publishing = true; updatePublishState();
+            setStatus((newHidden ? 'Hiding' : 'Showing') + ' "' + (post.title || postId) + '"…');
+            ghGetContent(POSTS_PATH).then(function (meta) {
+                var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
+                var idx = json.posts.findIndex(function (p) { return p.id === postId; });
+                if (idx < 0) throw new Error('Post not found in posts.json');
+                if (newHidden) {
+                    json.posts[idx].hidden = true;
+                } else {
+                    delete json.posts[idx].hidden;
+                }
+                var newContent = JSON.stringify(json, null, 2) + '\n';
+                return ghCreateTextBlob(newContent).then(function (postsSha) {
+                    return { postsSha: postsSha, expectedPostsSha: meta.sha };
+                });
+            }).then(function (prepared) {
+                return ghCommitTree(
+                    [{ path: POSTS_PATH, sha: prepared.postsSha }],
+                    (newHidden ? 'Hide' : 'Show') + ' photo post ' + postId,
+                    prepared.expectedPostsSha
+                );
+            }).then(function () {
+                publishing = false; updatePublishState();
+                setStatus((newHidden ? 'Hidden' : 'Visible') + ': "' + (post.title || postId) + '".', 'ok');
+                return loadPosts();
+            }).catch(function (err) {
+                publishing = false; updatePublishState();
+                setStatus('Visibility change failed: ' + (err && err.message ? err.message : err), 'err');
+            });
+        }
+        function updateEditVisibilityBtn(isHidden) {
+            var btn = $('edit-visibility');
+            var label = $('edit-visibility-label');
+            var icon = btn.querySelector('i');
+            if (isHidden) {
+                icon.className = 'fa-solid fa-eye';
+                label.textContent = 'Show in gallery';
+            } else {
+                icon.className = 'fa-solid fa-eye-slash';
+                label.textContent = 'Hide from gallery';
+            }
+        }
         function startEdit(postId) {
             if (publishing) return;
             if (!allPosts) return;
             var post = allPosts.posts.find(function (p) { return p.id === postId; });
             if (!post) return;
             editingId = postId;
+            editingHidden = !!post.hidden;
             photosDirty = false;
             photos.forEach(function (p) { try { if (p.file) URL.revokeObjectURL(p.url); } catch (e) {} });
             photos = [];
@@ -1400,14 +1476,17 @@
             editBanner.classList.remove('hidden');
             hideDeleteConfirm();
             editBannerTitle.textContent = post.title || post.id;
+            updateEditVisibilityBtn(editingHidden);
             successPanel.classList.add('hidden');
+            existingPanel.removeAttribute('open');
             renderPhotos();
             updatePublishState();
-            window.scrollTo(0, 0);
+            editBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
             saveDraft();
         }
         function exitEdit() {
             editingId = null;
+            editingHidden = false;
             photosDirty = false;
             formTitle.textContent = 'New post';
             publishLabel.textContent = 'Publish';
@@ -1423,6 +1502,7 @@
             autoGrowBody();
             successPanel.classList.add('hidden');
             setStatus('');
+            existingPanel.setAttribute('open', '');
             renderPhotos();
             updatePublishState();
             clearDraft();
@@ -1441,6 +1521,11 @@
         $('delete-confirm-yes').addEventListener('click', function () {
             if (publishing || !editingId) return;
             deletePost(editingId);
+        });
+        $('edit-visibility').addEventListener('click', function () {
+            if (publishing || !editingId) return;
+            editingHidden = !editingHidden;
+            updateEditVisibilityBtn(editingHidden);
         });
         function deletePost(postId) {
             if (publishing) return;
@@ -2317,6 +2402,7 @@
             };
             if (opts.thumb) entry.thumb = true;
             if (opts.ratios && opts.ratios.length) entry.ratios = opts.ratios;
+            if (editingHidden) entry.hidden = true;
             if (fLocation.value.trim()) entry.location = fLocation.value.trim();
             var bodyText = fBody.value.trim();
             if (bodyText) {

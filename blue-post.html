@@ -273,11 +273,12 @@
         if (!allPosts) return;
         var posts = allPosts.posts;
         var BASE  = allPosts.base;
-        var ids   = posts.map(function(p){ return p.id; });
         var post  = posts.find(function(p){ return p.id === postId; });
-        var idx   = ids.indexOf(postId);
 
-        if (!post) { window.location = 'blue.html'; return; }
+        if (!post || post.hidden) { window.location = 'blue.html'; return; }
+
+        var visibleIds = posts.filter(function(p){ return !p.hidden; }).map(function(p){ return p.id; });
+        var idx = visibleIds.indexOf(postId);
         currentId = postId;
 
         document.title = (post.title || 'Post') + ' | BlUE';
@@ -332,9 +333,9 @@
         var nextBtn   = document.getElementById('btn-next');
         var navGroup  = document.getElementById('nav-group');
         prevBtn.className = idx > 0 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
-        nextBtn.className = idx < ids.length - 1 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
-        prevBtn.onclick = idx > 0 ? (function(i) { return function() { navigateTo(ids[i - 1]); }; }(idx)) : null;
-        nextBtn.onclick = idx < ids.length - 1 ? (function(i) { return function() { navigateTo(ids[i + 1]); }; }(idx)) : null;
+        nextBtn.className = idx < visibleIds.length - 1 ? 'bar-nav-btn' : 'bar-nav-btn disabled';
+        prevBtn.onclick = idx > 0 ? (function(i) { return function() { navigateTo(visibleIds[i - 1]); }; }(idx)) : null;
+        nextBtn.onclick = idx < visibleIds.length - 1 ? (function(i) { return function() { navigateTo(visibleIds[i + 1]); }; }(idx)) : null;
         navGroup.style.display = 'inline-flex';
     }
 
