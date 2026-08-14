@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
-    <link rel="stylesheet" href="shared.css">
+    <link rel="stylesheet" href="/shared.css">
     <style>
         body {
             background-color: transparent; color: var(--text-main);
@@ -126,7 +126,7 @@
 </head>
 <body class="page-post">
     <div id="sticky-bar">
-        <a href="blue.html" class="bar-back" aria-label="Back to gallery">
+        <a href="/blue.html" class="bar-back" aria-label="Back to gallery">
             <i class="fa-solid fa-arrow-left-long back-arrow" style="font-size:0.9rem;"></i>
         </a>
         <div class="bar-divider"></div>
@@ -148,7 +148,7 @@
         <div id="post-content"></div>
         <footer>
             <span>&copy; <span id="copy-year"></span> Jasaman Saini</span>
-            <a href="index.html">Homepage</a>
+            <a href="/index.html">Homepage</a>
         </footer>
     </main>
 
@@ -265,7 +265,7 @@
         var BASE  = allPosts.base;
         var post  = posts.find(function(p){ return p.id === postId; });
 
-        if (!post || post.hidden) { window.location = 'blue.html'; return; }
+        if (!post || post.hidden) { window.location = '/blue.html'; return; }
 
         var visibleIds = posts.filter(function(p){ return !p.hidden; }).map(function(p){ return p.id; });
         var idx = visibleIds.indexOf(postId);
@@ -338,7 +338,7 @@
 
     window.addEventListener('popstate', function() {
         var id = getPostIdFromUrl();
-        if (!id) { window.location = 'blue.html'; return; }
+        if (!id) { window.location = '/blue.html'; return; }
         if (allPosts) {
             renderPost(id);
         } else {
@@ -346,9 +346,19 @@
         }
     });
 
+    var backBtn = document.querySelector('.bar-back');
+    if (backBtn) {
+        backBtn.addEventListener('click', function(e) {
+            if (document.referrer && document.referrer.indexOf(location.host) !== -1 && document.referrer.indexOf('blue.html') !== -1) {
+                e.preventDefault();
+                history.back();
+            }
+        });
+    }
+
     var initialId = getPostIdFromUrl();
 
-    fetch('posts.json')
+    fetch('/posts.json')
         .then(function(r) {
             if (!r.ok) throw new Error('Could not load posts');
             return r.json();
@@ -361,7 +371,7 @@
             pendingId = null;
             renderPost(targetId);
         })
-        .catch(function() { window.location = 'blue.html'; });
+        .catch(function() { window.location = '/blue.html'; });
     })();
     </script>
 </body>
