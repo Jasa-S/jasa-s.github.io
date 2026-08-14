@@ -351,16 +351,6 @@
         }
     });
 
-    var backBtn = document.querySelector('.bar-back');
-    if (backBtn) {
-        backBtn.addEventListener('click', function(e) {
-            if (document.referrer && document.referrer.indexOf(location.host) !== -1 && document.referrer.indexOf('blue.html') !== -1) {
-                e.preventDefault();
-                history.back();
-            }
-        });
-    }
-
     var initialId = getPostIdFromUrl();
 
     fetch('/posts.json')
