@@ -23,6 +23,9 @@ function buildStub(post) {
 
   return '<!doctype html><html lang="en"><head><meta charset="utf-8">\n'
     + `<title>${escapeHtml(title)} | BlUE</title>\n`
+    + '<meta name="color-scheme" content="light dark">\n'
+    + '<style>html,body{margin:0;background:#ffffff;}@media (prefers-color-scheme:dark){html,body{background:#0a0a0a;color:#ffffff;}}</style>\n'
+    + '<script>if(matchMedia(\'(prefers-color-scheme:dark)\').matches)document.documentElement.classList.add(\'dark\');</script>\n'
     + '<link rel="icon" href="/site-icon.svg" type="image/svg+xml">\n'
     + `<meta property="og:title" content="${escapeHtml(title)} | BlUE">\n`
     + `<meta property="og:image" content="${escapeHtml(imgUrl)}">\n`

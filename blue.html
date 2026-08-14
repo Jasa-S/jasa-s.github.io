@@ -6,6 +6,12 @@
     <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
     <script>if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark');</script>
+    <style>
+        :root { color-scheme: light dark; --bg: #ffffff; }
+        :root.dark { --bg: #0a0a0a; }
+        html, body { background-color: var(--bg); }
+        @media (prefers-color-scheme: dark) { html, body { background-color: #0a0a0a; } }
+    </style>
     <title>BlUE</title>
     <meta property="og:title" content="BlUE">
     <meta property="og:image" content="https://jasa-s.github.io/blue-images/J1.jpg">
@@ -24,7 +30,6 @@
         body {
             background-color: transparent; color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
             margin: 0;
         }
         header {
@@ -474,7 +479,7 @@
                     var src   = p.thumb ? (BASE + p.imageId + '_' + p.cover + '_thumb.jpg') : full;
                     var a   = document.createElement('a');
                     a.className = 'grid-tile';
-                    a.href = '/p/' + encodeURIComponent(p.id) + '.html';
+                    a.href = '/blue-post.html#' + encodeURIComponent(p.id);
                     a.dataset.cat  = p.category || '';
                     a.dataset.year = String(p.date || '');
                     a.innerHTML =

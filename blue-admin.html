@@ -11,6 +11,12 @@
     <link rel="manifest" href="/blue-admin.webmanifest">
     <link rel="icon" href="/site-icon.svg" type="image/svg+xml">
     <script>if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark');</script>
+    <style>
+        :root { color-scheme: light dark; --bg: #ffffff; }
+        :root.dark { --bg: #0a0a0a; }
+        html, body { background-color: var(--bg); }
+        @media (prefers-color-scheme: dark) { html, body { background-color: #0a0a0a; } }
+    </style>
     <title>BlUE · Admin</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +27,6 @@
         body {
             background-color: transparent; color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
             margin: 0;
             -webkit-text-size-adjust: 100%;
         }
@@ -2057,6 +2062,9 @@
             var postUrl = SITE_ORIGIN + '/p/' + entry.id + '.html';
             return '<!doctype html><html lang="en"><head><meta charset="utf-8">\n'
                 + '<title>' + escHtml(title) + ' | BlUE</title>\n'
+                + '<meta name="color-scheme" content="light dark">\n'
+                + '<style>html,body{margin:0;background:#ffffff;}@media (prefers-color-scheme:dark){html,body{background:#0a0a0a;color:#ffffff;}}</style>\n'
+                + '<script>if(matchMedia(\'(prefers-color-scheme:dark)\').matches)document.documentElement.classList.add(\'dark\');<\/script>\n'
                 + '<link rel="icon" href="/site-icon.svg" type="image/svg+xml">\n'
                 + '<meta property="og:title" content="' + escHtml(title) + ' | BlUE">\n'
                 + '<meta property="og:image" content="' + escHtml(imgUrl) + '">\n'

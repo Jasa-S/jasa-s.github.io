@@ -6,6 +6,12 @@
     <meta name="color-scheme" content="light dark">
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
     <script>if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark');</script>
+    <style>
+        :root { color-scheme: light dark; --bg: #ffffff; }
+        :root.dark { --bg: #0a0a0a; }
+        html, body { background-color: var(--bg); }
+        @media (prefers-color-scheme: dark) { html, body { background-color: #0a0a0a; } }
+    </style>
     <title>Jasa</title>
     <meta property="og:title" content="Jasa">
     <meta property="og:image" content="https://jasa-s.github.io/blue-images/profileImage.png">
@@ -26,7 +32,6 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
-            transition: background-color 0.3s ease, color 0.3s ease;
             max-width: 48rem;
             margin: 0 auto;
             padding: 3rem 1.5rem 0;
