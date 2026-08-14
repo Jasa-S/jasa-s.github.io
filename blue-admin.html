@@ -82,9 +82,6 @@
             font-size: 0.7rem; text-transform: uppercase;
             letter-spacing: var(--ls-wide); color: var(--text-muted); font-weight: 700;
         }
-        details.analytics-panel summary .analytics-summary-title .count {
-            font-weight: 500; opacity: 0.7; text-transform: none; letter-spacing: normal;
-        }
         details.analytics-panel summary i.chev {
             color: var(--text-muted); font-size: inherit; transition: transform 0.18s;
         }
@@ -579,7 +576,6 @@
                 <div class="analytics-summary-title">
                     <i class="fa-solid fa-chevron-right chev"></i>
                     Analytics
-                    <span class="count" id="analytics-period">Last 7 days</span>
                 </div>
                 <div class="analytics-actions">
                     <div class="analytics-range" aria-label="Analytics period">
@@ -1124,7 +1120,6 @@
             analyticsVisits.textContent = formatNumber(data.visits);
             analyticsPageviews.textContent = formatNumber(data.pageviews);
             analyticsDepth.textContent = data.visits ? (data.pageviews / data.visits).toFixed(1) : '0';
-            $('analytics-period').textContent = data.days === 1 ? 'Last 24 hours' : 'Last ' + data.days + ' days';
             renderAnalyticsTraffic(data.traffic);
             renderAnalyticsList(analyticsPages, data.pages);
             renderAnalyticsList(analyticsCountries, data.countries);
