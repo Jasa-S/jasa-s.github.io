@@ -2054,15 +2054,18 @@
             var hidden = !!entry.hidden;
             var target = hidden ? '/blue.html' : '/blue-post.html#' + entry.id;
             var imgUrl = SITE_ORIGIN + '/blue-images/' + entry.imageId + '_' + entry.cover + '.jpg';
-            var desc = [entry.category, entry.location, entry.date].filter(Boolean).join(' \u00b7 ') || 'A photo story from BlUE';
+            var postUrl = SITE_ORIGIN + '/p/' + entry.id + '.html';
             return '<!doctype html><html lang="en"><head><meta charset="utf-8">\n'
                 + '<title>' + escHtml(title) + ' | BlUE</title>\n'
                 + '<link rel="icon" href="/site-icon.svg" type="image/svg+xml">\n'
                 + '<meta property="og:title" content="' + escHtml(title) + ' | BlUE">\n'
-                + '<meta property="og:description" content="' + escHtml(desc) + '">\n'
                 + '<meta property="og:image" content="' + escHtml(imgUrl) + '">\n'
+                + '<meta property="og:url" content="' + escHtml(postUrl) + '">\n'
                 + '<meta property="og:type" content="article">\n'
+                + '<meta property="og:site_name" content="BlUE">\n'
                 + '<meta name="twitter:card" content="summary_large_image">\n'
+                + '<meta name="twitter:title" content="' + escHtml(title) + ' | BlUE">\n'
+                + '<meta name="twitter:image" content="' + escHtml(imgUrl) + '">\n'
                 + '<meta http-equiv="refresh" content="0; url=' + escHtml(target) + '">\n'
                 + '<script>location.replace(' + JSON.stringify(target) + ');<\/script>\n'
                 + '</head><body><a href="' + escHtml(target) + '">' + (hidden ? 'Gallery' : 'View post') + '</a></body></html>\n';

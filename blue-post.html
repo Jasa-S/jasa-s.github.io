@@ -7,15 +7,12 @@
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
     <script>if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark');</script>
     <title>BlUE</title>
-    <meta name="description" content="A photo story from BlUE by Jasaman Saini.">
     <meta property="og:title" content="BlUE · Photo Story">
-    <meta property="og:description" content="A photo story from BlUE by Jasaman Saini.">
     <meta property="og:image" content="https://jasa-s.github.io/blue-images/J1.jpg">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="BlUE">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="BlUE · Photo Story">
-    <meta name="twitter:description" content="A photo story from BlUE by Jasaman Saini.">
     <meta name="twitter:image" content="https://jasa-s.github.io/blue-images/J1.jpg">
     <link rel="icon" href="/site-icon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -136,11 +133,7 @@
         <span id="nav-group">
             <button class="bar-nav-btn disabled" id="btn-prev" aria-label="Previous post"><i class="fa-solid fa-chevron-left" style="font-size:0.85rem;"></i></button>
             <button class="bar-nav-btn disabled" id="btn-next" aria-label="Next post"><i class="fa-solid fa-chevron-right" style="font-size:0.85rem;"></i></button>
-            <div class="bar-divider"></div>
         </span>
-        <button class="bar-btn" id="btn-share" aria-label="Share this post">
-            <i class="fa-solid fa-share-nodes" style="font-size:0.85rem;"></i>
-        </button>
     </div>
 
     <aside id="sidebar">
@@ -256,28 +249,15 @@
         }, { passive: true });
     })();
 
-    var shareBtn = document.getElementById('btn-share');
-    var shareIcon = shareBtn.querySelector('i');
-    function flashShareDone() {
-        shareIcon.className = 'fa-solid fa-check';
-        shareIcon.style.fontSize = '0.85rem';
-        setTimeout(function () { shareIcon.className = 'fa-solid fa-share-nodes'; }, 1300);
-    }
-    shareBtn.addEventListener('click', function () {
-        if (!currentId) return;
-        var url = location.origin + '/p/' + encodeURIComponent(currentId) + '.html';
-        if (navigator.share) {
-            navigator.share({ title: document.title, url: url }).catch(function () {});
-        } else if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(url).then(flashShareDone).catch(function () { prompt('Copy link:', url); });
-        } else {
-            prompt('Copy link:', url);
-        }
-    });
-
     var allPosts = null;
     var pendingId = null;
     var currentId = null;
+
+    function getPostIdFromUrl() {
+        var match = window.location.pathname.match(/\/p\/([^\/]+)\.html/);
+        if (match) return decodeURIComponent(match[1]);
+        return decodeURIComponent(window.location.hash.slice(1));
+    }
 
     function renderPost(postId) {
         if (!allPosts) return;
@@ -292,9 +272,11 @@
         currentId = postId;
 
         document.title = (post.title || 'Post') + ' | BlUE';
-        var description = (post.body && post.body[0]) || [post.category, post.location, post.date].filter(Boolean).join(' · ');
-        var descriptionMeta = document.querySelector('meta[name="description"]');
-        if (descriptionMeta) descriptionMeta.content = description || 'A photo story from BlUE by Jasaman Saini.';
+        var permalink = '/p/' + encodeURIComponent(postId) + '.html';
+        if (window.location.pathname !== permalink) {
+            history.replaceState(null, '', permalink);
+        }
+
         document.getElementById('post-title').textContent = post.title || '';
         var metaParts = [post.location, post.date].filter(Boolean);
         document.getElementById('post-meta').textContent = metaParts.join(' \u00b7 ');
@@ -350,12 +332,12 @@
     }
 
     function navigateTo(id) {
-        history.pushState(null, '', '#' + id);
+        history.pushState(null, '', '/p/' + encodeURIComponent(id) + '.html');
         renderPost(id);
     }
 
     window.addEventListener('popstate', function() {
-        var id = decodeURIComponent(window.location.hash.slice(1));
+        var id = getPostIdFromUrl();
         if (!id) { window.location = 'blue.html'; return; }
         if (allPosts) {
             renderPost(id);
@@ -364,7 +346,7 @@
         }
     });
 
-    var initialId = decodeURIComponent(window.location.hash.slice(1));
+    var initialId = getPostIdFromUrl();
 
     fetch('posts.json')
         .then(function(r) {

@@ -7,12 +7,13 @@
     <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
     <script>if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark');</script>
     <title>BlUE</title>
-    <meta name="description" content="A photo gallery by Jasaman Saini — film and digital photography.">
     <meta property="og:title" content="BlUE">
-    <meta property="og:description" content="A photo gallery by Jasaman Saini — film and digital photography.">
     <meta property="og:image" content="https://jasa-s.github.io/blue-images/J1.jpg">
     <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BlUE">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="BlUE">
+    <meta name="twitter:image" content="https://jasa-s.github.io/blue-images/J1.jpg">
     <link rel="icon" href="/site-icon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -473,7 +474,7 @@
                     var src   = p.thumb ? (BASE + p.imageId + '_' + p.cover + '_thumb.jpg') : full;
                     var a   = document.createElement('a');
                     a.className = 'grid-tile';
-                    a.href = 'blue-post.html#' + encodeURIComponent(p.id);
+                    a.href = 'p/' + encodeURIComponent(p.id) + '.html';
                     a.dataset.cat  = p.category || '';
                     a.dataset.year = String(p.date || '');
                     a.innerHTML =
