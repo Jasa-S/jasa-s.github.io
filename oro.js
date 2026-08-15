@@ -227,7 +227,7 @@
             bestHtml =
                 '<div class="best-window">'
               + '<div class="best-window-body">'
-              + '<p class="best-window-label">' + esc(isToday ? 'Best photo walk window today' : 'Best photo walk window') + '</p>'
+              + '<p class="best-window-label">' + esc(isToday ? 'Optimal light today' : 'Optimal light') + '</p>'
               + '<div class="best-window-time">' + fmtTime(best.start) + ' – ' + fmtTime(best.end) + '</div>'
               + '<p class="best-window-note">' + esc(best.note) + '</p>'
               + '<p class="best-window-tz">Local time · ' + esc(tzAbbr) + '</p>'
