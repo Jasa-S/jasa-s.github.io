@@ -449,15 +449,24 @@
             z-index: 10; opacity: 0.96; position: relative;
         }
         body.dark .post-row.dragging { box-shadow: 0 8px 28px rgba(0,0,0,0.55); }
-        .post-row.is-hidden { opacity: 0.45; }
-        .post-row.is-hidden .pr-thumb { filter: grayscale(0.6); }
+        .post-row.is-hidden {
+            opacity: 0.68;
+            background: rgba(245, 158, 11, 0.04);
+            border-radius: 0.45rem;
+        }
+        .post-row.is-hidden .pr-thumb img { filter: grayscale(0.7) opacity(0.85); }
         .post-row .pr-hidden-badge {
-            display: inline-block; font-size: 0.58rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            font-size: 0.58rem; font-weight: 600;
             text-transform: uppercase; letter-spacing: var(--ls-mid);
-            color: var(--text-muted); background: var(--glass-inset);
-            border: 1px solid var(--border); border-radius: 999px;
-            padding: 0.1rem 0.45rem; margin-left: 0.3rem;
+            color: #b45309; background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 999px;
+            padding: 0.1rem 0.45rem; margin-left: 0.35rem;
             vertical-align: middle;
+        }
+        body.dark .post-row .pr-hidden-badge {
+            color: #fbbf24; background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.45);
         }
         .post-row .pr-handle {
             display: flex; align-items: center; justify-content: center;
@@ -492,7 +501,28 @@
         .post-row .pr-btn i { line-height: 1; }
         .post-row .pr-btn.danger { color: #b91c1c; }
         body.dark .post-row .pr-btn.danger { color: #f87171; }
-        .post-row .pr-btn.is-hidden-btn { color: var(--text-muted); }
+        .btn.is-hidden-btn,
+        .post-row .pr-btn.is-hidden-btn {
+            color: #b45309;
+            background: rgba(245, 158, 11, 0.12);
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+        body.dark .btn.is-hidden-btn,
+        body.dark .post-row .pr-btn.is-hidden-btn {
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.45);
+        }
+        .btn.is-hidden-btn:hover,
+        .post-row .pr-btn.is-hidden-btn:hover {
+            color: #92400e;
+            border-color: rgba(245, 158, 11, 0.6);
+        }
+        body.dark .btn.is-hidden-btn:hover,
+        body.dark .post-row .pr-btn.is-hidden-btn:hover {
+            color: #fde68a;
+            border-color: rgba(245, 158, 11, 0.7);
+        }
         @media (hover: hover) and (pointer: fine) {
             .post-row .pr-btn:hover { color: var(--accent); border-color: rgba(125,125,125,0.3); }
             .post-row .pr-btn.danger:hover { color: #b91c1c; }
@@ -1329,7 +1359,7 @@
                 if (p.hidden) {
                     var badge = document.createElement('span');
                     badge.className = 'pr-hidden-badge';
-                    badge.textContent = 'Hidden';
+                    badge.innerHTML = '<i class="fa-solid fa-eye-slash" style="font-size:0.55rem;margin-right:0.25rem;"></i>Hidden';
                     t.appendChild(badge);
                 }
                 meta.appendChild(t);
@@ -1345,8 +1375,8 @@
                 visBtn.type = 'button';
                 visBtn.className = 'pr-btn' + (p.hidden ? ' is-hidden-btn' : '');
                 visBtn.innerHTML = '<i class="fa-solid ' + (p.hidden ? 'fa-eye-slash' : 'fa-eye') + '"></i>';
-                visBtn.setAttribute('aria-label', p.hidden ? 'Show in gallery' : 'Hide from gallery');
-                visBtn.title = p.hidden ? 'Show in gallery' : 'Hide from gallery';
+                visBtn.setAttribute('aria-label', p.hidden ? 'Unhide (Show in gallery)' : 'Hide from gallery');
+                visBtn.title = p.hidden ? 'Unhide (Show in gallery)' : 'Hide from gallery';
                 visBtn.addEventListener('click', (function (pid) { return function () { togglePostVisibility(pid); }; })(p.id));
                 actions.appendChild(visBtn);
                 var editBtn = document.createElement('button');
@@ -1435,12 +1465,13 @@
                     [{ path: POSTS_PATH, sha: prepared.postsSha }],
                     'Reorder photo posts',
                     prepared.expectedPostsSha
-                );
-            }).then(function () {
-                orderDirty = false;
-                publishing = false; updatePublishState();
-                setStatus('Post order saved.', 'ok');
-                return loadPosts();
+                ).then(function () {
+                    allPosts.posts = json.posts;
+                    orderDirty = false;
+                    publishing = false; updatePublishState();
+                    setStatus('Post order saved.', 'ok');
+                    renderExisting();
+                });
             }).catch(function (err) {
                 publishing = false; updatePublishState();
                 setStatus('Saving order failed: ' + (err && err.message ? err.message : err), 'err');
@@ -1458,10 +1489,12 @@
             var post = allPosts.posts.find(function (p) { return p.id === postId; });
             if (!post) return;
             var newHidden = !post.hidden;
-            var action = newHidden ? 'Hide' : 'Show';
-            if (!confirm(action + ' \u201c' + (post.title || postId) + '\u201d ' + (newHidden ? 'from' : 'in') + ' the gallery?')) return;
+            var promptMsg = newHidden
+                ? 'Hide \u201c' + (post.title || postId) + '\u201d from the public gallery?'
+                : 'Unhide \u201c' + (post.title || postId) + '\u201d and make it visible in the gallery?';
+            if (!confirm(promptMsg)) return;
             publishing = true; updatePublishState();
-            setStatus((newHidden ? 'Hiding' : 'Showing') + ' "' + (post.title || postId) + '"\u2026');
+            setStatus((newHidden ? 'Hiding' : 'Unhiding') + ' \u201c' + (post.title || postId) + '\u201d\u2026');
             ghGetContent(POSTS_PATH).then(function (meta) {
                 var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
                 var idx = json.posts.findIndex(function (p) { return p.id === postId; });
@@ -1477,7 +1510,7 @@
                     ghCreateTextBlob(newContent),
                     ghCreateTextBlob(buildStubHtml(stubEntry))
                 ]).then(function (shas) {
-                    return { postsSha: shas[0], stubSha: shas[1], expectedPostsSha: meta.sha };
+                    return { postsSha: shas[0], stubSha: shas[1], expectedPostsSha: meta.sha, json: json };
                 });
             }).then(function (prepared) {
                 return ghCommitTree(
@@ -1485,13 +1518,18 @@
                         { path: POSTS_PATH, sha: prepared.postsSha },
                         { path: 'p/' + postId + '.html', sha: prepared.stubSha }
                     ],
-                    (newHidden ? 'Hide' : 'Show') + ' photo post ' + postId,
+                    (newHidden ? 'Hide' : 'Unhide') + ' photo post ' + postId,
                     prepared.expectedPostsSha
-                );
-            }).then(function () {
-                publishing = false; updatePublishState();
-                setStatus((newHidden ? 'Hidden' : 'Visible') + ': "' + (post.title || postId) + '".', 'ok');
-                return loadPosts();
+                ).then(function () {
+                    allPosts.posts = prepared.json.posts;
+                    if (editingId === postId) {
+                        editingHidden = newHidden;
+                        updateEditVisibilityBtn(editingHidden);
+                    }
+                    publishing = false; updatePublishState();
+                    setStatus((newHidden ? 'Hidden from gallery' : 'Unhidden (visible in gallery)') + ': \u201c' + (post.title || postId) + '\u201d.', 'ok');
+                    renderExisting();
+                });
             }).catch(function (err) {
                 publishing = false; updatePublishState();
                 setStatus('Visibility change failed: ' + (err && err.message ? err.message : err), 'err');
@@ -1502,13 +1540,15 @@
             var label = $('edit-visibility-label');
             var icon = btn.querySelector('i');
             if (isHidden) {
-                icon.className = 'fa-solid fa-eye';
-                label.textContent = 'Show';
-                btn.title = 'Show in gallery';
-            } else {
                 icon.className = 'fa-solid fa-eye-slash';
-                label.textContent = 'Hide';
-                btn.title = 'Hide from gallery';
+                label.textContent = 'Hidden';
+                btn.title = 'Hidden from gallery (click to show)';
+                btn.classList.add('is-hidden-btn');
+            } else {
+                icon.className = 'fa-solid fa-eye';
+                label.textContent = 'Visible';
+                btn.title = 'Visible in gallery (click to hide)';
+                btn.classList.remove('is-hidden-btn');
             }
         }
         function startEdit(postId) {
@@ -1631,14 +1671,17 @@
                 progressFill.style.width = '65%';
                 return ghCommitTree([
                     { path: POSTS_PATH, sha: prepared.postsSha }
-                ].concat(deletions), 'Delete photo post ' + postId, prepared.expectedPostsSha);
-            }).then(function () {
-                progressFill.style.width = '100%';
-                publishing = false;
-                progressBar.style.display = 'none';
-                setStatus('Deleted "' + (post.title || postId) + '".', 'ok');
-                if (editingId === postId) exitEdit();
-                return loadPosts();
+                ].concat(deletions), 'Delete photo post ' + postId, prepared.expectedPostsSha).then(function () {
+                    progressFill.style.width = '100%';
+                    publishing = false;
+                    progressBar.style.display = 'none';
+                    setStatus('Deleted "' + (post.title || postId) + '".', 'ok');
+                    if (editingId === postId) exitEdit();
+                    allPosts.posts = prepared.json.posts;
+                    existingPostIds.delete(postId);
+                    renderExisting();
+                    updatePublishState();
+                });
             }).catch(function (err) {
                 publishing = false;
                 progressBar.style.display = 'none';
@@ -2249,22 +2292,23 @@
                         tree.push({ path: POSTS_PATH, sha: textShas[0] });
                         tree.push({ path: 'p/' + entry.id + '.html', sha: textShas[1] });
                         setStatus('Publishing one atomic update…');
-                        return ghCommitTree(tree, 'Publish photo post ' + entry.id, prepared.expectedPostsSha);
-                    }).then(function () {
-                        tick();
-                        publishing = false;
-                        pendingImageId = null;
-                        progressBar.style.display = 'none';
-                        setStatus('Published 🎉', 'ok');
-                        successTitle.textContent = 'Published';
-                        successMsg.textContent = 'Your post is live. GitHub Pages may take ~30s to refresh.';
-                        successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
-                        successPanel.classList.remove('hidden');
-                        clearDraft();
-                        existingPostIds.add(entry.id);
-                        existingIds.add(entry.imageId);
-                        updatePublishState();
-                        return loadPosts();
+                        return ghCommitTree(tree, 'Publish photo post ' + entry.id, prepared.expectedPostsSha).then(function () {
+                            tick();
+                            publishing = false;
+                            pendingImageId = null;
+                            progressBar.style.display = 'none';
+                            setStatus('Published 🎉', 'ok');
+                            successTitle.textContent = 'Published';
+                            successMsg.textContent = 'Your post is live. GitHub Pages may take ~30s to refresh.';
+                            successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
+                            successPanel.classList.remove('hidden');
+                            clearDraft();
+                            allPosts.posts.unshift(entry);
+                            existingPostIds.add(entry.id);
+                            existingIds.add(entry.imageId);
+                            renderExisting();
+                            updatePublishState();
+                        });
                     });
             });
         }
@@ -2352,20 +2396,19 @@
                             tree.push({ path: IMG_DIR + '/' + existingPost.imageId + '_' + existingPost.cover + '_thumb.jpg', delete: true });
                         }
                     }
-                    return ghCommitTree(tree, 'Update photo post ' + entry.id, meta.sha);
-                });
-            }).then(function () {
-                progressFill.style.width = '100%';
-                publishing = false;
-                progressBar.style.display = 'none';
-                setStatus('Saved.', 'ok');
-                successTitle.textContent = 'Saved';
-                successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
-                successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
-                successPanel.classList.remove('hidden');
-                return loadPosts();
-            }).then(function () {
-                exitEdit();
+                    return ghCommitTree(tree, 'Update photo post ' + entry.id, meta.sha).then(function () {
+                        allPosts.posts = json.posts;
+                        progressFill.style.width = '100%';
+                        publishing = false;
+                        progressBar.style.display = 'none';
+                        setStatus('Saved.', 'ok');
+                        successTitle.textContent = 'Saved';
+                        successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
+                        successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
+                        successPanel.classList.remove('hidden');
+                        renderExisting();
+                        exitEdit();
+                    });
             });
         }
         function saveEditFull(existingPost) {
@@ -2464,20 +2507,20 @@
                     tree.push({ path: IMG_DIR + '/' + existingPost.imageId + '_' + existingPost.cover + '_thumb.jpg', delete: true });
                 }
                 setStatus('Saving one atomic update…');
-                return ghCommitTree(tree, 'Update photo post ' + entry.id, prepared.expectedPostsSha);
-            }).then(function () {
-                tick();
-                progressFill.style.width = '100%';
-                publishing = false;
-                progressBar.style.display = 'none';
-                setStatus('Saved.', 'ok');
-                successTitle.textContent = 'Saved';
-                successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
-                successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
-                successPanel.classList.remove('hidden');
-                return loadPosts();
-            }).then(function () {
-                exitEdit();
+                return ghCommitTree(tree, 'Update photo post ' + entry.id, prepared.expectedPostsSha).then(function () {
+                    allPosts.posts = json.posts;
+                    tick();
+                    progressFill.style.width = '100%';
+                    publishing = false;
+                    progressBar.style.display = 'none';
+                    setStatus('Saved.', 'ok');
+                    successTitle.textContent = 'Saved';
+                    successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
+                    successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
+                    successPanel.classList.remove('hidden');
+                    renderExisting();
+                    exitEdit();
+                });
             });
         }
 
