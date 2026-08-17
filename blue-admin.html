@@ -1225,40 +1225,55 @@
             loadPosts().then(consumeShareTargetIfAny).catch(function () {});
             loadAnalytics();
         }
+        function validateToken() {
+            return gh('GET', '/repos/' + REPO_OWNER + '/' + REPO_NAME).then(function (repo) {
+                if (!repo) throw new Error('Could not access repository ' + REPO_OWNER + '/' + REPO_NAME);
+                if (repo.permissions && repo.permissions.push === false) {
+                    throw new Error('Token does not have push/write permission on ' + REPO_OWNER + '/' + REPO_NAME);
+                }
+                return ghGetUser().then(function (u) {
+                    return { login: (u && u.login) ? u.login : REPO_OWNER, repo: repo };
+                }).catch(function () {
+                    return { login: REPO_OWNER, repo: repo };
+                });
+            });
+        }
         function trySavedToken() {
             try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
             try { token = sessionStorage.getItem(TOKEN_KEY) || null; } catch (e) { token = null; }
             if (!token) { showAuth(); return; }
-            ghGetUser().then(function (u) {
-                connectedAs.textContent = '@' + u.login;
+            validateToken().then(function (res) {
+                connectedAs.textContent = '@' + res.login;
                 showForm();
             }).catch(function (err) {
                 token = null;
                 try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
                 showAuth();
-                tokenStatus.textContent = 'Saved token rejected: ' + err.message;
+                tokenStatus.textContent = 'Saved token rejected: ' + (err && err.message ? err.message : err);
             });
         }
-        $('token-save').addEventListener('click', function () {
+        function handleConnect() {
             var t = (tokenInput.value || '').trim();
             if (!t) { tokenStatus.textContent = 'Enter a token first.'; return; }
             tokenStatus.textContent = 'Validating…';
             token = t;
-            ghGetUser().then(function (u) {
-                if (u.login !== REPO_OWNER) {
-                    token = null;
-                    tokenStatus.textContent = 'Token belongs to @' + u.login + ', expected @' + REPO_OWNER + '.';
-                    return;
-                }
+            validateToken().then(function (res) {
                 try { sessionStorage.setItem(TOKEN_KEY, t); } catch (e) {}
-                connectedAs.textContent = '@' + u.login;
+                connectedAs.textContent = '@' + res.login;
                 tokenInput.value = '';
                 tokenStatus.textContent = '';
                 showForm();
             }).catch(function (err) {
                 token = null;
-                tokenStatus.textContent = 'Token rejected: ' + err.message;
+                tokenStatus.textContent = 'Token rejected: ' + (err && err.message ? err.message : err);
             });
+        }
+        $('token-save').addEventListener('click', handleConnect);
+        tokenInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleConnect();
+            }
         });
         $('sign-out').addEventListener('click', function () {
             if (publishing) return;
