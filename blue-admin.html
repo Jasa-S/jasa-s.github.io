@@ -603,14 +603,16 @@
             <p class="panel-title">Connect to GitHub</p>
             <p>Paste a short-lived GitHub fine-grained personal access token to publish posts. It is kept only for this browser session and is cleared when the session ends.</p>
             <p class="note">Required scope: <strong>Contents: Read &amp; write</strong> on <code>Jasa-S/jasa-s.github.io</code>. <a class="inline" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create token</a></p>
-            <div class="field">
-                <label for="token-input">Personal access token</label>
-                <input type="password" id="token-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_...">
-            </div>
-            <div class="btn-row">
-                <button class="btn primary" id="token-save"><i class="fa-solid fa-key"></i>Connect</button>
-            </div>
-            <div id="token-status" class="hint" style="margin-top:0.6rem;"></div>
+            <form id="auth-form" onsubmit="return false;">
+                <div class="field">
+                    <label for="token-input">Personal access token</label>
+                    <input type="password" id="token-input" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_...">
+                </div>
+                <div class="btn-row">
+                    <button class="btn primary" id="token-save" type="submit"><i class="fa-solid fa-key"></i>Connect</button>
+                </div>
+                <div id="token-status" class="hint"></div>
+            </form>
         </section>
         <section id="connected-panel" class="panel hidden">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
@@ -982,10 +984,11 @@
             return new TextDecoder().decode(bytes);
         }
         var GH_TIMEOUT_MS = 60000;
-        function gh(method, path, body) {
+        function gh(method, path, body, customTimeout) {
             var url = 'https://api.github.com' + path;
+            var timeoutMs = customTimeout || GH_TIMEOUT_MS;
             var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-            var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, GH_TIMEOUT_MS) : null;
+            var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, timeoutMs) : null;
             var opts = {
                 method: method,
                 headers: {
@@ -1016,7 +1019,7 @@
             }, function (err) {
                 if (timer) clearTimeout(timer);
                 if (err && err.name === 'AbortError') {
-                    var e = new Error('Request timed out');
+                    var e = new Error('Connection timed out. Please check your internet connection.');
                     e.status = 0;
                     throw e;
                 }
@@ -1242,16 +1245,10 @@
             loadAnalytics();
         }
         function validateToken() {
-            return gh('GET', '/repos/' + REPO_OWNER + '/' + REPO_NAME).then(function (repo) {
-                if (!repo) throw new Error('Could not access repository ' + REPO_OWNER + '/' + REPO_NAME);
-                if (repo.permissions && repo.permissions.push === false) {
-                    throw new Error('Token does not have push/write permission on ' + REPO_OWNER + '/' + REPO_NAME);
-                }
-                return ghGetUser().then(function (u) {
-                    return { login: (u && u.login) ? u.login : REPO_OWNER, repo: repo };
-                }).catch(function () {
-                    return { login: REPO_OWNER, repo: repo };
-                });
+            var path = '/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(POSTS_PATH) + '?ref=' + encodeURIComponent(BRANCH);
+            return gh('GET', path, undefined, 10000).then(function (res) {
+                if (!res || !res.sha) throw new Error('Could not verify repository access');
+                return { login: REPO_OWNER };
             });
         }
         function trySavedToken() {
@@ -1278,18 +1275,16 @@
                 return;
             }
             tokenStatus.className = 'hint';
-            tokenStatus.textContent = 'Validating token with GitHub…';
+            tokenStatus.textContent = 'Connecting…';
             var saveBtn = $('token-save');
             var originalBtnHtml = saveBtn.innerHTML;
             saveBtn.disabled = true;
-            tokenInput.disabled = true;
             saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Connecting…';
             token = t;
             validateToken().then(function (res) {
                 try { sessionStorage.setItem(TOKEN_KEY, t); } catch (e) {}
                 connectedAs.textContent = '@' + res.login;
                 tokenInput.value = '';
-                tokenInput.disabled = false;
                 tokenStatus.className = 'hint';
                 tokenStatus.textContent = '';
                 saveBtn.disabled = false;
@@ -1298,13 +1293,23 @@
             }).catch(function (err) {
                 token = null;
                 saveBtn.disabled = false;
-                tokenInput.disabled = false;
                 saveBtn.innerHTML = originalBtnHtml;
                 tokenStatus.className = 'hint err';
                 tokenStatus.textContent = 'Connection failed: ' + (err && err.message ? err.message : err);
+                tokenInput.focus();
             });
         }
-        $('token-save').addEventListener('click', handleConnect);
+        var authForm = $('auth-form');
+        if (authForm) {
+            authForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                handleConnect();
+            });
+        }
+        $('token-save').addEventListener('click', function (e) {
+            e.preventDefault();
+            handleConnect();
+        });
         tokenInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
