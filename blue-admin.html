@@ -203,21 +203,6 @@
         .field .hint {
             margin-top: 0.35rem; font-size: 0.72rem; color: var(--text-muted);
         }
-        #token-status.hint {
-            margin-top: 0.6rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;
-        }
-        #token-status.hint.err {
-            color: #dc2626; font-weight: 500;
-        }
-        body.dark #token-status.hint.err {
-            color: #f87171;
-        }
-        #token-status.hint.ok {
-            color: #16a34a; font-weight: 500;
-        }
-        body.dark #token-status.hint.ok {
-            color: #4ade80;
-        }
         input[type="text"], input[type="password"], input[type="url"], textarea, select {
             width: 100%; box-sizing: border-box;
             background: var(--glass-inset); color: var(--text-main);
@@ -603,16 +588,14 @@
             <p class="panel-title">Connect to GitHub</p>
             <p>Paste a short-lived GitHub fine-grained personal access token to publish posts. It is kept only for this browser session and is cleared when the session ends.</p>
             <p class="note">Required scope: <strong>Contents: Read &amp; write</strong> on <code>Jasa-S/jasa-s.github.io</code>. <a class="inline" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create token</a></p>
-            <form id="auth-form" onsubmit="event.preventDefault(); if (window.handleConnect) window.handleConnect(event);">
-                <div class="field">
-                    <label for="token-input">Personal access token</label>
-                    <input type="password" id="token-input" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_...">
-                </div>
-                <div class="btn-row">
-                    <button class="btn primary" id="token-save" type="button" onclick="if (window.handleConnect) window.handleConnect(event);"><i class="fa-solid fa-key"></i>Connect</button>
-                </div>
-                <div id="token-status" class="hint"></div>
-            </form>
+            <div class="field">
+                <label for="token-input">Personal access token</label>
+                <input type="password" id="token-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_...">
+            </div>
+            <div class="btn-row">
+                <button class="btn primary" id="token-save"><i class="fa-solid fa-key"></i>Connect</button>
+            </div>
+            <div id="token-status" class="hint" style="margin-top:0.6rem;"></div>
         </section>
         <section id="connected-panel" class="panel hidden">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
@@ -789,51 +772,6 @@
 
     <script src="/theme.js"></script>
     <script src="/analytics-endpoint-config.js"></script>
-    <script>
-    /* Standalone connect handler – always available even if main script fails */
-    (function () {
-        'use strict';
-        window.handleConnect = function () {
-            var input = document.getElementById('token-input');
-            var status = document.getElementById('token-status');
-            var btn = document.getElementById('token-save');
-            if (!input || !status || !btn) return;
-            var t = (input.value || '').trim();
-            if (!t) {
-                status.className = 'hint';
-                status.style.cssText = 'margin-top:0.6rem;padding:0.5rem 0.75rem;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:6px;font-weight:500;font-size:0.85rem;';
-                status.textContent = 'Please enter your GitHub token.';
-                input.focus();
-                return;
-            }
-            status.className = 'hint';
-            status.style.cssText = 'margin-top:0.6rem;font-size:0.85rem;color:#60a5fa;';
-            status.textContent = 'Connecting\u2026';
-            btn.disabled = true;
-            btn.textContent = 'Connecting\u2026';
-            fetch('https://api.github.com/repos/Jasa-S/jasa-s.github.io/contents/posts.json?ref=main', {
-                headers: { 'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + t }
-            }).then(function (res) {
-                return res.json().then(function (data) {
-                    if (!res.ok) throw new Error(data.message || 'HTTP ' + res.status);
-                    return data;
-                });
-            }).then(function (data) {
-                if (!data || !data.sha) throw new Error('Invalid response from GitHub');
-                try { sessionStorage.setItem('blue.gh.token', t); } catch (e) {}
-                status.style.cssText = 'margin-top:0.6rem;padding:0.5rem 0.75rem;background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:6px;font-weight:500;font-size:0.85rem;';
-                status.textContent = '\u2714 Token verified! Loading\u2026';
-                setTimeout(function () { location.reload(); }, 600);
-            }).catch(function (err) {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-key"></i>Connect';
-                status.style.cssText = 'margin-top:0.6rem;padding:0.5rem 0.75rem;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:6px;font-weight:500;font-size:0.85rem;';
-                status.textContent = 'Failed: ' + (err && err.message ? err.message : err);
-                input.focus();
-            });
-        };
-    })();
-    </script>
     <script>
     (function () {
         'use strict';
@@ -1029,11 +967,10 @@
             return new TextDecoder().decode(bytes);
         }
         var GH_TIMEOUT_MS = 60000;
-        function gh(method, path, body, customTimeout) {
+        function gh(method, path, body) {
             var url = 'https://api.github.com' + path;
-            var timeoutMs = customTimeout || GH_TIMEOUT_MS;
             var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
-            var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, timeoutMs) : null;
+            var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, GH_TIMEOUT_MS) : null;
             var opts = {
                 method: method,
                 headers: {
@@ -1064,7 +1001,7 @@
             }, function (err) {
                 if (timer) clearTimeout(timer);
                 if (err && err.name === 'AbortError') {
-                    var e = new Error('Connection timed out. Please check your internet connection.');
+                    var e = new Error('Request timed out');
                     e.status = 0;
                     throw e;
                 }
@@ -1289,78 +1226,40 @@
             loadPosts().then(consumeShareTargetIfAny).catch(function () {});
             loadAnalytics();
         }
-        function validateToken() {
-            var path = '/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(POSTS_PATH) + '?ref=' + encodeURIComponent(BRANCH);
-            return gh('GET', path, undefined, 10000).then(function (res) {
-                if (!res || !res.sha) throw new Error('Could not verify repository access');
-                return { login: REPO_OWNER };
-            });
-        }
         function trySavedToken() {
             try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
             try { token = sessionStorage.getItem(TOKEN_KEY) || null; } catch (e) { token = null; }
             if (!token) { showAuth(); return; }
-            validateToken().then(function (res) {
-                connectedAs.textContent = '@' + res.login;
+            ghGetUser().then(function (u) {
+                connectedAs.textContent = '@' + u.login;
                 showForm();
             }).catch(function (err) {
                 token = null;
                 try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
                 showAuth();
-                tokenStatus.className = 'hint err';
-                tokenStatus.textContent = 'Saved token rejected: ' + (err && err.message ? err.message : err);
+                tokenStatus.textContent = 'Saved token rejected: ' + err.message;
             });
         }
-        function handleConnect() {
+        $('token-save').addEventListener('click', function () {
             var t = (tokenInput.value || '').trim();
-            if (!t) {
-                tokenStatus.className = 'hint err';
-                tokenStatus.textContent = 'Please enter your GitHub token.';
-                tokenInput.focus();
-                return;
-            }
-            tokenStatus.className = 'hint';
-            tokenStatus.textContent = 'Connecting…';
-            var saveBtn = $('token-save');
-            var originalBtnHtml = saveBtn.innerHTML;
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Connecting…';
+            if (!t) { tokenStatus.textContent = 'Enter a token first.'; return; }
+            tokenStatus.textContent = 'Validating…';
             token = t;
-            validateToken().then(function (res) {
+            ghGetUser().then(function (u) {
+                if (u.login !== REPO_OWNER) {
+                    token = null;
+                    tokenStatus.textContent = 'Token belongs to @' + u.login + ', expected @' + REPO_OWNER + '.';
+                    return;
+                }
                 try { sessionStorage.setItem(TOKEN_KEY, t); } catch (e) {}
-                connectedAs.textContent = '@' + res.login;
+                connectedAs.textContent = '@' + u.login;
                 tokenInput.value = '';
-                tokenStatus.className = 'hint';
                 tokenStatus.textContent = '';
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnHtml;
                 showForm();
             }).catch(function (err) {
                 token = null;
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = originalBtnHtml;
-                tokenStatus.className = 'hint err';
-                tokenStatus.textContent = 'Connection failed: ' + (err && err.message ? err.message : err);
-                tokenInput.focus();
+                tokenStatus.textContent = 'Token rejected: ' + err.message;
             });
-        }
-        window.handleConnect = handleConnect;
-        var authForm = $('auth-form');
-        if (authForm) {
-            authForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                handleConnect();
-            });
-        }
-        $('token-save').addEventListener('click', function (e) {
-            e.preventDefault();
-            handleConnect();
-        });
-        tokenInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleConnect();
-            }
         });
         $('sign-out').addEventListener('click', function () {
             if (publishing) return;
@@ -2672,7 +2571,7 @@
                 navigator.serviceWorker.register('/sw.js').catch(function () {});
             });
         }
-        loadDraft().catch(function () {}).then(function () {
+        loadDraft().then(function () {
             renderPhotos();
             updatePublishState();
             trySavedToken();
