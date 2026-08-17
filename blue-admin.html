@@ -603,13 +603,13 @@
             <p class="panel-title">Connect to GitHub</p>
             <p>Paste a short-lived GitHub fine-grained personal access token to publish posts. It is kept only for this browser session and is cleared when the session ends.</p>
             <p class="note">Required scope: <strong>Contents: Read &amp; write</strong> on <code>Jasa-S/jasa-s.github.io</code>. <a class="inline" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create token</a></p>
-            <form id="auth-form" onsubmit="return false;">
+            <form id="auth-form" onsubmit="event.preventDefault(); if (window.handleConnect) window.handleConnect(event);">
                 <div class="field">
                     <label for="token-input">Personal access token</label>
                     <input type="password" id="token-input" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_...">
                 </div>
                 <div class="btn-row">
-                    <button class="btn primary" id="token-save" type="submit"><i class="fa-solid fa-key"></i>Connect</button>
+                    <button class="btn primary" id="token-save" type="button" onclick="if (window.handleConnect) window.handleConnect(event);"><i class="fa-solid fa-key"></i>Connect</button>
                 </div>
                 <div id="token-status" class="hint"></div>
             </form>
@@ -1299,6 +1299,7 @@
                 tokenInput.focus();
             });
         }
+        window.handleConnect = handleConnect;
         var authForm = $('auth-form');
         if (authForm) {
             authForm.addEventListener('submit', function (e) {

@@ -1,4 +1,4 @@
-const CACHE = 'blue-admin-v31';
+const CACHE = 'blue-admin-v33';
 const LEGACY_CACHES = ['site-v15'];
 const SHELL = [
     '/blue-admin.html',
@@ -78,14 +78,16 @@ self.addEventListener('fetch', (event) => {
     if (!SHELL.includes(url.pathname)) return;
 
     event.respondWith((async () => {
+        try {
+            const fresh = await fetch(req, { cache: 'no-store' });
+            if (fresh && fresh.status === 200) {
+                const cache = await caches.open(CACHE);
+                cache.put(url.pathname, fresh.clone()).catch(() => {});
+                return fresh;
+            }
+        } catch (err) {}
         const cache = await caches.open(CACHE);
         const cached = await cache.match(url.pathname);
-        const fresh = await fetch(req).then((res) => {
-            if (res && res.status === 200 && res.type === 'basic') {
-                cache.put(url.pathname, res.clone()).catch(() => {});
-            }
-            return res;
-        }).catch(() => null);
-        return fresh || cached || new Response('Offline', { status: 504 });
+        return cached || new Response('Offline', { status: 504 });
     })());
 });
