@@ -203,6 +203,11 @@
         .field .hint {
             margin-top: 0.35rem; font-size: 0.72rem; color: var(--text-muted);
         }
+        #token-status {
+            margin-top: 0.6rem; font-size: 0.85rem; line-height: 1.4;
+            color: #b91c1c; font-weight: 500;
+        }
+        body.dark #token-status { color: #fca5a5; }
         input[type="text"], input[type="password"], input[type="url"], textarea, select {
             width: 100%; box-sizing: border-box;
             background: var(--glass-inset); color: var(--text-main);
@@ -584,7 +589,7 @@
                 <i class="fa-solid fa-images"></i>Gallery
             </a>
         </header>
-        <section id="auth-panel" class="panel">
+        <section id="auth-panel" class="panel hidden">
             <p class="panel-title">Connect to GitHub</p>
             <p>Paste a short-lived GitHub fine-grained personal access token to publish posts. It is kept only for this browser session and is cleared when the session ends.</p>
             <p class="note">Required scope: <strong>Contents: Read &amp; write</strong> on <code>Jasa-S/jasa-s.github.io</code>. <a class="inline" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create token</a></p>
@@ -1260,6 +1265,12 @@
                 token = null;
                 tokenStatus.textContent = 'Token rejected: ' + err.message;
             });
+        });
+        tokenInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                $('token-save').click();
+            }
         });
         $('sign-out').addEventListener('click', function () {
             if (publishing) return;
