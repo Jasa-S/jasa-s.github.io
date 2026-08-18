@@ -589,7 +589,7 @@
                 <i class="fa-solid fa-images"></i>Gallery
             </a>
         </header>
-        <section id="auth-panel" class="panel hidden">
+        <section id="auth-panel" class="panel">
             <p class="panel-title">Connect to GitHub</p>
             <p>Paste a short-lived GitHub fine-grained personal access token to publish posts. It is kept only for this browser session and is cleared when the session ends.</p>
             <p class="note">Required scope: <strong>Contents: Read &amp; write</strong> on <code>Jasa-S/jasa-s.github.io</code>. <a class="inline" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create token</a></p>
@@ -2582,7 +2582,7 @@
                 navigator.serviceWorker.register('/sw.js').catch(function () {});
             });
         }
-        loadDraft().then(function () {
+        loadDraft().catch(function () {}).then(function () {
             renderPhotos();
             updatePublishState();
             trySavedToken();
