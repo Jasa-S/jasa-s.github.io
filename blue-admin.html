@@ -1231,18 +1231,24 @@
             loadPosts().then(consumeShareTargetIfAny).catch(function () {});
             loadAnalytics();
         }
+        function validateToken() {
+            return ghGetContent(POSTS_PATH).then(function (res) {
+                if (!res || !res.sha) throw new Error('Could not access repository contents');
+                return { login: REPO_OWNER };
+            });
+        }
         function trySavedToken() {
             try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
             try { token = sessionStorage.getItem(TOKEN_KEY) || null; } catch (e) { token = null; }
             if (!token) { showAuth(); return; }
-            ghGetUser().then(function (u) {
-                connectedAs.textContent = '@' + u.login;
+            validateToken().then(function () {
+                connectedAs.textContent = '@' + REPO_OWNER;
                 showForm();
             }).catch(function (err) {
                 token = null;
                 try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
                 showAuth();
-                tokenStatus.textContent = 'Saved token rejected: ' + err.message;
+                tokenStatus.textContent = 'Saved token rejected: ' + (err && err.message ? err.message : err);
             });
         }
         $('token-save').addEventListener('click', function () {
@@ -1250,20 +1256,15 @@
             if (!t) { tokenStatus.textContent = 'Enter a token first.'; return; }
             tokenStatus.textContent = 'Validating…';
             token = t;
-            ghGetUser().then(function (u) {
-                if (u.login !== REPO_OWNER) {
-                    token = null;
-                    tokenStatus.textContent = 'Token belongs to @' + u.login + ', expected @' + REPO_OWNER + '.';
-                    return;
-                }
+            validateToken().then(function () {
                 try { sessionStorage.setItem(TOKEN_KEY, t); } catch (e) {}
-                connectedAs.textContent = '@' + u.login;
+                connectedAs.textContent = '@' + REPO_OWNER;
                 tokenInput.value = '';
                 tokenStatus.textContent = '';
                 showForm();
             }).catch(function (err) {
                 token = null;
-                tokenStatus.textContent = 'Token rejected: ' + err.message;
+                tokenStatus.textContent = 'Token rejected: ' + (err && err.message ? err.message : err);
             });
         });
         tokenInput.addEventListener('keydown', function (e) {
