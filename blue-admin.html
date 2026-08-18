@@ -2118,6 +2118,7 @@
             var postUrl = SITE_ORIGIN + '/p/' + entry.id + '.html';
             return '<!doctype html><html lang="en"><head><meta charset="utf-8">\n'
                 + '<title>' + escHtml(title) + ' | BlUE</title>\n'
+                + '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
                 + '<meta name="color-scheme" content="light dark">\n'
                 + '<style>html,body{margin:0;background:#ffffff;}@media (prefers-color-scheme:dark){html,body{background:#0a0a0a;color:#ffffff;}}</style>\n'
                 + '<script>if(matchMedia(\'(prefers-color-scheme:dark)\').matches)document.documentElement.classList.add(\'dark\');<\/script>\n'
