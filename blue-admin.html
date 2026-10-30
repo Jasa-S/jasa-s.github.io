@@ -788,8 +788,8 @@
         var IMG_DIR     = 'blue-images';
         var TOKEN_KEY   = 'blue.gh.token';
         var MAX_EDGE    = 1800;
-        var THUMB_EDGE  = 480;
-        var THUMB_QUAL  = 0.86;
+        var THUMB_EDGE  = 560;
+        var THUMB_QUAL  = 0.85;
         var JPEG_QUAL_COMPRESSED   = 0.82;
         var JPEG_QUAL_UNCOMPRESSED = 0.95;
         var UPLOAD_CONCURRENCY = 1;
@@ -2150,16 +2150,15 @@
         function makeThumbnail(source) {
             return loadBitmap(source).then(function (bmp) {
                 var w = bmp.width, h = bmp.height;
-                var side = Math.min(w, h);
-                var sx = Math.round((w - side) / 2);
-                var sy = Math.round((h - side) / 2);
-                var edge = Math.max(1, Math.min(THUMB_EDGE, side));
+                var scale = Math.min(1, THUMB_EDGE / Math.max(w, h));
+                var tw = Math.max(1, Math.round(w * scale));
+                var th = Math.max(1, Math.round(h * scale));
                 var canvas = document.createElement('canvas');
-                canvas.width = edge; canvas.height = edge;
+                canvas.width = tw; canvas.height = th;
                 var ctx = canvas.getContext('2d');
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
-                ctx.drawImage(bmp, sx, sy, side, side, 0, 0, edge, edge);
+                ctx.drawImage(bmp, 0, 0, tw, th);
                 if (bmp.close) try { bmp.close(); } catch (e) {}
                 return new Promise(function (resolve, reject) {
                     canvas.toBlob(function (blob) {
