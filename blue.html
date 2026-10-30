@@ -484,7 +484,7 @@
                     a.dataset.year = String(p.date || '');
                     a.innerHTML =
                         '<img src="' + esc(src) + '" alt="' + esc(p.title) + '"'
-                        + ' width="400" height="400" decoding="async"'
+                        + ' width="480" height="480" decoding="async"'
                         + (i === 0 ? '' : ' loading="lazy"')
                         + (p.thumb ? ' data-full="' + esc(full) + '" onerror="if(this.dataset.full){this.src=this.dataset.full;this.removeAttribute(\'data-full\');}"' : '')
                         + '>';

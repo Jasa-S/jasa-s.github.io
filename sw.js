@@ -1,4 +1,4 @@
-const CACHE = 'blue-admin-v41';
+const CACHE = 'blue-admin-v42';
 const LEGACY_CACHES = ['site-v15'];
 const SHELL = [
     '/blue-admin.html',

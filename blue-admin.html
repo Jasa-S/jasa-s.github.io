@@ -788,8 +788,8 @@
         var IMG_DIR     = 'blue-images';
         var TOKEN_KEY   = 'blue.gh.token';
         var MAX_EDGE    = 1800;
-        var THUMB_EDGE  = 400;
-        var THUMB_QUAL  = 0.78;
+        var THUMB_EDGE  = 480;
+        var THUMB_QUAL  = 0.86;
         var JPEG_QUAL_COMPRESSED   = 0.82;
         var JPEG_QUAL_UNCOMPRESSED = 0.95;
         var UPLOAD_CONCURRENCY = 1;
@@ -970,6 +970,30 @@
             var bytes = new Uint8Array(bin.length);
             for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
             return new TextDecoder().decode(bytes);
+        }
+        function base64ToBlob(b64, type) {
+            var bin = atob(b64.replace(/\s+/g, ''));
+            var bytes = new Uint8Array(bin.length);
+            for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new Blob([bytes], { type: type || 'image/jpeg' });
+        }
+        function fetchRepoImageBlob(repoRelPath, blobSha) {
+            var p = blobSha
+                ? gh('GET', '/repos/' + REPO_OWNER + '/' + REPO_NAME + '/git/blobs/' + blobSha)
+                : ghGetContent(repoRelPath).then(function (meta) {
+                    if (meta && meta.content) return meta;
+                    if (meta && meta.sha) return gh('GET', '/repos/' + REPO_OWNER + '/' + REPO_NAME + '/git/blobs/' + meta.sha);
+                    throw new Error('Could not load image blob');
+                });
+            return p.then(function (blobData) {
+                if (!blobData || !blobData.content) throw new Error('Empty image blob');
+                return base64ToBlob(blobData.content, 'image/jpeg');
+            }).catch(function () {
+                return fetch('/' + repoRelPath, { cache: 'no-store' }).then(function (r) {
+                    if (!r.ok) throw new Error('Could not load cover image');
+                    return r.blob();
+                });
+            });
         }
         var GH_TIMEOUT_MS = 60000;
         function gh(method, path, body) {
@@ -1280,14 +1304,27 @@
             showAuth();
         });
 
+        function fetchPostsJson() {
+            if (token) {
+                return ghGetContent(POSTS_PATH).then(function (meta) {
+                    if (!meta || !meta.content) throw new Error('Empty posts.json response');
+                    return JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
+                }).catch(function () {
+                    return fetch('posts.json', { cache: 'no-store' }).then(function (r) {
+                        if (!r.ok) throw new Error('Could not load posts.json (HTTP ' + r.status + ')');
+                        return r.json();
+                    });
+                });
+            }
+            return fetch('posts.json', { cache: 'no-store' }).then(function (r) {
+                if (!r.ok) throw new Error('Could not load posts.json (HTTP ' + r.status + ')');
+                return r.json();
+            });
+        }
         function loadPosts() {
             postsLoaded = false;
             updatePublishState();
-            return fetch('posts.json', { cache: 'no-store' })
-                .then(function (r) {
-                    if (!r.ok) throw new Error('Could not load posts.json (HTTP ' + r.status + ')');
-                    return r.json();
-                })
+            return fetchPostsJson()
                 .then(function (data) {
                     if (!data || !Array.isArray(data.posts)) throw new Error('posts.json is invalid');
                     allPosts = data;
@@ -1359,7 +1396,9 @@
                 thumb.className = 'pr-thumb';
                 var img = document.createElement('img');
                 img.loading = 'lazy';
-                img.src = allPosts.base + p.imageId + '_' + p.cover + '.jpg';
+                var fullCoverUrl = allPosts.base + p.imageId + '_' + p.cover + '.jpg';
+                img.src = p.thumb ? (allPosts.base + p.imageId + '_' + p.cover + '_thumb.jpg') : fullCoverUrl;
+                img.onerror = function () { if (img.src !== fullCoverUrl) img.src = fullCoverUrl; };
                 img.alt = '';
                 thumb.appendChild(img);
                 row.appendChild(thumb);
@@ -1471,7 +1510,7 @@
                 json.posts.sort(function (a, b) { return order.indexOf(a.id) - order.indexOf(b.id); });
                 var newContent = JSON.stringify(json, null, 2) + '\n';
                 return ghCreateTextBlob(newContent).then(function (postsSha) {
-                    return { postsSha: postsSha, expectedPostsSha: meta.sha };
+                    return { postsSha: postsSha, expectedPostsSha: meta.sha, json: json };
                 });
             }).then(function (prepared) {
                 return ghCommitTree(
@@ -1479,7 +1518,7 @@
                     'Reorder photo posts',
                     prepared.expectedPostsSha
                 ).then(function () {
-                    allPosts.posts = json.posts;
+                    allPosts.posts = prepared.json.posts;
                     orderDirty = false;
                     publishing = false; updatePublishState();
                     setStatus('Post order saved.', 'ok');
@@ -1668,23 +1707,28 @@
             setStatus('Deleting "' + (post.title || postId) + '"…');
             progressBar.style.display = 'block';
             progressFill.style.width = '20%';
-            var deletions = [];
-            for (var i = 0; i < post.count; i++) deletions.push({ path: IMG_DIR + '/' + post.imageId + '_' + pad2(i+1) + '.jpg', delete: true });
-            if (post.thumb) deletions.push({ path: IMG_DIR + '/' + post.imageId + '_' + post.cover + '_thumb.jpg', delete: true });
-            deletions.push({ path: 'p/' + postId + '.html', delete: true });
-
-            ghGetContent(POSTS_PATH).then(function (meta) {
-                var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
-                json.posts = (json.posts || []).filter(function (p) { return p.id !== postId; });
-                var newContent = JSON.stringify(json, null, 2) + '\n';
-                return ghCreateTextBlob(newContent).then(function (postsSha) {
-                    return { postsSha: postsSha, expectedPostsSha: meta.sha };
+            ghGetTreeFileShas(IMG_DIR + '/' + post.imageId + '_').catch(function () { return null; }).then(function (shas) {
+                var deletions = [];
+                if (shas && Object.keys(shas).length) {
+                    Object.keys(shas).forEach(function (path) { deletions.push({ path: path, delete: true }); });
+                } else {
+                    for (var i = 0; i < post.count; i++) deletions.push({ path: IMG_DIR + '/' + post.imageId + '_' + pad2(i+1) + '.jpg', delete: true });
+                    if (post.thumb) deletions.push({ path: IMG_DIR + '/' + post.imageId + '_' + post.cover + '_thumb.jpg', delete: true });
+                }
+                deletions.push({ path: 'p/' + postId + '.html', delete: true });
+                return ghGetContent(POSTS_PATH).then(function (meta) {
+                    var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
+                    json.posts = (json.posts || []).filter(function (p) { return p.id !== postId; });
+                    var newContent = JSON.stringify(json, null, 2) + '\n';
+                    return ghCreateTextBlob(newContent).then(function (postsSha) {
+                        return { postsSha: postsSha, expectedPostsSha: meta.sha, json: json, deletions: deletions };
+                    });
                 });
             }).then(function (prepared) {
                 progressFill.style.width = '65%';
                 return ghCommitTree([
                     { path: POSTS_PATH, sha: prepared.postsSha }
-                ].concat(deletions), 'Delete photo post ' + postId, prepared.expectedPostsSha).then(function () {
+                ].concat(prepared.deletions), 'Delete photo post ' + postId, prepared.expectedPostsSha).then(function () {
                     progressFill.style.width = '100%';
                     publishing = false;
                     progressBar.style.display = 'none';
@@ -1841,6 +1885,11 @@
                     compC.checked = !!p.compress;
                     compC.addEventListener('change', function () {
                         p.compress = compC.checked;
+                        p.blobSha = null;
+                        p.uploadedAs = null;
+                        p.w = 0; p.h = 0; p.ratio = 0;
+                        p.status = ''; p.statusText = '';
+                        updatePhotoStatusEl(i);
                         saveDraft();
                     });
                     compLbl.appendChild(compC);
@@ -1891,9 +1940,44 @@
                 photosWrap.appendChild(card);
             });
         }
+        function updatePhotoStatusEl(i) {
+            var p = photos[i];
+            var card = photosWrap.children[i];
+            if (!p || !card) { renderPhotos(); return; }
+            var meta = card.querySelector('.photo-meta');
+            if (!meta) { renderPhotos(); return; }
+            var st = meta.querySelector('.photo-status');
+            if (!p.status) {
+                if (st) st.remove();
+                return;
+            }
+            if (!st) {
+                st = document.createElement('div');
+                meta.appendChild(st);
+            }
+            st.className = 'photo-status ' + (p.status === 'ok' ? 'ok' : (p.status === 'err' ? 'err' : ''));
+            st.textContent = p.statusText || p.status;
+            if (p.status === 'err' && !editingId && !p.uploadedAs && pendingImageId) {
+                var retry = document.createElement('button');
+                retry.type = 'button';
+                retry.className = 'btn';
+                retry.style.cssText = 'margin-left:0.5rem;padding:0.15rem 0.55rem;min-height:0;font-size:0.7rem;';
+                retry.innerHTML = '<i class="fa-solid fa-rotate-right"></i>Retry';
+                retry.addEventListener('click', (function (idx) { return function () { retryPhoto(idx); }; })(i));
+                st.appendChild(retry);
+            }
+        }
 
         compressAllChk.addEventListener('change', function () {
-            photos.forEach(function (p) { if (!p.existing) p.compress = compressAllChk.checked; });
+            photos.forEach(function (p) {
+                if (!p.existing && p.compress !== compressAllChk.checked) {
+                    p.compress = compressAllChk.checked;
+                    p.blobSha = null;
+                    p.uploadedAs = null;
+                    p.w = 0; p.h = 0; p.ratio = 0;
+                    p.status = ''; p.statusText = '';
+                }
+            });
             renderPhotos();
             saveDraft();
         });
@@ -2044,9 +2128,14 @@
                 var scale = photo.compress ? Math.min(1, MAX_EDGE / Math.max(w, h)) : 1;
                 var tw = Math.max(1, Math.round(w * scale));
                 var th = Math.max(1, Math.round(h * scale));
+                photo.w = tw;
+                photo.h = th;
+                photo.ratio = Math.round(tw / th * 1e4) / 1e4;
                 var canvas = document.createElement('canvas');
                 canvas.width = tw; canvas.height = th;
                 var ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(bmp, 0, 0, tw, th);
                 if (bmp.close) try { bmp.close(); } catch (e) {}
                 var q = photo.compress ? JPEG_QUAL_COMPRESSED : JPEG_QUAL_UNCOMPRESSED;
@@ -2061,12 +2150,16 @@
         function makeThumbnail(source) {
             return loadBitmap(source).then(function (bmp) {
                 var w = bmp.width, h = bmp.height;
-                var scale = Math.min(1, THUMB_EDGE / Math.max(w, h));
-                var tw = Math.max(1, Math.round(w * scale));
-                var th = Math.max(1, Math.round(h * scale));
+                var side = Math.min(w, h);
+                var sx = Math.round((w - side) / 2);
+                var sy = Math.round((h - side) / 2);
+                var edge = Math.max(1, Math.min(THUMB_EDGE, side));
                 var canvas = document.createElement('canvas');
-                canvas.width = tw; canvas.height = th;
-                canvas.getContext('2d').drawImage(bmp, 0, 0, tw, th);
+                canvas.width = edge; canvas.height = edge;
+                var ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(bmp, sx, sy, side, side, 0, 0, edge, edge);
                 if (bmp.close) try { bmp.close(); } catch (e) {}
                 return new Promise(function (resolve, reject) {
                     canvas.toBlob(function (blob) {
@@ -2235,11 +2328,12 @@
                 if (task.p.blobSha) {
                     task.p.uploadedAs = task.name;
                     task.p.status = 'ok'; task.p.statusText = 'Prepared';
+                    updatePhotoStatusEl(task.i);
                     tick();
                     return Promise.resolve();
                 }
                 task.p.status = 'uploading'; task.p.statusText = 'Preparing…';
-                renderPhotos();
+                updatePhotoStatusEl(task.i);
                 return processForUpload(task.p)
                     .then(blobToBase64)
                     .then(ghCreateBlob)
@@ -2248,14 +2342,14 @@
                         task.p.uploadedAs = task.name;
                         saveDraft();
                         task.p.status = 'ok'; task.p.statusText = 'Prepared';
-                        renderPhotos();
+                        updatePhotoStatusEl(task.i);
                         tick();
                         return new Promise(function (r) { setTimeout(r, UPLOAD_PACE_MS); });
                     })
                     .catch(function (err) {
                         task.p.status = 'err'; task.p.statusText = 'Failed: ' + err.message;
                         failures.push(task);
-                        renderPhotos();
+                        updatePhotoStatusEl(task.i);
                     });
             }).then(function () {
                 if (failures.length) {
@@ -2277,7 +2371,7 @@
                     .then(function (sha) {
                         thumbSha = sha;
                         tick();
-                        return Promise.all(photos.map(ensureDims));
+                        return runPool(photos, 4, function (p) { return p.ratio ? Promise.resolve() : ensureDims(p); });
                     })
                     .then(function () {
                         setStatus('Updating posts.json…');
@@ -2287,7 +2381,10 @@
                         if ((json.posts || []).some(function (p) { return p.id === postId; })) {
                             throw new Error('Post id "' + postId + '" was added by another update. Choose a different id.');
                         }
-                        var ratios = photos.map(function (p) { return (p.w && p.h) ? Math.round(p.w / p.h * 1e4) / 1e4 : 0; });
+                        var ratios = photos.map(function (p) {
+                            if (p.ratio) return p.ratio;
+                            return (p.w && p.h) ? Math.round(p.w / p.h * 1e4) / 1e4 : 0;
+                        });
                         entry = buildPostEntry({ id: postId, imageId: imageId, count: photos.length, thumb: true, ratios: ratios });
                         json.posts = [entry].concat(json.posts || []);
                         var newContent = JSON.stringify(json, null, 2) + '\n';
@@ -2295,7 +2392,7 @@
                             ghCreateTextBlob(newContent),
                             ghCreateTextBlob(buildStubHtml(entry))
                         ]).then(function (textShas) {
-                            return { textShas: textShas, expectedPostsSha: meta.sha };
+                            return { textShas: textShas, expectedPostsSha: meta.sha, json: json };
                         });
                     }).then(function (prepared) {
                         var textShas = prepared.textShas;
@@ -2317,7 +2414,7 @@
                             successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
                             successPanel.classList.remove('hidden');
                             clearDraft();
-                            allPosts.posts.unshift(entry);
+                            allPosts.posts = prepared.json.posts;
                             existingPostIds.add(entry.id);
                             existingIds.add(entry.imageId);
                             renderExisting();
@@ -2332,7 +2429,7 @@
             var p = photos[i];
             if (!p || p.uploadedAs || !pendingImageId) return;
             var name = pendingImageId + '_' + pad2(i + 1) + '.jpg';
-            p.status = 'uploading'; p.statusText = 'Preparing…'; renderPhotos();
+            p.status = 'uploading'; p.statusText = 'Preparing…'; updatePhotoStatusEl(i);
             processForUpload(p)
                 .then(blobToBase64)
                 .then(ghCreateBlob)
@@ -2341,12 +2438,12 @@
                     p.uploadedAs = name;
                     saveDraft();
                     p.status = 'ok'; p.statusText = 'Prepared';
-                    renderPhotos();
+                    updatePhotoStatusEl(i);
                     setStatus('Prepared — tap Publish to finish.', 'ok');
                 })
                 .catch(function (err) {
                     p.status = 'err'; p.statusText = 'Failed: ' + err.message;
-                    renderPhotos();
+                    updatePhotoStatusEl(i);
                     setStatus('Retry failed: ' + (err && err.message ? err.message : err), 'err');
                 });
         }
@@ -2373,8 +2470,7 @@
                 thumbReady = Promise.resolve(null);
             } else {
                 setStatus('Creating thumbnail…');
-                thumbReady = fetch(allPosts.base + existingPost.imageId + '_' + coverSeq + '.jpg', { cache: 'no-store' })
-                    .then(function (r) { if (!r.ok) throw new Error('Could not load cover image'); return r.blob(); })
+                thumbReady = fetchRepoImageBlob(IMG_DIR + '/' + existingPost.imageId + '_' + coverSeq + '.jpg', null)
                     .then(makeThumbnail)
                     .then(blobToBase64)
                     .then(ghCreateBlob);
@@ -2398,7 +2494,7 @@
                 var newContent = JSON.stringify(json, null, 2) + '\n';
                 return Promise.all([
                     ghCreateTextBlob(newContent),
-                    ghCreateTextBlob(buildStubHtml(entry, SITE_ORIGIN))
+                    ghCreateTextBlob(buildStubHtml(entry))
                 ]).then(function (textShas) {
                     var tree = [
                         { path: POSTS_PATH, sha: textShas[0] },
@@ -2451,46 +2547,60 @@
             }
 
             var tasks = photos.map(function (p, i) {
-                return { p: p, name: existingPost.imageId + '_' + pad2(i + 1) + '.jpg', sha: null };
+                return { p: p, i: i, name: existingPost.imageId + '_' + pad2(i + 1) + '.jpg', sha: null };
             });
             var thumbName;
             var thumbSha;
             var entry;
 
             return runPool(tasks, UPLOAD_CONCURRENCY, function (task) {
-                task.p.status = 'uploading'; task.p.statusText = 'Preparing…'; renderPhotos();
+                task.p.status = 'uploading'; task.p.statusText = 'Preparing…'; updatePhotoStatusEl(task.i);
                 return photoSha(task.p)
                     .then(function (sha) {
                         task.sha = sha;
                         task.p.blobSha = sha;
                         task.p.status = 'ok'; task.p.statusText = 'Prepared';
-                        renderPhotos(); tick();
+                        updatePhotoStatusEl(task.i); tick();
                         return new Promise(function (r) { setTimeout(r, UPLOAD_PACE_MS); });
                     })
                     .catch(function (err) {
                         task.p.status = 'err'; task.p.statusText = 'Failed: ' + err.message;
-                        renderPhotos(); throw err;
+                        updatePhotoStatusEl(task.i); throw err;
                     });
             }).then(function () {
-                setStatus('Creating thumbnail…');
+                return existingShasReady;
+            }).then(function (existingShas) {
                 var coverSeq = pad2(coverIndex + 1);
                 thumbName = existingPost.imageId + '_' + coverSeq + '_thumb.jpg';
                 var cover = photos[coverIndex];
+                var oldThumbPath = IMG_DIR + '/' + existingPost.imageId + '_' + existingPost.cover + '_thumb.jpg';
+                if (!cover.file && cover.existing && cover.seq === existingPost.cover && existingShas[oldThumbPath]) {
+                    thumbSha = existingShas[oldThumbPath];
+                    tick();
+                    return existingShas;
+                }
+                setStatus('Creating thumbnail…');
                 var srcReady = cover.file
                     ? Promise.resolve(cover.file)
-                    : fetch(cover.url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('Could not load cover image'); return r.blob(); });
+                    : fetchRepoImageBlob(IMG_DIR + '/' + (cover.uploadedAs || (existingPost.imageId + '_' + coverSeq + '.jpg')), tasks[coverIndex].sha);
                 return srcReady.then(makeThumbnail).then(blobToBase64)
                     .then(ghCreateBlob)
                     .then(function (sha) {
                         thumbSha = sha;
                         tick();
+                        return existingShas;
                     });
-            }).then(function () {
-                return runPool(photos, 4, function (p) { return p.ratio ? Promise.resolve() : ensureDims(p); });
-            }).then(function () {
+            }).then(function (existingShas) {
+                return runPool(photos, 4, function (p) { return p.ratio ? Promise.resolve() : ensureDims(p); })
+                    .then(function () { return existingShas; });
+            }).then(function (existingShas) {
                 setStatus('Updating posts.json…');
-                return ghGetContent(POSTS_PATH);
-            }).then(function (meta) {
+                return ghGetContent(POSTS_PATH).then(function (meta) {
+                    return { meta: meta, existingShas: existingShas };
+                });
+            }).then(function (res) {
+                var meta = res.meta;
+                var existingShas = res.existingShas;
                 var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
                 var idx = json.posts.findIndex(function (p) { return p.id === editingId; });
                 if (idx < 0) throw new Error('Post not found in posts.json');
@@ -2503,27 +2613,31 @@
                 var newContent = JSON.stringify(json, null, 2) + '\n';
                 return Promise.all([
                     ghCreateTextBlob(newContent),
-                    ghCreateTextBlob(buildStubHtml(entry, SITE_ORIGIN))
+                    ghCreateTextBlob(buildStubHtml(entry))
                 ]).then(function (textShas) {
-                    return { textShas: textShas, expectedPostsSha: meta.sha };
+                    return { textShas: textShas, expectedPostsSha: meta.sha, json: json, existingShas: existingShas };
                 });
             }).then(function (prepared) {
                 var textShas = prepared.textShas;
+                var keptPaths = {};
                 var tree = tasks.map(function (task) {
-                    return { path: IMG_DIR + '/' + task.name, sha: task.sha };
+                    var p = IMG_DIR + '/' + task.name;
+                    keptPaths[p] = true;
+                    return { path: p, sha: task.sha };
                 });
-                tree.push({ path: IMG_DIR + '/' + thumbName, sha: thumbSha });
+                var thumbPath = IMG_DIR + '/' + thumbName;
+                keptPaths[thumbPath] = true;
+                tree.push({ path: thumbPath, sha: thumbSha });
                 tree.push({ path: POSTS_PATH, sha: textShas[0] });
                 tree.push({ path: 'p/' + entry.id + '.html', sha: textShas[1] });
-                for (var i = photos.length; i < existingPost.count; i++) {
-                    tree.push({ path: IMG_DIR + '/' + existingPost.imageId + '_' + pad2(i + 1) + '.jpg', delete: true });
-                }
-                if (existingPost.thumb && existingPost.cover !== entry.cover) {
-                    tree.push({ path: IMG_DIR + '/' + existingPost.imageId + '_' + existingPost.cover + '_thumb.jpg', delete: true });
-                }
+                Object.keys(prepared.existingShas || {}).forEach(function (existingPath) {
+                    if (!keptPaths[existingPath]) {
+                        tree.push({ path: existingPath, delete: true });
+                    }
+                });
                 setStatus('Saving one atomic update…');
                 return ghCommitTree(tree, 'Update photo post ' + entry.id, prepared.expectedPostsSha).then(function () {
-                    allPosts.posts = json.posts;
+                    allPosts.posts = prepared.json.posts;
                     tick();
                     progressFill.style.width = '100%';
                     publishing = false;
