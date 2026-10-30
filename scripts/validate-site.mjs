@@ -9,6 +9,31 @@ const fail = (message) => errors.push(message);
 const exists = async (file) => access(file).then(() => true, () => false);
 const read = (file) => readFile(path.join(ROOT, file), 'utf8');
 
+async function readJpegDimensions(filePath) {
+  const buf = await readFile(filePath);
+  if (buf.length < 4 || buf[0] !== 0xff || buf[1] !== 0xd8) return null;
+  let offset = 2;
+  while (offset + 4 <= buf.length) {
+    if (buf[offset] !== 0xff) { offset += 1; continue; }
+    while (offset < buf.length && buf[offset] === 0xff) offset += 1;
+    if (offset >= buf.length) break;
+    const marker = buf[offset];
+    offset += 1;
+    if (marker === 0xd8 || marker === 0xd9 || (marker >= 0xd0 && marker <= 0xd7) || marker === 0x01) continue;
+    if (offset + 2 > buf.length) break;
+    const segLen = buf.readUInt16BE(offset);
+    if (segLen < 2 || offset + segLen > buf.length) break;
+    if (marker === 0xc0 || marker === 0xc1 || marker === 0xc2) {
+      if (segLen >= 7) {
+        return { height: buf.readUInt16BE(offset + 3), width: buf.readUInt16BE(offset + 5) };
+      }
+      break;
+    }
+    offset += segLen;
+  }
+  return null;
+}
+
 let data;
 try {
   data = JSON.parse(await read('posts.json'));
@@ -55,8 +80,23 @@ for (const name of actualImages) {
 }
 
 for (const name of actualImages.filter((name) => name.endsWith('_thumb.jpg'))) {
-  const info = await stat(path.join(imageDir, name));
+  const thumbPath = path.join(imageDir, name);
+  const info = await stat(thumbPath);
   if (info.size > 150_000) fail(`blue-images/${name} is too large for a thumbnail (${info.size} bytes).`);
+  const fullPath = path.join(imageDir, name.replace(/_thumb\.jpg$/, '.jpg'));
+  if (await exists(fullPath)) {
+    const thumbDims = await readJpegDimensions(thumbPath);
+    const fullDims = await readJpegDimensions(fullPath);
+    if (!thumbDims || !fullDims) {
+      fail(`blue-images/${name} or its cover JPEG has unreadable dimensions.`);
+    } else {
+      const thumbRatio = thumbDims.width / thumbDims.height;
+      const fullRatio = fullDims.width / fullDims.height;
+      if (Math.abs(thumbRatio - fullRatio) > 0.02) {
+        fail(`blue-images/${name} aspect ratio (${thumbDims.width}x${thumbDims.height}) does not match cover (${fullDims.width}x${fullDims.height}).`);
+      }
+    }
+  }
 }
 for (const [name, limit] of [['J1.jpg', 500_000], ['J2.jpg', 500_000], ['J1.avif', 150_000], ['J2.avif', 150_000]]) {
   try {
@@ -104,6 +144,17 @@ for (const file of htmlFiles) {
       : path.posix.normalize(path.posix.join(path.posix.dirname(file), withoutFragment));
     const target = relativePath.endsWith('/') ? `${relativePath}index.html` : relativePath;
     if (!(await exists(path.join(ROOT, target)))) fail(`${file} references missing ${reference}`);
+  }
+  const socialImgPattern = /<meta\b[^>]*(?:property=["']og:image["']|name=["']twitter:image["'])[^>]*content=["']([^"']*)["']/gi;
+  for (const match of html.matchAll(socialImgPattern)) {
+    const imgUrl = match[1];
+    if (!imgUrl) continue;
+    const prefix = 'https://jasa-s.github.io/';
+    if (!imgUrl.startsWith(prefix)) {
+      fail(`${file} has social image URL outside ${prefix}: ${imgUrl}`);
+    } else if (!(await exists(path.join(ROOT, imgUrl.slice(prefix.length))))) {
+      fail(`${file} references missing social image ${imgUrl}`);
+    }
   }
 }
 
@@ -153,9 +204,8 @@ if (!blue.includes('J1.avif') || !blue.includes('J2.avif')) fail('blue.html is m
 if (/\.feature-credit\s*\{[^}]*text-align:\s*left/.test(blue)) {
   fail('blue.html must keep the feature credit right-aligned at every viewport size.');
 }
-if (/\.feature-credit\s+a\s*\{[^}]*border(?:-bottom)?\s*:/.test(blue)
-    || !/\.feature-credit\s+a\s*\{[^}]*text-decoration:\s*none/.test(blue)) {
-  fail('blue.html must show the feature credit link without an underline.');
+if (/<p\s+class=["']feature-credit["']>(?:(?!<\/p>)[\s\S])*?<a\b/i.test(blue)) {
+  fail('blue.html feature credit should be plain text without a hyperlink.');
 }
 if (!/body\s+class=["'][^"']*page-blue/.test(blue)) fail('blue.html is missing its page design scope.');
 const bluePost = await read('blue-post.html');

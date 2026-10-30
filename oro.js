@@ -522,6 +522,4 @@
     try { var raw = localStorage.getItem('oro_last_place'); if (raw) initial = JSON.parse(raw); } catch (e) {}
     if (!initial) initial = { lat: 37.5665, lon: 126.9780, name: 'Seoul', admin: '', country: 'South Korea' };
     loadFor(initial);
-
-    document.getElementById('copy-year').textContent = new Date().getFullYear();
 })();

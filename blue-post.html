@@ -165,9 +165,9 @@
         <div id="lb-counter" aria-live="polite"></div>
     </div>
 
-    <script src="theme.js"></script>
-    <script src="cloudflare-analytics-config.js"></script>
-    <script src="cloudflare-analytics.js"></script>
+    <script src="/theme.js"></script>
+    <script src="/cloudflare-analytics-config.js"></script>
+    <script src="/cloudflare-analytics.js"></script>
     <script>
     (function () {
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -183,6 +183,14 @@
     var lbIndex  = 0;
     var lbOpener = null;
 
+    function lbPreloadAdjacent() {
+        if (lbSrcs.length < 2) return;
+        [-1, 1].forEach(function (delta) {
+            var idx = (lbIndex + delta + lbSrcs.length) % lbSrcs.length;
+            var src = lbSrcs[idx];
+            if (src) { var img = new Image(); img.src = src; }
+        });
+    }
     function lbRender() {
         lbImg.src = lbSrcs[lbIndex] || '';
         lbImg.alt = lbAlts[lbIndex] || '';
@@ -190,6 +198,7 @@
         lbPrev.classList.toggle('hidden', !multi);
         lbNext.classList.toggle('hidden', !multi);
         lbCounter.textContent = multi ? (lbIndex + 1) + ' / ' + lbSrcs.length : '';
+        lbPreloadAdjacent();
     }
     function lbOpen(index, opener) {
         lbIndex = index; lbOpener = opener || null;

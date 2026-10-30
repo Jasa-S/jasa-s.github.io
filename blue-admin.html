@@ -1651,7 +1651,6 @@
             renderPhotos();
             updatePublishState();
             editBanner.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            saveDraft();
         }
         function exitEdit() {
             editingId = null;
@@ -2688,8 +2687,30 @@
             setStatus('');
             window.scrollTo(0, 0);
         });
+        function hasUnsavedEditChanges() {
+            if (!editingId || !allPosts || !allPosts.posts) return false;
+            if (photosDirty) return true;
+            var orig = null;
+            for (var i = 0; i < allPosts.posts.length; i++) {
+                if (allPosts.posts[i].id === editingId) { orig = allPosts.posts[i]; break; }
+            }
+            if (!orig) return false;
+            var origBody = (orig.body && orig.body.length) ? orig.body.join('\n\n') : '';
+            if (fTitle.value.trim() !== (orig.title || '')) return true;
+            if (fCategory.value.trim() !== (orig.category || '')) return true;
+            if (fDate.value.trim() !== (orig.date || '')) return true;
+            if (fLocation.value.trim() !== (orig.location || '')) return true;
+            if (fBody.value.trim() !== origBody.trim()) return true;
+            if (Boolean(editingHidden) !== Boolean(orig.hidden)) return true;
+            if (pad2(coverIndex + 1) !== orig.cover) return true;
+            var origCaps = orig.captions || [];
+            for (var j = 0; j < photos.length; j++) {
+                if ((photos[j].caption || '').trim() !== (origCaps[j] || '').trim()) return true;
+            }
+            return false;
+        }
         window.addEventListener('beforeunload', function (e) {
-            if (publishing) {
+            if (publishing || orderDirty || hasUnsavedEditChanges()) {
                 e.preventDefault(); e.returnValue = ''; return '';
             }
         });

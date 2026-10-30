@@ -20,9 +20,6 @@
         media.addListener(handleSystemTheme);
     }
 
-    var cityInput = document.getElementById('city-input');
-    if (cityInput) cityInput.placeholder = 'Search';
-
     var yearEl = document.getElementById('copy-year');
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 })();
