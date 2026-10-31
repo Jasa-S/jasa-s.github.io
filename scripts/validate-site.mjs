@@ -56,9 +56,9 @@ for (const [index, post] of (data.posts || []).entries()) {
   if (!/^\d{12}$/.test(post.imageId || '')) fail(`${label} has an invalid imageId.`);
   if (imageIds.has(post.imageId)) fail(`${label} duplicates imageId ${post.imageId}.`);
   imageIds.add(post.imageId);
-  if (!Number.isInteger(post.count) || post.count < 1 || post.count > 99) fail(`${label} has an invalid count.`);
+  if (!Number.isInteger(post.count) || post.count < 1 || post.count > 999) fail(`${label} has an invalid count.`);
   const cover = Number(post.cover);
-  if (!/^\d{2}$/.test(post.cover || '') || cover < 1 || cover > post.count) fail(`${label} has an invalid cover.`);
+  if (!/^\d{2,3}$/.test(post.cover || '') || cover < 1 || cover > post.count) fail(`${label} has an invalid cover.`);
   if (!Array.isArray(post.ratios) || post.ratios.length !== post.count) fail(`${label} ratios must match count.`);
   else if (post.ratios.some((ratio) => !Number.isFinite(ratio) || ratio <= 0 || ratio > 10)) fail(`${label} has an invalid ratio.`);
   if (post.captions && (!Array.isArray(post.captions) || post.captions.length !== post.count)) {
@@ -71,7 +71,7 @@ for (const [index, post] of (data.posts || []).entries()) {
 }
 
 const imageDir = path.join(ROOT, 'blue-images');
-const actualImages = (await readdir(imageDir)).filter((name) => /^\d{12}_\d{2}(?:_thumb)?\.jpg$/.test(name));
+const actualImages = (await readdir(imageDir)).filter((name) => /^\d{12}_\d{2,3}(?:_thumb)?\.jpg$/.test(name));
 for (const name of expectedImages) {
   if (!(await exists(path.join(imageDir, name)))) fail(`missing blue-images/${name}`);
 }
