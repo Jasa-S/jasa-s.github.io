@@ -76,6 +76,9 @@
         @media (max-width: 1099px) { .mobile-category { display: block; } }
         .post-title { font-size: 1.75rem; font-weight: 600; letter-spacing: 0; margin: 0 0 0.35rem; line-height: 1.2; }
         .post-meta { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: var(--ls-mid); margin-bottom: 1.5rem; }
+        :root {
+            --post-img-max-h: min(91vh, calc(100vh - 3.5rem));
+        }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
         .post-image img {
             width: 100%;
@@ -88,10 +91,13 @@
         @media (min-width: 640px) {
             .post-image img {
                 max-width: 100%;
-                max-height: min(85vh, calc(100vh - 7.5rem));
+                max-height: var(--post-img-max-h);
                 width: auto;
                 height: auto;
                 margin: 0 auto;
+            }
+            #post-content.has-portrait .post-image img.sync-width {
+                max-width: calc(var(--post-img-max-h) * var(--sync-ratio, 1));
             }
         }
         #lightbox {
@@ -324,6 +330,9 @@
         mobileCat.textContent  = cat;
         sidebarCat.textContent = cat;
 
+        var portraitRatios = (post.ratios || []).filter(function(r) { return r > 0 && r < 0.98; });
+        var pRatio = portraitRatios.length ? Math.max.apply(null, portraitRatios) : null;
+
         var html = '';
         for (var i = 0; i < post.count; i++) {
             var n   = String(i + 1).padStart(2, '0');
@@ -331,8 +340,9 @@
             var cap = (post.captions && post.captions[i]) || '';
             var alt = cap || ((post.title || 'Photo story') + ' — photograph ' + (i + 1) + ' of ' + post.count);
             var ar  = (post.ratios && post.ratios[i]) ? ' style="aspect-ratio:' + post.ratios[i] + '"' : '';
+            var syncCls = (pRatio && post.ratios && post.ratios[i] >= 0.98) ? ' class="sync-width"' : '';
             html += '<div class="post-image">'
-                + '<img src="' + esc(src) + '" alt="' + esc(alt) + '" role="button" tabindex="0" aria-label="Open ' + esc(alt) + '"' + ar
+                + '<img' + syncCls + ' src="' + esc(src) + '" alt="' + esc(alt) + '" role="button" tabindex="0" aria-label="Open ' + esc(alt) + '"' + ar
                 + (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"')
                 + '>'
                 + (cap ? '<div class="post-image-caption">' + esc(cap) + '</div>' : '')
@@ -344,6 +354,13 @@
             html += '</div>';
         }
         var content = document.getElementById('post-content');
+        if (pRatio) {
+            content.classList.add('has-portrait');
+            content.style.setProperty('--sync-ratio', pRatio);
+        } else {
+            content.classList.remove('has-portrait');
+            content.style.removeProperty('--sync-ratio');
+        }
         content.innerHTML = html;
         var imgs = content.querySelectorAll('.post-image img');
         lbSrcs = Array.prototype.map.call(imgs, function (im) { return im.src; });
