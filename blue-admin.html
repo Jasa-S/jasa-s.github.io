@@ -794,7 +794,20 @@
         var JPEG_QUAL_UNCOMPRESSED = 0.95;
         var UPLOAD_CONCURRENCY = 1;
         var UPLOAD_PACE_MS = 400;
-        var GREEK_NEXT  = ['phi','chi','psi','omega'];
+        // Auto post ids: Greek letters, then Nordic runes (Elder Futhark), Punjabi (Gurmukhi),
+        // Hindi (Devanagari) and Hebrew letter names. Duplicates are dropped.
+        var POST_ID_NAMES = (function () {
+            var groups = [
+                'alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega',
+                'fehu uruz thurisaz ansuz raido kaunan gebo wunjo hagalaz naudiz isa jera eihwaz perthro algiz sowilo tiwaz berkano ehwaz mannaz laguz ingwaz dagaz othala',
+                'ura aira iri sassa haha kakka khakha gagga ghagga nganga chacha chhachha jajja jhajja nyanya tainka thattha dadda dhadda nahnha tatta thatha nanna pappa phappha babba bhabba mamma yayya rara lalla vava rarha',
+                'ka kha ga gha nga cha chha ja jha nya tta ttha dda ddha nna ta tha da dha na pa pha ba bha ma ya ra la va sha ssha sa ha ksha tra gya',
+                'aleph bet gimel dalet he vav zayin chet tet yod kaf lamed mem nun samekh ayin pe tsadi qof resh shin tav'
+            ];
+            var seen = {}, out = [];
+            groups.join(' ').split(' ').forEach(function (n) { if (!seen[n]) { seen[n] = true; out.push(n); } });
+            return out;
+        })();
         var DB_NAME = 'blue-share';
         var DB_VER  = 1;
         var DRAFT_STORE = 'draft';
@@ -1356,8 +1369,11 @@
                 });
         }
         function pickNextPostId() {
-            for (var i = 0; i < GREEK_NEXT.length; i++) {
-                if (!existingPostIds.has(GREEK_NEXT[i])) return GREEK_NEXT[i];
+            // Continue after the furthest name already used, so deleted posts' ids aren't reused.
+            var last = -1;
+            POST_ID_NAMES.forEach(function (n, i) { if (existingPostIds.has(n)) last = i; });
+            for (var i = last + 1; i < POST_ID_NAMES.length; i++) {
+                if (!existingPostIds.has(POST_ID_NAMES[i])) return POST_ID_NAMES[i];
             }
             var base = slugify(fTitle.value) || 'post';
             var n = 2;
