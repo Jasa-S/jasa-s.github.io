@@ -79,6 +79,9 @@
         :root {
             --post-img-max-h: min(91vh, calc(100vh - 3.5rem));
         }
+        @supports (height: 1svh) {
+            :root { --post-img-max-h: min(91svh, calc(100svh - 3.5rem)); }
+        }
         .post-image { width: 100%; margin-bottom: 1.5rem; }
         .post-image img {
             width: 100%;
@@ -96,8 +99,12 @@
                 height: auto;
                 margin: 0 auto;
             }
+            /* Explicit width from the known ratio reserves space before the image loads. */
+            .post-image img[data-r] {
+                width: min(100%, calc(var(--post-img-max-h) * var(--r)));
+            }
             #post-content.has-portrait .post-image img.sync-width {
-                max-width: calc(var(--post-img-max-h) * var(--sync-ratio, 1));
+                width: min(100%, calc(var(--post-img-max-h) * var(--sync-ratio, 1)));
             }
         }
         #lightbox {
@@ -108,7 +115,7 @@
         }
         #lightbox.open { display: flex; }
         #lightbox img {
-            max-width: 100vw; max-height: 100vh;
+            max-width: 100vw; max-height: 100vh; max-height: 100dvh;
             width: auto; height: auto; object-fit: contain;
             user-select: none; -webkit-user-drag: none;
         }
@@ -330,8 +337,11 @@
         mobileCat.textContent  = cat;
         sidebarCat.textContent = cat;
 
+        // Sync wider photos to the portrait column only when portraits dominate the post;
+        // landscape-heavy posts keep full-width landscapes.
         var portraitRatios = (post.ratios || []).filter(function(r) { return r > 0 && r < 0.98; });
-        var pRatio = portraitRatios.length ? Math.max.apply(null, portraitRatios) : null;
+        var portraitMajority = post.ratios && portraitRatios.length * 2 > post.ratios.length;
+        var pRatio = portraitMajority ? Math.max.apply(null, portraitRatios) : null;
 
         var html = '';
         for (var i = 0; i < post.count; i++) {
@@ -339,7 +349,7 @@
             var src = BASE + post.imageId + '_' + n + '.jpg';
             var cap = (post.captions && post.captions[i]) || '';
             var alt = cap || ((post.title || 'Photo story') + ' — photograph ' + (i + 1) + ' of ' + post.count);
-            var ar  = (post.ratios && post.ratios[i]) ? ' style="aspect-ratio:' + post.ratios[i] + '"' : '';
+            var ar  = (post.ratios && post.ratios[i]) ? ' data-r style="aspect-ratio:' + post.ratios[i] + ';--r:' + post.ratios[i] + '"' : '';
             var syncCls = (pRatio && post.ratios && post.ratios[i] >= 0.98) ? ' class="sync-width"' : '';
             html += '<div class="post-image">'
                 + '<img' + syncCls + ' src="' + esc(src) + '" alt="' + esc(alt) + '" role="button" tabindex="0" aria-label="Open ' + esc(alt) + '"' + ar
