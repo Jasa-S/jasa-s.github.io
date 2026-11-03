@@ -388,14 +388,44 @@
         .photo-controls .icon-btn[disabled] { opacity: 0.3; cursor: not-allowed; }
         .photo-controls .cover-btn.is-cover { color: var(--accent); }
         .photo-controls .spacer { flex: 1; }
-        .photo-status {
-            font-size: 0.7rem; color: var(--text-muted);
-            font-style: italic;
+        .photo-controls .retry-btn {
+            color: #dc2626;
         }
-        .photo-status.ok { color: #059669; font-style: normal; }
-        .photo-status.err { color: #b91c1c; font-style: normal; }
-        body.dark .photo-status.ok { color: #34d399; }
-        body.dark .photo-status.err { color: #f87171; }
+        body.dark .photo-controls .retry-btn {
+            color: #f87171;
+        }
+        .photo-thumb .photo-status-badge {
+            position: absolute; right: 0.35rem; top: 0.35rem;
+            width: 22px; height: 22px;
+            border-radius: 999px;
+            display: none; align-items: center; justify-content: center;
+            font-size: 0.65rem;
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.28);
+            z-index: 2;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .photo-thumb .photo-status-badge.uploading {
+            display: flex;
+            background: rgba(10, 132, 255, 0.92);
+            color: #ffffff;
+        }
+        .photo-thumb .photo-status-badge.ok {
+            display: flex;
+            background: rgba(5, 150, 105, 0.92);
+            color: #ffffff;
+        }
+        .photo-thumb .photo-status-badge.err {
+            display: flex;
+            background: rgba(220, 38, 38, 0.95);
+            color: #ffffff;
+        }
+        body.dark .photo-thumb .photo-status-badge.ok {
+            background: rgba(16, 185, 129, 0.92);
+        }
+        body.dark .photo-thumb .photo-status-badge.err {
+            background: rgba(239, 68, 68, 0.95);
+        }
 
 
         details.posts-list {
@@ -550,15 +580,58 @@
         #status.ok  { color: #059669; }
         body.dark #status.err { color: #f87171; }
         body.dark #status.ok  { color: #34d399; }
-        .progress-bar {
-            margin-top: 0.5rem; height: 6px; border-radius: 999px;
-            background: var(--card); overflow: hidden; display: none;
+
+        .status-hud {
+            margin-top: 1.25rem;
+            padding: 0.85rem 1rem;
+            background: var(--glass-inset);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            backdrop-filter: var(--glass-filter);
+            -webkit-backdrop-filter: var(--glass-filter);
+            transition: opacity 0.25s ease, transform 0.25s ease;
         }
-        .progress-bar > div {
+        .status-hud.hidden { display: none !important; }
+        .status-hud-header {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 0.75rem; margin-bottom: 0.55rem;
+            font-size: 0.78rem; font-weight: 500;
+        }
+        .status-hud-message {
+            display: inline-flex; align-items: center; gap: 0.55rem;
+            color: var(--text-main); min-width: 0;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .status-hud-spinner {
+            color: var(--accent); font-size: 0.85rem; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .status-hud-pct {
+            font-size: 0.75rem; font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-muted); flex-shrink: 0;
+        }
+        .status-hud-track {
+            height: 6px; border-radius: 999px;
+            background: var(--card); overflow: hidden;
+            position: relative;
+        }
+        .status-hud-fill {
             height: 100%; width: 0%;
             background: var(--accent);
-            transition: width 0.25s;
+            border-radius: 999px;
+            transition: width 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
+        .status-hud.err .status-hud-fill { background: #dc2626; }
+        .status-hud.err .status-hud-spinner { color: #dc2626; }
+        .status-hud.err .status-hud-message { color: #dc2626; }
+        body.dark .status-hud.err .status-hud-fill { background: #ef4444; }
+        body.dark .status-hud.err .status-hud-spinner { color: #ef4444; }
+        body.dark .status-hud.err .status-hud-message { color: #ef4444; }
+        .status-hud.ok .status-hud-fill { background: #059669; }
+        .status-hud.ok .status-hud-spinner { color: #059669; }
+        body.dark .status-hud.ok .status-hud-fill { background: #34d399; }
+        body.dark .status-hud.ok .status-hud-spinner { color: #34d399; }
 
 
         .empty {
@@ -753,18 +826,29 @@
             <div id="photos"></div>
 
             <div class="btn-row btn-row-equal" style="margin-top:1.5rem;">
-                <button class="btn primary" id="btn-publish" disabled><i class="fa-solid fa-cloud-arrow-up"></i><span id="publish-label">Publish</span></button>
+                <button class="btn primary" id="btn-publish" disabled><i class="fa-solid fa-cloud-arrow-up" id="btn-publish-icon"></i><span id="publish-label">Publish</span></button>
                 <button class="btn danger" id="btn-reset" type="button"><i class="fa-solid fa-trash"></i>Reset draft</button>
             </div>
 
             <div id="status" aria-live="polite"></div>
-            <div class="progress-bar" id="progress"><div></div></div>
+            <div id="status-hud" class="status-hud hidden" aria-live="polite">
+                <div class="status-hud-header">
+                    <span class="status-hud-message">
+                        <span class="status-hud-spinner" id="status-hud-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                        <span id="status-hud-text">Preparing photos…</span>
+                    </span>
+                    <span class="status-hud-pct" id="status-hud-pct">0%</span>
+                </div>
+                <div class="status-hud-track">
+                    <div class="status-hud-fill" id="status-hud-fill"></div>
+                </div>
+            </div>
             <div id="success-panel" class="panel hidden" style="margin-top:1.5rem;">
                 <p class="panel-title" id="success-title">Published</p>
                 <p id="success-msg">Your post is live. GitHub Pages may take ~30s to refresh.</p>
                 <div class="btn-row">
-                    <a class="btn primary" id="success-view" href="#"><i class="fa-solid fa-eye"></i>View post</a>
-                    <button class="btn" id="success-new" type="button"><i class="fa-solid fa-plus"></i>New post</button>
+                    <a class="btn primary" id="success-view" href="#" target="_blank" rel="noopener"><i class="fa-solid fa-eye"></i>View post</a>
+                    <button class="btn" id="success-new" type="button"><i class="fa-solid fa-plus" id="success-new-icon"></i><span id="success-new-label">New post</span></button>
                 </div>
             </div>
         </section>
@@ -906,11 +990,15 @@
         var saveOrderBtn   = $('btn-save-order');
         var cancelOrderBtn = $('btn-cancel-order');
         var postSearchInput = $('post-search-input');
-        var statusEl       = $('status');
-        var progressBar    = $('progress');
-        var progressFill   = progressBar.firstElementChild;
-        var publishBtn     = $('btn-publish');
-        var publishLabel   = $('publish-label');
+        var statusEl         = $('status');
+        var statusHud        = $('status-hud');
+        var statusHudSpinner = $('status-hud-spinner');
+        var statusHudText    = $('status-hud-text');
+        var statusHudPct     = $('status-hud-pct');
+        var statusHudFill    = $('status-hud-fill');
+        var publishBtn       = $('btn-publish');
+        var publishBtnIcon   = $('btn-publish-icon');
+        var publishLabel     = $('publish-label');
         var resetBtn       = $('btn-reset');
         var compressAllChk = $('compress-all');
         var successPanel   = $('success-panel');
@@ -946,6 +1034,43 @@
         function setStatus(msg, kind) {
             statusEl.textContent = msg || '';
             statusEl.className = kind || '';
+        }
+        function showProgress(msg, initialPct) {
+            statusHud.classList.remove('hidden', 'err', 'ok');
+            statusHudSpinner.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            statusHudText.textContent = msg || 'Working…';
+            var pct = (typeof initialPct === 'number') ? Math.round(initialPct) : 0;
+            statusHudPct.textContent = pct + '%';
+            statusHudFill.style.width = pct + '%';
+            statusEl.textContent = '';
+        }
+        function setProgress(pct, msg) {
+            if (typeof pct === 'number') {
+                var p = Math.min(100, Math.max(0, Math.round(pct)));
+                statusHudPct.textContent = p + '%';
+                statusHudFill.style.width = p + '%';
+            }
+            if (msg) statusHudText.textContent = msg;
+        }
+        function hideProgress() {
+            statusHud.classList.add('hidden');
+        }
+        function finishProgress(msg) {
+            statusHud.classList.remove('err');
+            statusHud.classList.add('ok');
+            statusHudSpinner.innerHTML = '<i class="fa-solid fa-check"></i>';
+            statusHudText.textContent = msg || 'Done';
+            statusHudPct.textContent = '100%';
+            statusHudFill.style.width = '100%';
+            setTimeout(function () {
+                if (!publishing) statusHud.classList.add('hidden');
+            }, 2500);
+        }
+        function failProgress(msg) {
+            statusHud.classList.remove('ok');
+            statusHud.classList.add('err');
+            statusHudSpinner.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            statusHudText.textContent = msg || 'Failed';
         }
         function pad2(n) { return String(n).padStart(2, '0'); }
         function nowStamp() {
@@ -1719,9 +1844,7 @@
             hideDeleteConfirm();
 
             publishing = true; updatePublishState();
-            setStatus('Deleting "' + (post.title || postId) + '"…');
-            progressBar.style.display = 'block';
-            progressFill.style.width = '20%';
+            showProgress('Deleting "' + (post.title || postId) + '"…', 20);
             ghGetTreeFileShas(IMG_DIR + '/' + post.imageId + '_').catch(function () { return null; }).then(function (shas) {
                 var deletions = [];
                 if (shas && Object.keys(shas).length) {
@@ -1740,14 +1863,12 @@
                     });
                 });
             }).then(function (prepared) {
-                progressFill.style.width = '65%';
+                setProgress(65, 'Saving changes to GitHub…');
                 return ghCommitTree([
                     { path: POSTS_PATH, sha: prepared.postsSha }
                 ].concat(prepared.deletions), 'Delete photo post ' + postId, prepared.expectedPostsSha).then(function () {
-                    progressFill.style.width = '100%';
                     publishing = false;
-                    progressBar.style.display = 'none';
-                    setStatus('Deleted "' + (post.title || postId) + '".', 'ok');
+                    finishProgress('Deleted "' + (post.title || postId) + '".');
                     if (editingId === postId) exitEdit();
                     allPosts.posts = prepared.json.posts;
                     existingPostIds.delete(postId);
@@ -1756,9 +1877,8 @@
                 });
             }).catch(function (err) {
                 publishing = false;
-                progressBar.style.display = 'none';
+                failProgress('Delete failed: ' + (err && err.message ? err.message : err));
                 updatePublishState();
-                setStatus('Delete failed: ' + (err && err.message ? err.message : err), 'err');
             }).then(updatePublishState);
         }
         function addFiles(fileList) {
@@ -1861,6 +1981,20 @@
                 cb.className = 'cover-badge';
                 cb.textContent = 'Cover';
                 thumb.appendChild(cb);
+
+                var stBadge = document.createElement('span');
+                stBadge.className = 'photo-status-badge' + (p.status ? ' ' + p.status : '');
+                if (p.status === 'uploading') {
+                    stBadge.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+                    stBadge.setAttribute('title', 'Preparing…');
+                } else if (p.status === 'ok') {
+                    stBadge.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    stBadge.setAttribute('title', 'Prepared');
+                } else if (p.status === 'err') {
+                    stBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                    stBadge.setAttribute('title', p.statusText || 'Failed');
+                }
+                thumb.appendChild(stBadge);
                 card.appendChild(thumb);
 
                 var meta = document.createElement('div');
@@ -1924,6 +2058,16 @@
                     rpBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i>';
                     rpBtn.addEventListener('click', (function (idx) { return function () { openReplace(idx); }; })(i));
                     ctrl.appendChild(rpBtn);
+
+                    var retryBtn = document.createElement('button');
+                    retryBtn.type = 'button';
+                    retryBtn.className = 'icon-btn retry-btn' + (p.status === 'err' && !editingId && !p.uploadedAs && pendingImageId ? '' : ' hidden');
+                    retryBtn.setAttribute('aria-label', 'Retry');
+                    retryBtn.setAttribute('title', 'Retry');
+                    retryBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i>';
+                    retryBtn.addEventListener('click', (function (idx) { return function () { retryPhoto(idx); }; })(i));
+                    ctrl.appendChild(retryBtn);
+
                     var rmBtn = document.createElement('button');
                     rmBtn.type = 'button';
                     rmBtn.className = 'icon-btn';
@@ -1934,23 +2078,6 @@
                 }
 
                 meta.appendChild(ctrl);
-
-                if (p.status) {
-                    var st = document.createElement('div');
-                    st.className = 'photo-status ' + (p.status === 'ok' ? 'ok' : (p.status === 'err' ? 'err' : ''));
-                    st.textContent = p.statusText || p.status;
-                    if (p.status === 'err' && !editingId && !p.uploadedAs && pendingImageId) {
-                        var retry = document.createElement('button');
-                        retry.type = 'button';
-                        retry.className = 'btn';
-                        retry.style.cssText = 'margin-left:0.5rem;padding:0.15rem 0.55rem;min-height:0;font-size:0.7rem;';
-                        retry.innerHTML = '<i class="fa-solid fa-rotate-right"></i>Retry';
-                        retry.addEventListener('click', (function (idx) { return function () { retryPhoto(idx); }; })(i));
-                        st.appendChild(retry);
-                    }
-                    meta.appendChild(st);
-                }
-
                 card.appendChild(meta);
                 photosWrap.appendChild(card);
             });
@@ -1958,28 +2085,33 @@
         function updatePhotoStatusEl(i) {
             var p = photos[i];
             var card = photosWrap.children[i];
-            if (!p || !card) { renderPhotos(); return; }
-            var meta = card.querySelector('.photo-meta');
-            if (!meta) { renderPhotos(); return; }
-            var st = meta.querySelector('.photo-status');
-            if (!p.status) {
-                if (st) st.remove();
-                return;
+            if (!p || !card) return;
+            var thumb = card.querySelector('.photo-thumb');
+            if (thumb) {
+                var stBadge = thumb.querySelector('.photo-status-badge');
+                if (!stBadge) {
+                    stBadge = document.createElement('span');
+                    thumb.appendChild(stBadge);
+                }
+                stBadge.className = 'photo-status-badge' + (p.status ? ' ' + p.status : '');
+                if (p.status === 'uploading') {
+                    stBadge.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+                    stBadge.setAttribute('title', 'Preparing…');
+                } else if (p.status === 'ok') {
+                    stBadge.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    stBadge.setAttribute('title', 'Prepared');
+                } else if (p.status === 'err') {
+                    stBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+                    stBadge.setAttribute('title', p.statusText || 'Failed');
+                } else {
+                    stBadge.innerHTML = '';
+                    stBadge.removeAttribute('title');
+                }
             }
-            if (!st) {
-                st = document.createElement('div');
-                meta.appendChild(st);
-            }
-            st.className = 'photo-status ' + (p.status === 'ok' ? 'ok' : (p.status === 'err' ? 'err' : ''));
-            st.textContent = p.statusText || p.status;
-            if (p.status === 'err' && !editingId && !p.uploadedAs && pendingImageId) {
-                var retry = document.createElement('button');
-                retry.type = 'button';
-                retry.className = 'btn';
-                retry.style.cssText = 'margin-left:0.5rem;padding:0.15rem 0.55rem;min-height:0;font-size:0.7rem;';
-                retry.innerHTML = '<i class="fa-solid fa-rotate-right"></i>Retry';
-                retry.addEventListener('click', (function (idx) { return function () { retryPhoto(idx); }; })(i));
-                st.appendChild(retry);
+            var retryBtn = card.querySelector('.retry-btn');
+            if (retryBtn) {
+                var canRetry = (p.status === 'err' && !editingId && !p.uploadedAs && pendingImageId);
+                retryBtn.classList.toggle('hidden', !canRetry);
             }
         }
 
@@ -2259,7 +2391,24 @@
             });
         }
         function updatePublishState() {
-            publishBtn.disabled = !(postsLoaded && photos.length > 0 && fTitle.value.trim() && !publishing);
+            var canPublish = postsLoaded && photos.length > 0 && fTitle.value.trim() && !publishing;
+            publishBtn.disabled = !canPublish;
+            if (publishBtnIcon) {
+                if (publishing) {
+                    publishBtnIcon.className = 'fa-solid fa-circle-notch fa-spin';
+                } else if (editingId) {
+                    publishBtnIcon.className = 'fa-solid fa-check';
+                } else {
+                    publishBtnIcon.className = 'fa-solid fa-cloud-arrow-up';
+                }
+            }
+            if (publishLabel) {
+                if (publishing) {
+                    publishLabel.textContent = editingId ? 'Saving…' : 'Publishing…';
+                } else {
+                    publishLabel.textContent = editingId ? 'Save changes' : 'Publish';
+                }
+            }
         }
         [fTitle, fCategory, fDate].forEach(function (el) { el.addEventListener('input', updatePublishState); });
 
@@ -2286,6 +2435,7 @@
             renderPhotos();
             updatePublishState();
             setStatus('');
+            hideProgress();
             successPanel.classList.add('hidden');
         }
 
@@ -2294,8 +2444,7 @@
             (editingId ? saveEdit() : publish()).catch(function (err) {
                 publishing = false;
                 updatePublishState();
-                setStatus((editingId ? 'Save' : 'Publish') + ' failed: ' + (err && err.message ? err.message : err), 'err');
-                progressBar.style.display = 'none';
+                failProgress((editingId ? 'Save' : 'Publish') + ' failed: ' + (err && err.message ? err.message : err));
             });
         });
 
@@ -2324,17 +2473,20 @@
             saveDraft();
             publishing = true; updatePublishState();
             successPanel.classList.add('hidden');
-            setStatus('Preparing photos…');
-            progressBar.style.display = 'block';
-            progressFill.style.width = '0%';
-            var totalSteps = photos.length + 2;
+            showProgress('Preparing photos… (0/' + photos.length + ')', 0);
+            var totalSteps = photos.length + 3;
             var doneSteps = 0;
-            function tick() { doneSteps++; progressFill.style.width = Math.round((doneSteps/totalSteps)*100) + '%'; }
-            photos.forEach(function (p) {
-                if (p.uploadedAs) return;
-                p.status = ''; p.statusText = '';
+            function tick(msg) {
+                doneSteps++;
+                var pct = Math.min(99, Math.round((doneSteps / totalSteps) * 100));
+                setProgress(pct, msg);
+            }
+            photos.forEach(function (p, idx) {
+                if (!p.uploadedAs) {
+                    p.status = ''; p.statusText = '';
+                }
+                updatePhotoStatusEl(idx);
             });
-            renderPhotos();
             var tasks = photos.map(function (p, i) { return { p: p, i: i, name: imageId + '_' + pad2(i + 1) + '.jpg' }; });
             var failures = [];
 
@@ -2343,11 +2495,12 @@
                     task.p.uploadedAs = task.name;
                     task.p.status = 'ok'; task.p.statusText = 'Prepared';
                     updatePhotoStatusEl(task.i);
-                    tick();
+                    tick('Preparing photos… (' + (doneSteps + 1) + '/' + photos.length + ')');
                     return Promise.resolve();
                 }
                 task.p.status = 'uploading'; task.p.statusText = 'Preparing…';
                 updatePhotoStatusEl(task.i);
+                setProgress(Math.round((doneSteps / totalSteps) * 100), 'Preparing photo ' + (task.i + 1) + ' of ' + photos.length + '…');
                 return processForUpload(task.p)
                     .then(blobToBase64)
                     .then(ghCreateBlob)
@@ -2357,7 +2510,7 @@
                         saveDraft();
                         task.p.status = 'ok'; task.p.statusText = 'Prepared';
                         updatePhotoStatusEl(task.i);
-                        tick();
+                        tick('Preparing photos… (' + doneSteps + '/' + photos.length + ')');
                         return new Promise(function (r) { setTimeout(r, UPLOAD_PACE_MS); });
                     })
                     .catch(function (err) {
@@ -2368,13 +2521,13 @@
             }).then(function () {
                 if (failures.length) {
                     publishing = false;
-                    progressBar.style.display = 'none';
                     updatePublishState();
-                    setStatus(failures.length + ' of ' + photos.length + ' photo'
-                        + (photos.length === 1 ? '' : 's') + ' failed — retry the failed ones, then tap Publish again.', 'err');
+                    failProgress(failures.length + ' of ' + photos.length + ' photo'
+                        + (photos.length === 1 ? '' : 's') + ' failed');
+                    setStatus('Retry the failed photos, then tap Publish again.', 'err');
                     return null;
                 }
-                setStatus('Creating thumbnail…');
+                setProgress(Math.round((doneSteps / totalSteps) * 100), 'Creating thumbnail…');
                 var coverSeq = pad2(coverIndex + 1);
                 var thumbName = imageId + '_' + coverSeq + '_thumb.jpg';
                 var entry;
@@ -2384,11 +2537,11 @@
                     .then(ghCreateBlob)
                     .then(function (sha) {
                         thumbSha = sha;
-                        tick();
+                        tick('Created thumbnail');
                         return runPool(photos, 4, function (p) { return p.ratio ? Promise.resolve() : ensureDims(p); });
                     })
                     .then(function () {
-                        setStatus('Updating posts.json…');
+                        setProgress(Math.round((doneSteps / totalSteps) * 100), 'Updating posts metadata…');
                         return ghGetContent(POSTS_PATH);
                     }).then(function (meta) {
                         var json = JSON.parse(base64ToUtf8(meta.content.replace(/\n/g, '')));
@@ -2416,23 +2569,31 @@
                         tree.push({ path: IMG_DIR + '/' + thumbName, sha: thumbSha });
                         tree.push({ path: POSTS_PATH, sha: textShas[0] });
                         tree.push({ path: 'p/' + entry.id + '.html', sha: textShas[1] });
-                        setStatus('Publishing one atomic update…');
+                        setProgress(92, 'Publishing one atomic update…');
                         return ghCommitTree(tree, 'Publish photo post ' + entry.id, prepared.expectedPostsSha).then(function () {
-                            tick();
                             publishing = false;
                             pendingImageId = null;
-                            progressBar.style.display = 'none';
-                            setStatus('Published 🎉', 'ok');
+                            photosDirty = false;
+                            updatePublishState();
+                            finishProgress('Published successfully 🎉');
                             successTitle.textContent = 'Published';
                             successMsg.textContent = 'Your post is live. GitHub Pages may take ~30s to refresh.';
                             successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
+                            var lbl = $('success-new-label'); if (lbl) lbl.textContent = 'New post';
+                            var ico = $('success-new-icon'); if (ico) ico.className = 'fa-solid fa-plus';
                             successPanel.classList.remove('hidden');
                             clearDraft();
                             allPosts.posts = prepared.json.posts;
                             existingPostIds.add(entry.id);
                             existingIds.add(entry.imageId);
                             renderExisting();
-                            updatePublishState();
+                            setTimeout(function () {
+                                photos.forEach(function (p, idx) {
+                                    p.status = '';
+                                    updatePhotoStatusEl(idx);
+                                });
+                            }, 2000);
+                            successPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         });
                     });
             });
@@ -2444,6 +2605,7 @@
             if (!p || p.uploadedAs || !pendingImageId) return;
             var name = pendingImageId + '_' + pad2(i + 1) + '.jpg';
             p.status = 'uploading'; p.statusText = 'Preparing…'; updatePhotoStatusEl(i);
+            showProgress('Retrying photo ' + (i + 1) + '…', 50);
             processForUpload(p)
                 .then(blobToBase64)
                 .then(ghCreateBlob)
@@ -2453,12 +2615,12 @@
                     saveDraft();
                     p.status = 'ok'; p.statusText = 'Prepared';
                     updatePhotoStatusEl(i);
-                    setStatus('Prepared — tap Publish to finish.', 'ok');
+                    finishProgress('Photo ' + (i + 1) + ' prepared — tap Publish to finish.');
                 })
                 .catch(function (err) {
                     p.status = 'err'; p.statusText = 'Failed: ' + err.message;
                     updatePhotoStatusEl(i);
-                    setStatus('Retry failed: ' + (err && err.message ? err.message : err), 'err');
+                    failProgress('Retry failed: ' + (err && err.message ? err.message : err));
                 });
         }
 
@@ -2473,9 +2635,8 @@
         }
         function saveEditMeta(existingPost) {
             publishing = true; updatePublishState();
-            setStatus('Saving changes…');
-            progressBar.style.display = 'block';
-            progressFill.style.width = '50%';
+            successPanel.classList.add('hidden');
+            showProgress('Saving changes…', 20);
             var coverSeq = pad2(coverIndex + 1);
             var thumbName = existingPost.imageId + '_' + coverSeq + '_thumb.jpg';
             var thumbReady;
@@ -2483,7 +2644,7 @@
             if (existingPost.thumb && coverSeq === existingPost.cover) {
                 thumbReady = Promise.resolve(null);
             } else {
-                setStatus('Creating thumbnail…');
+                setProgress(40, 'Creating thumbnail…');
                 thumbReady = fetchRepoImageBlob(IMG_DIR + '/' + existingPost.imageId + '_' + coverSeq + '.jpg', null)
                     .then(makeThumbnail)
                     .then(blobToBase64)
@@ -2491,6 +2652,7 @@
             }
 
             return thumbReady.then(function (thumbSha) {
+                setProgress(60, 'Updating posts metadata…');
                 return ghGetContent(POSTS_PATH).then(function (meta) { return { meta: meta, thumbSha: thumbSha }; });
             }).then(function (prepared) {
                 var meta = prepared.meta;
@@ -2520,18 +2682,21 @@
                             tree.push({ path: IMG_DIR + '/' + existingPost.imageId + '_' + existingPost.cover + '_thumb.jpg', delete: true });
                         }
                     }
+                    setProgress(85, 'Saving to GitHub…');
                     return ghCommitTree(tree, 'Update photo post ' + entry.id, meta.sha).then(function () {
                         allPosts.posts = json.posts;
-                        progressFill.style.width = '100%';
                         publishing = false;
-                        progressBar.style.display = 'none';
-                        setStatus('Saved.', 'ok');
+                        photosDirty = false;
+                        updatePublishState();
+                        finishProgress('Saved successfully.');
                         successTitle.textContent = 'Saved';
                         successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
                         successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
+                        var lbl = $('success-new-label'); if (lbl) lbl.textContent = 'Done editing';
+                        var ico = $('success-new-icon'); if (ico) ico.className = 'fa-solid fa-check';
                         successPanel.classList.remove('hidden');
                         renderExisting();
-                        exitEdit();
+                        successPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     });
                 });
             });
@@ -2539,15 +2704,19 @@
         function saveEditFull(existingPost) {
             publishing = true; updatePublishState();
             successPanel.classList.add('hidden');
-            setStatus('Preparing photos…');
-            progressBar.style.display = 'block';
-            progressFill.style.width = '0%';
+            showProgress('Preparing photos… (0/' + photos.length + ')', 0);
             var totalSteps = photos.length + 3;
             var doneSteps = 0;
-            function tick() { doneSteps++; progressFill.style.width = Math.round((doneSteps / totalSteps) * 100) + '%'; }
+            function tick(msg) {
+                doneSteps++;
+                var pct = Math.min(99, Math.round((doneSteps / totalSteps) * 100));
+                setProgress(pct, msg);
+            }
 
-            photos.forEach(function (p) { p.status = ''; p.statusText = ''; });
-            renderPhotos();
+            photos.forEach(function (p, idx) {
+                p.status = ''; p.statusText = '';
+                updatePhotoStatusEl(idx);
+            });
             var existingShasReady = ghGetTreeFileShas(IMG_DIR + '/' + existingPost.imageId + '_');
             function photoSha(p) {
                 if (p.blobSha) return Promise.resolve(p.blobSha);
@@ -2569,12 +2738,14 @@
 
             return runPool(tasks, UPLOAD_CONCURRENCY, function (task) {
                 task.p.status = 'uploading'; task.p.statusText = 'Preparing…'; updatePhotoStatusEl(task.i);
+                setProgress(Math.round((doneSteps / totalSteps) * 100), 'Preparing photo ' + (task.i + 1) + ' of ' + photos.length + '…');
                 return photoSha(task.p)
                     .then(function (sha) {
                         task.sha = sha;
                         task.p.blobSha = sha;
                         task.p.status = 'ok'; task.p.statusText = 'Prepared';
-                        updatePhotoStatusEl(task.i); tick();
+                        updatePhotoStatusEl(task.i);
+                        tick('Preparing photos… (' + doneSteps + '/' + photos.length + ')');
                         return new Promise(function (r) { setTimeout(r, UPLOAD_PACE_MS); });
                     })
                     .catch(function (err) {
@@ -2590,10 +2761,10 @@
                 var oldThumbPath = IMG_DIR + '/' + existingPost.imageId + '_' + existingPost.cover + '_thumb.jpg';
                 if (!cover.file && cover.existing && cover.seq === existingPost.cover && existingShas[oldThumbPath]) {
                     thumbSha = existingShas[oldThumbPath];
-                    tick();
+                    tick('Found existing thumbnail');
                     return existingShas;
                 }
-                setStatus('Creating thumbnail…');
+                setProgress(Math.round((doneSteps / totalSteps) * 100), 'Creating thumbnail…');
                 var srcReady = cover.file
                     ? Promise.resolve(cover.file)
                     : fetchRepoImageBlob(IMG_DIR + '/' + (cover.uploadedAs || (existingPost.imageId + '_' + coverSeq + '.jpg')), tasks[coverIndex].sha);
@@ -2601,14 +2772,14 @@
                     .then(ghCreateBlob)
                     .then(function (sha) {
                         thumbSha = sha;
-                        tick();
+                        tick('Created thumbnail');
                         return existingShas;
                     });
             }).then(function (existingShas) {
                 return runPool(photos, 4, function (p) { return p.ratio ? Promise.resolve() : ensureDims(p); })
                     .then(function () { return existingShas; });
             }).then(function (existingShas) {
-                setStatus('Updating posts.json…');
+                setProgress(Math.round((doneSteps / totalSteps) * 100), 'Updating posts metadata…');
                 return ghGetContent(POSTS_PATH).then(function (meta) {
                     return { meta: meta, existingShas: existingShas };
                 });
@@ -2649,20 +2820,27 @@
                         tree.push({ path: existingPath, delete: true });
                     }
                 });
-                setStatus('Saving one atomic update…');
+                setProgress(92, 'Saving to GitHub…');
                 return ghCommitTree(tree, 'Update photo post ' + entry.id, prepared.expectedPostsSha).then(function () {
                     allPosts.posts = prepared.json.posts;
-                    tick();
-                    progressFill.style.width = '100%';
                     publishing = false;
-                    progressBar.style.display = 'none';
-                    setStatus('Saved.', 'ok');
+                    photosDirty = false;
+                    updatePublishState();
+                    finishProgress('Saved successfully.');
                     successTitle.textContent = 'Saved';
                     successMsg.textContent = 'Your changes are live. GitHub Pages may take ~30s to refresh.';
                     successView.href = '/p/' + encodeURIComponent(entry.id) + '.html';
+                    var lbl = $('success-new-label'); if (lbl) lbl.textContent = 'Done editing';
+                    var ico = $('success-new-icon'); if (ico) ico.className = 'fa-solid fa-check';
                     successPanel.classList.remove('hidden');
                     renderExisting();
-                    exitEdit();
+                    setTimeout(function () {
+                        photos.forEach(function (p, idx) {
+                            p.status = '';
+                            updatePhotoStatusEl(idx);
+                        });
+                    }, 2000);
+                    successPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 });
             });
         }
@@ -2691,17 +2869,22 @@
         }
 
         $('success-new').addEventListener('click', function () {
-            photos.forEach(function (p) { try { if (p.file) URL.revokeObjectURL(p.url); } catch (e) {} });
-            photos = []; coverIndex = 0;
-            fTitle.value = ''; fCategory.value = ''; fLocation.value = ''; fBody.value = '';
-            fDate.value = String(new Date().getFullYear());
-            fId.value = pickNextPostId();
-            autoGrowBody();
-            renderPhotos();
-            updatePublishState();
-            successPanel.classList.add('hidden');
-            setStatus('');
-            window.scrollTo(0, 0);
+            if (editingId) {
+                exitEdit();
+            } else {
+                photos.forEach(function (p) { try { if (p.file) URL.revokeObjectURL(p.url); } catch (e) {} });
+                photos = []; coverIndex = 0;
+                fTitle.value = ''; fCategory.value = ''; fLocation.value = ''; fBody.value = '';
+                fDate.value = String(new Date().getFullYear());
+                fId.value = pickNextPostId();
+                autoGrowBody();
+                renderPhotos();
+                updatePublishState();
+                successPanel.classList.add('hidden');
+                setStatus('');
+                hideProgress();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
         function hasUnsavedEditChanges() {
             if (!editingId || !allPosts || !allPosts.posts) return false;
