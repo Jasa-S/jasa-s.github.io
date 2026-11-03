@@ -306,6 +306,11 @@
 
 
         #photos { display: grid; gap: 0.75rem; margin-top: 1rem; position: relative; }
+        #photos.is-reordering .photo-card:not(.dragging),
+        #existing-list.is-reordering .post-row:not(.dragging) {
+            transition: transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+            pointer-events: none;
+        }
         .photo-card {
             display: grid;
             grid-template-columns: 32px 88px 1fr;
@@ -315,16 +320,27 @@
             border-radius: var(--radius-card);
             padding: 0.65rem;
             position: relative;
-            transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+            transition: box-shadow 0.18s, border-color 0.18s;
             touch-action: pan-y;
         }
         .photo-card.is-cover { border-color: var(--accent); }
         .photo-card.dragging {
-            box-shadow: 0 8px 28px rgba(0,0,0,0.18);
-            border-color: var(--accent);
-            z-index: 10; opacity: 0.96;
+            position: relative;
+            z-index: 100 !important;
+            background: var(--card-solid) !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 20px 42px -6px rgba(0, 0, 0, 0.22), 0 0 0 1.5px var(--accent), 0 3px 8px rgba(0, 0, 0, 0.08) !important;
+            cursor: grabbing;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            will-change: transform;
+            transition: none !important;
         }
-        body.dark .photo-card.dragging { box-shadow: 0 8px 28px rgba(0,0,0,0.55); }
+        body.dark .photo-card.dragging {
+            background: var(--card-solid) !important;
+            box-shadow: 0 22px 48px -6px rgba(0, 0, 0, 0.65), 0 0 0 1.5px var(--accent), 0 3px 8px rgba(0, 0, 0, 0.4) !important;
+        }
         .photo-card.placeholder { opacity: 0.0; }
 
         .drag-handle {
@@ -334,8 +350,16 @@
             font-size: 1rem;
             touch-action: none;
             user-select: none; -webkit-user-select: none;
+            transition: color 0.15s, transform 0.15s;
+            border-radius: 0.35rem;
         }
-        .drag-handle:active { cursor: grabbing; }
+        .drag-handle:hover { color: var(--accent); }
+        .drag-handle:active,
+        .photo-card.dragging .drag-handle {
+            color: var(--accent);
+            cursor: grabbing;
+            transform: scale(1.18);
+        }
         .photo-thumb {
             width: 88px; height: 88px;
             border-radius: 0.55rem; overflow: hidden;
@@ -475,15 +499,30 @@
         }
         .post-row {
             display: flex; align-items: center; gap: 0.7rem;
-            padding: 0.55rem 0; border-top: 1px solid var(--border);
+            padding: 0.55rem 0.65rem; border-top: 1px solid var(--border);
+            position: relative;
+            transition: box-shadow 0.18s, border-color 0.18s;
+            touch-action: pan-y;
         }
         .post-row:first-of-type { border-top: 1px solid var(--border); margin-top: 0.4rem; }
         .post-row.dragging {
-            box-shadow: 0 8px 28px rgba(0,0,0,0.18);
-            background: var(--card); border-radius: 0.5rem;
-            z-index: 10; opacity: 0.96; position: relative;
+            position: relative;
+            z-index: 100 !important;
+            background: var(--card-solid) !important;
+            border-color: var(--accent) !important;
+            border-radius: 0.6rem;
+            box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.2), 0 0 0 1.5px var(--accent) !important;
+            cursor: grabbing;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            will-change: transform;
+            transition: none !important;
         }
-        body.dark .post-row.dragging { box-shadow: 0 8px 28px rgba(0,0,0,0.55); }
+        body.dark .post-row.dragging {
+            background: var(--card-solid) !important;
+            box-shadow: 0 20px 44px -4px rgba(0, 0, 0, 0.65), 0 0 0 1.5px var(--accent) !important;
+        }
         .post-row.is-hidden {
             opacity: 0.68;
             background: rgba(245, 158, 11, 0.04);
@@ -508,8 +547,16 @@
             color: var(--text-muted); cursor: grab;
             min-width: 28px; min-height: 44px; flex-shrink: 0;
             touch-action: none; user-select: none; -webkit-user-select: none;
+            transition: color 0.15s, transform 0.15s;
+            border-radius: 0.35rem;
         }
-        .post-row .pr-handle:active { cursor: grabbing; }
+        .post-row .pr-handle:hover { color: var(--accent); }
+        .post-row .pr-handle:active,
+        .post-row.dragging .pr-handle {
+            color: var(--accent);
+            cursor: grabbing;
+            transform: scale(1.18);
+        }
         .post-row .pr-thumb {
             width: 44px; height: 44px; border-radius: 0.45rem;
             background: var(--bg); overflow: hidden; flex-shrink: 0;
@@ -1600,46 +1647,271 @@
             orderDirty = true;
             renderExisting();
         }
-        function attachRowDragHandle(handle, row) {
-            var dragging = false, startY = 0, pointerId = null, fromIdx = -1;
-            handle.addEventListener('pointerdown', function (e) {
-                if (publishing || editingId || allPosts.posts.length < 2) return;
-                pointerId = e.pointerId;
-                try { handle.setPointerCapture(pointerId); } catch (err) {}
-                dragging = true; startY = e.clientY;
-                fromIdx = parseInt(row.dataset.idx, 10);
-                row.classList.add('dragging');
-                e.preventDefault();
-            });
-            handle.addEventListener('pointermove', function (e) {
-                if (!dragging || e.pointerId !== pointerId) return;
-                row.style.transform = 'translateY(' + (e.clientY - startY) + 'px)';
-                e.preventDefault();
-            });
-            function endDrag(e) {
-                if (!dragging || (e && e.pointerId !== pointerId)) return;
-                dragging = false;
-                var dr = row.getBoundingClientRect();
-                var draggedMid = dr.top + dr.height / 2;
-                var siblings = Array.prototype.slice.call(existingList.children);
-                var newIdx = fromIdx;
-                for (var i = 0; i < siblings.length; i++) {
-                    var s = siblings[i];
-                    if (s === row) continue;
-                    var r = s.getBoundingClientRect();
-                    var sIdx = parseInt(s.dataset.idx, 10);
-                    var sMid = r.top + r.height / 2;
-                    if (sIdx < fromIdx && draggedMid < sMid) { newIdx = sIdx; break; }
-                    if (sIdx > fromIdx && draggedMid > sMid) { newIdx = sIdx; }
+
+        var reorderActive = false;
+        function makeReorderable(opts) {
+            var handle = opts.handle;
+            var item = opts.item;
+            var container = opts.container;
+            var getItems = opts.getItems;
+            var getIndex = opts.getIndex;
+            var canDrag = opts.canDrag;
+            var onReorder = opts.onReorder;
+
+            var dragging = false;
+            var pointerId = null;
+            var startClientY = 0;
+            var startScrollY = 0;
+            var currentClientY = 0;
+            var fromIdx = -1;
+            var targetIdx = -1;
+            var items = [];
+            var rects = [];
+            var midpoints = [];
+            var scrollRaf = null;
+            var scrollSpeed = 0;
+            var moved = false;
+
+            function computeLayout() {
+                items = getItems();
+                if (items.length < 2) return;
+                var scrollY = window.pageYOffset || document.documentElement.scrollTop;
+                rects = items.map(function (el) {
+                    var r = el.getBoundingClientRect();
+                    return {
+                        top: r.top + scrollY,
+                        height: r.height
+                    };
+                });
+                midpoints = rects.map(function (r) {
+                    return r.top + r.height / 2;
+                });
+            }
+
+            function updatePositions() {
+                if (!dragging || !rects[fromIdx]) return;
+                var currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+                var dy = (currentClientY - startClientY) + (currentScrollY - startScrollY);
+                if (!moved && Math.abs(dy) > 3) {
+                    moved = true;
                 }
-                row.classList.remove('dragging');
-                row.style.transform = '';
+
+                item.style.transform = 'translate3d(0, ' + dy + 'px, 0) scale(1.02)';
+
+                var draggedCenter = rects[fromIdx].top + dy + (rects[fromIdx].height / 2);
+                var newTarget = fromIdx;
+
+                if (dy > 0) {
+                    for (var i = fromIdx + 1; i < items.length; i++) {
+                        if (draggedCenter > midpoints[i]) {
+                            newTarget = i;
+                        }
+                    }
+                } else if (dy < 0) {
+                    for (var j = fromIdx - 1; j >= 0; j--) {
+                        if (draggedCenter < midpoints[j]) {
+                            newTarget = j;
+                        }
+                    }
+                }
+                targetIdx = newTarget;
+
+                for (var k = 0; k < items.length; k++) {
+                    if (k === fromIdx) continue;
+                    var sib = items[k];
+                    var shift = 0;
+                    if (targetIdx > fromIdx && k > fromIdx && k <= targetIdx) {
+                        shift = rects[k - 1].top - rects[k].top;
+                    } else if (targetIdx < fromIdx && k >= targetIdx && k < fromIdx) {
+                        shift = rects[k + 1].top - rects[k].top;
+                    }
+                    sib.style.transform = shift ? ('translate3d(0, ' + shift + 'px, 0)') : '';
+                }
+            }
+
+            function autoScrollStep() {
+                if (!dragging) return;
+                if (scrollSpeed !== 0) {
+                    window.scrollBy(0, scrollSpeed);
+                    updatePositions();
+                }
+                scrollRaf = requestAnimationFrame(autoScrollStep);
+            }
+
+            function checkEdgeScroll(clientY) {
+                var edgeZone = 70;
+                var vh = window.innerHeight;
+                if (clientY < edgeZone) {
+                    var factor = (edgeZone - clientY) / edgeZone;
+                    scrollSpeed = -Math.round(2 + factor * 14);
+                } else if (clientY > vh - edgeZone) {
+                    var factor = (clientY - (vh - edgeZone)) / edgeZone;
+                    scrollSpeed = Math.round(2 + factor * 14);
+                } else {
+                    scrollSpeed = 0;
+                }
+            }
+
+            function cleanup() {
+                if (scrollRaf) {
+                    cancelAnimationFrame(scrollRaf);
+                    scrollRaf = null;
+                }
+                scrollSpeed = 0;
+                dragging = false;
+                window.removeEventListener('pointermove', onPointerMove);
+                window.removeEventListener('pointerup', onPointerUp);
+                window.removeEventListener('pointercancel', onPointerCancel);
+                window.removeEventListener('keydown', onKeyDown);
+                window.removeEventListener('scroll', onWindowScroll);
                 try { handle.releasePointerCapture(pointerId); } catch (err) {}
                 pointerId = null;
-                if (newIdx !== fromIdx) movePost(fromIdx, newIdx);
+                container.classList.remove('is-reordering');
+                item.classList.remove('dragging');
+                item.style.boxShadow = '';
+                for (var i = 0; i < items.length; i++) {
+                    items[i].style.transform = '';
+                    items[i].style.transition = '';
+                }
+                reorderActive = false;
             }
-            handle.addEventListener('pointerup', endDrag);
-            handle.addEventListener('pointercancel', endDrag);
+
+            function cancelDrag() {
+                if (!dragging) return;
+                if (scrollRaf) {
+                    cancelAnimationFrame(scrollRaf);
+                    scrollRaf = null;
+                }
+                scrollSpeed = 0;
+                item.style.transition = 'transform 0.18s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.18s ease';
+                item.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                for (var i = 0; i < items.length; i++) {
+                    if (i !== fromIdx) items[i].style.transform = '';
+                }
+                setTimeout(function () {
+                    cleanup();
+                }, 180);
+            }
+
+            function onKeyDown(e) {
+                if (e.key === 'Escape' || e.keyCode === 27) {
+                    cancelDrag();
+                }
+            }
+
+            function onWindowScroll() {
+                if (!dragging) return;
+                updatePositions();
+            }
+
+            function onPointerDown(e) {
+                if (e.pointerType === 'mouse' && e.button !== 0) return;
+                if (canDrag && !canDrag()) return;
+                if (reorderActive) return;
+
+                fromIdx = getIndex(item);
+                if (isNaN(fromIdx) || fromIdx < 0) return;
+
+                reorderActive = true;
+                pointerId = e.pointerId;
+                try { handle.setPointerCapture(pointerId); } catch (err) {}
+
+                dragging = true;
+                moved = false;
+                startClientY = e.clientY;
+                currentClientY = e.clientY;
+                startScrollY = window.pageYOffset || document.documentElement.scrollTop;
+                targetIdx = fromIdx;
+
+                computeLayout();
+                if (items.length < 2 || !rects[fromIdx]) {
+                    cleanup();
+                    return;
+                }
+
+                container.classList.add('is-reordering');
+                item.classList.add('dragging');
+                item.style.transform = 'translate3d(0, 0, 0) scale(1.02)';
+
+                window.addEventListener('pointermove', onPointerMove, { passive: false });
+                window.addEventListener('pointerup', onPointerUp);
+                window.addEventListener('pointercancel', onPointerCancel);
+                window.addEventListener('keydown', onKeyDown);
+                window.addEventListener('scroll', onWindowScroll, { passive: true });
+
+                scrollSpeed = 0;
+                scrollRaf = requestAnimationFrame(autoScrollStep);
+                e.preventDefault();
+            }
+
+            function onPointerMove(e) {
+                if (!dragging || e.pointerId !== pointerId) return;
+                currentClientY = e.clientY;
+                checkEdgeScroll(e.clientY);
+                updatePositions();
+                e.preventDefault();
+            }
+
+            function onPointerCancel(e) {
+                if (!dragging || (e && e.pointerId !== pointerId)) return;
+                cancelDrag();
+            }
+
+            function onPointerUp(e) {
+                if (!dragging || (e && e.pointerId !== pointerId)) return;
+                if (scrollRaf) {
+                    cancelAnimationFrame(scrollRaf);
+                    scrollRaf = null;
+                }
+                scrollSpeed = 0;
+
+                var finalFrom = fromIdx;
+                var finalTo = targetIdx;
+                var didMove = moved && (finalTo !== finalFrom) && rects[finalTo] && rects[finalFrom];
+
+                if (didMove) {
+                    var landingDy = rects[finalTo].top - rects[finalFrom].top;
+                    item.style.transition = 'transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease';
+                    item.style.transform = 'translate3d(0, ' + landingDy + 'px, 0) scale(1)';
+                    item.style.boxShadow = '';
+
+                    setTimeout(function () {
+                        cleanup();
+                        onReorder(finalFrom, finalTo);
+                    }, 200);
+                } else {
+                    if (moved) {
+                        item.style.transition = 'transform 0.18s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.18s ease';
+                        item.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                        item.style.boxShadow = '';
+                        for (var i = 0; i < items.length; i++) {
+                            if (i !== fromIdx) items[i].style.transform = '';
+                        }
+                        setTimeout(function () {
+                            cleanup();
+                        }, 180);
+                    } else {
+                        cleanup();
+                    }
+                }
+            }
+
+            handle.addEventListener('pointerdown', onPointerDown);
+        }
+
+        function attachRowDragHandle(handle, row) {
+            makeReorderable({
+                handle: handle,
+                item: row,
+                container: existingList,
+                getItems: function () { return Array.prototype.slice.call(existingList.querySelectorAll('.post-row')); },
+                getIndex: function (el) { return parseInt(el.dataset.idx, 10); },
+                canDrag: function () {
+                    var search = (postSearchInput.value || '').trim();
+                    return !publishing && !editingId && allPosts && allPosts.posts.length >= 2 && !search;
+                },
+                onReorder: function (from, to) { movePost(from, to); }
+            });
         }
         saveOrderBtn.addEventListener('click', function () {
             if (publishing || !orderDirty || !allPosts) return;
@@ -2142,52 +2414,15 @@
             e.target.value = '';
         });
         function attachDragHandle(handle, card) {
-            var dragging = false;
-            var startY = 0;
-            var pointerId = null;
-            var fromIdx = -1;
-
-            handle.addEventListener('pointerdown', function (e) {
-                if (publishing || photos.length < 2) return;
-                pointerId = e.pointerId;
-                try { handle.setPointerCapture(pointerId); } catch (err) {}
-                dragging = true;
-                startY = e.clientY;
-                fromIdx = parseInt(card.dataset.idx, 10);
-                card.classList.add('dragging');
-                e.preventDefault();
+            makeReorderable({
+                handle: handle,
+                item: card,
+                container: photosWrap,
+                getItems: function () { return Array.prototype.slice.call(photosWrap.querySelectorAll('.photo-card')); },
+                getIndex: function (el) { return parseInt(el.dataset.idx, 10); },
+                canDrag: function () { return !publishing && photos.length >= 2; },
+                onReorder: function (from, to) { movePhoto(from, to); }
             });
-            handle.addEventListener('pointermove', function (e) {
-                if (!dragging || e.pointerId !== pointerId) return;
-                var dy = e.clientY - startY;
-                card.style.transform = 'translateY(' + dy + 'px)';
-                e.preventDefault();
-            });
-            function endDrag(e) {
-                if (!dragging || (e && e.pointerId !== pointerId)) return;
-                dragging = false;
-                var draggedRect = card.getBoundingClientRect();
-                var draggedMid = draggedRect.top + draggedRect.height / 2;
-                var siblings = Array.prototype.slice.call(photosWrap.children);
-                var newIdx = fromIdx;
-                for (var i = 0; i < siblings.length; i++) {
-                    var s = siblings[i];
-                    if (s === card) continue;
-                    var r = s.getBoundingClientRect();
-                    var sIdx = parseInt(s.dataset.idx, 10);
-                    var sMid = r.top + r.height / 2;
-                    if (sIdx < fromIdx && draggedMid < sMid) { newIdx = sIdx; break; }
-                    if (sIdx > fromIdx && draggedMid > sMid) { newIdx = sIdx; }
-                }
-                card.classList.remove('dragging');
-                card.style.transform = '';
-                try { handle.releasePointerCapture(pointerId); } catch (err) {}
-                pointerId = null;
-                if (newIdx !== fromIdx) movePhoto(fromIdx, newIdx);
-                else renderPhotos();
-            }
-            handle.addEventListener('pointerup', endDrag);
-            handle.addEventListener('pointercancel', endDrag);
         }
         var draftSaveTimer = null;
         function saveDraft() {
