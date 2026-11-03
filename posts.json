@@ -897,7 +897,7 @@
       "title": "VORTEX",
       "category": "iPhone",
       "date": "2022",
-      "count": 33,
+      "count": 34,
       "cover": "08",
       "thumb": true,
       "ratios": [
@@ -933,6 +933,7 @@
         0.75,
         0.75,
         1,
+        0.75,
         0.75
       ]
     }
